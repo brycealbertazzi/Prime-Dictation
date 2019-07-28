@@ -18,18 +18,25 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vjx-iD-CPh">
-                                <rect key="frame" x="184" y="767" width="46" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Button"/>
-                            </button>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="BG" translatesAutoresizingMaskIntoConstraints="NO" id="UTB-4I-ZUJ">
+                                <rect key="frame" x="-293" y="-132" width="1000" height="1000"/>
+                            </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ThE-Sk-wrm" userLabel="Top View">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="217.66666666666666"/>
-                                <color key="backgroundColor" red="0.95523184539999995" green="0.25774388710000001" blue="0.200147456" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fhv-jG-Lfw" userLabel="Middle View">
                                 <rect key="frame" x="0.0" y="217.66666666666663" width="414" height="301"/>
-                                <color key="backgroundColor" red="0.0" green="0.99143940210000003" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAV-Xq-Ydt">
+                                        <rect key="frame" x="173" y="131.33333333333337" width="75" height="45"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
+                                        <state key="normal" title="Listen"/>
+                                        <connections>
+                                            <action selector="ListenButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Nrf-dE-6Ct"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="301" id="2ou-hw-0JN"/>
                                     <constraint firstAttribute="width" constant="414" id="86d-5e-x38"/>
@@ -37,28 +44,75 @@
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nJI-Eq-CWr" userLabel="Bottom View">
                                 <rect key="frame" x="0.0" y="518.66666666666663" width="414" height="217.33333333333337"/>
-                                <color key="backgroundColor" red="0.47439819030000002" green="1" blue="0.59511795850000004" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aq9-EU-DW7">
+                                        <rect key="frame" x="158" y="83" width="98" height="51"/>
+                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="35"/>
+                                        <state key="normal" title="Record">
+                                            <color key="titleColor" red="0.95523184539999995" green="0.25774388710000001" blue="0.200147456" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="RecordButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="SFw-NC-Ie8"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gpb-uz-122">
+                                        <rect key="frame" x="357" y="169.33333333333337" width="49" height="40"/>
+                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
+                                        <state key="normal" title="Send">
+                                            <color key="titleColor" red="0.20392156859999999" green="0.28627450980000002" blue="0.36862745099999999" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="RecordButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="k6G-vv-YwE"/>
+                                            <action selector="SendButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="bZW-g3-py9"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <gestureRecognizers/>
+                                <constraints>
+                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="4nb-PP-X5i"/>
+                                    <constraint firstAttribute="trailing" secondItem="gpb-uz-122" secondAttribute="trailing" constant="8" id="MsU-rp-nkd"/>
+                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="nJI-Eq-CWr" secondAttribute="centerY" id="NAW-si-ccR"/>
+                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="SIm-Fn-iaL"/>
+                                    <constraint firstAttribute="bottom" secondItem="gpb-uz-122" secondAttribute="bottom" constant="8" id="Z0h-hY-IxP"/>
+                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="nJI-Eq-CWr" secondAttribute="centerY" id="pP9-0Q-N3j"/>
+                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="raG-1n-Ckb"/>
+                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="nJI-Eq-CWr" secondAttribute="centerY" id="xI4-zv-AFB"/>
+                                </constraints>
                             </view>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="Fhv-jG-Lfw" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Dib-i5-fc9"/>
                             <constraint firstItem="nJI-Eq-CWr" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="EAU-og-GgT"/>
+                            <constraint firstItem="UTB-4I-ZUJ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="-293" id="NzE-nt-Ten"/>
+                            <constraint firstAttribute="trailing" secondItem="UTB-4I-ZUJ" secondAttribute="trailing" constant="-293" id="Qm0-dm-Okg"/>
                             <constraint firstItem="ThE-Sk-wrm" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="SNJ-Up-Ful"/>
+                            <constraint firstAttribute="bottom" secondItem="UTB-4I-ZUJ" secondAttribute="bottom" constant="-132" id="SSo-V4-oJj"/>
                             <constraint firstItem="nJI-Eq-CWr" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="U63-Pj-TL0"/>
                             <constraint firstItem="nJI-Eq-CWr" firstAttribute="top" secondItem="Fhv-jG-Lfw" secondAttribute="bottom" id="Uiq-hB-oss"/>
+                            <constraint firstItem="UTB-4I-ZUJ" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="-132" id="YOH-MT-2vY"/>
                             <constraint firstItem="ThE-Sk-wrm" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="Yjx-UJ-OjK"/>
                             <constraint firstItem="ThE-Sk-wrm" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="ZO3-og-j95"/>
+                            <constraint firstItem="UTB-4I-ZUJ" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="g6b-8t-O35"/>
                             <constraint firstItem="Fhv-jG-Lfw" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="mAK-FC-bJ0"/>
+                            <constraint firstItem="UTB-4I-ZUJ" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="tX9-9k-exi"/>
                             <constraint firstItem="nJI-Eq-CWr" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="yaV-Tt-OBc"/>
                             <constraint firstItem="Fhv-jG-Lfw" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="bottom" id="zPZ-p0-Oad"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <connections>
+                        <outlet property="ListenLabel" destination="tAV-Xq-Ydt" id="btQ-gG-77j"/>
+                        <outlet property="RecordLabel" destination="aq9-EU-DW7" id="aoh-8d-Bsn"/>
+                        <outlet property="SendLabel" destination="gpb-uz-122" id="1rS-Lu-wbc"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="131.8840579710145" y="119.83695652173914"/>
+            <point key="canvasLocation" x="128.98550724637681" y="119.0217391304348"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="BG" width="1000" height="1000"/>
+    </resources>
 </document>
