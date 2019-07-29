@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
-    <device id="retina5_5" orientation="portrait">
+    <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -15,101 +15,157 @@
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="Prime_Dictation" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="BG" translatesAutoresizingMaskIntoConstraints="NO" id="UTB-4I-ZUJ">
-                                <rect key="frame" x="-293" y="-132" width="1000" height="1000"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                             </imageView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ThE-Sk-wrm" userLabel="Top View">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="217.66666666666666"/>
-                            </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fhv-jG-Lfw" userLabel="Middle View">
-                                <rect key="frame" x="0.0" y="217.66666666666663" width="414" height="301"/>
+                                <rect key="frame" x="0.0" y="183" width="375" height="301"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAV-Xq-Ydt">
-                                        <rect key="frame" x="173" y="131.33333333333337" width="75" height="45"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAV-Xq-Ydt">
+                                        <rect key="frame" x="150" y="128" width="75" height="45"/>
                                         <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
                                         <state key="normal" title="Listen"/>
                                         <connections>
-                                            <action selector="ListenButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Nrf-dE-6Ct"/>
+                                            <action selector="ListenButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kHC-ot-UZK"/>
                                         </connections>
                                     </button>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="301" id="2ou-hw-0JN"/>
-                                    <constraint firstAttribute="width" constant="414" id="86d-5e-x38"/>
+                                    <constraint firstItem="tAV-Xq-Ydt" firstAttribute="centerX" secondItem="Fhv-jG-Lfw" secondAttribute="centerX" id="5fy-Cx-Q2c"/>
+                                    <constraint firstAttribute="height" constant="301" id="aqv-is-uuV"/>
+                                    <constraint firstItem="tAV-Xq-Ydt" firstAttribute="centerY" secondItem="Fhv-jG-Lfw" secondAttribute="centerY" id="atH-8A-6Bj"/>
+                                    <constraint firstAttribute="width" constant="375" id="dzm-YX-ZOw"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nJI-Eq-CWr" userLabel="Bottom View">
-                                <rect key="frame" x="0.0" y="518.66666666666663" width="414" height="217.33333333333337"/>
+                                <rect key="frame" x="0.0" y="484" width="375" height="183"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aq9-EU-DW7">
-                                        <rect key="frame" x="158" y="83" width="98" height="51"/>
+                                        <rect key="frame" x="138.5" y="66" width="98" height="51"/>
                                         <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="35"/>
                                         <state key="normal" title="Record">
                                             <color key="titleColor" red="0.95523184539999995" green="0.25774388710000001" blue="0.200147456" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                         </state>
                                         <connections>
-                                            <action selector="RecordButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="SFw-NC-Ie8"/>
+                                            <action selector="RecordButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ny2-1D-Ccm"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gpb-uz-122">
-                                        <rect key="frame" x="357" y="169.33333333333337" width="49" height="40"/>
-                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="svK-SA-aO1">
+                                        <rect key="frame" x="308" y="130" width="59" height="45"/>
+                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
                                         <state key="normal" title="Send">
                                             <color key="titleColor" red="0.20392156859999999" green="0.28627450980000002" blue="0.36862745099999999" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                         </state>
                                         <connections>
-                                            <action selector="RecordButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="k6G-vv-YwE"/>
-                                            <action selector="SendButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="bZW-g3-py9"/>
+                                            <action selector="SendButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ImA-qy-NzW"/>
                                         </connections>
                                     </button>
                                 </subviews>
                                 <gestureRecognizers/>
                                 <constraints>
-                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="4nb-PP-X5i"/>
-                                    <constraint firstAttribute="trailing" secondItem="gpb-uz-122" secondAttribute="trailing" constant="8" id="MsU-rp-nkd"/>
-                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="nJI-Eq-CWr" secondAttribute="centerY" id="NAW-si-ccR"/>
-                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="SIm-Fn-iaL"/>
-                                    <constraint firstAttribute="bottom" secondItem="gpb-uz-122" secondAttribute="bottom" constant="8" id="Z0h-hY-IxP"/>
-                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="nJI-Eq-CWr" secondAttribute="centerY" id="pP9-0Q-N3j"/>
-                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="raG-1n-Ckb"/>
-                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="nJI-Eq-CWr" secondAttribute="centerY" id="xI4-zv-AFB"/>
+                                    <constraint firstAttribute="trailing" secondItem="svK-SA-aO1" secondAttribute="trailing" constant="8" id="LVI-0H-3b7"/>
+                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="nJI-Eq-CWr" secondAttribute="centerY" id="O4i-Ak-nYi"/>
+                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="SDQ-9P-obg"/>
+                                    <constraint firstAttribute="bottom" secondItem="svK-SA-aO1" secondAttribute="bottom" constant="8" id="mcm-P8-5fE"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ThE-Sk-wrm" userLabel="Top View">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="183"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yVt-SF-ng7">
+                                        <rect key="frame" x="107" y="27" width="161" height="40"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="40" id="h6Q-yZ-JTp"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
+                                        <state key="normal" title="Choose File Type">
+                                            <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="ChooseFileTypeButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6aA-G2-9SU"/>
+                                        </connections>
+                                    </button>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oG6-wB-icN" userLabel="FileTypesView">
+                                        <rect key="frame" x="67.5" y="106" width="240" height="69"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yAX-ek-Tu0">
+                                                <rect key="frame" x="180" y="17.5" width="40" height="34"/>
+                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="20"/>
+                                                <state key="normal" title=".m4a">
+                                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="M4aButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="aNv-0W-ukD"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="K25-l7-4Ru">
+                                                <rect key="frame" x="25" y="17.5" width="32" height="34"/>
+                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="20"/>
+                                                <state key="normal" title=".flac">
+                                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="FlacButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="iNH-1t-uWR"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstAttribute="bottom" secondItem="K25-l7-4Ru" secondAttribute="bottom" constant="17.5" id="AAv-Rt-Squ"/>
+                                            <constraint firstAttribute="bottom" secondItem="yAX-ek-Tu0" secondAttribute="bottom" constant="17.5" id="Dln-zs-qH9"/>
+                                            <constraint firstItem="K25-l7-4Ru" firstAttribute="leading" secondItem="oG6-wB-icN" secondAttribute="leading" constant="25" id="P8S-8n-Zfs"/>
+                                            <constraint firstItem="yAX-ek-Tu0" firstAttribute="top" secondItem="oG6-wB-icN" secondAttribute="top" constant="17.5" id="QKR-47-iff"/>
+                                            <constraint firstItem="K25-l7-4Ru" firstAttribute="centerY" secondItem="oG6-wB-icN" secondAttribute="centerY" id="XJd-kp-ihR"/>
+                                            <constraint firstAttribute="height" constant="69" id="bO2-qN-Q0H"/>
+                                            <constraint firstAttribute="trailing" secondItem="yAX-ek-Tu0" secondAttribute="trailing" constant="20" id="bnM-1x-kvb"/>
+                                            <constraint firstAttribute="width" constant="240" id="jQC-bp-wFG"/>
+                                            <constraint firstItem="K25-l7-4Ru" firstAttribute="top" secondItem="oG6-wB-icN" secondAttribute="top" constant="17.5" id="qhm-Mf-upO"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="yVt-SF-ng7" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="top" constant="27" id="CyA-zD-oJf"/>
+                                    <constraint firstItem="oG6-wB-icN" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="top" constant="106" id="R8A-Em-ei3"/>
+                                    <constraint firstItem="yVt-SF-ng7" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="d30-Wy-IxA"/>
+                                    <constraint firstItem="oG6-wB-icN" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="izU-A4-tXN"/>
                                 </constraints>
                             </view>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="Fhv-jG-Lfw" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Dib-i5-fc9"/>
-                            <constraint firstItem="nJI-Eq-CWr" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="EAU-og-GgT"/>
-                            <constraint firstItem="UTB-4I-ZUJ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="-293" id="NzE-nt-Ten"/>
-                            <constraint firstAttribute="trailing" secondItem="UTB-4I-ZUJ" secondAttribute="trailing" constant="-293" id="Qm0-dm-Okg"/>
-                            <constraint firstItem="ThE-Sk-wrm" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="SNJ-Up-Ful"/>
-                            <constraint firstAttribute="bottom" secondItem="UTB-4I-ZUJ" secondAttribute="bottom" constant="-132" id="SSo-V4-oJj"/>
-                            <constraint firstItem="nJI-Eq-CWr" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="U63-Pj-TL0"/>
-                            <constraint firstItem="nJI-Eq-CWr" firstAttribute="top" secondItem="Fhv-jG-Lfw" secondAttribute="bottom" id="Uiq-hB-oss"/>
-                            <constraint firstItem="UTB-4I-ZUJ" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="-132" id="YOH-MT-2vY"/>
-                            <constraint firstItem="ThE-Sk-wrm" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="Yjx-UJ-OjK"/>
-                            <constraint firstItem="ThE-Sk-wrm" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="ZO3-og-j95"/>
-                            <constraint firstItem="UTB-4I-ZUJ" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="g6b-8t-O35"/>
-                            <constraint firstItem="Fhv-jG-Lfw" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="mAK-FC-bJ0"/>
-                            <constraint firstItem="UTB-4I-ZUJ" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="tX9-9k-exi"/>
-                            <constraint firstItem="nJI-Eq-CWr" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="yaV-Tt-OBc"/>
-                            <constraint firstItem="Fhv-jG-Lfw" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="bottom" id="zPZ-p0-Oad"/>
+                            <constraint firstItem="UTB-4I-ZUJ" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="0WO-2z-ojd"/>
+                            <constraint firstAttribute="bottom" secondItem="UTB-4I-ZUJ" secondAttribute="bottom" id="2TV-dG-g1j"/>
+                            <constraint firstAttribute="trailing" secondItem="nJI-Eq-CWr" secondAttribute="trailing" id="4Y4-6p-Kcs"/>
+                            <constraint firstItem="ThE-Sk-wrm" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="4mp-hK-w2U"/>
+                            <constraint firstItem="ThE-Sk-wrm" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="A7U-hV-SEJ"/>
+                            <constraint firstItem="UTB-4I-ZUJ" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Akp-o0-S2b"/>
+                            <constraint firstItem="Fhv-jG-Lfw" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="CPn-9e-KR6"/>
+                            <constraint firstAttribute="bottom" secondItem="nJI-Eq-CWr" secondAttribute="bottom" id="CbI-0Q-3ih"/>
+                            <constraint firstItem="UTB-4I-ZUJ" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="Ejf-90-v0O"/>
+                            <constraint firstAttribute="trailing" secondItem="ThE-Sk-wrm" secondAttribute="trailing" id="GX8-ji-oaY"/>
+                            <constraint firstItem="Fhv-jG-Lfw" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="bottom" id="OcE-YV-XpX"/>
+                            <constraint firstItem="Fhv-jG-Lfw" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Uup-0n-gPk"/>
+                            <constraint firstItem="UTB-4I-ZUJ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="a6k-Xs-qjf"/>
+                            <constraint firstAttribute="trailing" secondItem="UTB-4I-ZUJ" secondAttribute="trailing" id="b5J-uk-iHR"/>
+                            <constraint firstItem="nJI-Eq-CWr" firstAttribute="top" secondItem="Fhv-jG-Lfw" secondAttribute="bottom" id="omD-h8-6rK"/>
+                            <constraint firstItem="nJI-Eq-CWr" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="ywD-Ke-9VV"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
+                        <outlet property="ChooseFileTypeLabel" destination="yVt-SF-ng7" id="pHB-eu-iVe"/>
+                        <outlet property="FlacLabel" destination="K25-l7-4Ru" id="lcI-Mb-USi"/>
                         <outlet property="ListenLabel" destination="tAV-Xq-Ydt" id="btQ-gG-77j"/>
+                        <outlet property="M4aLabel" destination="yAX-ek-Tu0" id="0i8-19-1df"/>
                         <outlet property="RecordLabel" destination="aq9-EU-DW7" id="aoh-8d-Bsn"/>
-                        <outlet property="SendLabel" destination="gpb-uz-122" id="1rS-Lu-wbc"/>
+                        <outlet property="SendLabel" destination="svK-SA-aO1" id="s8t-Bh-c3r"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="128.98550724637681" y="119.0217391304348"/>
+            <point key="canvasLocation" x="128.80000000000001" y="118.29085457271366"/>
         </scene>
     </scenes>
     <resources>
