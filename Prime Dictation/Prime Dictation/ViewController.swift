@@ -14,9 +14,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     @IBOutlet weak var ListenLabel: UIButton!
     @IBOutlet weak var RecordLabel: UIButton!
     @IBOutlet weak var SendLabel: UIButton!
-    @IBOutlet weak var ChooseFileTypeLabel: UIButton!
-    @IBOutlet weak var FlacLabel: UIButton!
-    @IBOutlet weak var M4aLabel: UIButton!
+    @IBOutlet weak var FileNameLabel: UIButton!
     
     
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
@@ -38,43 +36,17 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         AVAudioSession.sharedInstance().requestRecordPermission { (hasPermission) in
             print("Accepted")
         }
-        SetDefaultState()
+        savedRecordingNames = UserDefaults.standard.object(forKey: "savedRecordings") as? [String] ?? [String]()
     }
     
-    var recordingExtension: String = String()
-    var recordingName: String = "prime_dictation"
-    var formatIDKey: Int = Int()
-    
-    func SetDefaultState() {
-        //Set selected file type to preselected file type if there is one
-        if let selFileType: Int = UserDefaults.standard.object(forKey: "fileType") as? Int {
-            userSelectedFileType = selFileType
-        } else {
-            //If not selected file type is saved, set it to .m4a by default
-            userSelectedFileType = 0
-        }
-        
-        switch userSelectedFileType {
-        case 0:
-            M4aLabel.setTitleColor(UIColor.orange, for: .normal)
-            FlacLabel.setTitleColor(UIColor.black, for: .normal)
-            recordingExtension = "m4a"
-            formatIDKey = Int(kAudioFormatMPEG4AAC)
-            break
-        case 1:
-            M4aLabel.setTitleColor(UIColor.black, for: .normal)
-            FlacLabel.setTitleColor(UIColor.orange, for: .normal)
-            recordingExtension = "flac"
-            formatIDKey = Int(kAudioFormatFLAC)
-            break
-        default:
-            print("Invalid userSelectedFileType")
-    }
-    }
+    let recordingExtension: String = "m4a"
+    let destinationRecordingExtension: String = "wav"
+    var recordingName: String = String()
     
     @IBAction func ListenButton(_ sender: Any) {
         //Store the path to the recording in this "path" variable
-        let previousRecordingPath = GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(recordingExtension)
+        let previousRecordingPath = GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(destinationRecordingExtension)
+        print(previousRecordingPath)
         //Play the previously recorded recording
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: previousRecordingPath)
@@ -83,18 +55,17 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             displayAlert(title: "Error!", message: "Could not play recording, no recording exists or you have bad connection")
         }
     }
-    
-    
+
     
     @IBAction func RecordButton(_ sender: Any) {
         //Check if we have an active recorder
         if audioRecorder == nil {
             //If we are not already recording audio, start the recording
             numberOfRecordings += 1
-            
+            recordingName = RecordingTimeForName()
             let fileName = GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(recordingExtension)
             
-            var settings = [ AVFormatIDKey: formatIDKey, AVSampleRateKey: 44100, AVNumberOfChannelsKey: 1, AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
+            let settings = [ AVFormatIDKey: Int(kAudioFormatMPEG4AAC), AVSampleRateKey: 44100, AVNumberOfChannelsKey: 1, AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
             ]
             //Start the recording
             do {
@@ -113,37 +84,56 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             RecordLabel.setTitle("Record", for: .normal)
             ListenLabel.isEnabled = true
             
-            //Save the recording
+            //Convert the audio
+            ConvertAudio(GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(recordingExtension), outputURL: GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(destinationRecordingExtension))
+            
+            //Save the number of recordings
             UserDefaults.standard.set(numberOfRecordings, forKey: "myNumber")
+            
+            //Set the file name label to name or recording
+            UpdateSavedRecordings()
+            FileNameLabel.setTitle(savedRecordingNames[savedRecordingNames.count - 1] + "." + destinationRecordingExtension, for: .normal)
         }
         
     }
     
-    var soundEffect: AVAudioPlayer = AVAudioPlayer()
-    var isPlaying: Bool = false;
-    @IBAction func SendButton(_ sender: Any) {
+    var savedRecordingNames: [String] = []
+    let maxNumSavedRecordings = 5
+    
+    func UpdateSavedRecordings() {
+        if savedRecordingNames.count < maxNumSavedRecordings {
+            savedRecordingNames.append(recordingName)
+        } else {
+            //Delete the oldest recording and add the next one
+            let oldestRecording = savedRecordingNames.removeFirst()
+            do {
+                try FileManager.default.removeItem(at: GetDirectory().appendingPathComponent(oldestRecording).appendingPathExtension("wav"))
+                try FileManager.default.removeItem(at: GetDirectory().appendingPathComponent(oldestRecording).appendingPathExtension("m4a"))
+                
+            } catch {
+                displayAlert(title: "Error!", message: "Could not delete oldest recording in queue")
+            }
+            savedRecordingNames.append(recordingName)
+        }
+        UserDefaults.standard.set(savedRecordingNames, forKey: "savedRecordings")
+    }
+    
+    
+
+    func RecordingTimeForName() -> String {
+        let date = Date()
         
-    }
-    
-    @IBAction func ChooseFileTypeButton(_ sender: Any) {
-    }
-    
-    @IBAction func FlacButton(_ sender: Any) {
-        userSelectedFileType = 1
-        UserDefaults.standard.set(userSelectedFileType, forKey: "fileType")
-        M4aLabel.setTitleColor(UIColor.black, for: .normal)
-        FlacLabel.setTitleColor(UIColor.orange, for: .normal)
-        recordingExtension = "flac"
-        formatIDKey = Int(kAudioFormatFLAC)
-    }
-    
-    @IBAction func M4aButton(_ sender: Any) {
-        userSelectedFileType = 0
-        UserDefaults.standard.set(userSelectedFileType, forKey: "fileType")
-        M4aLabel.setTitleColor(UIColor.orange, for: .normal)
-        FlacLabel.setTitleColor(UIColor.black, for: .normal)
-        recordingExtension = "m4a"
-        formatIDKey = Int(kAudioFormatMPEG4AAC)
+        let calendar = Calendar.current
+        
+        let year = calendar.component(.year, from: date)
+        let month = calendar.component(.month, from: date)
+        let day = calendar.component(.day, from: date)
+        let hour = calendar.component(.hour, from: date)
+        let minute = calendar.component(.minute, from: date)
+        let second = calendar.component(.second, from: date)
+        let dateName = String(year) + "-" + String(month) + "-" + String(day) + "_" + String(hour) + "-" + String(minute) + "-" + String(second)
+        
+        return dateName
     }
     
     //Get path to directory
@@ -154,7 +144,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         //Get the first URL in the document directory
         let documentDirectory = path[0]
         //Return the url to that directory
-        print(documentDirectory)
         return documentDirectory
     }
     
@@ -164,6 +153,99 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         present(alert, animated: true, completion: nil)
     }
+    
+    func ConvertAudio(_ url: URL, outputURL: URL) {
+        var error : OSStatus = noErr
+        var destinationFile: ExtAudioFileRef? = nil
+        var sourceFile : ExtAudioFileRef? = nil
+        
+        var srcFormat : AudioStreamBasicDescription = AudioStreamBasicDescription()
+        var dstFormat : AudioStreamBasicDescription = AudioStreamBasicDescription()
+        
+        ExtAudioFileOpenURL(url as CFURL, &sourceFile)
+        
+        var thePropertySize: UInt32 = UInt32(MemoryLayout.stride(ofValue: srcFormat))
+        
+        ExtAudioFileGetProperty(sourceFile!,
+                                kExtAudioFileProperty_FileDataFormat,
+                                &thePropertySize, &srcFormat)
+        
+        dstFormat.mSampleRate = 44100  //Set sample rate
+        dstFormat.mFormatID = kAudioFormatLinearPCM
+        dstFormat.mChannelsPerFrame = 1
+        dstFormat.mBitsPerChannel = 16
+        dstFormat.mBytesPerPacket = 2 * dstFormat.mChannelsPerFrame
+        dstFormat.mBytesPerFrame = 2 * dstFormat.mChannelsPerFrame
+        dstFormat.mFramesPerPacket = 1
+        dstFormat.mFormatFlags = kLinearPCMFormatFlagIsPacked |
+        kAudioFormatFlagIsSignedInteger
+        
+        // Create destination file
+        error = ExtAudioFileCreateWithURL(
+            outputURL as CFURL,
+            kAudioFileWAVEType,
+            &dstFormat,
+            nil,
+            AudioFileFlags.eraseFile.rawValue,
+            &destinationFile)
+        print("Error 1 in convertAudio: \(error.description)")
+        
+        error = ExtAudioFileSetProperty(sourceFile!,
+                                        kExtAudioFileProperty_ClientDataFormat,
+                                        thePropertySize,
+                                        &dstFormat)
+        print("Error 2 in convertAudio: \(error.description)")
+        
+        error = ExtAudioFileSetProperty(destinationFile!,
+                                        kExtAudioFileProperty_ClientDataFormat,
+                                        thePropertySize,
+                                        &dstFormat)
+        print("Error 3 in convertAudio: \(error.description)")
+        
+        let bufferByteSize : UInt32 = 32768
+        var srcBuffer = [UInt8](repeating: 0, count: 32768)
+        var sourceFrameOffset : ULONG = 0
+        
+        while(true){
+            var fillBufList = AudioBufferList(
+                mNumberBuffers: 1,
+                mBuffers: AudioBuffer(
+                    mNumberChannels: 2,
+                    mDataByteSize: UInt32(srcBuffer.count),
+                    mData: &srcBuffer
+                )
+            )
+            var numFrames : UInt32 = 0
+            
+            if(dstFormat.mBytesPerFrame > 0){
+                numFrames = bufferByteSize / dstFormat.mBytesPerFrame
+            }
+            
+            error = ExtAudioFileRead(sourceFile!, &numFrames, &fillBufList)
+            print("Error 4 in convertAudio: \(error.description)")
+            
+            if(numFrames == 0){
+                error = noErr;
+                break;
+            }
+            
+            sourceFrameOffset += numFrames
+            error = ExtAudioFileWrite(destinationFile!, numFrames, &fillBufList)
+            print("Error 5 in convertAudio: \(error.description)")
+        }
+        
+        error = ExtAudioFileDispose(destinationFile!)
+        print("Error 6 in convertAudio: \(error.description)")
+        error = ExtAudioFileDispose(sourceFile!)
+        print("Error 7 in convertAudio: \(error.description)")
+    
+    }
+    
+    @IBAction func SendButton(_ sender: Any) {
+        
+    }
+    
+    
 }
 
 

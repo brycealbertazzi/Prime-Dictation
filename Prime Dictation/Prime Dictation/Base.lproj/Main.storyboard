@@ -32,9 +32,21 @@
                                             <action selector="ListenButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kHC-ot-UZK"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ma4-wR-ucz">
+                                        <rect key="frame" x="149" y="192" width="77" height="34"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="34" id="q5m-2G-Tch"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="20"/>
+                                        <state key="normal" title="File Name">
+                                            <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </state>
+                                    </button>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="tAV-Xq-Ydt" firstAttribute="centerX" secondItem="Fhv-jG-Lfw" secondAttribute="centerX" id="5fy-Cx-Q2c"/>
+                                    <constraint firstItem="ma4-wR-ucz" firstAttribute="top" secondItem="tAV-Xq-Ydt" secondAttribute="bottom" constant="19" id="GW3-EY-DBz"/>
+                                    <constraint firstItem="ma4-wR-ucz" firstAttribute="centerX" secondItem="Fhv-jG-Lfw" secondAttribute="centerX" id="UIw-dZ-lEq"/>
                                     <constraint firstAttribute="height" constant="301" id="aqv-is-uuV"/>
                                     <constraint firstItem="tAV-Xq-Ydt" firstAttribute="centerY" secondItem="Fhv-jG-Lfw" secondAttribute="centerY" id="atH-8A-6Bj"/>
                                     <constraint firstAttribute="width" constant="375" id="dzm-YX-ZOw"/>
@@ -75,61 +87,16 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ThE-Sk-wrm" userLabel="Top View">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="183"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yVt-SF-ng7">
-                                        <rect key="frame" x="107" y="27" width="161" height="40"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="40" id="h6Q-yZ-JTp"/>
-                                        </constraints>
-                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
-                                        <state key="normal" title="Choose File Type">
-                                            <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="ChooseFileTypeButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6aA-G2-9SU"/>
-                                        </connections>
-                                    </button>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oG6-wB-icN" userLabel="FileTypesView">
-                                        <rect key="frame" x="67.5" y="106" width="240" height="69"/>
-                                        <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yAX-ek-Tu0">
-                                                <rect key="frame" x="180" y="17.5" width="40" height="34"/>
-                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="20"/>
-                                                <state key="normal" title=".m4a">
-                                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="M4aButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="aNv-0W-ukD"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="K25-l7-4Ru">
-                                                <rect key="frame" x="25" y="17.5" width="32" height="34"/>
-                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="20"/>
-                                                <state key="normal" title=".flac">
-                                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="FlacButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="iNH-1t-uWR"/>
-                                                </connections>
-                                            </button>
-                                        </subviews>
-                                        <constraints>
-                                            <constraint firstAttribute="bottom" secondItem="K25-l7-4Ru" secondAttribute="bottom" constant="17.5" id="AAv-Rt-Squ"/>
-                                            <constraint firstAttribute="bottom" secondItem="yAX-ek-Tu0" secondAttribute="bottom" constant="17.5" id="Dln-zs-qH9"/>
-                                            <constraint firstItem="K25-l7-4Ru" firstAttribute="leading" secondItem="oG6-wB-icN" secondAttribute="leading" constant="25" id="P8S-8n-Zfs"/>
-                                            <constraint firstItem="yAX-ek-Tu0" firstAttribute="top" secondItem="oG6-wB-icN" secondAttribute="top" constant="17.5" id="QKR-47-iff"/>
-                                            <constraint firstItem="K25-l7-4Ru" firstAttribute="centerY" secondItem="oG6-wB-icN" secondAttribute="centerY" id="XJd-kp-ihR"/>
-                                            <constraint firstAttribute="height" constant="69" id="bO2-qN-Q0H"/>
-                                            <constraint firstAttribute="trailing" secondItem="yAX-ek-Tu0" secondAttribute="trailing" constant="20" id="bnM-1x-kvb"/>
-                                            <constraint firstAttribute="width" constant="240" id="jQC-bp-wFG"/>
-                                            <constraint firstItem="K25-l7-4Ru" firstAttribute="top" secondItem="oG6-wB-icN" secondAttribute="top" constant="17.5" id="qhm-Mf-upO"/>
-                                        </constraints>
-                                    </view>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Prime Dictation" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1tL-fi-eIn">
+                                        <rect key="frame" x="77" y="42" width="221" height="39"/>
+                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="35"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="yVt-SF-ng7" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="top" constant="27" id="CyA-zD-oJf"/>
-                                    <constraint firstItem="oG6-wB-icN" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="top" constant="106" id="R8A-Em-ei3"/>
-                                    <constraint firstItem="yVt-SF-ng7" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="d30-Wy-IxA"/>
-                                    <constraint firstItem="oG6-wB-icN" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="izU-A4-tXN"/>
+                                    <constraint firstItem="1tL-fi-eIn" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="top" constant="42" id="14G-OU-8AH"/>
+                                    <constraint firstItem="1tL-fi-eIn" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="s0d-rv-qhg"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -155,10 +122,8 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
-                        <outlet property="ChooseFileTypeLabel" destination="yVt-SF-ng7" id="pHB-eu-iVe"/>
-                        <outlet property="FlacLabel" destination="K25-l7-4Ru" id="lcI-Mb-USi"/>
+                        <outlet property="FileNameLabel" destination="ma4-wR-ucz" id="J8z-3S-8F3"/>
                         <outlet property="ListenLabel" destination="tAV-Xq-Ydt" id="btQ-gG-77j"/>
-                        <outlet property="M4aLabel" destination="yAX-ek-Tu0" id="0i8-19-1df"/>
                         <outlet property="RecordLabel" destination="aq9-EU-DW7" id="aoh-8d-Bsn"/>
                         <outlet property="SendLabel" destination="svK-SA-aO1" id="s8t-Bh-c3r"/>
                     </connections>
