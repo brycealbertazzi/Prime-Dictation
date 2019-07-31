@@ -15,6 +15,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     @IBOutlet weak var RecordLabel: UIButton!
     @IBOutlet weak var SendLabel: UIButton!
     @IBOutlet weak var FileNameLabel: UIButton!
+    @IBOutlet weak var PreviousRecordingLabel: UIButton!
+    @IBOutlet weak var NextRecordingLabel: UIButton!
     
     
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
@@ -36,7 +38,27 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         AVAudioSession.sharedInstance().requestRecordPermission { (hasPermission) in
             print("Accepted")
         }
-        savedRecordingNames = UserDefaults.standard.object(forKey: "savedRecordings") as? [String] ?? [String]()
+        savedRecordingNames = UserDefaults.standard.object(forKey: savedRecordingsKey) as? [String] ?? [String]()
+            
+        for recording in savedRecordingNames {
+            print(recording)
+        }
+        if (savedRecordingNames.count > 0) {
+        FileNameLabel.setTitle(savedRecordingNames[savedRecordingNames.count - 1], for: .normal)
+        
+        toggledRecordingsIndex = savedRecordingNames.count - 1
+        toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
+        NextRecordingLabel.isEnabled = false
+        } else {
+            PreviousRecordingLabel.isEnabled = false
+            NextRecordingLabel.isEnabled = false
+        }
+        
+        
+        
+        print(savedRecordingNames.count)
+        print(GetDirectory())
+        
     }
     
     let recordingExtension: String = "m4a"
@@ -45,14 +67,59 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     
     @IBAction func ListenButton(_ sender: Any) {
         //Store the path to the recording in this "path" variable
-        let previousRecordingPath = GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(destinationRecordingExtension)
-        print(previousRecordingPath)
+        let previousRecordingPath = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(destinationRecordingExtension)
+        
         //Play the previously recorded recording
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: previousRecordingPath)
             audioPlayer.play()
         } catch {
             displayAlert(title: "Error!", message: "Could not play recording, no recording exists or you have bad connection")
+        }
+    }
+    //Stores the current recording in queue the user wants to listen to
+    var toggledRecordingName: String = String()
+    var toggledRecordingsIndex: Int = Int()
+    
+    @IBAction func PreviousRecordingButton(_ sender: Any) {
+        CheckToggledRecordingsIndex(goingToPreviousRecording: true)
+        print(toggledRecordingsIndex)
+        toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
+        FileNameLabel.setTitle(toggledRecordingName, for: .normal)
+        
+    }
+    
+    @IBAction func NextRecordingButton(_ sender: Any) {
+        CheckToggledRecordingsIndex(goingToPreviousRecording: false)
+        toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
+        print(toggledRecordingsIndex)
+        FileNameLabel.setTitle(toggledRecordingName, for: .normal)
+    }
+    
+    func CheckToggledRecordingsIndex(goingToPreviousRecording: Bool) {
+        if (goingToPreviousRecording) {
+            //Index bounds check for previous recording button
+            if (toggledRecordingsIndex <= 1) {
+                toggledRecordingsIndex -= 1
+                PreviousRecordingLabel.isEnabled = false
+                
+            } else {
+                if (!NextRecordingLabel.isEnabled) {
+                    NextRecordingLabel.isEnabled = true
+                }
+                toggledRecordingsIndex -= 1
+            }
+        } else {
+            //Index bounds check for next recording button
+            if (toggledRecordingsIndex >= savedRecordingNames.count - 2) {
+                toggledRecordingsIndex += 1
+                NextRecordingLabel.isEnabled = false
+            } else {
+                if (!PreviousRecordingLabel.isEnabled) {
+                    PreviousRecordingLabel.isEnabled = true
+                }
+                toggledRecordingsIndex += 1
+            }
         }
     }
 
@@ -92,11 +159,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             
             //Set the file name label to name or recording
             UpdateSavedRecordings()
-            FileNameLabel.setTitle(savedRecordingNames[savedRecordingNames.count - 1] + "." + destinationRecordingExtension, for: .normal)
+        
         }
         
     }
     
+    var savedRecordingsKey: String = "savedRecordings"
     var savedRecordingNames: [String] = []
     let maxNumSavedRecordings = 5
     
@@ -115,11 +183,27 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             }
             savedRecordingNames.append(recordingName)
         }
-        UserDefaults.standard.set(savedRecordingNames, forKey: "savedRecordings")
+        UserDefaults.standard.set(savedRecordingNames, forKey: savedRecordingsKey)
+        toggledRecordingsIndex = savedRecordingNames.count - 1
+        toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
+        
+        FileNameLabel.setTitle(toggledRecordingName, for: .normal)
+        if savedRecordingNames.count == 1 {
+            //Enable previous recording button when the first recording is made
+            PreviousRecordingLabel.isEnabled = true
+        }
+        
+        for recording in savedRecordingNames {
+            print(recording)
+        }
+        
+        print(savedRecordingNames.count)
+        
+        print(toggledRecordingsIndex)
     }
     
     
-
+    
     func RecordingTimeForName() -> String {
         let date = Date()
         
