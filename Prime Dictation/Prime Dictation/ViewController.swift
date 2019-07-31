@@ -43,7 +43,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         for recording in savedRecordingNames {
             print(recording)
         }
-        if (savedRecordingNames.count > 0) {
+        if (savedRecordingNames.count > 1) {
         FileNameLabel.setTitle(savedRecordingNames[savedRecordingNames.count - 1], for: .normal)
         
         toggledRecordingsIndex = savedRecordingNames.count - 1
@@ -53,8 +53,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             PreviousRecordingLabel.isEnabled = false
             NextRecordingLabel.isEnabled = false
         }
-        
-        
         
         print(savedRecordingNames.count)
         print(GetDirectory())
@@ -67,6 +65,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     
     @IBAction func ListenButton(_ sender: Any) {
         //Store the path to the recording in this "path" variable
+        //savedRecordingNames = []
+        //UserDefaults.standard.set(savedRecordingNames, forKey: savedRecordingsKey)
         let previousRecordingPath = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(destinationRecordingExtension)
         
         //Play the previously recorded recording
@@ -102,6 +102,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             if (toggledRecordingsIndex <= 1) {
                 toggledRecordingsIndex -= 1
                 PreviousRecordingLabel.isEnabled = false
+                if (savedRecordingNames.count == 2) {
+                    NextRecordingLabel.isEnabled = true
+                }
                 
             } else {
                 if (!NextRecordingLabel.isEnabled) {
@@ -114,6 +117,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             if (toggledRecordingsIndex >= savedRecordingNames.count - 2) {
                 toggledRecordingsIndex += 1
                 NextRecordingLabel.isEnabled = false
+                if (savedRecordingNames.count == 2) {
+                    PreviousRecordingLabel.isEnabled = true
+                }
             } else {
                 if (!PreviousRecordingLabel.isEnabled) {
                     PreviousRecordingLabel.isEnabled = true
@@ -187,11 +193,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         toggledRecordingsIndex = savedRecordingNames.count - 1
         toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
         
-        FileNameLabel.setTitle(toggledRecordingName, for: .normal)
-        if savedRecordingNames.count == 1 {
-            //Enable previous recording button when the first recording is made
-            PreviousRecordingLabel.isEnabled = true
+        if (savedRecordingNames.count >= 2) {
+        NextRecordingLabel.isEnabled = false
+        PreviousRecordingLabel.isEnabled = true
         }
+        
+        FileNameLabel.setTitle(toggledRecordingName, for: .normal)
         
         for recording in savedRecordingNames {
             print(recording)
