@@ -49,7 +49,15 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         toggledRecordingsIndex = savedRecordingNames.count - 1
         toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
         NextRecordingLabel.isEnabled = false
-        } else {
+        } else if (savedRecordingNames.count == 1) {
+            toggledRecordingsIndex = savedRecordingNames.count - 1
+            toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
+            FileNameLabel.setTitle(toggledRecordingName, for: .normal)
+            PreviousRecordingLabel.isEnabled = false
+            NextRecordingLabel.isEnabled = false
+        }
+        else
+        {
             PreviousRecordingLabel.isEnabled = false
             NextRecordingLabel.isEnabled = false
         }
