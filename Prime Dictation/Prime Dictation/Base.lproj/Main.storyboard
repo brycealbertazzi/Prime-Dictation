@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
-    <device id="retina4_7" orientation="portrait">
+    <device id="retina5_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -15,17 +15,17 @@
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="Prime_Dictation" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="BG" translatesAutoresizingMaskIntoConstraints="NO" id="UTB-4I-ZUJ">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ThE-Sk-wrm" userLabel="Top View">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="183"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="217.66666666666666"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Prime Dictation" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1tL-fi-eIn">
-                                        <rect key="frame" x="77" y="42" width="221" height="39"/>
+                                        <rect key="frame" x="96.666666666666686" y="42" width="221" height="39"/>
                                         <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="35"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -37,69 +37,63 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fhv-jG-Lfw" userLabel="Middle View">
-                                <rect key="frame" x="0.0" y="183" width="375" height="301"/>
+                                <rect key="frame" x="19.666666666666657" y="217.66666666666663" width="375" height="301"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAV-Xq-Ydt">
-                                        <rect key="frame" x="150" y="128" width="75" height="45"/>
-                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
-                                        <state key="normal" title="Listen"/>
-                                        <connections>
-                                            <action selector="ListenButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kHC-ot-UZK"/>
-                                        </connections>
-                                    </button>
-                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OPi-8M-xC4">
-                                        <rect key="frame" x="0.0" y="181" width="375" height="101"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OPi-8M-xC4" userLabel="FileNameView">
+                                        <rect key="frame" x="0.0" y="90.000000000000028" width="375" height="121"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ma4-wR-ucz">
-                                                <rect key="frame" x="0.0" y="17" width="375" height="34"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ma4-wR-ucz">
+                                                <rect key="frame" x="149" y="6" width="77" height="34"/>
                                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="20"/>
                                                 <state key="normal" title="File Name">
                                                     <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </state>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ad2-00-0E4">
-                                                <rect key="frame" x="96" y="55" width="59" height="30"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                <state key="normal" title="Previous"/>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ad2-00-0E4">
+                                                <rect key="frame" x="62" y="46" width="75" height="75"/>
+                                                <state key="normal" image="PreviousArrow"/>
                                                 <connections>
                                                     <action selector="PreviousRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="fcw-wf-7kx"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RQo-s8-1EL">
-                                                <rect key="frame" x="218" y="55" width="32" height="30"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                <state key="normal" title="Next"/>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RQo-s8-1EL">
+                                                <rect key="frame" x="237" y="46" width="75" height="75"/>
+                                                <state key="normal" image="NextArrow"/>
                                                 <connections>
                                                     <action selector="NextRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="V8A-PZ-5T9"/>
                                                 </connections>
                                             </button>
                                         </subviews>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="375" id="5DF-ua-lz8"/>
+                                            <constraint firstAttribute="trailing" secondItem="RQo-s8-1EL" secondAttribute="trailing" constant="63" id="CUw-r5-YuU"/>
+                                            <constraint firstItem="ma4-wR-ucz" firstAttribute="top" secondItem="OPi-8M-xC4" secondAttribute="top" constant="6" id="CoF-Qg-tmM"/>
+                                            <constraint firstAttribute="trailing" secondItem="Ad2-00-0E4" secondAttribute="trailing" constant="238" id="IAe-WY-NHE"/>
+                                            <constraint firstItem="Ad2-00-0E4" firstAttribute="top" secondItem="OPi-8M-xC4" secondAttribute="top" constant="46" id="S4S-Ok-GbH"/>
+                                            <constraint firstAttribute="bottom" secondItem="Ad2-00-0E4" secondAttribute="bottom" id="VIf-Hu-piI"/>
+                                            <constraint firstItem="ma4-wR-ucz" firstAttribute="top" secondItem="OPi-8M-xC4" secondAttribute="top" constant="6" id="ZVA-ei-hoF"/>
+                                            <constraint firstAttribute="bottom" secondItem="RQo-s8-1EL" secondAttribute="bottom" id="ZiS-Fq-J3c"/>
+                                            <constraint firstItem="ma4-wR-ucz" firstAttribute="top" secondItem="OPi-8M-xC4" secondAttribute="top" constant="6" id="ayz-3z-xKu"/>
+                                            <constraint firstItem="ma4-wR-ucz" firstAttribute="centerX" secondItem="OPi-8M-xC4" secondAttribute="centerX" id="ciL-gB-bmU"/>
+                                            <constraint firstItem="RQo-s8-1EL" firstAttribute="top" secondItem="OPi-8M-xC4" secondAttribute="top" constant="46" id="i9o-Dm-N4R"/>
+                                            <constraint firstItem="RQo-s8-1EL" firstAttribute="leading" secondItem="OPi-8M-xC4" secondAttribute="leading" constant="237" id="qvo-uK-cZF"/>
+                                            <constraint firstAttribute="height" constant="121" id="rDc-7N-BNo"/>
+                                            <constraint firstItem="Ad2-00-0E4" firstAttribute="leading" secondItem="OPi-8M-xC4" secondAttribute="leading" constant="62" id="vkY-mG-Lad"/>
+                                        </constraints>
                                     </view>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="tAV-Xq-Ydt" firstAttribute="centerX" secondItem="Fhv-jG-Lfw" secondAttribute="centerX" id="5fy-Cx-Q2c"/>
-                                    <constraint firstAttribute="height" constant="301" id="aqv-is-uuV"/>
-                                    <constraint firstItem="tAV-Xq-Ydt" firstAttribute="centerY" secondItem="Fhv-jG-Lfw" secondAttribute="centerY" id="atH-8A-6Bj"/>
-                                    <constraint firstAttribute="width" constant="375" id="dzm-YX-ZOw"/>
+                                    <constraint firstItem="OPi-8M-xC4" firstAttribute="centerX" secondItem="Fhv-jG-Lfw" secondAttribute="centerX" id="9YF-mq-iKL"/>
+                                    <constraint firstAttribute="width" constant="375" id="H0b-TM-W1h"/>
+                                    <constraint firstItem="OPi-8M-xC4" firstAttribute="centerY" secondItem="Fhv-jG-Lfw" secondAttribute="centerY" id="kOE-aK-wsl"/>
+                                    <constraint firstAttribute="height" constant="301" id="rsA-v8-bTf"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nJI-Eq-CWr" userLabel="Bottom View">
-                                <rect key="frame" x="0.0" y="484" width="375" height="183"/>
+                                <rect key="frame" x="0.0" y="518.66666666666663" width="414" height="217.33333333333337"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aq9-EU-DW7">
-                                        <rect key="frame" x="138.5" y="66" width="98" height="51"/>
-                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="35"/>
-                                        <state key="normal" title="Record">
-                                            <color key="titleColor" red="0.95523184539999995" green="0.25774388710000001" blue="0.200147456" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="RecordButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ny2-1D-Ccm"/>
-                                        </connections>
-                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="svK-SA-aO1">
-                                        <rect key="frame" x="308" y="130" width="59" height="45"/>
+                                        <rect key="frame" x="347" y="164.33333333333337" width="59" height="45"/>
                                         <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
                                         <state key="normal" title="Send">
                                             <color key="titleColor" red="0.20392156859999999" green="0.28627450980000002" blue="0.36862745099999999" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -108,15 +102,34 @@
                                             <action selector="SendButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ImA-qy-NzW"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aq9-EU-DW7">
+                                        <rect key="frame" x="163.66666666666666" y="65" width="87" height="87"/>
+                                        <state key="normal" image="RecordButton">
+                                            <color key="titleColor" red="0.95523184539999995" green="0.25774388710000001" blue="0.200147456" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="RecordButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ny2-1D-Ccm"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <gestureRecognizers/>
                                 <constraints>
+                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="HLX-UQ-qCh"/>
                                     <constraint firstAttribute="trailing" secondItem="svK-SA-aO1" secondAttribute="trailing" constant="8" id="LVI-0H-3b7"/>
+                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="nJI-Eq-CWr" secondAttribute="centerY" id="Mwh-s6-WZe"/>
                                     <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="nJI-Eq-CWr" secondAttribute="centerY" id="O4i-Ak-nYi"/>
                                     <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="SDQ-9P-obg"/>
                                     <constraint firstAttribute="bottom" secondItem="svK-SA-aO1" secondAttribute="bottom" constant="8" id="mcm-P8-5fE"/>
                                 </constraints>
                             </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAV-Xq-Ydt">
+                                <rect key="frame" x="169.66666666666666" y="241.66666666666663" width="75" height="45"/>
+                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
+                                <state key="normal" title="Listen"/>
+                                <connections>
+                                    <action selector="ListenButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kHC-ot-UZK"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
@@ -131,10 +144,14 @@
                             <constraint firstItem="UTB-4I-ZUJ" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="Ejf-90-v0O"/>
                             <constraint firstAttribute="trailing" secondItem="ThE-Sk-wrm" secondAttribute="trailing" id="GX8-ji-oaY"/>
                             <constraint firstItem="Fhv-jG-Lfw" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="bottom" id="OcE-YV-XpX"/>
+                            <constraint firstItem="Fhv-jG-Lfw" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="RA3-xB-BPq"/>
                             <constraint firstItem="Fhv-jG-Lfw" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Uup-0n-gPk"/>
+                            <constraint firstItem="Fhv-jG-Lfw" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Vx4-VC-VFe"/>
+                            <constraint firstItem="tAV-Xq-Ydt" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="YfV-oY-M1i"/>
                             <constraint firstItem="UTB-4I-ZUJ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="a6k-Xs-qjf"/>
                             <constraint firstAttribute="trailing" secondItem="UTB-4I-ZUJ" secondAttribute="trailing" id="b5J-uk-iHR"/>
                             <constraint firstItem="nJI-Eq-CWr" firstAttribute="top" secondItem="Fhv-jG-Lfw" secondAttribute="bottom" id="omD-h8-6rK"/>
+                            <constraint firstItem="tAV-Xq-Ydt" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="bottom" constant="24" id="rpc-jz-A7p"/>
                             <constraint firstItem="nJI-Eq-CWr" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="ywD-Ke-9VV"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
@@ -150,10 +167,13 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="128.80000000000001" y="118.29085457271366"/>
+            <point key="canvasLocation" x="127.53623188405798" y="118.20652173913044"/>
         </scene>
     </scenes>
     <resources>
         <image name="BG" width="1000" height="1000"/>
+        <image name="NextArrow" width="100" height="100"/>
+        <image name="PreviousArrow" width="100" height="100"/>
+        <image name="RecordButton" width="87" height="86.666664123535156"/>
     </resources>
 </document>

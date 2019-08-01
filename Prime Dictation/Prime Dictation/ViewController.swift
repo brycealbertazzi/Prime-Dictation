@@ -33,7 +33,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         ListenLabel.setTitle("Listen", for: .normal)
         //Initialize recording session
         recordingSession = AVAudioSession.sharedInstance()
-        
+        RecordLabel.setImage(UIImage(named: "RecordButton"), for: .normal)
         //Request permission
         AVAudioSession.sharedInstance().requestRecordPermission { (hasPermission) in
             print("Accepted")
@@ -44,7 +44,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             print(recording)
         }
         if (savedRecordingNames.count > 1) {
-        FileNameLabel.setTitle(savedRecordingNames[savedRecordingNames.count - 1], for: .normal)
+        FileNameLabel.setTitle(savedRecordingNames[savedRecordingNames.count - 1] + ".wav", for: .normal)
         
         toggledRecordingsIndex = savedRecordingNames.count - 1
         toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
@@ -52,7 +52,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         } else if (savedRecordingNames.count == 1) {
             toggledRecordingsIndex = savedRecordingNames.count - 1
             toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
-            FileNameLabel.setTitle(toggledRecordingName, for: .normal)
+            FileNameLabel.setTitle(toggledRecordingName + ".wav", for: .normal)
             PreviousRecordingLabel.isEnabled = false
             NextRecordingLabel.isEnabled = false
         }
@@ -93,7 +93,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         CheckToggledRecordingsIndex(goingToPreviousRecording: true)
         print(toggledRecordingsIndex)
         toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
-        FileNameLabel.setTitle(toggledRecordingName, for: .normal)
+        FileNameLabel.setTitle(toggledRecordingName + ".wav", for: .normal)
         
     }
     
@@ -101,7 +101,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         CheckToggledRecordingsIndex(goingToPreviousRecording: false)
         toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
         print(toggledRecordingsIndex)
-        FileNameLabel.setTitle(toggledRecordingName, for: .normal)
+        FileNameLabel.setTitle(toggledRecordingName + ".wav", for: .normal)
     }
     
     func CheckToggledRecordingsIndex(goingToPreviousRecording: Bool) {
@@ -153,8 +153,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
                 audioRecorder = try AVAudioRecorder(url: fileName, settings: settings)
                 audioRecorder.delegate = self
                 audioRecorder.record()
-                RecordLabel.setTitle("Stop", for: .normal)
                 ListenLabel.isEnabled = false
+                RecordLabel.setImage(UIImage(named: "StopButton"), for: .normal)
             } catch {
                 displayAlert(title: "Error!", message: "Could not play recording, check your connection")
             }
@@ -162,8 +162,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             //If we are already recording audio, stop the recording
             audioRecorder.stop()
             audioRecorder = nil
-            RecordLabel.setTitle("Record", for: .normal)
             ListenLabel.isEnabled = true
+            RecordLabel.setImage(UIImage(named: "RecordButton"), for: .normal)
             
             //Convert the audio
             ConvertAudio(GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(recordingExtension), outputURL: GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(destinationRecordingExtension))
@@ -180,7 +180,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     
     var savedRecordingsKey: String = "savedRecordings"
     var savedRecordingNames: [String] = []
-    let maxNumSavedRecordings = 5
+    let maxNumSavedRecordings = 10
     
     func UpdateSavedRecordings() {
         if savedRecordingNames.count < maxNumSavedRecordings {
@@ -206,7 +206,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         PreviousRecordingLabel.isEnabled = true
         }
         
-        FileNameLabel.setTitle(toggledRecordingName, for: .normal)
+        FileNameLabel.setTitle(toggledRecordingName + ".wav", for: .normal)
         
         for recording in savedRecordingNames {
             print(recording)
