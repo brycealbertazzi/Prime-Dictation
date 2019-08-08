@@ -7,15 +7,19 @@
 //
 
 import UIKit
+import SwiftyDropbox
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
-
+    var primeDictationAppKey: String = "idn5cf6rx704tu2"
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        DropboxOAuthManager.sharedOAuthManager = DropboxOAuthManager(appKey: primeDictationAppKey)
+        
         return true
     }
 

@@ -8,6 +8,8 @@
 
 import UIKit
 import AVFoundation
+import SwiftyDropbox
+import DropboxAuth
 
 class ViewController: UIViewController, AVAudioRecorderDelegate {
 
@@ -65,6 +67,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         print(savedRecordingNames.count)
         print(GetDirectory())
         
+        
+        //Auth testing
+        
     }
     
     let recordingExtension: String = "m4a"
@@ -73,8 +78,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     
     @IBAction func ListenButton(_ sender: Any) {
         //Store the path to the recording in this "path" variable
-        //savedRecordingNames = []
-        //UserDefaults.standard.set(savedRecordingNames, forKey: savedRecordingsKey)
         let previousRecordingPath = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(destinationRecordingExtension)
         
         //Play the previously recorded recording

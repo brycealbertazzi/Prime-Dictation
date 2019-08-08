@@ -1,0 +1,12 @@
+# Uncomment the next line to define a global platform for your project
+platform :ios, '9.1'
+
+target 'Prime Dictation' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for Prime Dictation
+pod 'SwiftyDropbox'
+pod 'DropboxAuth'
+
+end
