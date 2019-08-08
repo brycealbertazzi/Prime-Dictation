@@ -84,7 +84,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         
         //Play the previously recorded recording
         do {
+            try recordingSession.setCategory(.playback)
             audioPlayer = try AVAudioPlayer(contentsOf: previousRecordingPath)
+            audioPlayer.prepareToPlay()
+            audioPlayer.volume = 1
             audioPlayer.play()
         } catch {
             displayAlert(title: "Error!", message: "Could not play recording, no recording exists or you have bad connection")
@@ -153,6 +156,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             ]
             //Start the recording
             do {
+                try recordingSession.setCategory(.record)
                 audioRecorder = try AVAudioRecorder(url: fileName, settings: settings)
                 audioRecorder.delegate = self
                 audioRecorder.record()
@@ -344,23 +348,23 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBAction func SendButton(_ sender: Any) {
         if let client: DropboxClient = DropboxClientsManager.authorizedClient {
             print("Client is already authorized")
-            ProgressHUD.show("Sending...")
-            //Send recording to dropbox folder for this app
-            if let recordingToUpload: URL = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(destinationRecordingExtension) {
-                
-                _ = client.files.upload(path: "/" + toggledRecordingName + "." + destinationRecordingExtension, input: recordingToUpload)
-                    .response { (response, error) in
-                        if let response = response {
-                            print(response)
-                            ProgressHUD.showSuccess("Recording was sent to Dropbox", interaction: true)
-                        } else if let error = error {
-                            print(error)
-                            ProgressHUD.showError("Failed to send recording to dropbox, check your connections", interaction: true)
+            if savedRecordingNames.count > 0 {
+                ProgressHUD.show("Sending...")
+                //Send recording to dropbox folder for this app
+                let recordingToUpload: URL = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(destinationRecordingExtension)
+                    _ = client.files.upload(path: "/" + toggledRecordingName + "." + destinationRecordingExtension, input: recordingToUpload)
+                        .response { (response, error) in
+                            if let response = response {
+                                print(response)
+                                ProgressHUD.showSuccess("Recording was sent to Dropbox", interaction: true)
+                            } else if let error = error {
+                                print(error)
+                                ProgressHUD.showError("Failed to send recording to dropbox, check your connections", interaction: true)
+                            }
                         }
-                    }
-                    .progress { (progressData) in
-                        print(progressData)
-                    }
+                        .progress { (progressData) in
+                            print(progressData)
+                        }
             } else {
                 ProgressHUD.showError("No recording to send")
             }
