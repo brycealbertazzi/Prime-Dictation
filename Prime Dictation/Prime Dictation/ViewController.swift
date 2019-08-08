@@ -12,7 +12,7 @@ import SwiftyDropbox
 import DropboxAuth
 import ProgressHUD
 
-class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDelegate {
+class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDelegate, AVAudioPlayerDelegate {
 
     @IBOutlet weak var ListenLabel: UIButton!
     @IBOutlet weak var RecordLabel: UIButton!
@@ -69,30 +69,46 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         print(savedRecordingNames.count)
         print(GetDirectory())
         
-        
-        //Auth testing
-        
     }
     
     let recordingExtension: String = "m4a"
     let destinationRecordingExtension: String = "wav"
     var recordingName: String = String()
+    var isListening: Bool = false
     
     @IBAction func ListenButton(_ sender: Any) {
-        //Store the path to the recording in this "path" variable
-        let previousRecordingPath = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(destinationRecordingExtension)
-        
-        //Play the previously recorded recording
-        do {
-            try recordingSession.setCategory(.playback)
-            audioPlayer = try AVAudioPlayer(contentsOf: previousRecordingPath)
-            audioPlayer.prepareToPlay()
-            audioPlayer.volume = 1
-            audioPlayer.play()
-        } catch {
-            displayAlert(title: "Error!", message: "Could not play recording, no recording exists or you have bad connection")
+        if (!isListening) {
+            //Store the path to the recording in this "path" variable
+            let previousRecordingPath = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(destinationRecordingExtension)
+            
+            //Play the previously recorded recording
+            do {
+                try recordingSession.setCategory(.playback)
+                audioPlayer = try AVAudioPlayer(contentsOf: previousRecordingPath)
+                audioPlayer?.delegate = self
+                audioPlayer.prepareToPlay()
+                audioPlayer.volume = 1
+                audioPlayer.play()
+                isListening = true
+                ListenLabel.setTitle("Stop", for: .normal)
+            } catch {
+                displayAlert(title: "Error!", message: "Could not play recording, no recording exists or you have bad connection")
+            }
+        } else {
+            isListening = false
+            ListenLabel.setTitle("Listen", for: .normal)
+            audioPlayer.stop()
         }
     }
+    
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        player.delegate = self
+        isListening = false
+        ListenLabel.setTitle("Listen", for: .normal)
+    }
+    
+
+    
     //Stores the current recording in queue the user wants to listen to
     var toggledRecordingName: String = String()
     var toggledRecordingsIndex: Int = Int()
@@ -143,7 +159,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
 
-    
+    let sampleRate = 32000
     @IBAction func RecordButton(_ sender: Any) {
         //Check if we have an active recorder
         if audioRecorder == nil {
@@ -152,7 +168,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             recordingName = RecordingTimeForName()
             let fileName = GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(recordingExtension)
             
-            let settings = [ AVFormatIDKey: Int(kAudioFormatMPEG4AAC), AVSampleRateKey: 16000, AVNumberOfChannelsKey: 1, AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
+            let settings = [ AVFormatIDKey: Int(kAudioFormatMPEG4AAC), AVSampleRateKey: sampleRate, AVNumberOfChannelsKey: 1, AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
             ]
             //Start the recording
             do {
@@ -222,8 +238,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         
     }
     
-    
-    
     func RecordingTimeForName() -> String {
         let date = Date()
         
@@ -274,7 +288,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                                 kExtAudioFileProperty_FileDataFormat,
                                 &thePropertySize, &srcFormat)
         
-        dstFormat.mSampleRate = 16000  //Set sample rate
+        dstFormat.mSampleRate = Float64(sampleRate)  //Set sample rate
         dstFormat.mFormatID = kAudioFormatLinearPCM
         dstFormat.mChannelsPerFrame = 1
         dstFormat.mBitsPerChannel = 16
