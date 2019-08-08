@@ -152,7 +152,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             recordingName = RecordingTimeForName()
             let fileName = GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(recordingExtension)
             
-            let settings = [ AVFormatIDKey: Int(kAudioFormatMPEG4AAC), AVSampleRateKey: 44100, AVNumberOfChannelsKey: 1, AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
+            let settings = [ AVFormatIDKey: Int(kAudioFormatMPEG4AAC), AVSampleRateKey: 16000, AVNumberOfChannelsKey: 1, AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
             ]
             //Start the recording
             do {
@@ -274,7 +274,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                                 kExtAudioFileProperty_FileDataFormat,
                                 &thePropertySize, &srcFormat)
         
-        dstFormat.mSampleRate = 44100  //Set sample rate
+        dstFormat.mSampleRate = 16000  //Set sample rate
         dstFormat.mFormatID = kAudioFormatLinearPCM
         dstFormat.mChannelsPerFrame = 1
         dstFormat.mBitsPerChannel = 16
