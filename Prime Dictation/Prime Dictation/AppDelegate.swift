@@ -8,6 +8,8 @@
 
 import UIKit
 import SwiftyDropbox
+import DropboxAuth
+import ProgressHUD
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -18,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
-        DropboxOAuthManager.sharedOAuthManager = DropboxOAuthManager(appKey: primeDictationAppKey)
+        DropboxClientsManager.setupWithAppKey(primeDictationAppKey)
         
         return true
     }
@@ -45,6 +47,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        
+        if let authResult = DropboxClientsManager.handleRedirectURL(url) {
+            switch authResult {
+            case .success(let token):
+                print("Succes! Logged into dropbox with token \(token)")
+                ProgressHUD.showSuccess("Successfully logged into dropbox", interaction: true)
+            case .cancel:
+                print("User has canceled OAuth flow")
+            case .error(let error, let description):
+                print("Error \(error): \(description)")
+                ProgressHUD.showError("Could not log into Dropbox", interaction: true)
+            }
+        }
+        return false
+    }
 
 }
 

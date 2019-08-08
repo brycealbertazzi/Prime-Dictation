@@ -96,7 +96,7 @@
                                         <rect key="frame" x="347" y="164.33333333333337" width="59" height="45"/>
                                         <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
                                         <state key="normal" title="Send">
-                                            <color key="titleColor" red="0.20392156859999999" green="0.28627450980000002" blue="0.36862745099999999" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                            <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
                                         </state>
                                         <connections>
                                             <action selector="SendButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ImA-qy-NzW"/>
@@ -111,14 +111,28 @@
                                             <action selector="RecordButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ny2-1D-Ccm"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yhG-XG-W7K" userLabel="Sign In Label">
+                                        <rect key="frame" x="20" y="168" width="69" height="40"/>
+                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
+                                        <state key="normal" title="Sign In">
+                                            <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="SignInButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Cha-s2-z6r"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <gestureRecognizers/>
                                 <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="yhG-XG-W7K" secondAttribute="bottom" constant="9.3300000000000001" id="7jm-UP-xOV"/>
                                     <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="HLX-UQ-qCh"/>
                                     <constraint firstAttribute="trailing" secondItem="svK-SA-aO1" secondAttribute="trailing" constant="8" id="LVI-0H-3b7"/>
                                     <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="nJI-Eq-CWr" secondAttribute="centerY" id="Mwh-s6-WZe"/>
+                                    <constraint firstItem="yhG-XG-W7K" firstAttribute="leading" secondItem="nJI-Eq-CWr" secondAttribute="leading" constant="20" id="NRx-lE-uxn"/>
                                     <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="nJI-Eq-CWr" secondAttribute="centerY" id="O4i-Ak-nYi"/>
                                     <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="SDQ-9P-obg"/>
+                                    <constraint firstAttribute="trailing" secondItem="svK-SA-aO1" secondAttribute="trailing" constant="8" id="SRm-bq-QWa"/>
+                                    <constraint firstAttribute="bottom" secondItem="svK-SA-aO1" secondAttribute="bottom" constant="8" id="XOb-pD-e2d"/>
                                     <constraint firstAttribute="bottom" secondItem="svK-SA-aO1" secondAttribute="bottom" constant="8" id="mcm-P8-5fE"/>
                                 </constraints>
                             </view>
@@ -163,6 +177,7 @@
                         <outlet property="PreviousRecordingLabel" destination="Ad2-00-0E4" id="EfO-Ok-KQM"/>
                         <outlet property="RecordLabel" destination="aq9-EU-DW7" id="aoh-8d-Bsn"/>
                         <outlet property="SendLabel" destination="svK-SA-aO1" id="s8t-Bh-c3r"/>
+                        <outlet property="SignInLabel" destination="yhG-XG-W7K" id="l7W-3y-qLy"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

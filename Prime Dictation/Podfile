@@ -8,5 +8,6 @@ target 'Prime Dictation' do
   # Pods for Prime Dictation
 pod 'SwiftyDropbox'
 pod 'DropboxAuth'
+pod 'ProgressHUD'
 
 end

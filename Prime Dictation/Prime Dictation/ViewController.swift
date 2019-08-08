@@ -10,8 +10,9 @@ import UIKit
 import AVFoundation
 import SwiftyDropbox
 import DropboxAuth
+import ProgressHUD
 
-class ViewController: UIViewController, AVAudioRecorderDelegate {
+class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDelegate {
 
     @IBOutlet weak var ListenLabel: UIButton!
     @IBOutlet weak var RecordLabel: UIButton!
@@ -19,6 +20,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     @IBOutlet weak var FileNameLabel: UIButton!
     @IBOutlet weak var PreviousRecordingLabel: UIButton!
     @IBOutlet weak var NextRecordingLabel: UIButton!
+    @IBOutlet weak var SignInLabel: UIButton!
     
     
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
@@ -94,7 +96,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     
     @IBAction func PreviousRecordingButton(_ sender: Any) {
         CheckToggledRecordingsIndex(goingToPreviousRecording: true)
-        print(toggledRecordingsIndex)
         toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
         FileNameLabel.setTitle(toggledRecordingName + ".wav", for: .normal)
         
@@ -103,7 +104,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     @IBAction func NextRecordingButton(_ sender: Any) {
         CheckToggledRecordingsIndex(goingToPreviousRecording: false)
         toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
-        print(toggledRecordingsIndex)
         FileNameLabel.setTitle(toggledRecordingName + ".wav", for: .normal)
     }
     
@@ -215,9 +215,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
             print(recording)
         }
         
-        print(savedRecordingNames.count)
         
-        print(toggledRecordingsIndex)
     }
     
     
@@ -344,9 +342,52 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     }
     
     @IBAction func SendButton(_ sender: Any) {
-        
+        if let client: DropboxClient = DropboxClientsManager.authorizedClient {
+            print("Client is already authorized")
+            ProgressHUD.show("Sending...")
+            //Send recording to dropbox folder for this app
+            if let recordingToUpload: URL = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(destinationRecordingExtension) {
+                
+                _ = client.files.upload(path: "/" + toggledRecordingName + "." + destinationRecordingExtension, input: recordingToUpload)
+                    .response { (response, error) in
+                        if let response = response {
+                            print(response)
+                            ProgressHUD.showSuccess("Recording was sent to Dropbox", interaction: true)
+                        } else if let error = error {
+                            print(error)
+                            ProgressHUD.showError("Failed to send recording to dropbox, check your connections", interaction: true)
+                        }
+                    }
+                    .progress { (progressData) in
+                        print(progressData)
+                    }
+            } else {
+                ProgressHUD.showError("No recording to send")
+            }
+        } else {
+            OpenAuthorizationFlow()
+        }
     }
     
+    @IBAction func SignInButton(_ sender: Any) {
+        OpenAuthorizationFlow()
+    }
+    
+    
+   
+    var url: URL = URL(string: "https://www.dropbox.com/oauth2/authorize")!
+    func OpenAuthorizationFlow() {
+        DropboxClientsManager.authorizeFromController(UIApplication.shared, controller: self) { (url) in
+            DropboxClientsManager.authorizeFromController(UIApplication.shared, controller: self, openURL: { (url) in
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url, completionHandler: nil)
+                } else {
+                    print("Cannot open authorization URL")
+                    ProgressHUD.showError("Cannot connect to Dropbox servers, check your connection")
+                }
+            })
+        }
+    }
     
 }
 
