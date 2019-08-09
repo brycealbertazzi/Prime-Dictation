@@ -12,6 +12,7 @@
 		0341830322EE36B300670DD1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0341830122EE36B300670DD1 /* Main.storyboard */; };
 		0341830522EE36B300670DD1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0341830422EE36B300670DD1 /* Assets.xcassets */; };
 		0341830822EE36B300670DD1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0341830622EE36B300670DD1 /* LaunchScreen.storyboard */; };
+		03C69A6122FE0083005D8AD1 /* Stopwatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C69A6022FE0083005D8AD1 /* Stopwatch.swift */; };
 		F216072234AECD3E3755D69D /* Pods_Prime_Dictation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033987ECA76D8909533217A7 /* Pods_Prime_Dictation.framework */; };
 /* End PBXBuildFile section */
 
@@ -24,6 +25,7 @@
 		0341830422EE36B300670DD1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0341830722EE36B300670DD1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0341830922EE36B300670DD1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		03C69A6022FE0083005D8AD1 /* Stopwatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stopwatch.swift; sourceTree = "<group>"; };
 		104DBC6A9FA919AA81D98E13 /* Pods-Prime Dictation.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Prime Dictation.debug.xcconfig"; path = "Target Support Files/Pods-Prime Dictation/Pods-Prime Dictation.debug.xcconfig"; sourceTree = "<group>"; };
 		54C213373036C1D959A750D3 /* Pods-Prime Dictation.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Prime Dictation.release.xcconfig"; path = "Target Support Files/Pods-Prime Dictation/Pods-Prime Dictation.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -63,6 +65,7 @@
 			children = (
 				034182FD22EE36B300670DD1 /* AppDelegate.swift */,
 				034182FF22EE36B300670DD1 /* ViewController.swift */,
+				03C69A6022FE0083005D8AD1 /* Stopwatch.swift */,
 				0341830122EE36B300670DD1 /* Main.storyboard */,
 				0341830422EE36B300670DD1 /* Assets.xcassets */,
 				0341830622EE36B300670DD1 /* LaunchScreen.storyboard */,
@@ -204,6 +207,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0341830022EE36B300670DD1 /* ViewController.swift in Sources */,
+				03C69A6122FE0083005D8AD1 /* Stopwatch.swift in Sources */,
 				034182FE22EE36B300670DD1 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

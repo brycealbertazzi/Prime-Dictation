@@ -21,6 +21,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var PreviousRecordingLabel: UIButton!
     @IBOutlet weak var NextRecordingLabel: UIButton!
     @IBOutlet weak var SignInLabel: UIButton!
+    @IBOutlet weak var PausePlayButtonLabel: UIButton!
+    @IBOutlet weak var StopButtonLabel: UIButton!
+    @IBOutlet weak var PausePlaybackLabel: UIButton!
+    @IBOutlet weak var EndPlaybackLabel: UIButton!
+    @IBOutlet weak var StopWatchLabel: UILabel!
     
     
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
@@ -31,10 +36,21 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     var userSelectedFileType = 0
     
+    //MARK: View did load
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         ListenLabel.setTitle("Listen", for: .normal)
+        RecordLabel.isHidden = false
+        StopButtonLabel.isHidden = true
+        PausePlayButtonLabel.isHidden = true
+        EndPlaybackLabel.isHidden = true
+        PausePlaybackLabel.isHidden = true
+        StopWatchLabel.isHidden = true
+        /*****/
+        //FileNameLabel should be disabled at all times
+        FileNameLabel.isEnabled = false
+        /*****/
         //Initialize recording session
         recordingSession = AVAudioSession.sharedInstance()
         RecordLabel.setImage(UIImage(named: "RecordButton"), for: .normal)
@@ -71,13 +87,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         
     }
     
+    //MARK: Listen to Playback
     let recordingExtension: String = "m4a"
     let destinationRecordingExtension: String = "wav"
     var recordingName: String = String()
-    var isListening: Bool = false
     
     @IBAction func ListenButton(_ sender: Any) {
-        if (!isListening) {
+        
             //Store the path to the recording in this "path" variable
             let previousRecordingPath = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(destinationRecordingExtension)
             
@@ -89,34 +105,40 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 audioPlayer.prepareToPlay()
                 audioPlayer.volume = 1
                 audioPlayer.play()
-                isListening = true
-                ListenLabel.setTitle("Stop", for: .normal)
+                
+                ListenLabel.isHidden = true
+                StopWatchLabel.isHidden = false
+                RecordLabel.isEnabled = false
                 SendLabel.isEnabled = false
                 SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
                 SignInLabel.isEnabled = false
                 SignInLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+                PausePlaybackLabel.isHidden = false
+                EndPlaybackLabel.isHidden = false
+                Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: UpdateElapsedTimeListen(timer:))
+                watch.start()
             } catch {
                 displayAlert(title: "Error!", message: "Could not play recording, no recording exists or you have bad connection")
             }
-        } else {
-            isListening = false
+        
+    }
+    
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        if audioPlayer.currentTime <= 0 {
+            player.delegate = self
             ListenLabel.setTitle("Listen", for: .normal)
-            audioPlayer.stop()
+            ListenLabel.isHidden = false
+            StopWatchLabel.isHidden = true
+            PausePlaybackLabel.isHidden = true
+            EndPlaybackLabel.isHidden = true
+            RecordLabel.isEnabled = true
             SendLabel.setTitleColor(UIColor.black, for: .normal)
             SendLabel.isEnabled = true
             SignInLabel.isEnabled = true
             SignInLabel.setTitleColor(UIColor.black, for: .normal)
+            watch.stop()
+            print("Audio player didFinishPlaying")
         }
-    }
-    
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        player.delegate = self
-        isListening = false
-        ListenLabel.setTitle("Listen", for: .normal)
-        SendLabel.setTitleColor(UIColor.black, for: .normal)
-        SendLabel.isEnabled = true
-        SignInLabel.isEnabled = true
-        SignInLabel.setTitleColor(UIColor.black, for: .normal)
     }
     
 
@@ -188,41 +210,143 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 audioRecorder = try AVAudioRecorder(url: fileName, settings: settings)
                 audioRecorder.delegate = self
                 audioRecorder.record()
-                ListenLabel.setTitle("Recording...", for: .normal)
-                ListenLabel.isEnabled = false
+                ListenLabel.isHidden = true
                 SendLabel.isEnabled = false
                 RecordLabel.isHidden = true
+                StopButtonLabel.isHidden = false
+                PausePlayButtonLabel.isHidden = false
                 SendLabel.isEnabled = false
                 SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
                 SignInLabel.isEnabled = false
                 SignInLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+                
+                //Start Timer
+                Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: UpdateElapsedTime(timer:))
+                watch.start()
+                StopWatchLabel.isHidden = false
             } catch {
                 displayAlert(title: "Error!", message: "Could not play recording, check your connection")
             }
-        } else {
-            //If we are already recording audio, stop the recording
-            audioRecorder.stop()
-            audioRecorder = nil
-            ListenLabel.isEnabled = true
-            ListenLabel.setTitle("Listen", for: .normal)
-            SendLabel.isEnabled = true
-            RecordLabel.isHidden = false
-            SendLabel.setTitleColor(UIColor.black, for: .normal)
-            SendLabel.isEnabled = true
-            SignInLabel.isEnabled = true
-            SignInLabel.setTitleColor(UIColor.black, for: .normal)
-            
-            //Convert the audio
-            ConvertAudio(GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(recordingExtension), outputURL: GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(destinationRecordingExtension))
-            
-            //Save the number of recordings
-            UserDefaults.standard.set(numberOfRecordings, forKey: "myNumber")
-            
-            //Set the file name label to name or recording
-            UpdateSavedRecordings()
-        
         }
         
+    }
+    
+    //MARK: Stopwatch
+    
+    let watch: Stopwatch = Stopwatch()
+    
+    func UpdateElapsedTime(timer: Timer) {
+        if watch.isRunning && !isRecordingPaused {
+            let minutes = Int(watch.elapsedTime / 60)
+            let seconds = Int(watch.elapsedTime.truncatingRemainder(dividingBy: 60))
+            let tensOfSeconds = Int((watch.elapsedTime * 10).truncatingRemainder(dividingBy: 10))
+            StopWatchLabel.text = String(format: "%d:%02d.%d", minutes, seconds, tensOfSeconds)
+        } else {
+            timer.invalidate()
+        }
+    }
+    
+    func UpdateElapsedTimeListen(timer: Timer) {
+        if watch.isRunning && !isRecordingPaused {
+            let minutes = Int(watch.elapsedTime / 60)
+            let seconds = Int(watch.elapsedTime.truncatingRemainder(dividingBy: 60))
+            let tensOfSeconds = Int((watch.elapsedTime * 10).truncatingRemainder(dividingBy: 10))
+            let minutesTotal = Int(audioPlayer.duration / 60)
+            let secondsTotal = Int(audioPlayer.duration.truncatingRemainder(dividingBy: 60))
+            let tensOfSecondsTotal = Int((audioPlayer.duration * 10).truncatingRemainder(dividingBy: 10))
+            StopWatchLabel.text = String(format: "%d:%02d.%d", minutes, seconds, tensOfSeconds) + "/" + String(format: "%d:%02d.%d", minutesTotal, secondsTotal, tensOfSecondsTotal)
+        } else {
+            timer.invalidate()
+        }
+    }
+    
+    //MARK: Pause-Resume-End Recordings and Playbacks:
+    
+    @IBAction func StopRecordingButton(_ sender: Any) {
+        //If we are already recording audio, stop the recording
+        audioRecorder.stop()
+        isRecordingPaused = false
+        audioRecorder = nil
+        ListenLabel.isHidden = false
+        ListenLabel.setTitle("Listen", for: .normal)
+        SendLabel.isEnabled = true
+        RecordLabel.isHidden = false
+        StopButtonLabel.isHidden = true
+        PausePlayButtonLabel.isHidden = true
+        PausePlayButtonLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
+        SendLabel.setTitleColor(UIColor.black, for: .normal)
+        SendLabel.isEnabled = true
+        SignInLabel.isEnabled = true
+        SignInLabel.setTitleColor(UIColor.black, for: .normal)
+        
+        //Convert the audio
+        ConvertAudio(GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(recordingExtension), outputURL: GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(destinationRecordingExtension))
+        
+        //Save the number of recordings
+        UserDefaults.standard.set(numberOfRecordings, forKey: "myNumber")
+        
+        //Set the file name label to name or recording
+        UpdateSavedRecordings()
+        
+        watch.stop()
+        StopWatchLabel.isHidden = true
+    }
+    
+    var isRecordingPaused: Bool = false
+    @IBAction func PausePlayRecordingButton(_ sender: Any) {
+        if audioRecorder.isRecording {
+            PausePlayButtonLabel.setImage(UIImage(named: "PlayButton"), for: .normal)
+            audioRecorder.pause()
+            isRecordingPaused = true
+            watch.pause()
+        } else {
+            PausePlayButtonLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
+            audioRecorder.record()
+            isRecordingPaused = false
+            watch.resume()
+            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: UpdateElapsedTime(timer:))
+        }
+        print("AudioRecorder is Playing: \(audioRecorder.isRecording)")
+    }
+    
+    @IBAction func EndPlaybackButton(_ sender: Any) {
+        ListenLabel.setTitle("Listen", for: .normal)
+        PausePlaybackLabel.setTitle("Pause", for: .normal)
+        isRecordingPaused = false
+        StopWatchLabel.isHidden = true
+        audioPlayer.stop()
+        watch.stop()
+        SendLabel.setTitleColor(UIColor.black, for: .normal)
+        SendLabel.isEnabled = true
+        SignInLabel.isEnabled = true
+        SignInLabel.setTitleColor(UIColor.black, for: .normal)
+        /*************/
+        ListenLabel.isHidden = false
+        RecordLabel.isEnabled = true
+        PausePlaybackLabel.isHidden = true
+        EndPlaybackLabel.isHidden = true
+    }
+    
+    
+    @IBAction func PausePlaybackButton(_ sender: Any) {
+        if audioPlayer.isPlaying {
+            //Pause Recording
+            audioPlayer.pause()
+            isRecordingPaused = true
+            PausePlaybackLabel.setTitle("Resume", for: .normal)
+            watch.pause()
+        } else {
+            //Resume Recording
+            audioPlayer?.delegate = self
+            audioPlayer.prepareToPlay()
+            audioPlayer.volume = 1
+            audioPlayer.play()
+            PausePlaybackLabel.setTitle("Pause", for: .normal)
+            watch.resume()
+            isRecordingPaused = false
+            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: UpdateElapsedTimeListen(timer:))
+            
+        }
     }
     
     var savedRecordingsKey: String = "savedRecordings"
@@ -254,12 +378,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
         
         FileNameLabel.setTitle(toggledRecordingName + ".wav", for: .normal)
-        
-        for recording in savedRecordingNames {
-            print(recording)
-        }
-        
-        
+    
     }
     
     func RecordingTimeForName() -> String {
@@ -393,7 +512,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 SignInLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
                 SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
                 RecordLabel.isEnabled = false
-                ListenLabel.isEnabled = false
+                ListenLabel.isHidden = true
                 //Send recording to dropbox folder for this app
                 let recordingToUpload: URL = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(destinationRecordingExtension)
                     _ = client.files.upload(path: "/" + toggledRecordingName + "." + destinationRecordingExtension, input: recordingToUpload)
@@ -410,7 +529,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                             self.SignInLabel.isEnabled = true
                             self.SendLabel.isEnabled = true
                             self.RecordLabel.isEnabled = true
-                            self.ListenLabel.isEnabled = true
+                            self.ListenLabel.isHidden = false
                         }
                         .progress { (progressData) in
                             print(progressData)
