@@ -174,13 +174,25 @@
                                     <action selector="ListenButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kHC-ot-UZK"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vvz-gp-8Nr" userLabel="End Playback Label">
+                                <rect key="frame" x="284.66666666666669" y="278" width="42" height="45"/>
+                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
+                                <state key="normal" title="End"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JP1-AS-jj7" userLabel="Pause/Play Playback Label">
+                                <rect key="frame" x="62.666666666666657" y="278" width="67" height="45"/>
+                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
+                                <state key="normal" title="Pause"/>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="UTB-4I-ZUJ" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="0WO-2z-ojd"/>
                             <constraint firstAttribute="bottom" secondItem="UTB-4I-ZUJ" secondAttribute="bottom" id="2TV-dG-g1j"/>
+                            <constraint firstItem="Vvz-gp-8Nr" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="bottom" constant="10" id="4FU-aT-UFj"/>
                             <constraint firstAttribute="trailing" secondItem="nJI-Eq-CWr" secondAttribute="trailing" id="4Y4-6p-Kcs"/>
                             <constraint firstItem="ThE-Sk-wrm" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="4mp-hK-w2U"/>
+                            <constraint firstItem="tAV-Xq-Ydt" firstAttribute="leading" secondItem="JP1-AS-jj7" secondAttribute="trailing" constant="40" id="62l-WW-Hha"/>
                             <constraint firstItem="ThE-Sk-wrm" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="A7U-hV-SEJ"/>
                             <constraint firstItem="UTB-4I-ZUJ" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Akp-o0-S2b"/>
                             <constraint firstItem="Fhv-jG-Lfw" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="CPn-9e-KR6"/>
@@ -194,6 +206,8 @@
                             <constraint firstItem="tAV-Xq-Ydt" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="YfV-oY-M1i"/>
                             <constraint firstItem="UTB-4I-ZUJ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="a6k-Xs-qjf"/>
                             <constraint firstAttribute="trailing" secondItem="UTB-4I-ZUJ" secondAttribute="trailing" id="b5J-uk-iHR"/>
+                            <constraint firstItem="Vvz-gp-8Nr" firstAttribute="leading" secondItem="tAV-Xq-Ydt" secondAttribute="trailing" constant="40" id="b68-rz-4CZ"/>
+                            <constraint firstItem="JP1-AS-jj7" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="bottom" constant="10" id="ilt-uB-nFS"/>
                             <constraint firstItem="nJI-Eq-CWr" firstAttribute="top" secondItem="Fhv-jG-Lfw" secondAttribute="bottom" id="omD-h8-6rK"/>
                             <constraint firstItem="tAV-Xq-Ydt" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="bottom" constant="10" id="rpc-jz-A7p"/>
                             <constraint firstItem="nJI-Eq-CWr" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="ywD-Ke-9VV"/>
