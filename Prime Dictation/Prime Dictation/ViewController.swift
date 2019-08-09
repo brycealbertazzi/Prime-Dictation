@@ -91,6 +91,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 audioPlayer.play()
                 isListening = true
                 ListenLabel.setTitle("Stop", for: .normal)
+                SendLabel.isEnabled = false
+                SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+                SignInLabel.isEnabled = false
+                SignInLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
             } catch {
                 displayAlert(title: "Error!", message: "Could not play recording, no recording exists or you have bad connection")
             }
@@ -98,6 +102,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             isListening = false
             ListenLabel.setTitle("Listen", for: .normal)
             audioPlayer.stop()
+            SendLabel.setTitleColor(UIColor.black, for: .normal)
+            SendLabel.isEnabled = true
+            SignInLabel.isEnabled = true
+            SignInLabel.setTitleColor(UIColor.black, for: .normal)
         }
     }
     
@@ -105,6 +113,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         player.delegate = self
         isListening = false
         ListenLabel.setTitle("Listen", for: .normal)
+        SendLabel.setTitleColor(UIColor.black, for: .normal)
+        SendLabel.isEnabled = true
+        SignInLabel.isEnabled = true
+        SignInLabel.setTitleColor(UIColor.black, for: .normal)
     }
     
 
@@ -159,7 +171,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
 
-    let sampleRate = 32000
+    let sampleRate = 16000
     @IBAction func RecordButton(_ sender: Any) {
         //Check if we have an active recorder
         if audioRecorder == nil {
@@ -168,7 +180,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             recordingName = RecordingTimeForName()
             let fileName = GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(recordingExtension)
             
-            let settings = [ AVFormatIDKey: Int(kAudioFormatMPEG4AAC), AVSampleRateKey: sampleRate, AVNumberOfChannelsKey: 1, AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
+            let settings = [ AVFormatIDKey: Int(kAudioFormatMPEG4AAC), AVSampleRateKey: sampleRate, AVNumberOfChannelsKey: 1, AVEncoderAudioQualityKey: AVAudioQuality.low.rawValue,
             ]
             //Start the recording
             do {
@@ -176,8 +188,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 audioRecorder = try AVAudioRecorder(url: fileName, settings: settings)
                 audioRecorder.delegate = self
                 audioRecorder.record()
+                ListenLabel.setTitle("Recording...", for: .normal)
                 ListenLabel.isEnabled = false
+                SendLabel.isEnabled = false
                 RecordLabel.setImage(UIImage(named: "StopButton"), for: .normal)
+                SendLabel.isEnabled = false
+                SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+                SignInLabel.isEnabled = false
+                SignInLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
             } catch {
                 displayAlert(title: "Error!", message: "Could not play recording, check your connection")
             }
@@ -186,7 +204,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             audioRecorder.stop()
             audioRecorder = nil
             ListenLabel.isEnabled = true
+            ListenLabel.setTitle("Listen", for: .normal)
+            SendLabel.isEnabled = true
             RecordLabel.setImage(UIImage(named: "RecordButton"), for: .normal)
+            SendLabel.setTitleColor(UIColor.black, for: .normal)
+            SendLabel.isEnabled = true
+            SignInLabel.isEnabled = true
+            SignInLabel.setTitleColor(UIColor.black, for: .normal)
             
             //Convert the audio
             ConvertAudio(GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(recordingExtension), outputURL: GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(destinationRecordingExtension))
@@ -364,6 +388,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             print("Client is already authorized")
             if savedRecordingNames.count > 0 {
                 ProgressHUD.show("Sending...")
+                SignInLabel.isEnabled = false
+                SendLabel.isEnabled = false
+                SignInLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+                SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+                RecordLabel.isEnabled = false
+                ListenLabel.isEnabled = false
                 //Send recording to dropbox folder for this app
                 let recordingToUpload: URL = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(destinationRecordingExtension)
                     _ = client.files.upload(path: "/" + toggledRecordingName + "." + destinationRecordingExtension, input: recordingToUpload)
@@ -375,6 +405,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                                 print(error)
                                 ProgressHUD.showError("Failed to send recording to dropbox, check your connections", interaction: true)
                             }
+                            self.SignInLabel.setTitleColor(UIColor.black, for: .normal)
+                            self.SendLabel.setTitleColor(UIColor.black, for: .normal)
+                            self.SignInLabel.isEnabled = true
+                            self.SendLabel.isEnabled = true
+                            self.RecordLabel.isEnabled = true
+                            self.ListenLabel.isEnabled = true
                         }
                         .progress { (progressData) in
                             print(progressData)
