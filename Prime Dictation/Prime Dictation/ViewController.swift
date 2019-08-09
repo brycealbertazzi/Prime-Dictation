@@ -171,7 +171,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
 
-    let sampleRate = 16000
+    let sampleRate = 4000
     @IBAction func RecordButton(_ sender: Any) {
         //Check if we have an active recorder
         if audioRecorder == nil {
@@ -191,7 +191,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 ListenLabel.setTitle("Recording...", for: .normal)
                 ListenLabel.isEnabled = false
                 SendLabel.isEnabled = false
-                RecordLabel.setImage(UIImage(named: "StopButton"), for: .normal)
+                RecordLabel.isHidden = true
                 SendLabel.isEnabled = false
                 SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
                 SignInLabel.isEnabled = false
@@ -206,7 +206,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             ListenLabel.isEnabled = true
             ListenLabel.setTitle("Listen", for: .normal)
             SendLabel.isEnabled = true
-            RecordLabel.setImage(UIImage(named: "RecordButton"), for: .normal)
+            RecordLabel.isHidden = false
             SendLabel.setTitleColor(UIColor.black, for: .normal)
             SendLabel.isEnabled = true
             SignInLabel.isEnabled = true

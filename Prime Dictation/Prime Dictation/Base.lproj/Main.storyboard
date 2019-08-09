@@ -22,7 +22,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ThE-Sk-wrm" userLabel="Top View">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="217.66666666666666"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="268"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Prime Dictation" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1tL-fi-eIn">
                                         <rect key="frame" x="96.666666666666686" y="42" width="221" height="39"/>
@@ -37,10 +37,10 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fhv-jG-Lfw" userLabel="Middle View">
-                                <rect key="frame" x="19.666666666666657" y="217.66666666666663" width="375" height="301"/>
+                                <rect key="frame" x="19.666666666666657" y="268" width="375" height="200"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OPi-8M-xC4" userLabel="FileNameView">
-                                        <rect key="frame" x="0.0" y="90.000000000000028" width="375" height="121"/>
+                                        <rect key="frame" x="0.0" y="59" width="375" height="121"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ma4-wR-ucz">
                                                 <rect key="frame" x="149" y="6" width="77" height="34"/>
@@ -67,11 +67,9 @@
                                         <constraints>
                                             <constraint firstAttribute="width" constant="375" id="5DF-ua-lz8"/>
                                             <constraint firstAttribute="trailing" secondItem="RQo-s8-1EL" secondAttribute="trailing" constant="63" id="CUw-r5-YuU"/>
-                                            <constraint firstItem="ma4-wR-ucz" firstAttribute="top" secondItem="OPi-8M-xC4" secondAttribute="top" constant="6" id="CoF-Qg-tmM"/>
                                             <constraint firstAttribute="trailing" secondItem="Ad2-00-0E4" secondAttribute="trailing" constant="238" id="IAe-WY-NHE"/>
                                             <constraint firstItem="Ad2-00-0E4" firstAttribute="top" secondItem="OPi-8M-xC4" secondAttribute="top" constant="46" id="S4S-Ok-GbH"/>
                                             <constraint firstAttribute="bottom" secondItem="Ad2-00-0E4" secondAttribute="bottom" id="VIf-Hu-piI"/>
-                                            <constraint firstItem="ma4-wR-ucz" firstAttribute="top" secondItem="OPi-8M-xC4" secondAttribute="top" constant="6" id="ZVA-ei-hoF"/>
                                             <constraint firstAttribute="bottom" secondItem="RQo-s8-1EL" secondAttribute="bottom" id="ZiS-Fq-J3c"/>
                                             <constraint firstItem="ma4-wR-ucz" firstAttribute="top" secondItem="OPi-8M-xC4" secondAttribute="top" constant="6" id="ayz-3z-xKu"/>
                                             <constraint firstItem="ma4-wR-ucz" firstAttribute="centerX" secondItem="OPi-8M-xC4" secondAttribute="centerX" id="ciL-gB-bmU"/>
@@ -85,59 +83,91 @@
                                 <constraints>
                                     <constraint firstItem="OPi-8M-xC4" firstAttribute="centerX" secondItem="Fhv-jG-Lfw" secondAttribute="centerX" id="9YF-mq-iKL"/>
                                     <constraint firstAttribute="width" constant="375" id="H0b-TM-W1h"/>
-                                    <constraint firstItem="OPi-8M-xC4" firstAttribute="centerY" secondItem="Fhv-jG-Lfw" secondAttribute="centerY" id="kOE-aK-wsl"/>
-                                    <constraint firstAttribute="height" constant="301" id="rsA-v8-bTf"/>
+                                    <constraint firstAttribute="bottom" secondItem="OPi-8M-xC4" secondAttribute="bottom" constant="20" id="b92-d7-lLj"/>
+                                    <constraint firstAttribute="height" constant="200" id="rsA-v8-bTf"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nJI-Eq-CWr" userLabel="Bottom View">
-                                <rect key="frame" x="0.0" y="518.66666666666663" width="414" height="217.33333333333337"/>
+                                <rect key="frame" x="0.0" y="468" width="414" height="268"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="svK-SA-aO1">
-                                        <rect key="frame" x="347" y="164.33333333333337" width="59" height="45"/>
-                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
-                                        <state key="normal" title="Send">
-                                            <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="SendButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ImA-qy-NzW"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aq9-EU-DW7">
-                                        <rect key="frame" x="163.66666666666666" y="65" width="87" height="87"/>
-                                        <state key="normal" image="RecordButton">
-                                            <color key="titleColor" red="0.95523184539999995" green="0.25774388710000001" blue="0.200147456" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="RecordButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ny2-1D-Ccm"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yhG-XG-W7K" userLabel="Sign In Label">
-                                        <rect key="frame" x="20" y="168" width="69" height="40"/>
-                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
-                                        <state key="normal" title="Sign In">
-                                            <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="SignInButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Cha-s2-z6r"/>
-                                        </connections>
-                                    </button>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="k8X-4n-nC8" userLabel="Stop/Record/Pause View">
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="218"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EmE-RS-QlP" userLabel="Stop">
+                                                <rect key="frame" x="49" y="59" width="100" height="100"/>
+                                                <state key="normal" image="StopButton"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aq9-EU-DW7" userLabel="Record">
+                                                <rect key="frame" x="157" y="59" width="100" height="100"/>
+                                                <state key="normal" image="RecordButton">
+                                                    <color key="titleColor" red="0.95523184539999995" green="0.25774388710000001" blue="0.200147456" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="RecordButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ny2-1D-Ccm"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HCQ-U9-aU8" userLabel="Pause">
+                                                <rect key="frame" x="265" y="59" width="100" height="100"/>
+                                                <state key="normal" image="PauseButton"/>
+                                            </button>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="k8X-4n-nC8" secondAttribute="centerY" id="HMT-To-naS"/>
+                                            <constraint firstItem="EmE-RS-QlP" firstAttribute="centerY" secondItem="k8X-4n-nC8" secondAttribute="centerY" id="Md9-MO-Nv9"/>
+                                            <constraint firstItem="HCQ-U9-aU8" firstAttribute="leading" secondItem="aq9-EU-DW7" secondAttribute="trailing" constant="8" id="Qyh-t7-zc9"/>
+                                            <constraint firstItem="HCQ-U9-aU8" firstAttribute="centerY" secondItem="k8X-4n-nC8" secondAttribute="centerY" id="Sqm-qF-NxU"/>
+                                            <constraint firstItem="aq9-EU-DW7" firstAttribute="leading" secondItem="EmE-RS-QlP" secondAttribute="trailing" constant="8" id="Wyb-mi-RxN"/>
+                                            <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="k8X-4n-nC8" secondAttribute="centerX" id="j34-VN-9aC"/>
+                                        </constraints>
+                                    </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4fs-SU-4uI" userLabel="SignIn/Send View">
+                                        <rect key="frame" x="0.0" y="218" width="414" height="50"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="svK-SA-aO1">
+                                                <rect key="frame" x="347" y="2.6666666666666288" width="59" height="45"/>
+                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
+                                                <state key="normal" title="Send">
+                                                    <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="SendButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ImA-qy-NzW"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yhG-XG-W7K">
+                                                <rect key="frame" x="10" y="5" width="69" height="40"/>
+                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
+                                                <state key="normal" title="Sign In">
+                                                    <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="SignInButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Cha-s2-z6r"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstItem="yhG-XG-W7K" firstAttribute="leading" secondItem="4fs-SU-4uI" secondAttribute="leading" constant="10" id="AX4-V6-mc5"/>
+                                            <constraint firstAttribute="height" constant="50" id="J0r-sA-lp0"/>
+                                            <constraint firstItem="yhG-XG-W7K" firstAttribute="centerY" secondItem="4fs-SU-4uI" secondAttribute="centerY" id="JUY-FH-uYh"/>
+                                            <constraint firstAttribute="trailing" secondItem="svK-SA-aO1" secondAttribute="trailing" constant="8" id="kDb-9u-WeT"/>
+                                            <constraint firstItem="svK-SA-aO1" firstAttribute="centerY" secondItem="4fs-SU-4uI" secondAttribute="centerY" id="lrc-J5-dgK"/>
+                                        </constraints>
+                                    </view>
                                 </subviews>
                                 <gestureRecognizers/>
                                 <constraints>
-                                    <constraint firstAttribute="bottom" secondItem="yhG-XG-W7K" secondAttribute="bottom" constant="9.3300000000000001" id="7jm-UP-xOV"/>
-                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="HLX-UQ-qCh"/>
-                                    <constraint firstAttribute="trailing" secondItem="svK-SA-aO1" secondAttribute="trailing" constant="8" id="LVI-0H-3b7"/>
-                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="nJI-Eq-CWr" secondAttribute="centerY" id="Mwh-s6-WZe"/>
-                                    <constraint firstItem="yhG-XG-W7K" firstAttribute="leading" secondItem="nJI-Eq-CWr" secondAttribute="leading" constant="20" id="NRx-lE-uxn"/>
-                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="nJI-Eq-CWr" secondAttribute="centerY" id="O4i-Ak-nYi"/>
-                                    <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="SDQ-9P-obg"/>
-                                    <constraint firstAttribute="trailing" secondItem="svK-SA-aO1" secondAttribute="trailing" constant="8" id="SRm-bq-QWa"/>
-                                    <constraint firstAttribute="bottom" secondItem="svK-SA-aO1" secondAttribute="bottom" constant="8" id="XOb-pD-e2d"/>
-                                    <constraint firstAttribute="bottom" secondItem="svK-SA-aO1" secondAttribute="bottom" constant="8" id="mcm-P8-5fE"/>
+                                    <constraint firstAttribute="trailing" secondItem="4fs-SU-4uI" secondAttribute="trailing" id="6Ej-4h-zHr"/>
+                                    <constraint firstItem="k8X-4n-nC8" firstAttribute="leading" secondItem="nJI-Eq-CWr" secondAttribute="leading" id="DLY-Mo-P2f"/>
+                                    <constraint firstItem="4fs-SU-4uI" firstAttribute="top" secondItem="k8X-4n-nC8" secondAttribute="bottom" id="DNk-1I-cZ1"/>
+                                    <constraint firstAttribute="bottom" secondItem="4fs-SU-4uI" secondAttribute="bottom" id="EJ1-zj-nVn"/>
+                                    <constraint firstItem="k8X-4n-nC8" firstAttribute="top" secondItem="nJI-Eq-CWr" secondAttribute="top" id="Gn3-fz-Kqo"/>
+                                    <constraint firstItem="k8X-4n-nC8" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="LEV-D2-2cn"/>
+                                    <constraint firstAttribute="trailing" secondItem="k8X-4n-nC8" secondAttribute="trailing" id="TxW-M1-qrM"/>
+                                    <constraint firstItem="4fs-SU-4uI" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="VE1-b5-mBS"/>
+                                    <constraint firstItem="4fs-SU-4uI" firstAttribute="leading" secondItem="nJI-Eq-CWr" secondAttribute="leading" id="yC7-Y7-WwB"/>
                                 </constraints>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAV-Xq-Ydt">
-                                <rect key="frame" x="169.66666666666666" y="241.66666666666663" width="75" height="45"/>
+                                <rect key="frame" x="169.66666666666666" y="278" width="75" height="45"/>
                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
                                 <state key="normal" title="Listen"/>
                                 <connections>
@@ -165,7 +195,7 @@
                             <constraint firstItem="UTB-4I-ZUJ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="a6k-Xs-qjf"/>
                             <constraint firstAttribute="trailing" secondItem="UTB-4I-ZUJ" secondAttribute="trailing" id="b5J-uk-iHR"/>
                             <constraint firstItem="nJI-Eq-CWr" firstAttribute="top" secondItem="Fhv-jG-Lfw" secondAttribute="bottom" id="omD-h8-6rK"/>
-                            <constraint firstItem="tAV-Xq-Ydt" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="bottom" constant="24" id="rpc-jz-A7p"/>
+                            <constraint firstItem="tAV-Xq-Ydt" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="bottom" constant="10" id="rpc-jz-A7p"/>
                             <constraint firstItem="nJI-Eq-CWr" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="ywD-Ke-9VV"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
@@ -182,13 +212,15 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="127.53623188405798" y="118.20652173913044"/>
+            <point key="canvasLocation" x="127.5" y="117.5"/>
         </scene>
     </scenes>
     <resources>
         <image name="BG" width="1000" height="1000"/>
         <image name="NextArrow" width="100" height="100"/>
+        <image name="PauseButton" width="100" height="100"/>
         <image name="PreviousArrow" width="100" height="100"/>
-        <image name="RecordButton" width="87" height="86.666664123535156"/>
+        <image name="RecordButton" width="100" height="100"/>
+        <image name="StopButton" width="100" height="100"/>
     </resources>
 </document>
