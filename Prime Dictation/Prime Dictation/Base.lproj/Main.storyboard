@@ -251,6 +251,7 @@
                         <outlet property="SignInLabel" destination="yhG-XG-W7K" id="l7W-3y-qLy"/>
                         <outlet property="StopButtonLabel" destination="EmE-RS-QlP" id="QWe-k5-g0Q"/>
                         <outlet property="StopWatchLabel" destination="dFf-qS-ITZ" id="Vo8-Pv-V93"/>
+                        <outlet property="TitleOfAppLabel" destination="1tL-fi-eIn" id="Dkj-Gc-VwB"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

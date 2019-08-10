@@ -14,6 +14,7 @@ import ProgressHUD
 
 class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDelegate, AVAudioPlayerDelegate {
 
+    @IBOutlet weak var TitleOfAppLabel: UILabel!
     @IBOutlet weak var ListenLabel: UIButton!
     @IBOutlet weak var RecordLabel: UIButton!
     @IBOutlet weak var SendLabel: UIButton!
@@ -512,7 +513,15 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 SignInLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
                 SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
                 RecordLabel.isEnabled = false
-                ListenLabel.isHidden = true
+                ListenLabel.isEnabled = false
+                FileNameLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+                TitleOfAppLabel.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.3)
+                PreviousRecordingLabel.isEnabled = false
+                NextRecordingLabel.isEnabled = false
+                PreviousRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+                NextRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+                
+                
                 //Send recording to dropbox folder for this app
                 let recordingToUpload: URL = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(destinationRecordingExtension)
                     _ = client.files.upload(path: "/" + toggledRecordingName + "." + destinationRecordingExtension, input: recordingToUpload)
@@ -529,7 +538,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                             self.SignInLabel.isEnabled = true
                             self.SendLabel.isEnabled = true
                             self.RecordLabel.isEnabled = true
-                            self.ListenLabel.isHidden = false
+                            self.ListenLabel.isEnabled = true
+                            self.FileNameLabel.setTitleColor(UIColor.black, for: .normal)
+                            self.TitleOfAppLabel.textColor = UIColor.black
+                            self.PreviousRecordingLabel.isEnabled = true
+                            self.NextRecordingLabel.isEnabled = true
+                            self.PreviousRecordingLabel.setTitleColor(UIColor.black, for: .normal)
+                            self.NextRecordingLabel.setTitleColor(UIColor.black, for: .normal)
                         }
                         .progress { (progressData) in
                             print(progressData)
