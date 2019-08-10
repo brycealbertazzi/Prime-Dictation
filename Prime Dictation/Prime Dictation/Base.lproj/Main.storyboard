@@ -95,7 +95,7 @@
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EmE-RS-QlP" userLabel="Stop">
                                                 <rect key="frame" x="2" y="-5" width="100" height="100"/>
-                                                <state key="normal" image="StopButton"/>
+                                                <state key="normal" image="StopSignButton"/>
                                                 <connections>
                                                     <action selector="StopRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8PK-a2-dMr"/>
                                                 </connections>
@@ -265,6 +265,6 @@
         <image name="PauseButton" width="100" height="100"/>
         <image name="PreviousArrow" width="100" height="100"/>
         <image name="RecordButton" width="100" height="100"/>
-        <image name="StopButton" width="100" height="100"/>
+        <image name="StopSignButton" width="100" height="100"/>
     </resources>
 </document>
