@@ -169,7 +169,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         CheckToggledRecordingsIndex(goingToPreviousRecording: true)
         toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
         FileNameLabel.setTitle(toggledRecordingName + ".wav", for: .normal)
-        
     }
     
     @IBAction func NextRecordingButton(_ sender: Any) {
@@ -292,7 +291,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         RecordLabel.isHidden = false
         StopButtonLabel.isHidden = true
         PausePlayButtonLabel.isHidden = true
-        PausePlayButtonLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
+        PausePlayButtonLabel.setImage(UIImage(named: "PauseButton-2"), for: .normal)
         SendLabel.setTitleColor(UIColor.black, for: .normal)
         SendLabel.isEnabled = true
         SignInLabel.isEnabled = true
@@ -315,12 +314,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     var isRecordingPaused: Bool = false
     @IBAction func PausePlayRecordingButton(_ sender: Any) {
         if audioRecorder.isRecording {
-            PausePlayButtonLabel.setImage(UIImage(named: "PlayButton"), for: .normal)
+            PausePlayButtonLabel.setImage(UIImage(named: "PlayButton-2"), for: .normal)
             audioRecorder.pause()
             isRecordingPaused = true
             watch.pause()
         } else {
-            PausePlayButtonLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
+            PausePlayButtonLabel.setImage(UIImage(named: "PauseButton-2"), for: .normal)
             audioRecorder.record()
             isRecordingPaused = false
             watch.resume()
@@ -602,28 +601,24 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBAction func LowQualityButtonPressed(_ sender: Any) {
         SetQuality(rate: 4000, SKInt: 0)
         CloseQualitySelect()
-        print(UserDefaults.standard.integer(forKey: SOUND_QUALITY_KEY), sampleRate)
     }
     
     @IBAction func MediumQualityButtonPressed(_ sender: Any) {
         SetQuality(rate: 8000, SKInt: 1)
         CloseQualitySelect()
-        print(UserDefaults.standard.integer(forKey: SOUND_QUALITY_KEY), sampleRate)
     }
     
     @IBAction func HighQualityButtonPressed(_ sender: Any) {
         SetQuality(rate: 16000, SKInt: 2)
-        
         CloseQualitySelect()
-        print(UserDefaults.standard.integer(forKey: SOUND_QUALITY_KEY), sampleRate)
     }
     
     @IBAction func QualityButtonPressed(_ sender: Any) {
         OpenQualitySelect()
-        print(UserDefaults.standard.integer(forKey: SOUND_QUALITY_KEY), sampleRate)
     }
     
 }
+
 let SOUND_QUALITY_KEY = "SoundQualityKey"
 extension ViewController {
     func SetQuality(rate: Int, SKInt: Int) {
