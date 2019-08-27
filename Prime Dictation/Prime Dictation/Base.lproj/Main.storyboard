@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
-    <device id="retina4_7" orientation="portrait">
+    <device id="retina5_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -15,26 +15,26 @@
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="Prime_Dictation" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="BG" translatesAutoresizingMaskIntoConstraints="NO" id="UTB-4I-ZUJ">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ThE-Sk-wrm" userLabel="Top View">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="233.5"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="268"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Prime Dictation" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1tL-fi-eIn">
-                                        <rect key="frame" x="77" y="42" width="221" height="39"/>
+                                        <rect key="frame" x="96.666666666666686" y="30" width="221" height="39"/>
                                         <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="35"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o80-10-TL7" userLabel="QualityView">
-                                        <rect key="frame" x="0.0" y="168.5" width="375" height="50"/>
+                                        <rect key="frame" x="0.0" y="79" width="414" height="50"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tm4-4v-pNC">
-                                                <rect key="frame" x="137.5" y="0.0" width="100" height="50"/>
+                                                <rect key="frame" x="157" y="0.0" width="100" height="50"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="100" id="SGk-pY-Chs"/>
                                                 </constraints>
@@ -47,7 +47,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="39E-dP-fCD">
-                                                <rect key="frame" x="45.5" y="5" width="42" height="40"/>
+                                                <rect key="frame" x="65" y="5" width="42" height="40"/>
                                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
                                                 <state key="normal" title="Low">
                                                     <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -57,7 +57,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="S1m-sC-AEB">
-                                                <rect key="frame" x="287.5" y="5" width="43" height="40"/>
+                                                <rect key="frame" x="307" y="5" width="43" height="40"/>
                                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
                                                 <state key="normal" title="High">
                                                     <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -67,7 +67,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XW5-ly-RIM">
-                                                <rect key="frame" x="148" y="5" width="79" height="40"/>
+                                                <rect key="frame" x="167.66666666666666" y="5" width="79" height="40"/>
                                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
                                                 <state key="normal" title="Quality">
                                                     <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -91,18 +91,65 @@
                                             <constraint firstItem="tm4-4v-pNC" firstAttribute="leading" secondItem="39E-dP-fCD" secondAttribute="trailing" constant="50" id="urU-Vd-age"/>
                                         </constraints>
                                     </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Iak-O0-IL9" userLabel="Playback Speed View">
+                                        <rect key="frame" x="0.0" y="233" width="414" height="35"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IuB-47-7Rn" userLabel="PBS Toggle">
+                                                <rect key="frame" x="129.66666666666666" y="-2.3333333333333428" width="154.99999999999997" height="40"/>
+                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
+                                                <state key="normal" title="Playback Speed">
+                                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="PlaybackButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="14I-N8-F5x"/>
+                                                </connections>
+                                            </button>
+                                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="3" minValue="1" maxValue="5" translatesAutoresizingMaskIntoConstraints="NO" id="dvB-uQ-NWy" userLabel="Slider">
+                                                <rect key="frame" x="28" y="2.6666666666666572" width="253" height="31"/>
+                                                <color key="minimumTrackTintColor" red="0.66140852304489794" green="0.42190382354431882" blue="0.081994193549503672" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                <color key="maximumTrackTintColor" red="0.49796747967479676" green="0.49593495934959347" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                <color key="thumbTintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <connections>
+                                                    <action selector="SliderValueChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="nPf-oY-xZD"/>
+                                                    <action selector="TouchUpInside:" destination="BYZ-38-t0r" eventType="touchUpInside" id="tex-18-NU6"/>
+                                                </connections>
+                                            </slider>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1x" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0lb-EO-aKP" userLabel="PBS Display">
+                                                <rect key="frame" x="324" y="3.6666666666666572" width="60" height="28"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="60" id="RWH-m2-Cxb"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstItem="IuB-47-7Rn" firstAttribute="centerX" secondItem="Iak-O0-IL9" secondAttribute="centerX" id="1db-rp-Njk"/>
+                                            <constraint firstItem="dvB-uQ-NWy" firstAttribute="centerY" secondItem="Iak-O0-IL9" secondAttribute="centerY" id="28u-gy-PTL"/>
+                                            <constraint firstItem="0lb-EO-aKP" firstAttribute="leading" secondItem="dvB-uQ-NWy" secondAttribute="trailing" constant="45" id="4Ye-wk-G6w"/>
+                                            <constraint firstAttribute="height" constant="35" id="FCq-fQ-kcn"/>
+                                            <constraint firstItem="dvB-uQ-NWy" firstAttribute="leading" secondItem="Iak-O0-IL9" secondAttribute="leading" constant="30" id="FX5-Ni-tce"/>
+                                            <constraint firstAttribute="trailing" secondItem="0lb-EO-aKP" secondAttribute="trailing" constant="30" id="Mpr-a7-90e"/>
+                                            <constraint firstItem="0lb-EO-aKP" firstAttribute="centerY" secondItem="Iak-O0-IL9" secondAttribute="centerY" id="c20-Cj-XXl"/>
+                                            <constraint firstItem="IuB-47-7Rn" firstAttribute="centerY" secondItem="Iak-O0-IL9" secondAttribute="centerY" id="jr4-Ft-SR5"/>
+                                        </constraints>
+                                    </view>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="1tL-fi-eIn" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="top" constant="42" id="14G-OU-8AH"/>
+                                    <constraint firstItem="1tL-fi-eIn" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="top" constant="30" id="14G-OU-8AH"/>
+                                    <constraint firstAttribute="trailing" secondItem="Iak-O0-IL9" secondAttribute="trailing" id="Egc-Es-Bxj"/>
                                     <constraint firstItem="o80-10-TL7" firstAttribute="leading" secondItem="ThE-Sk-wrm" secondAttribute="leading" id="LaT-UF-tbW"/>
                                     <constraint firstItem="o80-10-TL7" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="Wac-ej-FMY"/>
+                                    <constraint firstItem="Iak-O0-IL9" firstAttribute="leading" secondItem="ThE-Sk-wrm" secondAttribute="leading" id="mkA-6W-VGW"/>
+                                    <constraint firstItem="o80-10-TL7" firstAttribute="top" secondItem="1tL-fi-eIn" secondAttribute="bottom" constant="10" id="njD-wk-OHl"/>
                                     <constraint firstAttribute="trailing" secondItem="o80-10-TL7" secondAttribute="trailing" id="oVi-rD-sir"/>
                                     <constraint firstItem="1tL-fi-eIn" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="s0d-rv-qhg"/>
-                                    <constraint firstAttribute="bottom" secondItem="o80-10-TL7" secondAttribute="bottom" constant="15" id="s1E-Kg-Lll"/>
+                                    <constraint firstAttribute="bottom" secondItem="Iak-O0-IL9" secondAttribute="bottom" id="xs2-pd-FaC"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fhv-jG-Lfw" userLabel="Middle View">
-                                <rect key="frame" x="0.0" y="233.5" width="375" height="200"/>
+                                <rect key="frame" x="19.666666666666657" y="268" width="375" height="200"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OPi-8M-xC4" userLabel="FileNameView">
                                         <rect key="frame" x="0.0" y="59" width="375" height="121"/>
@@ -114,18 +161,18 @@
                                                     <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </state>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ad2-00-0E4">
-                                                <rect key="frame" x="62" y="46" width="75" height="75"/>
-                                                <state key="normal" image="PreviousArrow"/>
-                                                <connections>
-                                                    <action selector="PreviousRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="fcw-wf-7kx"/>
-                                                </connections>
-                                            </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RQo-s8-1EL">
                                                 <rect key="frame" x="237" y="46" width="75" height="75"/>
                                                 <state key="normal" image="NextArrow"/>
                                                 <connections>
                                                     <action selector="NextRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="V8A-PZ-5T9"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ad2-00-0E4">
+                                                <rect key="frame" x="62" y="46" width="75" height="75"/>
+                                                <state key="normal" image="PreviousArrow"/>
+                                                <connections>
+                                                    <action selector="PreviousRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="fcw-wf-7kx"/>
                                                 </connections>
                                             </button>
                                         </subviews>
@@ -153,20 +200,20 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nJI-Eq-CWr" userLabel="Bottom View">
-                                <rect key="frame" x="0.0" y="433.5" width="375" height="233.5"/>
+                                <rect key="frame" x="0.0" y="468" width="414" height="268"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="k8X-4n-nC8" userLabel="Stop/Record/Pause View">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="183.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="218"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EmE-RS-QlP" userLabel="Stop">
-                                                <rect key="frame" x="29.5" y="42" width="100" height="100"/>
+                                                <rect key="frame" x="49" y="59" width="100" height="100"/>
                                                 <state key="normal" image="EndButton"/>
                                                 <connections>
                                                     <action selector="StopRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8PK-a2-dMr"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aq9-EU-DW7" userLabel="Record">
-                                                <rect key="frame" x="137.5" y="42" width="100" height="100"/>
+                                                <rect key="frame" x="157" y="59" width="100" height="100"/>
                                                 <state key="normal" image="RecordButton">
                                                     <color key="titleColor" red="0.95523184539999995" green="0.25774388710000001" blue="0.200147456" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                 </state>
@@ -175,7 +222,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HCQ-U9-aU8" userLabel="Pause">
-                                                <rect key="frame" x="245.5" y="42" width="100" height="100"/>
+                                                <rect key="frame" x="265" y="59" width="100" height="100"/>
                                                 <state key="normal" image="PauseButton-2"/>
                                                 <connections>
                                                     <action selector="PausePlayRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="HAA-jW-asP"/>
@@ -192,10 +239,10 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4fs-SU-4uI" userLabel="SignIn/Send View">
-                                        <rect key="frame" x="0.0" y="183.5" width="375" height="50"/>
+                                        <rect key="frame" x="0.0" y="218" width="414" height="50"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="svK-SA-aO1">
-                                                <rect key="frame" x="308" y="2.5" width="59" height="45"/>
+                                                <rect key="frame" x="347" y="2.6666666666666288" width="59" height="45"/>
                                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
                                                 <state key="normal" title="Send">
                                                     <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -238,7 +285,7 @@
                                 </constraints>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAV-Xq-Ydt">
-                                <rect key="frame" x="150" y="243.5" width="75" height="45"/>
+                                <rect key="frame" x="169.66666666666666" y="278" width="75" height="45"/>
                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
                                 <state key="normal" title="Listen"/>
                                 <connections>
@@ -246,7 +293,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vvz-gp-8Nr" userLabel="Pause/Play Playback Label">
-                                <rect key="frame" x="252.5" y="243.5" width="92" height="45"/>
+                                <rect key="frame" x="272" y="278" width="92" height="45"/>
                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
                                 <state key="normal" title="Resume">
                                     <color key="titleColor" red="0.72862791077134581" green="0.42368566398046881" blue="0.050075794092418816" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -256,7 +303,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JP1-AS-jj7" userLabel="End Playback Label">
-                                <rect key="frame" x="80.5" y="243.5" width="42" height="45"/>
+                                <rect key="frame" x="100" y="278" width="42" height="45"/>
                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
                                 <state key="normal" title="End">
                                     <color key="titleColor" red="0.58072251080000004" green="0.066734083" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -266,7 +313,7 @@
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Stopwatch" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dFf-qS-ITZ">
-                                <rect key="frame" x="132.5" y="251.5" width="110" height="28"/>
+                                <rect key="frame" x="152" y="286" width="110" height="28"/>
                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -313,6 +360,9 @@
                         <outlet property="NextRecordingLabel" destination="RQo-s8-1EL" id="Qxy-BS-mC3"/>
                         <outlet property="PausePlayButtonLabel" destination="HCQ-U9-aU8" id="YZI-tG-ZqX"/>
                         <outlet property="PausePlaybackLabel" destination="Vvz-gp-8Nr" id="w3z-fG-5BT"/>
+                        <outlet property="PlaybackSpeedDisplayLabel" destination="0lb-EO-aKP" id="LxX-kw-e6Z"/>
+                        <outlet property="PlaybackSpeedSliderLabel" destination="dvB-uQ-NWy" id="mpW-6J-rx5"/>
+                        <outlet property="PlaybackSpeedToggleLabel" destination="IuB-47-7Rn" id="xOL-yp-Wfv"/>
                         <outlet property="PreviousRecordingLabel" destination="Ad2-00-0E4" id="EfO-Ok-KQM"/>
                         <outlet property="QualityLabel" destination="XW5-ly-RIM" id="jqK-tB-LBL"/>
                         <outlet property="RecordLabel" destination="aq9-EU-DW7" id="aoh-8d-Bsn"/>
@@ -325,7 +375,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="125.625" y="116.25"/>
+            <point key="canvasLocation" x="-1312" y="-556"/>
         </scene>
     </scenes>
     <resources>
