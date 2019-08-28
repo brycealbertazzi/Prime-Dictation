@@ -293,9 +293,9 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vvz-gp-8Nr" userLabel="Pause/Play Playback Label">
-                                <rect key="frame" x="272" y="278" width="92" height="45"/>
+                                <rect key="frame" x="272" y="278" width="67" height="45"/>
                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
-                                <state key="normal" title="Resume">
+                                <state key="normal" title="Pause">
                                     <color key="titleColor" red="0.72862791077134581" green="0.42368566398046881" blue="0.050075794092418816" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 </state>
                                 <connections>
