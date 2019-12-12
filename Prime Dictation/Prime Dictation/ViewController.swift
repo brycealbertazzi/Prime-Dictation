@@ -566,6 +566,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                                 print(error)
                                 ProgressHUD.showError("Failed to send recording to dropbox, check your connections", interaction: true)
                             }
+                            //Update UI on send
                             self.SignInLabel.setTitleColor(UIColor.black, for: .normal)
                             self.SendLabel.setTitleColor(UIColor.black, for: .normal)
                             self.SignInLabel.isEnabled = true
@@ -580,8 +581,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                             self.NextRecordingLabel.setTitleColor(UIColor.black, for: .normal)
                             self.EnableQualityControls()
                             self.EnablePlaybackSpeedControls()
+                            ////////////
                         }
-                
             } else {
                 ProgressHUD.showError("No recording to send")
             }
