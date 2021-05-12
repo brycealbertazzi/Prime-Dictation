@@ -7,20 +7,27 @@
 //
 
 import UIKit
-import SwiftyDropbox
-import DropboxAuth
 import ProgressHUD
+import MSGraphMSALAuthProvider
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    var primeDictationAppKey: String = "idn5cf6rx704tu2"
+    
+    public static let kRedirectUri = "msauth.com.BryceAlbertazzi.Prime-Dictation://auth"
+    public static let kClientID = "934509c9-d7d5-40a7-b5c6-19707ac3af8c"
+    public static let kGraphEndpoint = "https://graph.microsoft.com/v1.0/me/"
+    public static let kAuthority = "https://login.microsoftonline.com/common"
+    public static let directoryID = "feba6b01-0c47-4af9-b51f-cc3d264beaa9"
+    public static let objectID = "d33bde92-9941-4abb-8af8-9f5a3f6d96cc"
+    
+    public static let kScopes: [String] = ["User.Read", "Files.ReadWrite.AppFolder", "Files.ReadWrite.All"/*, "Sites.ReadWrite.All"*/] // request permission to read the profile of the signed-in user
+    
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
-        DropboxClientsManager.setupWithAppKey(primeDictationAppKey)
         
         return true
     }
@@ -47,22 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
-    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-        
-        if let authResult = DropboxClientsManager.handleRedirectURL(url) {
-            switch authResult {
-            case .success(let token):
-                print("Succes! Logged into dropbox with token \(token)")
-                ProgressHUD.showSuccess("Successfully logged into dropbox", interaction: true)
-            case .cancel:
-                print("User has canceled OAuth flow")
-            case .error(let error, let description):
-                print("Error \(error): \(description)")
-                ProgressHUD.showError("Could not log into Dropbox", interaction: true)
-            }
-        }
-        return false
-    }
+    
 
 }
 

@@ -8,9 +8,10 @@
 
 import UIKit
 import AVFoundation
-import SwiftyDropbox
-import DropboxAuth
 import ProgressHUD
+import MSGraphMSALAuthProvider
+import MSGraphClientSDK
+
 
 class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDelegate, AVAudioPlayerDelegate {
 
@@ -34,7 +35,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var QualityLabel: UIButton!
     
     
-    
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
     var audioRecorder: AVAudioRecorder! //Responsible for recording our audio
     var audioPlayer: AVAudioPlayer!
@@ -43,9 +43,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     var userSelectedFileType = 0
     
+    let config = MSALPublicClientApplicationConfig(clientId: AppDelegate.kClientID)
+    
+    
     //MARK: View did load
     override func viewDidLoad() {
         super.viewDidLoad()
+
         // Do any additional setup after loading the view.
         ListenLabel.setTitle("Listen", for: .normal)
         RecordLabel.isHidden = false
@@ -107,6 +111,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         UpdateSliderDisplay(with: 5)
         PlaybackSpeedSliderLabel.value = PlaybackSpeedSliderLabel.maximumValue
     }
+    //MARK: MSAL Functions
+
     
     //MARK: Listen to Playback
     let recordingExtension: String = "m4a"
@@ -535,81 +541,147 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     }
     
+    
+    // One Drive for Business
     @IBAction func SendButton(_ sender: Any) {
-        if let client: DropboxClient = DropboxClientsManager.authorizedClient {
-            print("Client is already authorized")
-            if savedRecordingNames.count > 0 {
-                ProgressHUD.show("Sending...")
-                SignInLabel.isEnabled = false
-                SendLabel.isEnabled = false
-                SignInLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
-                SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
-                RecordLabel.isEnabled = false
-                ListenLabel.isEnabled = false
-                FileNameLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
-                TitleOfAppLabel.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.3)
-                PreviousRecordingLabel.isEnabled = false
-                NextRecordingLabel.isEnabled = false
-                PreviousRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
-                NextRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
-                DisableQualityControls()
-                DisablePlaybackSpeedControls()
-                
-                //Send recording to dropbox folder for this app
-                let recordingToUpload: URL = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(destinationRecordingExtension)
-                    _ = client.files.upload(path: "/" + toggledRecordingName + "." + destinationRecordingExtension, input: recordingToUpload)
-                        .response { (response, error) in
-                            if let response = response {
-                                print(response)
-                                ProgressHUD.showSuccess("Recording was sent to Dropbox", interaction: true)
-                            } else if let error = error {
-                                print(error)
-                                ProgressHUD.showError("Failed to send recording to dropbox, check your connections", interaction: true)
-                            }
-                            //Update UI on send
-                            self.SignInLabel.setTitleColor(UIColor.black, for: .normal)
-                            self.SendLabel.setTitleColor(UIColor.black, for: .normal)
-                            self.SignInLabel.isEnabled = true
-                            self.SendLabel.isEnabled = true
-                            self.RecordLabel.isEnabled = true
-                            self.ListenLabel.isEnabled = true
-                            self.FileNameLabel.setTitleColor(UIColor.black, for: .normal)
-                            self.TitleOfAppLabel.textColor = UIColor.black
-                            self.PreviousRecordingLabel.isEnabled = true
-                            self.NextRecordingLabel.isEnabled = true
-                            self.PreviousRecordingLabel.setTitleColor(UIColor.black, for: .normal)
-                            self.NextRecordingLabel.setTitleColor(UIColor.black, for: .normal)
-                            self.EnableQualityControls()
-                            self.EnablePlaybackSpeedControls()
-                            ////////////
-                        }
+        // Construct the request to send the recording
+        let request: NSMutableURLRequest = NSMutableURLRequest(url: URL(string: "www.google.com")!)
+        print(request)
+//        //Execute the request
+        let sendRecordingTask: MSURLSessionDataTask? = httpClient?.dataTask(with: request, completionHandler: { (data, response, error) in
+            print(request)
+            if (error != nil) {
+                print(error)
             } else {
-                ProgressHUD.showError("No recording to send")
+                print(data)
+                print(response)
             }
-        } else {
-            OpenAuthorizationFlow()
-        }
+        })
+        
+        
+        
+        
+//        sendRecordingTask?.execute()
+        
+        
+//        if let client: DropboxClient = DropboxClientsManager.authorizedClient {
+//            print("Client is already authorized")
+//            if savedRecordingNames.count > 0 {
+//                // UI interactions
+//                ProgressHUD.show("Sending...")
+//                SignInLabel.isEnabled = false
+//                SendLabel.isEnabled = false
+//                SignInLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+//                SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+//                RecordLabel.isEnabled = false
+//                ListenLabel.isEnabled = false
+//                FileNameLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+//                TitleOfAppLabel.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.3)
+//                PreviousRecordingLabel.isEnabled = false
+//                NextRecordingLabel.isEnabled = false
+//                PreviousRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+//                NextRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+//                DisableQualityControls()
+//                DisablePlaybackSpeedControls()
+//
+//                //Send recording to dropbox folder for this app
+//                //TODO: Send to OneDrive instead
+//                let recordingToUpload: URL = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(destinationRecordingExtension)
+//                    _ = client.files.upload(path: "/" + toggledRecordingName + "." + destinationRecordingExtension, input: recordingToUpload)
+//                        .response { (response, error) in
+//                            if let response = response {
+//                                print(response)
+//                                ProgressHUD.showSuccess("Recording was sent to Dropbox", interaction: true)
+//                            } else if let error = error {
+//                                print(error)
+//                                ProgressHUD.showError("Failed to send recording to dropbox, check your connections", interaction: true)
+//                            }
+//                            //Update UI on send
+//                            self.SignInLabel.setTitleColor(UIColor.black, for: .normal)
+//                            self.SendLabel.setTitleColor(UIColor.black, for: .normal)
+//                            self.SignInLabel.isEnabled = true
+//                            self.SendLabel.isEnabled = true
+//                            self.RecordLabel.isEnabled = true
+//                            self.ListenLabel.isEnabled = true
+//                            self.FileNameLabel.setTitleColor(UIColor.black, for: .normal)
+//                            self.TitleOfAppLabel.textColor = UIColor.black
+//                            self.PreviousRecordingLabel.isEnabled = true
+//                            self.NextRecordingLabel.isEnabled = true
+//                            self.PreviousRecordingLabel.setTitleColor(UIColor.black, for: .normal)
+//                            self.NextRecordingLabel.setTitleColor(UIColor.black, for: .normal)
+//                            self.EnableQualityControls()
+//                            self.EnablePlaybackSpeedControls()
+//                            ////////////
+//                        }
+//            } else {
+//                ProgressHUD.showError("No recording to send")
+//            }
+//        } else {
+//            OpenAuthorizationFlow()
+//        }
     }
+    
+    var MSPublicClientApp: MSALPublicClientApplication?
+    var MSAuthProviderOptions: MSALAuthenticationProviderOptions?
+    var MSAuthProvider: MSALAuthenticationProvider?
+    var httpClient: MSHTTPClient?
     
     @IBAction func SignInButton(_ sender: Any) {
-        OpenAuthorizationFlow()
-    }
-    
-    
-   
-    var url: URL = URL(string: "https://www.dropbox.com/oauth2/authorize")!
-    func OpenAuthorizationFlow() {
-        DropboxClientsManager.authorizeFromController(UIApplication.shared, controller: self) { (url) in
-            DropboxClientsManager.authorizeFromController(UIApplication.shared, controller: self, openURL: { (url) in
-                if UIApplication.shared.canOpenURL(url) {
-                    UIApplication.shared.open(url, completionHandler: nil)
-                } else {
-                    print("Cannot open authorization URL")
-                    ProgressHUD.showError("Cannot connect to Dropbox servers, check your connection")
-                }
-            })
+        if let msPublicClientApp = try? MSALPublicClientApplication(clientId: AppDelegate.kClientID) {
+            #if os(iOS)
+                let viewController = self // Pass a reference to the view controller that should be used when getting a token interactively
+            let webviewParameters = MSALWebviewParameters(parentViewController: viewController)
+                #else
+                let webviewParameters = MSALWebviewParameters()
+                #endif
+                
+            let interactiveParameters = MSALInteractiveTokenParameters(scopes: AppDelegate.kScopes, webviewParameters: webviewParameters)
+                msPublicClientApp.acquireToken(with: interactiveParameters, completionBlock: { (result, error) in
+                            
+                    guard let authResult = result, error == nil else {
+                        print(error!.localizedDescription)
+                        return
+                    }
+                                
+                    // Get access token from result
+                    let accessToken = authResult.accessToken
+                                
+                    // You'll want to get the account identifier to retrieve and reuse the account for later acquireToken calls
+                    let accountIdentifier = authResult.account.identifier
+                    
+                    if let msAuthProviderOptions = try? MSALAuthenticationProviderOptions(scopes: AppDelegate.kScopes) {
+                        print(msAuthProviderOptions.scopesArray as Any)
+                        self.MSAuthProviderOptions = msAuthProviderOptions
+                    } else {
+                        ProgressHUD.showError("Unable to sign into OneDrive")
+                        return
+                    }
+                    
+                    if let msAuthProvider = try? MSALAuthenticationProvider(publicClientApplication: self.MSPublicClientApp!, andOptions: self.MSAuthProviderOptions!) {
+                        print(msAuthProvider)
+                        self.MSAuthProvider = msAuthProvider
+                    } else {
+                        ProgressHUD.showError("Unable to sign into OneDrive")
+                        return
+                    }
+                    
+                    self.httpClient = MSClientFactory.createHTTPClient(with: self.MSAuthProvider)
+                    print(self.httpClient)
+                    ProgressHUD.showSuccess("Successfully signed into OneDrive!")
+                })
+            print(msPublicClientApp.configuration.clientId)
+            MSPublicClientApp = msPublicClientApp
+            
+            
+            
+        } else {
+            ProgressHUD.showError("Unable to sign into OneDrive")
+            return
         }
+        
     }
+    
+
     
     //MARK: - Playback Controls
     @IBOutlet weak var PlaybackSpeedToggleLabel: UIButton!
