@@ -25,8 +25,565 @@
 		0341830422EE36B300670DD1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0341830722EE36B300670DD1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0341830922EE36B300670DD1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		035495BF264F4989003F652C /* PDBridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PDBridgingHeader.h; sourceTree = "<group>"; };
 		036F3B9426182FB60000F2D5 /* Prime Dictation.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Prime Dictation.entitlements"; sourceTree = "<group>"; };
 		03C69A6022FE0083005D8AD1 /* Stopwatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stopwatch.swift; sourceTree = "<group>"; };
+		03EBDF64264F411000A7219B /* makeUniversalLib.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = makeUniversalLib.sh; sourceTree = "<group>"; };
+		03EBDF66264F411000A7219B /* CkoAuthAzureStorage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoAuthAzureStorage.h; sourceTree = "<group>"; };
+		03EBDF67264F411000A7219B /* CkoJsonArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoJsonArray.h; sourceTree = "<group>"; };
+		03EBDF68264F411000A7219B /* CkoMailMan.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoMailMan.h; sourceTree = "<group>"; };
+		03EBDF69264F411000A7219B /* CkoAuthAws.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoAuthAws.h; sourceTree = "<group>"; };
+		03EBDF6A264F411000A7219B /* CkoImap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoImap.h; sourceTree = "<group>"; };
+		03EBDF6B264F411000A7219B /* CkoJsonObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoJsonObject.h; sourceTree = "<group>"; };
+		03EBDF6C264F411000A7219B /* CkoXmp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoXmp.h; sourceTree = "<group>"; };
+		03EBDF6D264F411000A7219B /* CkoZip.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoZip.h; sourceTree = "<group>"; };
+		03EBDF6E264F411000A7219B /* CkoSecureString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoSecureString.h; sourceTree = "<group>"; };
+		03EBDF6F264F411000A7219B /* CkoSFtpProgress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoSFtpProgress.h; sourceTree = "<group>"; };
+		03EBDF70264F411000A7219B /* CkoLog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoLog.h; sourceTree = "<group>"; };
+		03EBDF71264F411000A7219B /* CkoUrl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoUrl.h; sourceTree = "<group>"; };
+		03EBDF72264F411000A7219B /* CkoXml.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoXml.h; sourceTree = "<group>"; };
+		03EBDF73264F411000A7219B /* CkoPfx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoPfx.h; sourceTree = "<group>"; };
+		03EBDF74264F411000A7219B /* CkoOAuth1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoOAuth1.h; sourceTree = "<group>"; };
+		03EBDF75264F411000A7219B /* CkoDtObj.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoDtObj.h; sourceTree = "<group>"; };
+		03EBDF76264F411000A7219B /* CkoUnixCompress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoUnixCompress.h; sourceTree = "<group>"; };
+		03EBDF77264F411000A7219B /* CkoSsh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoSsh.h; sourceTree = "<group>"; };
+		03EBDF78264F411000A7219B /* CkoMht.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoMht.h; sourceTree = "<group>"; };
+		03EBDF79264F411000A7219B /* CkoTaskChain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoTaskChain.h; sourceTree = "<group>"; };
+		03EBDF7A264F411000A7219B /* CkoSshKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoSshKey.h; sourceTree = "<group>"; };
+		03EBDF7B264F411000A7219B /* CkoCompression.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoCompression.h; sourceTree = "<group>"; };
+		03EBDF7C264F411000A7219B /* CkoBaseProgress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoBaseProgress.h; sourceTree = "<group>"; };
+		03EBDF7D264F411000A7219B /* CkoDh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoDh.h; sourceTree = "<group>"; };
+		03EBDF7E264F411000A7219B /* CkoAuthUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoAuthUtil.h; sourceTree = "<group>"; };
+		03EBDF7F264F411000A7219B /* CkoCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoCache.h; sourceTree = "<group>"; };
+		03EBDF80264F411000A7219B /* CkoGzip.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoGzip.h; sourceTree = "<group>"; };
+		03EBDF81264F411000A7219B /* CkoSFtpDir.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoSFtpDir.h; sourceTree = "<group>"; };
+		03EBDF82264F411000A7219B /* CkoZipEntry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoZipEntry.h; sourceTree = "<group>"; };
+		03EBDF83264F411000A7219B /* CkoRest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoRest.h; sourceTree = "<group>"; };
+		03EBDF84264F411000A7219B /* CkoSshTunnel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoSshTunnel.h; sourceTree = "<group>"; };
+		03EBDF85264F411000A7219B /* CkoRss.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoRss.h; sourceTree = "<group>"; };
+		03EBDF86264F411000A7219B /* CkoDirTree.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoDirTree.h; sourceTree = "<group>"; };
+		03EBDF87264F411000A7219B /* CkoFtp2Progress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoFtp2Progress.h; sourceTree = "<group>"; };
+		03EBDF88264F411000A7219B /* CkoPrng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoPrng.h; sourceTree = "<group>"; };
+		03EBDF89264F411000A7219B /* CkoPdf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoPdf.h; sourceTree = "<group>"; };
+		03EBDF8A264F411000A7219B /* CkoCgi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoCgi.h; sourceTree = "<group>"; };
+		03EBDF8B264F411000A7219B /* CkoHttpProgress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoHttpProgress.h; sourceTree = "<group>"; };
+		03EBDF8C264F411000A7219B /* CkoMime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoMime.h; sourceTree = "<group>"; };
+		03EBDF8D264F411000A7219B /* CkoTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoTask.h; sourceTree = "<group>"; };
+		03EBDF8E264F411000A7219B /* CkoStringBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoStringBuilder.h; sourceTree = "<group>"; };
+		03EBDF8F264F411000A7219B /* CkoHttp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoHttp.h; sourceTree = "<group>"; };
+		03EBDF90264F411000A7219B /* CkoSpider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoSpider.h; sourceTree = "<group>"; };
+		03EBDF91264F411000A7219B /* CkoOAuth2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoOAuth2.h; sourceTree = "<group>"; };
+		03EBDF92264F411000A7219B /* CkoDsa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoDsa.h; sourceTree = "<group>"; };
+		03EBDF93264F411000A7219B /* CkoUpload.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoUpload.h; sourceTree = "<group>"; };
+		03EBDF94264F411000A7219B /* CkoDkim.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoDkim.h; sourceTree = "<group>"; };
+		03EBDF95264F411000A7219B /* CkoEdDSA.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoEdDSA.h; sourceTree = "<group>"; };
+		03EBDF96264F411000A7219B /* CkoHtmlToText.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoHtmlToText.h; sourceTree = "<group>"; };
+		03EBDF97264F411000A7219B /* CkoCertStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoCertStore.h; sourceTree = "<group>"; };
+		03EBDF98264F411000A7219B /* CkoPrivateKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoPrivateKey.h; sourceTree = "<group>"; };
+		03EBDF99264F411000A7219B /* CkoSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoSocket.h; sourceTree = "<group>"; };
+		03EBDF9A264F411000A7219B /* CkoEmail.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoEmail.h; sourceTree = "<group>"; };
+		03EBDF9B264F411000A7219B /* CkoRsa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoRsa.h; sourceTree = "<group>"; };
+		03EBDF9C264F411000A7219B /* CkoMessageSet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoMessageSet.h; sourceTree = "<group>"; };
+		03EBDF9D264F411000A7219B /* CkoSFtpFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoSFtpFile.h; sourceTree = "<group>"; };
+		03EBDF9E264F411000A7219B /* CkoHttpResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoHttpResponse.h; sourceTree = "<group>"; };
+		03EBDF9F264F411000A7219B /* CkoEcc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoEcc.h; sourceTree = "<group>"; };
+		03EBDFA0264F411000A7219B /* CkoSFtp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoSFtp.h; sourceTree = "<group>"; };
+		03EBDFA1264F411000A7219B /* CkoJwe.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoJwe.h; sourceTree = "<group>"; };
+		03EBDFA2264F411000A7219B /* CkoHttpRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoHttpRequest.h; sourceTree = "<group>"; };
+		03EBDFA3264F411000A7219B /* CkoAsn.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoAsn.h; sourceTree = "<group>"; };
+		03EBDFA4264F411000A7219B /* CkoServerSentEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoServerSentEvent.h; sourceTree = "<group>"; };
+		03EBDFA5264F411000A7219B /* CkoCrypt2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoCrypt2.h; sourceTree = "<group>"; };
+		03EBDFA6264F411000A7219B /* CkoBz2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoBz2.h; sourceTree = "<group>"; };
+		03EBDFA7264F411000A7219B /* CkoCertChain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoCertChain.h; sourceTree = "<group>"; };
+		03EBDFA8264F411000A7219B /* CkoScp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoScp.h; sourceTree = "<group>"; };
+		03EBDFA9264F411000A7219B /* CkoHashtable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoHashtable.h; sourceTree = "<group>"; };
+		03EBDFAA264F411000A7219B /* CkoWebSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoWebSocket.h; sourceTree = "<group>"; };
+		03EBDFAB264F411000A7219B /* CkoTrustedRoots.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoTrustedRoots.h; sourceTree = "<group>"; };
+		03EBDFAC264F411000A7219B /* CkoZipProgress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoZipProgress.h; sourceTree = "<group>"; };
+		03EBDFAD264F411000A7219B /* CkoCsr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoCsr.h; sourceTree = "<group>"; };
+		03EBDFAE264F411000A7219B /* CkoProgress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoProgress.h; sourceTree = "<group>"; };
+		03EBDFAF264F411000A7219B /* CkoStringArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoStringArray.h; sourceTree = "<group>"; };
+		03EBDFB0264F411000A7219B /* CkoMailboxes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoMailboxes.h; sourceTree = "<group>"; };
+		03EBDFB1264F411000A7219B /* CkoBinData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoBinData.h; sourceTree = "<group>"; };
+		03EBDFB2264F411000A7219B /* CkoPublicKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoPublicKey.h; sourceTree = "<group>"; };
+		03EBDFB3264F411000A7219B /* CkoCharset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoCharset.h; sourceTree = "<group>"; };
+		03EBDFB4264F411000A7219B /* CkoAuthAzureAD.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoAuthAzureAD.h; sourceTree = "<group>"; };
+		03EBDFB5264F411000A7219B /* CkoZipCrc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoZipCrc.h; sourceTree = "<group>"; };
+		03EBDFB6264F411000A7219B /* CkoJws.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoJws.h; sourceTree = "<group>"; };
+		03EBDFB7264F411000A7219B /* CkoJavaKeyStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoJavaKeyStore.h; sourceTree = "<group>"; };
+		03EBDFB8264F411000A7219B /* CkoStringTable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoStringTable.h; sourceTree = "<group>"; };
+		03EBDFB9264F411000A7219B /* CkoPem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoPem.h; sourceTree = "<group>"; };
+		03EBDFBA264F411000A7219B /* CkoFtp2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoFtp2.h; sourceTree = "<group>"; };
+		03EBDFBB264F411000A7219B /* CkoCsv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoCsv.h; sourceTree = "<group>"; };
+		03EBDFBC264F411000A7219B /* CkoDateTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoDateTime.h; sourceTree = "<group>"; };
+		03EBDFBD264F411000A7219B /* CkoAuthAzureSAS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoAuthAzureSAS.h; sourceTree = "<group>"; };
+		03EBDFBE264F411000A7219B /* CkoGlobal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoGlobal.h; sourceTree = "<group>"; };
+		03EBDFBF264F411000A7219B /* CkoNtlm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoNtlm.h; sourceTree = "<group>"; };
+		03EBDFC0264F411000A7219B /* CkoAtom.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoAtom.h; sourceTree = "<group>"; };
+		03EBDFC1264F411000A7219B /* CkoXmlDSigGen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoXmlDSigGen.h; sourceTree = "<group>"; };
+		03EBDFC2264F411000A7219B /* CkoAuthGoogle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoAuthGoogle.h; sourceTree = "<group>"; };
+		03EBDFC3264F411000A7219B /* CkoTarProgress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoTarProgress.h; sourceTree = "<group>"; };
+		03EBDFC4264F411000A7219B /* CkoCert.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoCert.h; sourceTree = "<group>"; };
+		03EBDFC5264F411000A7219B /* CkoXmlCertVault.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoXmlCertVault.h; sourceTree = "<group>"; };
+		03EBDFC6264F411000A7219B /* CkoJwt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoJwt.h; sourceTree = "<group>"; };
+		03EBDFC7264F411000A7219B /* CkoTar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoTar.h; sourceTree = "<group>"; };
+		03EBDFC8264F411000A7219B /* CkoStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoStream.h; sourceTree = "<group>"; };
+		03EBDFC9264F411000A7219B /* CkoXmlDSig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoXmlDSig.h; sourceTree = "<group>"; };
+		03EBDFCA264F411000A7219B /* CkoFileAccess.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoFileAccess.h; sourceTree = "<group>"; };
+		03EBDFCB264F411000A7219B /* CkoHtmlToXml.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoHtmlToXml.h; sourceTree = "<group>"; };
+		03EBDFCC264F411000A7219B /* CkoEmailBundle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoEmailBundle.h; sourceTree = "<group>"; };
+		03EBDFCD264F411000A7219B /* CkoBounce.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoBounce.h; sourceTree = "<group>"; };
+		03EBDFCE264F411000A7219B /* CkoMailManProgress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkoMailManProgress.h; sourceTree = "<group>"; };
+		03EBDFCF264F411000A7219B /* license.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = license.pdf; sourceTree = "<group>"; };
+		03EBDFD1264F411000A7219B /* C_CkSFtp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSFtp.h; sourceTree = "<group>"; };
+		03EBDFD2264F411000A7219B /* CkAuthAzureADW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkAuthAzureADW.h; sourceTree = "<group>"; };
+		03EBDFD3264F411000A7219B /* C_CkSFtpW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSFtpW.h; sourceTree = "<group>"; };
+		03EBDFD4264F411000A7219B /* C_CkOAuth1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkOAuth1.h; sourceTree = "<group>"; };
+		03EBDFD5264F411000A7219B /* CkCsr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCsr.h; sourceTree = "<group>"; };
+		03EBDFD6264F411000A7219B /* CkNtlmW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkNtlmW.h; sourceTree = "<group>"; };
+		03EBDFD7264F411000A7219B /* allUnicodeC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = allUnicodeC.h; sourceTree = "<group>"; };
+		03EBDFD8264F411000A7219B /* C_CkJsonObjectW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkJsonObjectW.h; sourceTree = "<group>"; };
+		03EBDFD9264F411000A7219B /* C_CkAuthAzureStorageW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkAuthAzureStorageW.h; sourceTree = "<group>"; };
+		03EBDFDA264F411000A7219B /* CkSshW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSshW.h; sourceTree = "<group>"; };
+		03EBDFDB264F411000A7219B /* C_CkBinData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkBinData.h; sourceTree = "<group>"; };
+		03EBDFDC264F411000A7219B /* CkZipCrcW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkZipCrcW.h; sourceTree = "<group>"; };
+		03EBDFDD264F411000A7219B /* CkAuthAws.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkAuthAws.h; sourceTree = "<group>"; };
+		03EBDFDE264F411000A7219B /* CkAuthAzureStorageW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkAuthAzureStorageW.h; sourceTree = "<group>"; };
+		03EBDFDF264F411000A7219B /* CkDateTimeW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkDateTimeW.h; sourceTree = "<group>"; };
+		03EBDFE0264F411000A7219B /* CkMailMan.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkMailMan.h; sourceTree = "<group>"; };
+		03EBDFE1264F411000A7219B /* C_CkXmlDSigGenW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkXmlDSigGenW.h; sourceTree = "<group>"; };
+		03EBDFE2264F411000A7219B /* C_CkKeyContainerW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkKeyContainerW.h; sourceTree = "<group>"; };
+		03EBDFE3264F411000A7219B /* C_CkHtmlToTextW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkHtmlToTextW.h; sourceTree = "<group>"; };
+		03EBDFE4264F411000A7219B /* C_CkFtp2W.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkFtp2W.h; sourceTree = "<group>"; };
+		03EBDFE5264F411000A7219B /* C_CkHtmlToXml.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkHtmlToXml.h; sourceTree = "<group>"; };
+		03EBDFE6264F411000A7219B /* C_CkRar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkRar.h; sourceTree = "<group>"; };
+		03EBDFE7264F411000A7219B /* C_CkZipEntry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkZipEntry.h; sourceTree = "<group>"; };
+		03EBDFE8264F411000A7219B /* C_CkCharset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCharset.h; sourceTree = "<group>"; };
+		03EBDFE9264F411000A7219B /* CkCompressionW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCompressionW.h; sourceTree = "<group>"; };
+		03EBDFEA264F411000A7219B /* CkAuthAzureSAS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkAuthAzureSAS.h; sourceTree = "<group>"; };
+		03EBDFEB264F411000A7219B /* CkEdDSAW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkEdDSAW.h; sourceTree = "<group>"; };
+		03EBDFEC264F411000A7219B /* CkRestW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkRestW.h; sourceTree = "<group>"; };
+		03EBDFED264F411000A7219B /* CkMailManW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkMailManW.h; sourceTree = "<group>"; };
+		03EBDFEE264F411000A7219B /* CkAuthUtilW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkAuthUtilW.h; sourceTree = "<group>"; };
+		03EBDFEF264F411000A7219B /* C_CkCreateCS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCreateCS.h; sourceTree = "<group>"; };
+		03EBDFF0264F411000A7219B /* CkTaskChainW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkTaskChainW.h; sourceTree = "<group>"; };
+		03EBDFF1264F411000A7219B /* C_CkSFtpDirW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSFtpDirW.h; sourceTree = "<group>"; };
+		03EBDFF2264F411000A7219B /* CkTaskChain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkTaskChain.h; sourceTree = "<group>"; };
+		03EBDFF3264F411000A7219B /* C_CkTaskChainW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkTaskChainW.h; sourceTree = "<group>"; };
+		03EBDFF4264F411000A7219B /* CkJws.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkJws.h; sourceTree = "<group>"; };
+		03EBDFF5264F411000A7219B /* CkEdDSA.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkEdDSA.h; sourceTree = "<group>"; };
+		03EBDFF6264F411000A7219B /* C_CkZipW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkZipW.h; sourceTree = "<group>"; };
+		03EBDFF7264F411000A7219B /* C_CkUrlW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkUrlW.h; sourceTree = "<group>"; };
+		03EBDFF8264F411000A7219B /* CkStringBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkStringBuilder.h; sourceTree = "<group>"; };
+		03EBDFF9264F411000A7219B /* CkDhW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkDhW.h; sourceTree = "<group>"; };
+		03EBDFFA264F411000A7219B /* CkEmail.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkEmail.h; sourceTree = "<group>"; };
+		03EBDFFB264F411000A7219B /* CkAtom.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkAtom.h; sourceTree = "<group>"; };
+		03EBDFFC264F411000A7219B /* CkNtlm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkNtlm.h; sourceTree = "<group>"; };
+		03EBDFFD264F411000A7219B /* C_CkDtObjW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkDtObjW.h; sourceTree = "<group>"; };
+		03EBDFFE264F411000A7219B /* C_CkCharsetW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCharsetW.h; sourceTree = "<group>"; };
+		03EBDFFF264F411000A7219B /* CkOAuth1W.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkOAuth1W.h; sourceTree = "<group>"; };
+		03EBE000264F411000A7219B /* C_CkSshKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSshKey.h; sourceTree = "<group>"; };
+		03EBE001264F411000A7219B /* C_CkDh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkDh.h; sourceTree = "<group>"; };
+		03EBE002264F411000A7219B /* CkPem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkPem.h; sourceTree = "<group>"; };
+		03EBE003264F411000A7219B /* C_CkUnixCompress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkUnixCompress.h; sourceTree = "<group>"; };
+		03EBE004264F411000A7219B /* CkCsv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCsv.h; sourceTree = "<group>"; };
+		03EBE005264F411000A7219B /* C_CkPfxW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkPfxW.h; sourceTree = "<group>"; };
+		03EBE006264F411000A7219B /* CkObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkObject.h; sourceTree = "<group>"; };
+		03EBE007264F411000A7219B /* CkJwe.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkJwe.h; sourceTree = "<group>"; };
+		03EBE008264F411000A7219B /* CkUnixCompressW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkUnixCompressW.h; sourceTree = "<group>"; };
+		03EBE009264F411000A7219B /* C_CkEdDSAW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkEdDSAW.h; sourceTree = "<group>"; };
+		03EBE00A264F411000A7219B /* CkScpW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkScpW.h; sourceTree = "<group>"; };
+		03EBE00B264F411000A7219B /* C_CkCsrW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCsrW.h; sourceTree = "<group>"; };
+		03EBE00C264F411000A7219B /* C_CkJwt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkJwt.h; sourceTree = "<group>"; };
+		03EBE00D264F411000A7219B /* CkJsonArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkJsonArray.h; sourceTree = "<group>"; };
+		03EBE00E264F411000A7219B /* CkDh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkDh.h; sourceTree = "<group>"; };
+		03EBE00F264F411000A7219B /* CkSshKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSshKey.h; sourceTree = "<group>"; };
+		03EBE010264F411000A7219B /* CkBounceW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkBounceW.h; sourceTree = "<group>"; };
+		03EBE011264F411000A7219B /* CkAsn.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkAsn.h; sourceTree = "<group>"; };
+		03EBE012264F411000A7219B /* CkCreateCSW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCreateCSW.h; sourceTree = "<group>"; };
+		03EBE013264F411000A7219B /* C_CkSecureString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSecureString.h; sourceTree = "<group>"; };
+		03EBE014264F411000A7219B /* C_CkAuthAzureStorage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkAuthAzureStorage.h; sourceTree = "<group>"; };
+		03EBE015264F411000A7219B /* C_CkAtomW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkAtomW.h; sourceTree = "<group>"; };
+		03EBE016264F411000A7219B /* CkXmlCertVault.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkXmlCertVault.h; sourceTree = "<group>"; };
+		03EBE017264F411000A7219B /* C_CkTar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkTar.h; sourceTree = "<group>"; };
+		03EBE018264F411000A7219B /* C_CkDkimW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkDkimW.h; sourceTree = "<group>"; };
+		03EBE019264F411000A7219B /* CkDtObjW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkDtObjW.h; sourceTree = "<group>"; };
+		03EBE01A264F411000A7219B /* CkCert.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCert.h; sourceTree = "<group>"; };
+		03EBE01B264F411000A7219B /* C_CkUploadW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkUploadW.h; sourceTree = "<group>"; };
+		03EBE01C264F411000A7219B /* CkSecureStringW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSecureStringW.h; sourceTree = "<group>"; };
+		03EBE01D264F411000A7219B /* CkTarProgressW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkTarProgressW.h; sourceTree = "<group>"; };
+		03EBE01E264F411000A7219B /* C_CkDsaW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkDsaW.h; sourceTree = "<group>"; };
+		03EBE01F264F411000A7219B /* CkCertStoreW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCertStoreW.h; sourceTree = "<group>"; };
+		03EBE020264F411000A7219B /* CkBz2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkBz2.h; sourceTree = "<group>"; };
+		03EBE021264F411000A7219B /* C_CkImapW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkImapW.h; sourceTree = "<group>"; };
+		03EBE022264F411000A7219B /* C_CkCsvW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCsvW.h; sourceTree = "<group>"; };
+		03EBE023264F411000A7219B /* CkClassWithCallbacks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkClassWithCallbacks.h; sourceTree = "<group>"; };
+		03EBE024264F411000A7219B /* C_CkDirTreeW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkDirTreeW.h; sourceTree = "<group>"; };
+		03EBE025264F411000A7219B /* CkOAuth1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkOAuth1.h; sourceTree = "<group>"; };
+		03EBE026264F411000A7219B /* int64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = int64.h; sourceTree = "<group>"; };
+		03EBE027264F411000A7219B /* C_CkCompression.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCompression.h; sourceTree = "<group>"; };
+		03EBE028264F411000A7219B /* C_CkCertStoreW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCertStoreW.h; sourceTree = "<group>"; };
+		03EBE029264F411000A7219B /* C_CkMailboxesW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkMailboxesW.h; sourceTree = "<group>"; };
+		03EBE02A264F411000A7219B /* CkAuthUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkAuthUtil.h; sourceTree = "<group>"; };
+		03EBE02B264F411000A7219B /* C_CkGlobalW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkGlobalW.h; sourceTree = "<group>"; };
+		03EBE02C264F411000A7219B /* C_CkFileAccessW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkFileAccessW.h; sourceTree = "<group>"; };
+		03EBE02D264F411000A7219B /* CkScp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkScp.h; sourceTree = "<group>"; };
+		03EBE02E264F411000A7219B /* CkJwtW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkJwtW.h; sourceTree = "<group>"; };
+		03EBE02F264F411000A7219B /* CkWideCharBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkWideCharBase.h; sourceTree = "<group>"; };
+		03EBE030264F411000A7219B /* C_CkSFtpFileW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSFtpFileW.h; sourceTree = "<group>"; };
+		03EBE031264F411000A7219B /* CkMailboxesW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkMailboxesW.h; sourceTree = "<group>"; };
+		03EBE032264F411000A7219B /* CkSshKeyW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSshKeyW.h; sourceTree = "<group>"; };
+		03EBE033264F411000A7219B /* C_CkFtp2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkFtp2.h; sourceTree = "<group>"; };
+		03EBE034264F411000A7219B /* CkByteData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkByteData.h; sourceTree = "<group>"; };
+		03EBE035264F411000A7219B /* C_CkSFtpFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSFtpFile.h; sourceTree = "<group>"; };
+		03EBE036264F411000A7219B /* CkSFtpDir.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSFtpDir.h; sourceTree = "<group>"; };
+		03EBE037264F411000A7219B /* C_CkSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSocket.h; sourceTree = "<group>"; };
+		03EBE038264F411000A7219B /* CkJwt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkJwt.h; sourceTree = "<group>"; };
+		03EBE039264F411000A7219B /* CkZipW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkZipW.h; sourceTree = "<group>"; };
+		03EBE03A264F411000A7219B /* C_CkOAuth2W.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkOAuth2W.h; sourceTree = "<group>"; };
+		03EBE03B264F411000A7219B /* CkFileAccessW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkFileAccessW.h; sourceTree = "<group>"; };
+		03EBE03C264F411000A7219B /* CkZipEntry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkZipEntry.h; sourceTree = "<group>"; };
+		03EBE03D264F411000A7219B /* C_CkJwe.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkJwe.h; sourceTree = "<group>"; };
+		03EBE03E264F411000A7219B /* CkServerSentEventW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkServerSentEventW.h; sourceTree = "<group>"; };
+		03EBE03F264F411000A7219B /* C_CkHttpResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkHttpResponse.h; sourceTree = "<group>"; };
+		03EBE040264F411000A7219B /* CkCertStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCertStore.h; sourceTree = "<group>"; };
+		03EBE041264F411000A7219B /* CkStringArrayW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkStringArrayW.h; sourceTree = "<group>"; };
+		03EBE042264F411000A7219B /* C_CkNtlm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkNtlm.h; sourceTree = "<group>"; };
+		03EBE043264F411000A7219B /* C_CkAtom.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkAtom.h; sourceTree = "<group>"; };
+		03EBE044264F411000A7219B /* CkDirTree.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkDirTree.h; sourceTree = "<group>"; };
+		03EBE045264F411000A7219B /* C_CkUpload.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkUpload.h; sourceTree = "<group>"; };
+		03EBE046264F411000A7219B /* C_CkAsn.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkAsn.h; sourceTree = "<group>"; };
+		03EBE047264F411000A7219B /* CkHttpResponseW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkHttpResponseW.h; sourceTree = "<group>"; };
+		03EBE048264F411000A7219B /* C_CkXmlDSig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkXmlDSig.h; sourceTree = "<group>"; };
+		03EBE049264F411000A7219B /* CkUrlW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkUrlW.h; sourceTree = "<group>"; };
+		03EBE04A264F411000A7219B /* C_CkMailboxes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkMailboxes.h; sourceTree = "<group>"; };
+		03EBE04B264F411000A7219B /* CkTar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkTar.h; sourceTree = "<group>"; };
+		03EBE04C264F411000A7219B /* C_CkSpider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSpider.h; sourceTree = "<group>"; };
+		03EBE04D264F411000A7219B /* CkCompression.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCompression.h; sourceTree = "<group>"; };
+		03EBE04E264F411000A7219B /* C_CkOAuth2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkOAuth2.h; sourceTree = "<group>"; };
+		03EBE04F264F411000A7219B /* C_CkCertW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCertW.h; sourceTree = "<group>"; };
+		03EBE050264F411000A7219B /* CkAuthAzureSASW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkAuthAzureSASW.h; sourceTree = "<group>"; };
+		03EBE051264F411000A7219B /* CkCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCache.h; sourceTree = "<group>"; };
+		03EBE052264F411000A7219B /* C_CkPublicKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkPublicKey.h; sourceTree = "<group>"; };
+		03EBE053264F411000A7219B /* C_CkKeyContainer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkKeyContainer.h; sourceTree = "<group>"; };
+		03EBE054264F411000A7219B /* CkTrustedRoots.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkTrustedRoots.h; sourceTree = "<group>"; };
+		03EBE055264F411000A7219B /* CkStringTableW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkStringTableW.h; sourceTree = "<group>"; };
+		03EBE056264F411000A7219B /* CkTrustedRootsW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkTrustedRootsW.h; sourceTree = "<group>"; };
+		03EBE057264F411000A7219B /* C_CkBz2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkBz2.h; sourceTree = "<group>"; };
+		03EBE058264F411000A7219B /* CkMimeW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkMimeW.h; sourceTree = "<group>"; };
+		03EBE059264F411000A7219B /* CkGzipW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkGzipW.h; sourceTree = "<group>"; };
+		03EBE05A264F411000A7219B /* CkSFtp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSFtp.h; sourceTree = "<group>"; };
+		03EBE05B264F411000A7219B /* CkZipEntryW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkZipEntryW.h; sourceTree = "<group>"; };
+		03EBE05C264F411000A7219B /* CkSpiderW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSpiderW.h; sourceTree = "<group>"; };
+		03EBE05D264F411000A7219B /* CkFtp2ProgressW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkFtp2ProgressW.h; sourceTree = "<group>"; };
+		03EBE05E264F411000A7219B /* CkCharsetW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCharsetW.h; sourceTree = "<group>"; };
+		03EBE05F264F411000A7219B /* C_CkSshW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSshW.h; sourceTree = "<group>"; };
+		03EBE060264F411000A7219B /* C_CkString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkString.h; sourceTree = "<group>"; };
+		03EBE061264F411000A7219B /* CkTaskW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkTaskW.h; sourceTree = "<group>"; };
+		03EBE062264F411000A7219B /* C_CkHttpRequestW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkHttpRequestW.h; sourceTree = "<group>"; };
+		03EBE063264F411000A7219B /* C_CkFileAccess.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkFileAccess.h; sourceTree = "<group>"; };
+		03EBE064264F411000A7219B /* CkDtObj.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkDtObj.h; sourceTree = "<group>"; };
+		03EBE065264F411000A7219B /* C_CkMailManW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkMailManW.h; sourceTree = "<group>"; };
+		03EBE066264F411000A7219B /* CkCreateCS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCreateCS.h; sourceTree = "<group>"; };
+		03EBE067264F411000A7219B /* C_CkEmailW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkEmailW.h; sourceTree = "<group>"; };
+		03EBE068264F411000A7219B /* CkSFtpDirW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSFtpDirW.h; sourceTree = "<group>"; };
+		03EBE069264F411000A7219B /* CkFileAccess.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkFileAccess.h; sourceTree = "<group>"; };
+		03EBE06A264F411000A7219B /* C_CkScp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkScp.h; sourceTree = "<group>"; };
+		03EBE06B264F411000A7219B /* CkDsaW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkDsaW.h; sourceTree = "<group>"; };
+		03EBE06C264F411000A7219B /* C_CkHttpW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkHttpW.h; sourceTree = "<group>"; };
+		03EBE06D264F411000A7219B /* CkString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkString.h; sourceTree = "<group>"; };
+		03EBE06E264F411000A7219B /* C_CkEmailBundleW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkEmailBundleW.h; sourceTree = "<group>"; };
+		03EBE06F264F411000A7219B /* C_CkCert.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCert.h; sourceTree = "<group>"; };
+		03EBE070264F411000A7219B /* C_CkXmlDSigGen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkXmlDSigGen.h; sourceTree = "<group>"; };
+		03EBE071264F411000A7219B /* C_CkCertChain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCertChain.h; sourceTree = "<group>"; };
+		03EBE072264F411000A7219B /* CkZipProgressW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkZipProgressW.h; sourceTree = "<group>"; };
+		03EBE073264F411000A7219B /* CkCsvW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCsvW.h; sourceTree = "<group>"; };
+		03EBE074264F411000A7219B /* CkSocketW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSocketW.h; sourceTree = "<group>"; };
+		03EBE075264F411000A7219B /* CkXmlDSigGen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkXmlDSigGen.h; sourceTree = "<group>"; };
+		03EBE076264F411000A7219B /* CkSshTunnel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSshTunnel.h; sourceTree = "<group>"; };
+		03EBE077264F411000A7219B /* CkPrngW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkPrngW.h; sourceTree = "<group>"; };
+		03EBE078264F411000A7219B /* CkCrypt2W.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCrypt2W.h; sourceTree = "<group>"; };
+		03EBE079264F411000A7219B /* C_CkCsr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCsr.h; sourceTree = "<group>"; };
+		03EBE07A264F411000A7219B /* C_CkHashtable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkHashtable.h; sourceTree = "<group>"; };
+		03EBE07B264F411000A7219B /* C_CkWebSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkWebSocket.h; sourceTree = "<group>"; };
+		03EBE07C264F411000A7219B /* CkEmailW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkEmailW.h; sourceTree = "<group>"; };
+		03EBE07D264F411000A7219B /* C_CkJwtW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkJwtW.h; sourceTree = "<group>"; };
+		03EBE07E264F411000A7219B /* CkRar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkRar.h; sourceTree = "<group>"; };
+		03EBE07F264F411000A7219B /* C_CkServerSentEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkServerSentEvent.h; sourceTree = "<group>"; };
+		03EBE080264F411000A7219B /* CkFtp2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkFtp2.h; sourceTree = "<group>"; };
+		03EBE081264F411000A7219B /* C_CkAuthUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkAuthUtil.h; sourceTree = "<group>"; };
+		03EBE082264F411000A7219B /* CkPfxW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkPfxW.h; sourceTree = "<group>"; };
+		03EBE083264F411000A7219B /* C_CkJavaKeyStoreW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkJavaKeyStoreW.h; sourceTree = "<group>"; };
+		03EBE084264F411000A7219B /* C_CkJws.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkJws.h; sourceTree = "<group>"; };
+		03EBE085264F411000A7219B /* CkStringBuilderW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkStringBuilderW.h; sourceTree = "<group>"; };
+		03EBE086264F411000A7219B /* CkXmlDSigGenW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkXmlDSigGenW.h; sourceTree = "<group>"; };
+		03EBE087264F411000A7219B /* CkSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSocket.h; sourceTree = "<group>"; };
+		03EBE088264F411000A7219B /* C_CkByteData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkByteData.h; sourceTree = "<group>"; };
+		03EBE089264F411000A7219B /* CkSFtpFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSFtpFile.h; sourceTree = "<group>"; };
+		03EBE08A264F411000A7219B /* CkCsrW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCsrW.h; sourceTree = "<group>"; };
+		03EBE08B264F411000A7219B /* CkHtmlToTextW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkHtmlToTextW.h; sourceTree = "<group>"; };
+		03EBE08C264F411100A7219B /* C_CkScpW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkScpW.h; sourceTree = "<group>"; };
+		03EBE08D264F411100A7219B /* C_CkXmlCertVaultW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkXmlCertVaultW.h; sourceTree = "<group>"; };
+		03EBE08E264F411100A7219B /* C_CkSshTunnelW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSshTunnelW.h; sourceTree = "<group>"; };
+		03EBE08F264F411100A7219B /* C_CkStreamW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkStreamW.h; sourceTree = "<group>"; };
+		03EBE090264F411100A7219B /* C_CkCertChainW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCertChainW.h; sourceTree = "<group>"; };
+		03EBE091264F411100A7219B /* CkJavaKeyStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkJavaKeyStore.h; sourceTree = "<group>"; };
+		03EBE092264F411100A7219B /* C_CkCsv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCsv.h; sourceTree = "<group>"; };
+		03EBE093264F411100A7219B /* C_CkPem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkPem.h; sourceTree = "<group>"; };
+		03EBE094264F411100A7219B /* CkJsonObjectW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkJsonObjectW.h; sourceTree = "<group>"; };
+		03EBE095264F411100A7219B /* C_CkAuthGoogle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkAuthGoogle.h; sourceTree = "<group>"; };
+		03EBE096264F411100A7219B /* CkSshTunnelW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSshTunnelW.h; sourceTree = "<group>"; };
+		03EBE097264F411100A7219B /* CkUpload.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkUpload.h; sourceTree = "<group>"; };
+		03EBE098264F411100A7219B /* CkCertChainW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCertChainW.h; sourceTree = "<group>"; };
+		03EBE099264F411100A7219B /* CkDirTreeW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkDirTreeW.h; sourceTree = "<group>"; };
+		03EBE09A264F411100A7219B /* CkSpider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSpider.h; sourceTree = "<group>"; };
+		03EBE09B264F411100A7219B /* CkOAuth2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkOAuth2.h; sourceTree = "<group>"; };
+		03EBE09C264F411100A7219B /* CkAuthGoogle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkAuthGoogle.h; sourceTree = "<group>"; };
+		03EBE09D264F411100A7219B /* C_CkDhW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkDhW.h; sourceTree = "<group>"; };
+		03EBE09E264F411100A7219B /* C_CkRss.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkRss.h; sourceTree = "<group>"; };
+		03EBE09F264F411100A7219B /* CkMessageSetW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkMessageSetW.h; sourceTree = "<group>"; };
+		03EBE0A0264F411100A7219B /* CkMime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkMime.h; sourceTree = "<group>"; };
+		03EBE0A1264F411100A7219B /* CkLog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkLog.h; sourceTree = "<group>"; };
+		03EBE0A2264F411100A7219B /* ck_inttypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ck_inttypes.h; sourceTree = "<group>"; };
+		03EBE0A3264F411100A7219B /* CkUrl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkUrl.h; sourceTree = "<group>"; };
+		03EBE0A4264F411100A7219B /* CkHashtableW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkHashtableW.h; sourceTree = "<group>"; };
+		03EBE0A5264F411100A7219B /* CkPfx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkPfx.h; sourceTree = "<group>"; };
+		03EBE0A6264F411100A7219B /* CkGlobalW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkGlobalW.h; sourceTree = "<group>"; };
+		03EBE0A7264F411100A7219B /* CkXml.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkXml.h; sourceTree = "<group>"; };
+		03EBE0A8264F411100A7219B /* CkTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkTask.h; sourceTree = "<group>"; };
+		03EBE0A9264F411100A7219B /* C_CkHttpRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkHttpRequest.h; sourceTree = "<group>"; };
+		03EBE0AA264F411100A7219B /* CkTarW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkTarW.h; sourceTree = "<group>"; };
+		03EBE0AB264F411100A7219B /* CkFtp2Progress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkFtp2Progress.h; sourceTree = "<group>"; };
+		03EBE0AC264F411100A7219B /* C_CkJavaKeyStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkJavaKeyStore.h; sourceTree = "<group>"; };
+		03EBE0AD264F411100A7219B /* C_CkStringBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkStringBuilder.h; sourceTree = "<group>"; };
+		03EBE0AE264F411100A7219B /* CkFtp2W.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkFtp2W.h; sourceTree = "<group>"; };
+		03EBE0AF264F411100A7219B /* C_CkHashtableW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkHashtableW.h; sourceTree = "<group>"; };
+		03EBE0B0264F411100A7219B /* C_CkSshKeyW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSshKeyW.h; sourceTree = "<group>"; };
+		03EBE0B1264F411100A7219B /* C_CkRssW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkRssW.h; sourceTree = "<group>"; };
+		03EBE0B2264F411100A7219B /* C_CkPemW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkPemW.h; sourceTree = "<group>"; };
+		03EBE0B3264F411100A7219B /* C_CkImap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkImap.h; sourceTree = "<group>"; };
+		03EBE0B4264F411100A7219B /* C_CkCgi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCgi.h; sourceTree = "<group>"; };
+		03EBE0B5264F411100A7219B /* C_CkPdf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkPdf.h; sourceTree = "<group>"; };
+		03EBE0B6264F411100A7219B /* C_CkNtlmW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkNtlmW.h; sourceTree = "<group>"; };
+		03EBE0B7264F411100A7219B /* CkUploadW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkUploadW.h; sourceTree = "<group>"; };
+		03EBE0B8264F411100A7219B /* CkClassWithCallbacksW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkClassWithCallbacksW.h; sourceTree = "<group>"; };
+		03EBE0B9264F411100A7219B /* C_CkZipEntryW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkZipEntryW.h; sourceTree = "<group>"; };
+		03EBE0BA264F411100A7219B /* CkCgiW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCgiW.h; sourceTree = "<group>"; };
+		03EBE0BB264F411100A7219B /* CkEmailBundle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkEmailBundle.h; sourceTree = "<group>"; };
+		03EBE0BC264F411100A7219B /* CkSFtpW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSFtpW.h; sourceTree = "<group>"; };
+		03EBE0BD264F411100A7219B /* CkCsp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCsp.h; sourceTree = "<group>"; };
+		03EBE0BE264F411100A7219B /* CkCrypt2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCrypt2.h; sourceTree = "<group>"; };
+		03EBE0BF264F411100A7219B /* C_CkDateTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkDateTime.h; sourceTree = "<group>"; };
+		03EBE0C0264F411100A7219B /* CkSsh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSsh.h; sourceTree = "<group>"; };
+		03EBE0C1264F411100A7219B /* CkGzip.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkGzip.h; sourceTree = "<group>"; };
+		03EBE0C2264F411100A7219B /* CkMailManProgressW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkMailManProgressW.h; sourceTree = "<group>"; };
+		03EBE0C3264F411100A7219B /* C_CkEmail.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkEmail.h; sourceTree = "<group>"; };
+		03EBE0C4264F411100A7219B /* C_CkCertStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCertStore.h; sourceTree = "<group>"; };
+		03EBE0C5264F411100A7219B /* CkJsonArrayW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkJsonArrayW.h; sourceTree = "<group>"; };
+		03EBE0C6264F411100A7219B /* CkAuthGoogleW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkAuthGoogleW.h; sourceTree = "<group>"; };
+		03EBE0C7264F411100A7219B /* C_CkBounceW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkBounceW.h; sourceTree = "<group>"; };
+		03EBE0C8264F411100A7219B /* CkMht.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkMht.h; sourceTree = "<group>"; };
+		03EBE0C9264F411100A7219B /* CkJweW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkJweW.h; sourceTree = "<group>"; };
+		03EBE0CA264F411100A7219B /* CkRest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkRest.h; sourceTree = "<group>"; };
+		03EBE0CB264F411100A7219B /* CkMailboxes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkMailboxes.h; sourceTree = "<group>"; };
+		03EBE0CC264F411100A7219B /* CkKeyContainerW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkKeyContainerW.h; sourceTree = "<group>"; };
+		03EBE0CD264F411100A7219B /* C_CkJsonArrayW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkJsonArrayW.h; sourceTree = "<group>"; };
+		03EBE0CE264F411100A7219B /* CkSettings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSettings.h; sourceTree = "<group>"; };
+		03EBE0CF264F411100A7219B /* CkPublicKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkPublicKey.h; sourceTree = "<group>"; };
+		03EBE0D0264F411100A7219B /* C_CkWebSocketW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkWebSocketW.h; sourceTree = "<group>"; };
+		03EBE0D1264F411100A7219B /* C_CkJwsW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkJwsW.h; sourceTree = "<group>"; };
+		03EBE0D2264F411100A7219B /* C_CkRestW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkRestW.h; sourceTree = "<group>"; };
+		03EBE0D3264F411100A7219B /* CkMhtW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkMhtW.h; sourceTree = "<group>"; };
+		03EBE0D4264F411100A7219B /* CkRsaW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkRsaW.h; sourceTree = "<group>"; };
+		03EBE0D5264F411100A7219B /* CkPrng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkPrng.h; sourceTree = "<group>"; };
+		03EBE0D6264F411100A7219B /* C_CkZipCrc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkZipCrc.h; sourceTree = "<group>"; };
+		03EBE0D7264F411100A7219B /* CkWebSocketW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkWebSocketW.h; sourceTree = "<group>"; };
+		03EBE0D8264F411100A7219B /* C_CkEdDSA.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkEdDSA.h; sourceTree = "<group>"; };
+		03EBE0D9264F411100A7219B /* CkEmailBundleW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkEmailBundleW.h; sourceTree = "<group>"; };
+		03EBE0DA264F411100A7219B /* CkBinDataW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkBinDataW.h; sourceTree = "<group>"; };
+		03EBE0DB264F411100A7219B /* Chilkat_C.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Chilkat_C.h; sourceTree = "<group>"; };
+		03EBE0DC264F411100A7219B /* allC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = allC.h; sourceTree = "<group>"; };
+		03EBE0DD264F411100A7219B /* CkHttpProgress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkHttpProgress.h; sourceTree = "<group>"; };
+		03EBE0DE264F411100A7219B /* C_CkCacheW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCacheW.h; sourceTree = "<group>"; };
+		03EBE0DF264F411100A7219B /* CkAuthAzureStorage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkAuthAzureStorage.h; sourceTree = "<group>"; };
+		03EBE0E0264F411100A7219B /* CkPdfW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkPdfW.h; sourceTree = "<group>"; };
+		03EBE0E1264F411100A7219B /* C_CkLogW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkLogW.h; sourceTree = "<group>"; };
+		03EBE0E2264F411100A7219B /* CkEccW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkEccW.h; sourceTree = "<group>"; };
+		03EBE0E3264F411100A7219B /* C_CkPublicKeyW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkPublicKeyW.h; sourceTree = "<group>"; };
+		03EBE0E4264F411100A7219B /* C_CkJsonObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkJsonObject.h; sourceTree = "<group>"; };
+		03EBE0E5264F411100A7219B /* CkAuthAwsW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkAuthAwsW.h; sourceTree = "<group>"; };
+		03EBE0E6264F411100A7219B /* CkAtomW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkAtomW.h; sourceTree = "<group>"; };
+		03EBE0E7264F411100A7219B /* CkDkimW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkDkimW.h; sourceTree = "<group>"; };
+		03EBE0E8264F411100A7219B /* CkPublicKeyW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkPublicKeyW.h; sourceTree = "<group>"; };
+		03EBE0E9264F411100A7219B /* C_CkDsa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkDsa.h; sourceTree = "<group>"; };
+		03EBE0EA264F411100A7219B /* CkAsnW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkAsnW.h; sourceTree = "<group>"; };
+		03EBE0EB264F411100A7219B /* C_CkPrivateKeyW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkPrivateKeyW.h; sourceTree = "<group>"; };
+		03EBE0EC264F411100A7219B /* C_CkOAuth1W.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkOAuth1W.h; sourceTree = "<group>"; };
+		03EBE0ED264F411100A7219B /* CkJsonObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkJsonObject.h; sourceTree = "<group>"; };
+		03EBE0EE264F411100A7219B /* CkCspW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCspW.h; sourceTree = "<group>"; };
+		03EBE0EF264F411100A7219B /* CkHttpRequestW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkHttpRequestW.h; sourceTree = "<group>"; };
+		03EBE0F0264F411100A7219B /* CkZipCrc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkZipCrc.h; sourceTree = "<group>"; };
+		03EBE0F1264F411100A7219B /* C_CkRsa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkRsa.h; sourceTree = "<group>"; };
+		03EBE0F2264F411100A7219B /* CkMailManProgress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkMailManProgress.h; sourceTree = "<group>"; };
+		03EBE0F3264F411100A7219B /* CkXmlW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkXmlW.h; sourceTree = "<group>"; };
+		03EBE0F4264F411100A7219B /* CkCacheW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCacheW.h; sourceTree = "<group>"; };
+		03EBE0F5264F411100A7219B /* CkTarProgress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkTarProgress.h; sourceTree = "<group>"; };
+		03EBE0F6264F411100A7219B /* C_CkSecureStringW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSecureStringW.h; sourceTree = "<group>"; };
+		03EBE0F7264F411100A7219B /* C_CkStringTableW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkStringTableW.h; sourceTree = "<group>"; };
+		03EBE0F8264F411100A7219B /* C_CkTrustedRoots.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkTrustedRoots.h; sourceTree = "<group>"; };
+		03EBE0F9264F411100A7219B /* C_CkStringArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkStringArray.h; sourceTree = "<group>"; };
+		03EBE0FA264F411100A7219B /* CkHttp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkHttp.h; sourceTree = "<group>"; };
+		03EBE0FB264F411100A7219B /* CkKeyContainer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkKeyContainer.h; sourceTree = "<group>"; };
+		03EBE0FC264F411100A7219B /* C_CkMailMan.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkMailMan.h; sourceTree = "<group>"; };
+		03EBE0FD264F411100A7219B /* C_CkXmlDSigW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkXmlDSigW.h; sourceTree = "<group>"; };
+		03EBE0FE264F411100A7219B /* CkBinData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkBinData.h; sourceTree = "<group>"; };
+		03EBE0FF264F411100A7219B /* C_CkAuthAws.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkAuthAws.h; sourceTree = "<group>"; };
+		03EBE100264F411100A7219B /* C_CkZipCrcW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkZipCrcW.h; sourceTree = "<group>"; };
+		03EBE101264F411100A7219B /* CkXmp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkXmp.h; sourceTree = "<group>"; };
+		03EBE102264F411100A7219B /* CkCharset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCharset.h; sourceTree = "<group>"; };
+		03EBE103264F411100A7219B /* C_CkAuthAzureAD.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkAuthAzureAD.h; sourceTree = "<group>"; };
+		03EBE104264F411100A7219B /* CkXmpW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkXmpW.h; sourceTree = "<group>"; };
+		03EBE105264F411100A7219B /* CkDkim.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkDkim.h; sourceTree = "<group>"; };
+		03EBE106264F411100A7219B /* chilkatDefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = chilkatDefs.h; sourceTree = "<group>"; };
+		03EBE107264F411100A7219B /* C_CkStringArrayW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkStringArrayW.h; sourceTree = "<group>"; };
+		03EBE108264F411100A7219B /* CkHttpResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkHttpResponse.h; sourceTree = "<group>"; };
+		03EBE109264F411100A7219B /* C_CkRarEntry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkRarEntry.h; sourceTree = "<group>"; };
+		03EBE10A264F411100A7219B /* C_CkCrypt2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCrypt2.h; sourceTree = "<group>"; };
+		03EBE10B264F411100A7219B /* C_CkStringTable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkStringTable.h; sourceTree = "<group>"; };
+		03EBE10C264F411100A7219B /* C_CkBz2W.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkBz2W.h; sourceTree = "<group>"; };
+		03EBE10D264F411100A7219B /* CkCertChain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCertChain.h; sourceTree = "<group>"; };
+		03EBE10E264F411100A7219B /* C_CkUnixCompressW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkUnixCompressW.h; sourceTree = "<group>"; };
+		03EBE10F264F411100A7219B /* CkHashtable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkHashtable.h; sourceTree = "<group>"; };
+		03EBE110264F411100A7219B /* CkWebSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkWebSocket.h; sourceTree = "<group>"; };
+		03EBE111264F411100A7219B /* CkZip.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkZip.h; sourceTree = "<group>"; };
+		03EBE112264F411100A7219B /* C_CkEcc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkEcc.h; sourceTree = "<group>"; };
+		03EBE113264F411100A7219B /* CkImapW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkImapW.h; sourceTree = "<group>"; };
+		03EBE114264F411100A7219B /* C_CkSshTunnel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSshTunnel.h; sourceTree = "<group>"; };
+		03EBE115264F411100A7219B /* CkHtmlToText.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkHtmlToText.h; sourceTree = "<group>"; };
+		03EBE116264F411100A7219B /* C_CkRest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkRest.h; sourceTree = "<group>"; };
+		03EBE117264F411100A7219B /* C_CkJweW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkJweW.h; sourceTree = "<group>"; };
+		03EBE118264F411100A7219B /* CkStreamW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkStreamW.h; sourceTree = "<group>"; };
+		03EBE119264F411100A7219B /* C_CkMessageSet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkMessageSet.h; sourceTree = "<group>"; };
+		03EBE11A264F411100A7219B /* CkServerSentEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkServerSentEvent.h; sourceTree = "<group>"; };
+		03EBE11B264F411100A7219B /* C_CkGzip.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkGzip.h; sourceTree = "<group>"; };
+		03EBE11C264F411100A7219B /* CkDsa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkDsa.h; sourceTree = "<group>"; };
+		03EBE11D264F411100A7219B /* CkPrivateKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkPrivateKey.h; sourceTree = "<group>"; };
+		03EBE11E264F411100A7219B /* C_CkHtmlToText.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkHtmlToText.h; sourceTree = "<group>"; };
+		03EBE11F264F411100A7219B /* C_CkCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCache.h; sourceTree = "<group>"; };
+		03EBE120264F411100A7219B /* CkStringTable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkStringTable.h; sourceTree = "<group>"; };
+		03EBE121264F411100A7219B /* CkMessageSet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkMessageSet.h; sourceTree = "<group>"; };
+		03EBE122264F411100A7219B /* CkCertW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCertW.h; sourceTree = "<group>"; };
+		03EBE123264F411100A7219B /* CkDateTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkDateTime.h; sourceTree = "<group>"; };
+		03EBE124264F411100A7219B /* C_CkPrivateKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkPrivateKey.h; sourceTree = "<group>"; };
+		03EBE125264F411100A7219B /* C_CkStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkStream.h; sourceTree = "<group>"; };
+		03EBE126264F411100A7219B /* CkJwsW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkJwsW.h; sourceTree = "<group>"; };
+		03EBE127264F411100A7219B /* CkAuthAzureAD.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkAuthAzureAD.h; sourceTree = "<group>"; };
+		03EBE128264F411100A7219B /* C_CkMhtW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkMhtW.h; sourceTree = "<group>"; };
+		03EBE129264F411100A7219B /* C_CkAuthUtilW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkAuthUtilW.h; sourceTree = "<group>"; };
+		03EBE12A264F411100A7219B /* CkRsa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkRsa.h; sourceTree = "<group>"; };
+		03EBE12B264F411100A7219B /* C_CkTaskChain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkTaskChain.h; sourceTree = "<group>"; };
+		03EBE12C264F411100A7219B /* CkBaseProgressW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkBaseProgressW.h; sourceTree = "<group>"; };
+		03EBE12D264F411100A7219B /* C_CkPrng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkPrng.h; sourceTree = "<group>"; };
+		03EBE12E264F411100A7219B /* C_CkRsaW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkRsaW.h; sourceTree = "<group>"; };
+		03EBE12F264F411100A7219B /* C_CkTrustedRootsW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkTrustedRootsW.h; sourceTree = "<group>"; };
+		03EBE130264F411100A7219B /* C_CkStringBuilderW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkStringBuilderW.h; sourceTree = "<group>"; };
+		03EBE131264F411100A7219B /* C_CkDateTimeW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkDateTimeW.h; sourceTree = "<group>"; };
+		03EBE132264F411100A7219B /* C_CkXmlCertVault.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkXmlCertVault.h; sourceTree = "<group>"; };
+		03EBE133264F411100A7219B /* CkSFtpProgress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSFtpProgress.h; sourceTree = "<group>"; };
+		03EBE134264F411100A7219B /* CkSecureString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSecureString.h; sourceTree = "<group>"; };
+		03EBE135264F411100A7219B /* C_CkDtObj.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkDtObj.h; sourceTree = "<group>"; };
+		03EBE136264F411100A7219B /* CkStringArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkStringArray.h; sourceTree = "<group>"; };
+		03EBE137264F411100A7219B /* C_CkAuthAzureSASW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkAuthAzureSASW.h; sourceTree = "<group>"; };
+		03EBE138264F411100A7219B /* CkService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkService.h; sourceTree = "<group>"; };
+		03EBE139264F411100A7219B /* C_CkBounce.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkBounce.h; sourceTree = "<group>"; };
+		03EBE13A264F411100A7219B /* C_CkMime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkMime.h; sourceTree = "<group>"; };
+		03EBE13B264F411100A7219B /* CkHtmlToXml.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkHtmlToXml.h; sourceTree = "<group>"; };
+		03EBE13C264F411100A7219B /* C_CkBinDataW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkBinDataW.h; sourceTree = "<group>"; };
+		03EBE13D264F411100A7219B /* CkRssW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkRssW.h; sourceTree = "<group>"; };
+		03EBE13E264F411100A7219B /* CkRegistry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkRegistry.h; sourceTree = "<group>"; };
+		03EBE13F264F411100A7219B /* C_CkXmp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkXmp.h; sourceTree = "<group>"; };
+		03EBE140264F411100A7219B /* C_CkHttpResponseW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkHttpResponseW.h; sourceTree = "<group>"; };
+		03EBE141264F411100A7219B /* C_CkTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkTask.h; sourceTree = "<group>"; };
+		03EBE142264F411100A7219B /* C_CkTarW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkTarW.h; sourceTree = "<group>"; };
+		03EBE143264F411100A7219B /* C_CkGzipW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkGzipW.h; sourceTree = "<group>"; };
+		03EBE144264F411100A7219B /* C_CkHtmlToXmlW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkHtmlToXmlW.h; sourceTree = "<group>"; };
+		03EBE145264F411100A7219B /* C_CkCgiW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCgiW.h; sourceTree = "<group>"; };
+		03EBE146264F411100A7219B /* CkPrivateKeyW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkPrivateKeyW.h; sourceTree = "<group>"; };
+		03EBE147264F411100A7219B /* CkImap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkImap.h; sourceTree = "<group>"; };
+		03EBE148264F411100A7219B /* CkGlobal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkGlobal.h; sourceTree = "<group>"; };
+		03EBE149264F411100A7219B /* CkEcc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkEcc.h; sourceTree = "<group>"; };
+		03EBE14A264F411100A7219B /* CkPemW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkPemW.h; sourceTree = "<group>"; };
+		03EBE14B264F411100A7219B /* C_CkZip.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkZip.h; sourceTree = "<group>"; };
+		03EBE14C264F411100A7219B /* C_CkMimeW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkMimeW.h; sourceTree = "<group>"; };
+		03EBE14D264F411100A7219B /* C_CkCrypt2W.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCrypt2W.h; sourceTree = "<group>"; };
+		03EBE14E264F411100A7219B /* C_CkTaskW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkTaskW.h; sourceTree = "<group>"; };
+		03EBE14F264F411100A7219B /* C_CkSocketW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSocketW.h; sourceTree = "<group>"; };
+		03EBE150264F411100A7219B /* CkHtmlToXmlW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkHtmlToXmlW.h; sourceTree = "<group>"; };
+		03EBE151264F411100A7219B /* C_CkSettings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSettings.h; sourceTree = "<group>"; };
+		03EBE152264F411100A7219B /* CkUnixCompress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkUnixCompress.h; sourceTree = "<group>"; };
+		03EBE153264F411100A7219B /* C_CkHttp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkHttp.h; sourceTree = "<group>"; };
+		03EBE154264F411100A7219B /* CkZipProgress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkZipProgress.h; sourceTree = "<group>"; };
+		03EBE155264F411100A7219B /* C_CkDkim.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkDkim.h; sourceTree = "<group>"; };
+		03EBE156264F411100A7219B /* C_CkLog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkLog.h; sourceTree = "<group>"; };
+		03EBE157264F411200A7219B /* CkSFtpFileW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSFtpFileW.h; sourceTree = "<group>"; };
+		03EBE158264F411200A7219B /* CkRss.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkRss.h; sourceTree = "<group>"; };
+		03EBE159264F411200A7219B /* C_CkXml.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkXml.h; sourceTree = "<group>"; };
+		03EBE15A264F411200A7219B /* C_CkXmpW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkXmpW.h; sourceTree = "<group>"; };
+		03EBE15B264F411200A7219B /* C_CkPfx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkPfx.h; sourceTree = "<group>"; };
+		03EBE15C264F411200A7219B /* CkBounce.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkBounce.h; sourceTree = "<group>"; };
+		03EBE15D264F411200A7219B /* CkXmlCertVaultW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkXmlCertVaultW.h; sourceTree = "<group>"; };
+		03EBE15E264F411200A7219B /* C_CkUrl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkUrl.h; sourceTree = "<group>"; };
+		03EBE15F264F411200A7219B /* CkHttpProgressW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkHttpProgressW.h; sourceTree = "<group>"; };
+		03EBE160264F411200A7219B /* C_CkSpiderW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSpiderW.h; sourceTree = "<group>"; };
+		03EBE161264F411200A7219B /* C_CkCsp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCsp.h; sourceTree = "<group>"; };
+		03EBE162264F411200A7219B /* C_CkSsh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSsh.h; sourceTree = "<group>"; };
+		03EBE163264F411200A7219B /* C_CkAuthAwsW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkAuthAwsW.h; sourceTree = "<group>"; };
+		03EBE164264F411200A7219B /* CkBz2W.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkBz2W.h; sourceTree = "<group>"; };
+		03EBE165264F411200A7219B /* CkHttpW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkHttpW.h; sourceTree = "<group>"; };
+		03EBE166264F411200A7219B /* CkPdf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkPdf.h; sourceTree = "<group>"; };
+		03EBE167264F411200A7219B /* CkCgi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkCgi.h; sourceTree = "<group>"; };
+		03EBE168264F411200A7219B /* C_CkPrngW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkPrngW.h; sourceTree = "<group>"; };
+		03EBE169264F411200A7219B /* CkSFtpProgressW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkSFtpProgressW.h; sourceTree = "<group>"; };
+		03EBE16A264F411200A7219B /* C_CkGlobal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkGlobal.h; sourceTree = "<group>"; };
+		03EBE16B264F411200A7219B /* CkJavaKeyStoreW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkJavaKeyStoreW.h; sourceTree = "<group>"; };
+		03EBE16C264F411200A7219B /* C_CkAuthGoogleW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkAuthGoogleW.h; sourceTree = "<group>"; };
+		03EBE16D264F411200A7219B /* allUnicode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = allUnicode.h; sourceTree = "<group>"; };
+		03EBE16E264F411200A7219B /* C_CkCompressionW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCompressionW.h; sourceTree = "<group>"; };
+		03EBE16F264F411200A7219B /* C_CkAuthAzureSAS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkAuthAzureSAS.h; sourceTree = "<group>"; };
+		03EBE170264F411200A7219B /* CkRarEntry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkRarEntry.h; sourceTree = "<group>"; };
+		03EBE171264F411200A7219B /* CkXmlDSig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkXmlDSig.h; sourceTree = "<group>"; };
+		03EBE172264F411200A7219B /* CkLogW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkLogW.h; sourceTree = "<group>"; };
+		03EBE173264F411200A7219B /* C_CkPdfW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkPdfW.h; sourceTree = "<group>"; };
+		03EBE174264F411200A7219B /* CkObjectArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkObjectArray.h; sourceTree = "<group>"; };
+		03EBE175264F411200A7219B /* C_CkDirTree.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkDirTree.h; sourceTree = "<group>"; };
+		03EBE176264F411200A7219B /* CkStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkStream.h; sourceTree = "<group>"; };
+		03EBE177264F411200A7219B /* C_CkEccW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkEccW.h; sourceTree = "<group>"; };
+		03EBE178264F411200A7219B /* C_CkCreateCSW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCreateCSW.h; sourceTree = "<group>"; };
+		03EBE179264F411200A7219B /* CkBaseProgress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkBaseProgress.h; sourceTree = "<group>"; };
+		03EBE17A264F411200A7219B /* C_CkCspW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkCspW.h; sourceTree = "<group>"; };
+		03EBE17B264F411200A7219B /* SystemTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SystemTime.h; sourceTree = "<group>"; };
+		03EBE17C264F411200A7219B /* C_CkAsnW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkAsnW.h; sourceTree = "<group>"; };
+		03EBE17D264F411200A7219B /* C_CkEmailBundle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkEmailBundle.h; sourceTree = "<group>"; };
+		03EBE17E264F411200A7219B /* C_CkServerSentEventW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkServerSentEventW.h; sourceTree = "<group>"; };
+		03EBE17F264F411200A7219B /* C_CkMht.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkMht.h; sourceTree = "<group>"; };
+		03EBE180264F411200A7219B /* CkHttpRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkHttpRequest.h; sourceTree = "<group>"; };
+		03EBE181264F411200A7219B /* C_CkXmlW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkXmlW.h; sourceTree = "<group>"; };
+		03EBE182264F411200A7219B /* CkXmlDSigW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkXmlDSigW.h; sourceTree = "<group>"; };
+		03EBE183264F411200A7219B /* C_CkSFtpDir.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkSFtpDir.h; sourceTree = "<group>"; };
+		03EBE184264F411200A7219B /* FileTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileTime.h; sourceTree = "<group>"; };
+		03EBE185264F411200A7219B /* C_CkMessageSetW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkMessageSetW.h; sourceTree = "<group>"; };
+		03EBE186264F411200A7219B /* CkOAuth2W.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkOAuth2W.h; sourceTree = "<group>"; };
+		03EBE187264F411200A7219B /* CkMultiByteBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CkMultiByteBase.h; sourceTree = "<group>"; };
+		03EBE188264F411200A7219B /* C_CkJsonArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkJsonArray.h; sourceTree = "<group>"; };
+		03EBE189264F411200A7219B /* C_CkAuthAzureADW.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C_CkAuthAzureADW.h; sourceTree = "<group>"; };
+		03EBE18C264F411200A7219B /* libchilkatIos.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libchilkatIos.a; sourceTree = "<group>"; };
+		03EBE18E264F411200A7219B /* libchilkatIos.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libchilkatIos.a; sourceTree = "<group>"; };
+		03EBE190264F411200A7219B /* libchilkatIos.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libchilkatIos.a; sourceTree = "<group>"; };
+		03EBE192264F411200A7219B /* libchilkatIos.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libchilkatIos.a; sourceTree = "<group>"; };
+		03EBE194264F411200A7219B /* libchilkatIos.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libchilkatIos.a; sourceTree = "<group>"; };
+		03EBE196264F411200A7219B /* libchilkatIos.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libchilkatIos.a; sourceTree = "<group>"; };
+		03EBE198264F411200A7219B /* libchilkatIos.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libchilkatIos.a; sourceTree = "<group>"; };
+		03EBE83D264F482000A7219B /* chilkat-9.5.0-ios13 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "chilkat-9.5.0-ios13"; path = "Pods/chilkat-9.5.0-ios13"; sourceTree = "<group>"; };
 		104DBC6A9FA919AA81D98E13 /* Pods-Prime Dictation.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Prime Dictation.debug.xcconfig"; path = "Target Support Files/Pods-Prime Dictation/Pods-Prime Dictation.debug.xcconfig"; sourceTree = "<group>"; };
 		54C213373036C1D959A750D3 /* Pods-Prime Dictation.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Prime Dictation.release.xcconfig"; path = "Target Support Files/Pods-Prime Dictation/Pods-Prime Dictation.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -46,6 +603,8 @@
 		034182F122EE36B300670DD1 = {
 			isa = PBXGroup;
 			children = (
+				035495BF264F4989003F652C /* PDBridgingHeader.h */,
+				03EBE83D264F482000A7219B /* chilkat-9.5.0-ios13 */,
 				034182FC22EE36B300670DD1 /* Prime Dictation */,
 				034182FB22EE36B300670DD1 /* Products */,
 				344427BA4ED4A074A8B98DE4 /* Pods */,
@@ -72,8 +631,652 @@
 				0341830422EE36B300670DD1 /* Assets.xcassets */,
 				0341830622EE36B300670DD1 /* LaunchScreen.storyboard */,
 				0341830922EE36B300670DD1 /* Info.plist */,
+				03EBDF63264F411000A7219B /* chilkat-9.5.0-ios13 */,
 			);
 			path = "Prime Dictation";
+			sourceTree = "<group>";
+		};
+		03EBDF63264F411000A7219B /* chilkat-9.5.0-ios13 */ = {
+			isa = PBXGroup;
+			children = (
+				03EBDF64264F411000A7219B /* makeUniversalLib.sh */,
+				03EBDF65264F411000A7219B /* include */,
+				03EBDFCF264F411000A7219B /* license.pdf */,
+				03EBDFD0264F411000A7219B /* cpp_include */,
+				03EBE18A264F411200A7219B /* lib */,
+			);
+			name = "chilkat-9.5.0-ios13";
+			path = "../../../../Downloads/chilkat-9.5.0-ios13";
+			sourceTree = "<group>";
+		};
+		03EBDF65264F411000A7219B /* include */ = {
+			isa = PBXGroup;
+			children = (
+				03EBDF66264F411000A7219B /* CkoAuthAzureStorage.h */,
+				03EBDF67264F411000A7219B /* CkoJsonArray.h */,
+				03EBDF68264F411000A7219B /* CkoMailMan.h */,
+				03EBDF69264F411000A7219B /* CkoAuthAws.h */,
+				03EBDF6A264F411000A7219B /* CkoImap.h */,
+				03EBDF6B264F411000A7219B /* CkoJsonObject.h */,
+				03EBDF6C264F411000A7219B /* CkoXmp.h */,
+				03EBDF6D264F411000A7219B /* CkoZip.h */,
+				03EBDF6E264F411000A7219B /* CkoSecureString.h */,
+				03EBDF6F264F411000A7219B /* CkoSFtpProgress.h */,
+				03EBDF70264F411000A7219B /* CkoLog.h */,
+				03EBDF71264F411000A7219B /* CkoUrl.h */,
+				03EBDF72264F411000A7219B /* CkoXml.h */,
+				03EBDF73264F411000A7219B /* CkoPfx.h */,
+				03EBDF74264F411000A7219B /* CkoOAuth1.h */,
+				03EBDF75264F411000A7219B /* CkoDtObj.h */,
+				03EBDF76264F411000A7219B /* CkoUnixCompress.h */,
+				03EBDF77264F411000A7219B /* CkoSsh.h */,
+				03EBDF78264F411000A7219B /* CkoMht.h */,
+				03EBDF79264F411000A7219B /* CkoTaskChain.h */,
+				03EBDF7A264F411000A7219B /* CkoSshKey.h */,
+				03EBDF7B264F411000A7219B /* CkoCompression.h */,
+				03EBDF7C264F411000A7219B /* CkoBaseProgress.h */,
+				03EBDF7D264F411000A7219B /* CkoDh.h */,
+				03EBDF7E264F411000A7219B /* CkoAuthUtil.h */,
+				03EBDF7F264F411000A7219B /* CkoCache.h */,
+				03EBDF80264F411000A7219B /* CkoGzip.h */,
+				03EBDF81264F411000A7219B /* CkoSFtpDir.h */,
+				03EBDF82264F411000A7219B /* CkoZipEntry.h */,
+				03EBDF83264F411000A7219B /* CkoRest.h */,
+				03EBDF84264F411000A7219B /* CkoSshTunnel.h */,
+				03EBDF85264F411000A7219B /* CkoRss.h */,
+				03EBDF86264F411000A7219B /* CkoDirTree.h */,
+				03EBDF87264F411000A7219B /* CkoFtp2Progress.h */,
+				03EBDF88264F411000A7219B /* CkoPrng.h */,
+				03EBDF89264F411000A7219B /* CkoPdf.h */,
+				03EBDF8A264F411000A7219B /* CkoCgi.h */,
+				03EBDF8B264F411000A7219B /* CkoHttpProgress.h */,
+				03EBDF8C264F411000A7219B /* CkoMime.h */,
+				03EBDF8D264F411000A7219B /* CkoTask.h */,
+				03EBDF8E264F411000A7219B /* CkoStringBuilder.h */,
+				03EBDF8F264F411000A7219B /* CkoHttp.h */,
+				03EBDF90264F411000A7219B /* CkoSpider.h */,
+				03EBDF91264F411000A7219B /* CkoOAuth2.h */,
+				03EBDF92264F411000A7219B /* CkoDsa.h */,
+				03EBDF93264F411000A7219B /* CkoUpload.h */,
+				03EBDF94264F411000A7219B /* CkoDkim.h */,
+				03EBDF95264F411000A7219B /* CkoEdDSA.h */,
+				03EBDF96264F411000A7219B /* CkoHtmlToText.h */,
+				03EBDF97264F411000A7219B /* CkoCertStore.h */,
+				03EBDF98264F411000A7219B /* CkoPrivateKey.h */,
+				03EBDF99264F411000A7219B /* CkoSocket.h */,
+				03EBDF9A264F411000A7219B /* CkoEmail.h */,
+				03EBDF9B264F411000A7219B /* CkoRsa.h */,
+				03EBDF9C264F411000A7219B /* CkoMessageSet.h */,
+				03EBDF9D264F411000A7219B /* CkoSFtpFile.h */,
+				03EBDF9E264F411000A7219B /* CkoHttpResponse.h */,
+				03EBDF9F264F411000A7219B /* CkoEcc.h */,
+				03EBDFA0264F411000A7219B /* CkoSFtp.h */,
+				03EBDFA1264F411000A7219B /* CkoJwe.h */,
+				03EBDFA2264F411000A7219B /* CkoHttpRequest.h */,
+				03EBDFA3264F411000A7219B /* CkoAsn.h */,
+				03EBDFA4264F411000A7219B /* CkoServerSentEvent.h */,
+				03EBDFA5264F411000A7219B /* CkoCrypt2.h */,
+				03EBDFA6264F411000A7219B /* CkoBz2.h */,
+				03EBDFA7264F411000A7219B /* CkoCertChain.h */,
+				03EBDFA8264F411000A7219B /* CkoScp.h */,
+				03EBDFA9264F411000A7219B /* CkoHashtable.h */,
+				03EBDFAA264F411000A7219B /* CkoWebSocket.h */,
+				03EBDFAB264F411000A7219B /* CkoTrustedRoots.h */,
+				03EBDFAC264F411000A7219B /* CkoZipProgress.h */,
+				03EBDFAD264F411000A7219B /* CkoCsr.h */,
+				03EBDFAE264F411000A7219B /* CkoProgress.h */,
+				03EBDFAF264F411000A7219B /* CkoStringArray.h */,
+				03EBDFB0264F411000A7219B /* CkoMailboxes.h */,
+				03EBDFB1264F411000A7219B /* CkoBinData.h */,
+				03EBDFB2264F411000A7219B /* CkoPublicKey.h */,
+				03EBDFB3264F411000A7219B /* CkoCharset.h */,
+				03EBDFB4264F411000A7219B /* CkoAuthAzureAD.h */,
+				03EBDFB5264F411000A7219B /* CkoZipCrc.h */,
+				03EBDFB6264F411000A7219B /* CkoJws.h */,
+				03EBDFB7264F411000A7219B /* CkoJavaKeyStore.h */,
+				03EBDFB8264F411000A7219B /* CkoStringTable.h */,
+				03EBDFB9264F411000A7219B /* CkoPem.h */,
+				03EBDFBA264F411000A7219B /* CkoFtp2.h */,
+				03EBDFBB264F411000A7219B /* CkoCsv.h */,
+				03EBDFBC264F411000A7219B /* CkoDateTime.h */,
+				03EBDFBD264F411000A7219B /* CkoAuthAzureSAS.h */,
+				03EBDFBE264F411000A7219B /* CkoGlobal.h */,
+				03EBDFBF264F411000A7219B /* CkoNtlm.h */,
+				03EBDFC0264F411000A7219B /* CkoAtom.h */,
+				03EBDFC1264F411000A7219B /* CkoXmlDSigGen.h */,
+				03EBDFC2264F411000A7219B /* CkoAuthGoogle.h */,
+				03EBDFC3264F411000A7219B /* CkoTarProgress.h */,
+				03EBDFC4264F411000A7219B /* CkoCert.h */,
+				03EBDFC5264F411000A7219B /* CkoXmlCertVault.h */,
+				03EBDFC6264F411000A7219B /* CkoJwt.h */,
+				03EBDFC7264F411000A7219B /* CkoTar.h */,
+				03EBDFC8264F411000A7219B /* CkoStream.h */,
+				03EBDFC9264F411000A7219B /* CkoXmlDSig.h */,
+				03EBDFCA264F411000A7219B /* CkoFileAccess.h */,
+				03EBDFCB264F411000A7219B /* CkoHtmlToXml.h */,
+				03EBDFCC264F411000A7219B /* CkoEmailBundle.h */,
+				03EBDFCD264F411000A7219B /* CkoBounce.h */,
+				03EBDFCE264F411000A7219B /* CkoMailManProgress.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		03EBDFD0264F411000A7219B /* cpp_include */ = {
+			isa = PBXGroup;
+			children = (
+				03EBDFD1264F411000A7219B /* C_CkSFtp.h */,
+				03EBDFD2264F411000A7219B /* CkAuthAzureADW.h */,
+				03EBDFD3264F411000A7219B /* C_CkSFtpW.h */,
+				03EBDFD4264F411000A7219B /* C_CkOAuth1.h */,
+				03EBDFD5264F411000A7219B /* CkCsr.h */,
+				03EBDFD6264F411000A7219B /* CkNtlmW.h */,
+				03EBDFD7264F411000A7219B /* allUnicodeC.h */,
+				03EBDFD8264F411000A7219B /* C_CkJsonObjectW.h */,
+				03EBDFD9264F411000A7219B /* C_CkAuthAzureStorageW.h */,
+				03EBDFDA264F411000A7219B /* CkSshW.h */,
+				03EBDFDB264F411000A7219B /* C_CkBinData.h */,
+				03EBDFDC264F411000A7219B /* CkZipCrcW.h */,
+				03EBDFDD264F411000A7219B /* CkAuthAws.h */,
+				03EBDFDE264F411000A7219B /* CkAuthAzureStorageW.h */,
+				03EBDFDF264F411000A7219B /* CkDateTimeW.h */,
+				03EBDFE0264F411000A7219B /* CkMailMan.h */,
+				03EBDFE1264F411000A7219B /* C_CkXmlDSigGenW.h */,
+				03EBDFE2264F411000A7219B /* C_CkKeyContainerW.h */,
+				03EBDFE3264F411000A7219B /* C_CkHtmlToTextW.h */,
+				03EBDFE4264F411000A7219B /* C_CkFtp2W.h */,
+				03EBDFE5264F411000A7219B /* C_CkHtmlToXml.h */,
+				03EBDFE6264F411000A7219B /* C_CkRar.h */,
+				03EBDFE7264F411000A7219B /* C_CkZipEntry.h */,
+				03EBDFE8264F411000A7219B /* C_CkCharset.h */,
+				03EBDFE9264F411000A7219B /* CkCompressionW.h */,
+				03EBDFEA264F411000A7219B /* CkAuthAzureSAS.h */,
+				03EBDFEB264F411000A7219B /* CkEdDSAW.h */,
+				03EBDFEC264F411000A7219B /* CkRestW.h */,
+				03EBDFED264F411000A7219B /* CkMailManW.h */,
+				03EBDFEE264F411000A7219B /* CkAuthUtilW.h */,
+				03EBDFEF264F411000A7219B /* C_CkCreateCS.h */,
+				03EBDFF0264F411000A7219B /* CkTaskChainW.h */,
+				03EBDFF1264F411000A7219B /* C_CkSFtpDirW.h */,
+				03EBDFF2264F411000A7219B /* CkTaskChain.h */,
+				03EBDFF3264F411000A7219B /* C_CkTaskChainW.h */,
+				03EBDFF4264F411000A7219B /* CkJws.h */,
+				03EBDFF5264F411000A7219B /* CkEdDSA.h */,
+				03EBDFF6264F411000A7219B /* C_CkZipW.h */,
+				03EBDFF7264F411000A7219B /* C_CkUrlW.h */,
+				03EBDFF8264F411000A7219B /* CkStringBuilder.h */,
+				03EBDFF9264F411000A7219B /* CkDhW.h */,
+				03EBDFFA264F411000A7219B /* CkEmail.h */,
+				03EBDFFB264F411000A7219B /* CkAtom.h */,
+				03EBDFFC264F411000A7219B /* CkNtlm.h */,
+				03EBDFFD264F411000A7219B /* C_CkDtObjW.h */,
+				03EBDFFE264F411000A7219B /* C_CkCharsetW.h */,
+				03EBDFFF264F411000A7219B /* CkOAuth1W.h */,
+				03EBE000264F411000A7219B /* C_CkSshKey.h */,
+				03EBE001264F411000A7219B /* C_CkDh.h */,
+				03EBE002264F411000A7219B /* CkPem.h */,
+				03EBE003264F411000A7219B /* C_CkUnixCompress.h */,
+				03EBE004264F411000A7219B /* CkCsv.h */,
+				03EBE005264F411000A7219B /* C_CkPfxW.h */,
+				03EBE006264F411000A7219B /* CkObject.h */,
+				03EBE007264F411000A7219B /* CkJwe.h */,
+				03EBE008264F411000A7219B /* CkUnixCompressW.h */,
+				03EBE009264F411000A7219B /* C_CkEdDSAW.h */,
+				03EBE00A264F411000A7219B /* CkScpW.h */,
+				03EBE00B264F411000A7219B /* C_CkCsrW.h */,
+				03EBE00C264F411000A7219B /* C_CkJwt.h */,
+				03EBE00D264F411000A7219B /* CkJsonArray.h */,
+				03EBE00E264F411000A7219B /* CkDh.h */,
+				03EBE00F264F411000A7219B /* CkSshKey.h */,
+				03EBE010264F411000A7219B /* CkBounceW.h */,
+				03EBE011264F411000A7219B /* CkAsn.h */,
+				03EBE012264F411000A7219B /* CkCreateCSW.h */,
+				03EBE013264F411000A7219B /* C_CkSecureString.h */,
+				03EBE014264F411000A7219B /* C_CkAuthAzureStorage.h */,
+				03EBE015264F411000A7219B /* C_CkAtomW.h */,
+				03EBE016264F411000A7219B /* CkXmlCertVault.h */,
+				03EBE017264F411000A7219B /* C_CkTar.h */,
+				03EBE018264F411000A7219B /* C_CkDkimW.h */,
+				03EBE019264F411000A7219B /* CkDtObjW.h */,
+				03EBE01A264F411000A7219B /* CkCert.h */,
+				03EBE01B264F411000A7219B /* C_CkUploadW.h */,
+				03EBE01C264F411000A7219B /* CkSecureStringW.h */,
+				03EBE01D264F411000A7219B /* CkTarProgressW.h */,
+				03EBE01E264F411000A7219B /* C_CkDsaW.h */,
+				03EBE01F264F411000A7219B /* CkCertStoreW.h */,
+				03EBE020264F411000A7219B /* CkBz2.h */,
+				03EBE021264F411000A7219B /* C_CkImapW.h */,
+				03EBE022264F411000A7219B /* C_CkCsvW.h */,
+				03EBE023264F411000A7219B /* CkClassWithCallbacks.h */,
+				03EBE024264F411000A7219B /* C_CkDirTreeW.h */,
+				03EBE025264F411000A7219B /* CkOAuth1.h */,
+				03EBE026264F411000A7219B /* int64.h */,
+				03EBE027264F411000A7219B /* C_CkCompression.h */,
+				03EBE028264F411000A7219B /* C_CkCertStoreW.h */,
+				03EBE029264F411000A7219B /* C_CkMailboxesW.h */,
+				03EBE02A264F411000A7219B /* CkAuthUtil.h */,
+				03EBE02B264F411000A7219B /* C_CkGlobalW.h */,
+				03EBE02C264F411000A7219B /* C_CkFileAccessW.h */,
+				03EBE02D264F411000A7219B /* CkScp.h */,
+				03EBE02E264F411000A7219B /* CkJwtW.h */,
+				03EBE02F264F411000A7219B /* CkWideCharBase.h */,
+				03EBE030264F411000A7219B /* C_CkSFtpFileW.h */,
+				03EBE031264F411000A7219B /* CkMailboxesW.h */,
+				03EBE032264F411000A7219B /* CkSshKeyW.h */,
+				03EBE033264F411000A7219B /* C_CkFtp2.h */,
+				03EBE034264F411000A7219B /* CkByteData.h */,
+				03EBE035264F411000A7219B /* C_CkSFtpFile.h */,
+				03EBE036264F411000A7219B /* CkSFtpDir.h */,
+				03EBE037264F411000A7219B /* C_CkSocket.h */,
+				03EBE038264F411000A7219B /* CkJwt.h */,
+				03EBE039264F411000A7219B /* CkZipW.h */,
+				03EBE03A264F411000A7219B /* C_CkOAuth2W.h */,
+				03EBE03B264F411000A7219B /* CkFileAccessW.h */,
+				03EBE03C264F411000A7219B /* CkZipEntry.h */,
+				03EBE03D264F411000A7219B /* C_CkJwe.h */,
+				03EBE03E264F411000A7219B /* CkServerSentEventW.h */,
+				03EBE03F264F411000A7219B /* C_CkHttpResponse.h */,
+				03EBE040264F411000A7219B /* CkCertStore.h */,
+				03EBE041264F411000A7219B /* CkStringArrayW.h */,
+				03EBE042264F411000A7219B /* C_CkNtlm.h */,
+				03EBE043264F411000A7219B /* C_CkAtom.h */,
+				03EBE044264F411000A7219B /* CkDirTree.h */,
+				03EBE045264F411000A7219B /* C_CkUpload.h */,
+				03EBE046264F411000A7219B /* C_CkAsn.h */,
+				03EBE047264F411000A7219B /* CkHttpResponseW.h */,
+				03EBE048264F411000A7219B /* C_CkXmlDSig.h */,
+				03EBE049264F411000A7219B /* CkUrlW.h */,
+				03EBE04A264F411000A7219B /* C_CkMailboxes.h */,
+				03EBE04B264F411000A7219B /* CkTar.h */,
+				03EBE04C264F411000A7219B /* C_CkSpider.h */,
+				03EBE04D264F411000A7219B /* CkCompression.h */,
+				03EBE04E264F411000A7219B /* C_CkOAuth2.h */,
+				03EBE04F264F411000A7219B /* C_CkCertW.h */,
+				03EBE050264F411000A7219B /* CkAuthAzureSASW.h */,
+				03EBE051264F411000A7219B /* CkCache.h */,
+				03EBE052264F411000A7219B /* C_CkPublicKey.h */,
+				03EBE053264F411000A7219B /* C_CkKeyContainer.h */,
+				03EBE054264F411000A7219B /* CkTrustedRoots.h */,
+				03EBE055264F411000A7219B /* CkStringTableW.h */,
+				03EBE056264F411000A7219B /* CkTrustedRootsW.h */,
+				03EBE057264F411000A7219B /* C_CkBz2.h */,
+				03EBE058264F411000A7219B /* CkMimeW.h */,
+				03EBE059264F411000A7219B /* CkGzipW.h */,
+				03EBE05A264F411000A7219B /* CkSFtp.h */,
+				03EBE05B264F411000A7219B /* CkZipEntryW.h */,
+				03EBE05C264F411000A7219B /* CkSpiderW.h */,
+				03EBE05D264F411000A7219B /* CkFtp2ProgressW.h */,
+				03EBE05E264F411000A7219B /* CkCharsetW.h */,
+				03EBE05F264F411000A7219B /* C_CkSshW.h */,
+				03EBE060264F411000A7219B /* C_CkString.h */,
+				03EBE061264F411000A7219B /* CkTaskW.h */,
+				03EBE062264F411000A7219B /* C_CkHttpRequestW.h */,
+				03EBE063264F411000A7219B /* C_CkFileAccess.h */,
+				03EBE064264F411000A7219B /* CkDtObj.h */,
+				03EBE065264F411000A7219B /* C_CkMailManW.h */,
+				03EBE066264F411000A7219B /* CkCreateCS.h */,
+				03EBE067264F411000A7219B /* C_CkEmailW.h */,
+				03EBE068264F411000A7219B /* CkSFtpDirW.h */,
+				03EBE069264F411000A7219B /* CkFileAccess.h */,
+				03EBE06A264F411000A7219B /* C_CkScp.h */,
+				03EBE06B264F411000A7219B /* CkDsaW.h */,
+				03EBE06C264F411000A7219B /* C_CkHttpW.h */,
+				03EBE06D264F411000A7219B /* CkString.h */,
+				03EBE06E264F411000A7219B /* C_CkEmailBundleW.h */,
+				03EBE06F264F411000A7219B /* C_CkCert.h */,
+				03EBE070264F411000A7219B /* C_CkXmlDSigGen.h */,
+				03EBE071264F411000A7219B /* C_CkCertChain.h */,
+				03EBE072264F411000A7219B /* CkZipProgressW.h */,
+				03EBE073264F411000A7219B /* CkCsvW.h */,
+				03EBE074264F411000A7219B /* CkSocketW.h */,
+				03EBE075264F411000A7219B /* CkXmlDSigGen.h */,
+				03EBE076264F411000A7219B /* CkSshTunnel.h */,
+				03EBE077264F411000A7219B /* CkPrngW.h */,
+				03EBE078264F411000A7219B /* CkCrypt2W.h */,
+				03EBE079264F411000A7219B /* C_CkCsr.h */,
+				03EBE07A264F411000A7219B /* C_CkHashtable.h */,
+				03EBE07B264F411000A7219B /* C_CkWebSocket.h */,
+				03EBE07C264F411000A7219B /* CkEmailW.h */,
+				03EBE07D264F411000A7219B /* C_CkJwtW.h */,
+				03EBE07E264F411000A7219B /* CkRar.h */,
+				03EBE07F264F411000A7219B /* C_CkServerSentEvent.h */,
+				03EBE080264F411000A7219B /* CkFtp2.h */,
+				03EBE081264F411000A7219B /* C_CkAuthUtil.h */,
+				03EBE082264F411000A7219B /* CkPfxW.h */,
+				03EBE083264F411000A7219B /* C_CkJavaKeyStoreW.h */,
+				03EBE084264F411000A7219B /* C_CkJws.h */,
+				03EBE085264F411000A7219B /* CkStringBuilderW.h */,
+				03EBE086264F411000A7219B /* CkXmlDSigGenW.h */,
+				03EBE087264F411000A7219B /* CkSocket.h */,
+				03EBE088264F411000A7219B /* C_CkByteData.h */,
+				03EBE089264F411000A7219B /* CkSFtpFile.h */,
+				03EBE08A264F411000A7219B /* CkCsrW.h */,
+				03EBE08B264F411000A7219B /* CkHtmlToTextW.h */,
+				03EBE08C264F411100A7219B /* C_CkScpW.h */,
+				03EBE08D264F411100A7219B /* C_CkXmlCertVaultW.h */,
+				03EBE08E264F411100A7219B /* C_CkSshTunnelW.h */,
+				03EBE08F264F411100A7219B /* C_CkStreamW.h */,
+				03EBE090264F411100A7219B /* C_CkCertChainW.h */,
+				03EBE091264F411100A7219B /* CkJavaKeyStore.h */,
+				03EBE092264F411100A7219B /* C_CkCsv.h */,
+				03EBE093264F411100A7219B /* C_CkPem.h */,
+				03EBE094264F411100A7219B /* CkJsonObjectW.h */,
+				03EBE095264F411100A7219B /* C_CkAuthGoogle.h */,
+				03EBE096264F411100A7219B /* CkSshTunnelW.h */,
+				03EBE097264F411100A7219B /* CkUpload.h */,
+				03EBE098264F411100A7219B /* CkCertChainW.h */,
+				03EBE099264F411100A7219B /* CkDirTreeW.h */,
+				03EBE09A264F411100A7219B /* CkSpider.h */,
+				03EBE09B264F411100A7219B /* CkOAuth2.h */,
+				03EBE09C264F411100A7219B /* CkAuthGoogle.h */,
+				03EBE09D264F411100A7219B /* C_CkDhW.h */,
+				03EBE09E264F411100A7219B /* C_CkRss.h */,
+				03EBE09F264F411100A7219B /* CkMessageSetW.h */,
+				03EBE0A0264F411100A7219B /* CkMime.h */,
+				03EBE0A1264F411100A7219B /* CkLog.h */,
+				03EBE0A2264F411100A7219B /* ck_inttypes.h */,
+				03EBE0A3264F411100A7219B /* CkUrl.h */,
+				03EBE0A4264F411100A7219B /* CkHashtableW.h */,
+				03EBE0A5264F411100A7219B /* CkPfx.h */,
+				03EBE0A6264F411100A7219B /* CkGlobalW.h */,
+				03EBE0A7264F411100A7219B /* CkXml.h */,
+				03EBE0A8264F411100A7219B /* CkTask.h */,
+				03EBE0A9264F411100A7219B /* C_CkHttpRequest.h */,
+				03EBE0AA264F411100A7219B /* CkTarW.h */,
+				03EBE0AB264F411100A7219B /* CkFtp2Progress.h */,
+				03EBE0AC264F411100A7219B /* C_CkJavaKeyStore.h */,
+				03EBE0AD264F411100A7219B /* C_CkStringBuilder.h */,
+				03EBE0AE264F411100A7219B /* CkFtp2W.h */,
+				03EBE0AF264F411100A7219B /* C_CkHashtableW.h */,
+				03EBE0B0264F411100A7219B /* C_CkSshKeyW.h */,
+				03EBE0B1264F411100A7219B /* C_CkRssW.h */,
+				03EBE0B2264F411100A7219B /* C_CkPemW.h */,
+				03EBE0B3264F411100A7219B /* C_CkImap.h */,
+				03EBE0B4264F411100A7219B /* C_CkCgi.h */,
+				03EBE0B5264F411100A7219B /* C_CkPdf.h */,
+				03EBE0B6264F411100A7219B /* C_CkNtlmW.h */,
+				03EBE0B7264F411100A7219B /* CkUploadW.h */,
+				03EBE0B8264F411100A7219B /* CkClassWithCallbacksW.h */,
+				03EBE0B9264F411100A7219B /* C_CkZipEntryW.h */,
+				03EBE0BA264F411100A7219B /* CkCgiW.h */,
+				03EBE0BB264F411100A7219B /* CkEmailBundle.h */,
+				03EBE0BC264F411100A7219B /* CkSFtpW.h */,
+				03EBE0BD264F411100A7219B /* CkCsp.h */,
+				03EBE0BE264F411100A7219B /* CkCrypt2.h */,
+				03EBE0BF264F411100A7219B /* C_CkDateTime.h */,
+				03EBE0C0264F411100A7219B /* CkSsh.h */,
+				03EBE0C1264F411100A7219B /* CkGzip.h */,
+				03EBE0C2264F411100A7219B /* CkMailManProgressW.h */,
+				03EBE0C3264F411100A7219B /* C_CkEmail.h */,
+				03EBE0C4264F411100A7219B /* C_CkCertStore.h */,
+				03EBE0C5264F411100A7219B /* CkJsonArrayW.h */,
+				03EBE0C6264F411100A7219B /* CkAuthGoogleW.h */,
+				03EBE0C7264F411100A7219B /* C_CkBounceW.h */,
+				03EBE0C8264F411100A7219B /* CkMht.h */,
+				03EBE0C9264F411100A7219B /* CkJweW.h */,
+				03EBE0CA264F411100A7219B /* CkRest.h */,
+				03EBE0CB264F411100A7219B /* CkMailboxes.h */,
+				03EBE0CC264F411100A7219B /* CkKeyContainerW.h */,
+				03EBE0CD264F411100A7219B /* C_CkJsonArrayW.h */,
+				03EBE0CE264F411100A7219B /* CkSettings.h */,
+				03EBE0CF264F411100A7219B /* CkPublicKey.h */,
+				03EBE0D0264F411100A7219B /* C_CkWebSocketW.h */,
+				03EBE0D1264F411100A7219B /* C_CkJwsW.h */,
+				03EBE0D2264F411100A7219B /* C_CkRestW.h */,
+				03EBE0D3264F411100A7219B /* CkMhtW.h */,
+				03EBE0D4264F411100A7219B /* CkRsaW.h */,
+				03EBE0D5264F411100A7219B /* CkPrng.h */,
+				03EBE0D6264F411100A7219B /* C_CkZipCrc.h */,
+				03EBE0D7264F411100A7219B /* CkWebSocketW.h */,
+				03EBE0D8264F411100A7219B /* C_CkEdDSA.h */,
+				03EBE0D9264F411100A7219B /* CkEmailBundleW.h */,
+				03EBE0DA264F411100A7219B /* CkBinDataW.h */,
+				03EBE0DB264F411100A7219B /* Chilkat_C.h */,
+				03EBE0DC264F411100A7219B /* allC.h */,
+				03EBE0DD264F411100A7219B /* CkHttpProgress.h */,
+				03EBE0DE264F411100A7219B /* C_CkCacheW.h */,
+				03EBE0DF264F411100A7219B /* CkAuthAzureStorage.h */,
+				03EBE0E0264F411100A7219B /* CkPdfW.h */,
+				03EBE0E1264F411100A7219B /* C_CkLogW.h */,
+				03EBE0E2264F411100A7219B /* CkEccW.h */,
+				03EBE0E3264F411100A7219B /* C_CkPublicKeyW.h */,
+				03EBE0E4264F411100A7219B /* C_CkJsonObject.h */,
+				03EBE0E5264F411100A7219B /* CkAuthAwsW.h */,
+				03EBE0E6264F411100A7219B /* CkAtomW.h */,
+				03EBE0E7264F411100A7219B /* CkDkimW.h */,
+				03EBE0E8264F411100A7219B /* CkPublicKeyW.h */,
+				03EBE0E9264F411100A7219B /* C_CkDsa.h */,
+				03EBE0EA264F411100A7219B /* CkAsnW.h */,
+				03EBE0EB264F411100A7219B /* C_CkPrivateKeyW.h */,
+				03EBE0EC264F411100A7219B /* C_CkOAuth1W.h */,
+				03EBE0ED264F411100A7219B /* CkJsonObject.h */,
+				03EBE0EE264F411100A7219B /* CkCspW.h */,
+				03EBE0EF264F411100A7219B /* CkHttpRequestW.h */,
+				03EBE0F0264F411100A7219B /* CkZipCrc.h */,
+				03EBE0F1264F411100A7219B /* C_CkRsa.h */,
+				03EBE0F2264F411100A7219B /* CkMailManProgress.h */,
+				03EBE0F3264F411100A7219B /* CkXmlW.h */,
+				03EBE0F4264F411100A7219B /* CkCacheW.h */,
+				03EBE0F5264F411100A7219B /* CkTarProgress.h */,
+				03EBE0F6264F411100A7219B /* C_CkSecureStringW.h */,
+				03EBE0F7264F411100A7219B /* C_CkStringTableW.h */,
+				03EBE0F8264F411100A7219B /* C_CkTrustedRoots.h */,
+				03EBE0F9264F411100A7219B /* C_CkStringArray.h */,
+				03EBE0FA264F411100A7219B /* CkHttp.h */,
+				03EBE0FB264F411100A7219B /* CkKeyContainer.h */,
+				03EBE0FC264F411100A7219B /* C_CkMailMan.h */,
+				03EBE0FD264F411100A7219B /* C_CkXmlDSigW.h */,
+				03EBE0FE264F411100A7219B /* CkBinData.h */,
+				03EBE0FF264F411100A7219B /* C_CkAuthAws.h */,
+				03EBE100264F411100A7219B /* C_CkZipCrcW.h */,
+				03EBE101264F411100A7219B /* CkXmp.h */,
+				03EBE102264F411100A7219B /* CkCharset.h */,
+				03EBE103264F411100A7219B /* C_CkAuthAzureAD.h */,
+				03EBE104264F411100A7219B /* CkXmpW.h */,
+				03EBE105264F411100A7219B /* CkDkim.h */,
+				03EBE106264F411100A7219B /* chilkatDefs.h */,
+				03EBE107264F411100A7219B /* C_CkStringArrayW.h */,
+				03EBE108264F411100A7219B /* CkHttpResponse.h */,
+				03EBE109264F411100A7219B /* C_CkRarEntry.h */,
+				03EBE10A264F411100A7219B /* C_CkCrypt2.h */,
+				03EBE10B264F411100A7219B /* C_CkStringTable.h */,
+				03EBE10C264F411100A7219B /* C_CkBz2W.h */,
+				03EBE10D264F411100A7219B /* CkCertChain.h */,
+				03EBE10E264F411100A7219B /* C_CkUnixCompressW.h */,
+				03EBE10F264F411100A7219B /* CkHashtable.h */,
+				03EBE110264F411100A7219B /* CkWebSocket.h */,
+				03EBE111264F411100A7219B /* CkZip.h */,
+				03EBE112264F411100A7219B /* C_CkEcc.h */,
+				03EBE113264F411100A7219B /* CkImapW.h */,
+				03EBE114264F411100A7219B /* C_CkSshTunnel.h */,
+				03EBE115264F411100A7219B /* CkHtmlToText.h */,
+				03EBE116264F411100A7219B /* C_CkRest.h */,
+				03EBE117264F411100A7219B /* C_CkJweW.h */,
+				03EBE118264F411100A7219B /* CkStreamW.h */,
+				03EBE119264F411100A7219B /* C_CkMessageSet.h */,
+				03EBE11A264F411100A7219B /* CkServerSentEvent.h */,
+				03EBE11B264F411100A7219B /* C_CkGzip.h */,
+				03EBE11C264F411100A7219B /* CkDsa.h */,
+				03EBE11D264F411100A7219B /* CkPrivateKey.h */,
+				03EBE11E264F411100A7219B /* C_CkHtmlToText.h */,
+				03EBE11F264F411100A7219B /* C_CkCache.h */,
+				03EBE120264F411100A7219B /* CkStringTable.h */,
+				03EBE121264F411100A7219B /* CkMessageSet.h */,
+				03EBE122264F411100A7219B /* CkCertW.h */,
+				03EBE123264F411100A7219B /* CkDateTime.h */,
+				03EBE124264F411100A7219B /* C_CkPrivateKey.h */,
+				03EBE125264F411100A7219B /* C_CkStream.h */,
+				03EBE126264F411100A7219B /* CkJwsW.h */,
+				03EBE127264F411100A7219B /* CkAuthAzureAD.h */,
+				03EBE128264F411100A7219B /* C_CkMhtW.h */,
+				03EBE129264F411100A7219B /* C_CkAuthUtilW.h */,
+				03EBE12A264F411100A7219B /* CkRsa.h */,
+				03EBE12B264F411100A7219B /* C_CkTaskChain.h */,
+				03EBE12C264F411100A7219B /* CkBaseProgressW.h */,
+				03EBE12D264F411100A7219B /* C_CkPrng.h */,
+				03EBE12E264F411100A7219B /* C_CkRsaW.h */,
+				03EBE12F264F411100A7219B /* C_CkTrustedRootsW.h */,
+				03EBE130264F411100A7219B /* C_CkStringBuilderW.h */,
+				03EBE131264F411100A7219B /* C_CkDateTimeW.h */,
+				03EBE132264F411100A7219B /* C_CkXmlCertVault.h */,
+				03EBE133264F411100A7219B /* CkSFtpProgress.h */,
+				03EBE134264F411100A7219B /* CkSecureString.h */,
+				03EBE135264F411100A7219B /* C_CkDtObj.h */,
+				03EBE136264F411100A7219B /* CkStringArray.h */,
+				03EBE137264F411100A7219B /* C_CkAuthAzureSASW.h */,
+				03EBE138264F411100A7219B /* CkService.h */,
+				03EBE139264F411100A7219B /* C_CkBounce.h */,
+				03EBE13A264F411100A7219B /* C_CkMime.h */,
+				03EBE13B264F411100A7219B /* CkHtmlToXml.h */,
+				03EBE13C264F411100A7219B /* C_CkBinDataW.h */,
+				03EBE13D264F411100A7219B /* CkRssW.h */,
+				03EBE13E264F411100A7219B /* CkRegistry.h */,
+				03EBE13F264F411100A7219B /* C_CkXmp.h */,
+				03EBE140264F411100A7219B /* C_CkHttpResponseW.h */,
+				03EBE141264F411100A7219B /* C_CkTask.h */,
+				03EBE142264F411100A7219B /* C_CkTarW.h */,
+				03EBE143264F411100A7219B /* C_CkGzipW.h */,
+				03EBE144264F411100A7219B /* C_CkHtmlToXmlW.h */,
+				03EBE145264F411100A7219B /* C_CkCgiW.h */,
+				03EBE146264F411100A7219B /* CkPrivateKeyW.h */,
+				03EBE147264F411100A7219B /* CkImap.h */,
+				03EBE148264F411100A7219B /* CkGlobal.h */,
+				03EBE149264F411100A7219B /* CkEcc.h */,
+				03EBE14A264F411100A7219B /* CkPemW.h */,
+				03EBE14B264F411100A7219B /* C_CkZip.h */,
+				03EBE14C264F411100A7219B /* C_CkMimeW.h */,
+				03EBE14D264F411100A7219B /* C_CkCrypt2W.h */,
+				03EBE14E264F411100A7219B /* C_CkTaskW.h */,
+				03EBE14F264F411100A7219B /* C_CkSocketW.h */,
+				03EBE150264F411100A7219B /* CkHtmlToXmlW.h */,
+				03EBE151264F411100A7219B /* C_CkSettings.h */,
+				03EBE152264F411100A7219B /* CkUnixCompress.h */,
+				03EBE153264F411100A7219B /* C_CkHttp.h */,
+				03EBE154264F411100A7219B /* CkZipProgress.h */,
+				03EBE155264F411100A7219B /* C_CkDkim.h */,
+				03EBE156264F411100A7219B /* C_CkLog.h */,
+				03EBE157264F411200A7219B /* CkSFtpFileW.h */,
+				03EBE158264F411200A7219B /* CkRss.h */,
+				03EBE159264F411200A7219B /* C_CkXml.h */,
+				03EBE15A264F411200A7219B /* C_CkXmpW.h */,
+				03EBE15B264F411200A7219B /* C_CkPfx.h */,
+				03EBE15C264F411200A7219B /* CkBounce.h */,
+				03EBE15D264F411200A7219B /* CkXmlCertVaultW.h */,
+				03EBE15E264F411200A7219B /* C_CkUrl.h */,
+				03EBE15F264F411200A7219B /* CkHttpProgressW.h */,
+				03EBE160264F411200A7219B /* C_CkSpiderW.h */,
+				03EBE161264F411200A7219B /* C_CkCsp.h */,
+				03EBE162264F411200A7219B /* C_CkSsh.h */,
+				03EBE163264F411200A7219B /* C_CkAuthAwsW.h */,
+				03EBE164264F411200A7219B /* CkBz2W.h */,
+				03EBE165264F411200A7219B /* CkHttpW.h */,
+				03EBE166264F411200A7219B /* CkPdf.h */,
+				03EBE167264F411200A7219B /* CkCgi.h */,
+				03EBE168264F411200A7219B /* C_CkPrngW.h */,
+				03EBE169264F411200A7219B /* CkSFtpProgressW.h */,
+				03EBE16A264F411200A7219B /* C_CkGlobal.h */,
+				03EBE16B264F411200A7219B /* CkJavaKeyStoreW.h */,
+				03EBE16C264F411200A7219B /* C_CkAuthGoogleW.h */,
+				03EBE16D264F411200A7219B /* allUnicode.h */,
+				03EBE16E264F411200A7219B /* C_CkCompressionW.h */,
+				03EBE16F264F411200A7219B /* C_CkAuthAzureSAS.h */,
+				03EBE170264F411200A7219B /* CkRarEntry.h */,
+				03EBE171264F411200A7219B /* CkXmlDSig.h */,
+				03EBE172264F411200A7219B /* CkLogW.h */,
+				03EBE173264F411200A7219B /* C_CkPdfW.h */,
+				03EBE174264F411200A7219B /* CkObjectArray.h */,
+				03EBE175264F411200A7219B /* C_CkDirTree.h */,
+				03EBE176264F411200A7219B /* CkStream.h */,
+				03EBE177264F411200A7219B /* C_CkEccW.h */,
+				03EBE178264F411200A7219B /* C_CkCreateCSW.h */,
+				03EBE179264F411200A7219B /* CkBaseProgress.h */,
+				03EBE17A264F411200A7219B /* C_CkCspW.h */,
+				03EBE17B264F411200A7219B /* SystemTime.h */,
+				03EBE17C264F411200A7219B /* C_CkAsnW.h */,
+				03EBE17D264F411200A7219B /* C_CkEmailBundle.h */,
+				03EBE17E264F411200A7219B /* C_CkServerSentEventW.h */,
+				03EBE17F264F411200A7219B /* C_CkMht.h */,
+				03EBE180264F411200A7219B /* CkHttpRequest.h */,
+				03EBE181264F411200A7219B /* C_CkXmlW.h */,
+				03EBE182264F411200A7219B /* CkXmlDSigW.h */,
+				03EBE183264F411200A7219B /* C_CkSFtpDir.h */,
+				03EBE184264F411200A7219B /* FileTime.h */,
+				03EBE185264F411200A7219B /* C_CkMessageSetW.h */,
+				03EBE186264F411200A7219B /* CkOAuth2W.h */,
+				03EBE187264F411200A7219B /* CkMultiByteBase.h */,
+				03EBE188264F411200A7219B /* C_CkJsonArray.h */,
+				03EBE189264F411200A7219B /* C_CkAuthAzureADW.h */,
+			);
+			path = cpp_include;
+			sourceTree = "<group>";
+		};
+		03EBE18A264F411200A7219B /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				03EBE18B264F411200A7219B /* i386 */,
+				03EBE18D264F411200A7219B /* armv7 */,
+				03EBE18F264F411200A7219B /* arm64-sim */,
+				03EBE191264F411200A7219B /* arm64e */,
+				03EBE193264F411200A7219B /* armv7s */,
+				03EBE195264F411200A7219B /* arm64 */,
+				03EBE197264F411200A7219B /* x86_64 */,
+			);
+			path = lib;
+			sourceTree = "<group>";
+		};
+		03EBE18B264F411200A7219B /* i386 */ = {
+			isa = PBXGroup;
+			children = (
+				03EBE18C264F411200A7219B /* libchilkatIos.a */,
+			);
+			path = i386;
+			sourceTree = "<group>";
+		};
+		03EBE18D264F411200A7219B /* armv7 */ = {
+			isa = PBXGroup;
+			children = (
+				03EBE18E264F411200A7219B /* libchilkatIos.a */,
+			);
+			path = armv7;
+			sourceTree = "<group>";
+		};
+		03EBE18F264F411200A7219B /* arm64-sim */ = {
+			isa = PBXGroup;
+			children = (
+				03EBE190264F411200A7219B /* libchilkatIos.a */,
+			);
+			path = "arm64-sim";
+			sourceTree = "<group>";
+		};
+		03EBE191264F411200A7219B /* arm64e */ = {
+			isa = PBXGroup;
+			children = (
+				03EBE192264F411200A7219B /* libchilkatIos.a */,
+			);
+			path = arm64e;
+			sourceTree = "<group>";
+		};
+		03EBE193264F411200A7219B /* armv7s */ = {
+			isa = PBXGroup;
+			children = (
+				03EBE194264F411200A7219B /* libchilkatIos.a */,
+			);
+			path = armv7s;
+			sourceTree = "<group>";
+		};
+		03EBE195264F411200A7219B /* arm64 */ = {
+			isa = PBXGroup;
+			children = (
+				03EBE196264F411200A7219B /* libchilkatIos.a */,
+			);
+			path = arm64;
+			sourceTree = "<group>";
+		};
+		03EBE197264F411200A7219B /* x86_64 */ = {
+			isa = PBXGroup;
+			children = (
+				03EBE198264F411200A7219B /* libchilkatIos.a */,
+			);
+			path = x86_64;
 			sourceTree = "<group>";
 		};
 		344427BA4ED4A074A8B98DE4 /* Pods */ = {
@@ -349,6 +1552,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				"OTHER_LDFLAGS[arch=*]" = "";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -401,6 +1605,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.BryceAlbertazzi.Prime-Dictation";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = "Prime Dictation/PDBridgingHeader.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
