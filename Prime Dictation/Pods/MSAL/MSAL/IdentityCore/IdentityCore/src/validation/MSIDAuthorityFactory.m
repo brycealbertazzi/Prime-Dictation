@@ -26,6 +26,7 @@
 #import "MSIDADFSAuthority.h"
 #import "MSIDB2CAuthority.h"
 #import "MSIDAuthority+Internal.h"
+#import "MSIDJsonSerializableFactory.h"
 
 @implementation MSIDAuthorityFactory
 
@@ -62,7 +63,7 @@
     
     if (error)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Provided authority url is not a valid authority.", nil, nil, underlyingError, context.correlationId, nil);
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Provided authority url is not a valid authority.", nil, nil, underlyingError, context.correlationId, nil, NO);
         
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Provided authority url is not a valid authority.");
     }

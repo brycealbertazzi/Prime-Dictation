@@ -42,7 +42,7 @@
 
 - (instancetype)initWithClientId:(NSString *)clientId
                       tokenCache:(MSIDDefaultTokenCacheAccessor *)tokenCache
-            accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
+            accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
 
 {
     self = [super init];
@@ -57,6 +57,8 @@
 }
 
 - (MSALResult *)resultWithTokenResult:(MSIDTokenResult *)tokenResult
+                           authScheme:(id<MSALAuthenticationSchemeProtocol>)authScheme
+                           popManager:(MSIDDevicePopManager *)popManager
                                 error:(NSError **)error
 {
     NSError *authorityError = nil;
@@ -72,19 +74,19 @@
         return nil;
     }
     
-    return [MSALResult resultWithMSIDTokenResult:tokenResult authority:authority error:error];
+    return [MSALResult resultWithMSIDTokenResult:tokenResult authority:authority authScheme:authScheme popManager:popManager error:error];
 }
 
 - (BOOL)removeAdditionalAccountInfo:(__unused MSALAccount *)account
-                              error:(NSError **)error
+                              error:(__unused NSError **)error
 {
     return YES;
 }
 
-- (MSIDAuthority *)issuerAuthorityWithAccount:(MSALAccount *)account
+- (MSIDAuthority *)issuerAuthorityWithAccount:(__unused MSALAccount *)account
                              requestAuthority:(MSIDAuthority *)requestAuthority
-                                instanceAware:(BOOL)instanceAware
-                                        error:(NSError * _Nullable __autoreleasing *)error
+                                instanceAware:(__unused BOOL)instanceAware
+                                        error:(__unused NSError * _Nullable __autoreleasing *)error
 {
     // TODO: after authority->issuer cache is ready, this should always lookup cached issuer instead
     return requestAuthority;

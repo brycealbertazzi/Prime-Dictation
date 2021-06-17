@@ -24,6 +24,7 @@
 #import "MSIDWPJChallengeHandler.h"
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDRegistrationInformation.h"
+#import "MSIDWorkplaceJoinChallenge.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 
 @implementation MSIDWPJChallengeHandler
@@ -44,6 +45,7 @@
     if ([self isWPJChallenge:distinguishedNames])
     {
 #if TARGET_OS_IPHONE
+#pragma unused(completionHandler)
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Ignoring WPJ challenge on iOS");
         return NO;
 #else
@@ -77,7 +79,8 @@
                    context:(id<MSIDRequestContext>)context
          completionHandler:(ChallengeCompletionHandler)completionHandler
 {
-    MSIDRegistrationInformation *info = [MSIDWorkPlaceJoinUtil getRegistrationInformation:context urlChallenge:challenge];
+    MSIDWorkplaceJoinChallenge *wpjChallenge = [[MSIDWorkplaceJoinChallenge alloc] initWithURLChallenge:challenge];
+    MSIDRegistrationInformation *info = [MSIDWorkPlaceJoinUtil getRegistrationInformation:context workplacejoinChallenge:wpjChallenge];
     if (!info || ![info isWorkPlaceJoined])
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Device is not workplace joined. host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
@@ -97,7 +100,7 @@
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Responding to WPJ cert challenge. host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
     
     NSURLCredential *creds = [NSURLCredential credentialWithIdentity:info.securityIdentity
-                                                        certificates:@[(__bridge id)info.certificate]
+                                                        certificates:@[(__bridge id)info.certificateRef]
                                                          persistence:NSURLCredentialPersistenceNone];
     
     completionHandler(NSURLSessionAuthChallengeUseCredential, creds);

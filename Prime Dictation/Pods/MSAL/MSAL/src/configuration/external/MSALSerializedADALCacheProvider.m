@@ -25,18 +25,24 @@
 #import "MSIDMacTokenCache.h"
 #import "MSALErrorConverter.h"
 #import "MSALSerializedADALCacheProvider+Internal.h"
+#if TARGET_OS_OSX
+#import "MSIDMacLegacyCachePersistenceHandler.h"
+#endif
 
 @interface MSALSerializedADALCacheProvider() <MSIDMacTokenCacheDelegate>
 
 @property (nonatomic, nonnull, readwrite) id<MSALSerializedADALCacheProviderDelegate> delegate;
 @property (nonatomic, readwrite) MSIDMacTokenCache *macTokenCache;
+#if TARGET_OS_OSX
+@property (nonatomic, readwrite) MSIDMacLegacyCachePersistenceHandler *cachePersistenceHandler;
+#endif
 
 @end
 
 @implementation MSALSerializedADALCacheProvider
 
 - (instancetype)initWithDelegate:(id<MSALSerializedADALCacheProviderDelegate>)delegate
-                           error:(NSError **)error
+                           error:(__unused NSError **)error
 {
     self = [super init];
     
@@ -52,7 +58,46 @@
     return self;
 }
 
-- (nullable NSData *)serializeDataWithError:(NSError **)error
+#if TARGET_OS_OSX
+
+- (nullable instancetype)initWithKeychainAttributes:(nonnull NSDictionary *)keychainAttributes
+                                trustedApplications:(nonnull NSArray *)trustedApplications
+                                        accessLabel:(nonnull NSString *)accessLabel
+                                              error:(NSError * _Nullable * _Nullable)error
+{
+    self = [super init];
+    
+    if (self)
+    {
+        NSError *msidError = nil;
+        MSIDMacLegacyCachePersistenceHandler *persistenceHandler = [[MSIDMacLegacyCachePersistenceHandler alloc] initWithTrustedApplications:trustedApplications
+                                                                                                                                 accessLabel:accessLabel
+                                                                                                                                  attributes:keychainAttributes
+                                                                                                                                       error:&msidError];
+        
+        if (!persistenceHandler)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to initialize persistent ADAL cache handler");
+            
+            if (error)
+            {
+                *error = [MSALErrorConverter msalErrorFromMsidError:msidError];
+            }
+            
+            return nil;
+        }
+        
+        _cachePersistenceHandler = persistenceHandler;
+        _macTokenCache = [MSIDMacTokenCache new];
+        _macTokenCache.delegate = persistenceHandler;
+    }
+    
+    return self;
+}
+
+#endif
+
+- (nullable NSData *)serializeDataWithError:(__unused NSError **)error
 {
     // TODO: error.
     return [self.macTokenCache serialize];
@@ -65,7 +110,7 @@
 
 #pragma mark - NSCopying
 
-- (id)copyWithZone:(NSZone *)zone
+- (id)copyWithZone:(__unused NSZone *)zone
 {
     MSALSerializedADALCacheProvider *copiedCacheProvider = [[MSALSerializedADALCacheProvider alloc] initWithDelegate:self.delegate error:nil];
     return copiedCacheProvider;
@@ -80,22 +125,22 @@
 
 #pragma mark - MSIDMacTokenCacheDelegate
 
-- (void)willAccessCache:(MSIDMacTokenCache *)cache
+- (void)willAccessCache:(__unused MSIDMacTokenCache *)cache
 {
     [self.delegate willAccessCache:self];
 }
 
-- (void)didAccessCache:(MSIDMacTokenCache *)cache
+- (void)didAccessCache:(__unused MSIDMacTokenCache *)cache
 {
     [self.delegate didAccessCache:self];
 }
 
-- (void)willWriteCache:(MSIDMacTokenCache *)cache
+- (void)willWriteCache:(__unused MSIDMacTokenCache *)cache
 {
     [self.delegate willWriteCache:self];
 }
 
-- (void)didWriteCache:(MSIDMacTokenCache *)cache
+- (void)didWriteCache:(__unused MSIDMacTokenCache *)cache
 {
     [self.delegate didWriteCache:self];
 }

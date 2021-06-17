@@ -1,5 +1,4 @@
 ${PODS_ROOT}/Target Support Files/Pods-Prime Dictation/Pods-Prime Dictation-frameworks.sh
 ${BUILT_PRODUCTS_DIR}/MSAL/MSAL.framework
 ${BUILT_PRODUCTS_DIR}/MSGraphClientSDK/MSGraphClientSDK.framework
-${BUILT_PRODUCTS_DIR}/MSGraphMSALAuthProvider/MSGraphMSALAuthProvider.framework
 ${BUILT_PRODUCTS_DIR}/ProgressHUD/ProgressHUD.framework

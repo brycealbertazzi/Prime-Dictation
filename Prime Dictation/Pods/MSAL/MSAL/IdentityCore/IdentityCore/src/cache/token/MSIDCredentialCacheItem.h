@@ -27,7 +27,6 @@
 #import "MSIDKeyGenerator.h"
 
 @class MSIDBaseToken;
-@class MSIDClientInfo;
 
 @interface MSIDCredentialCacheItem : NSObject <NSCopying, MSIDJsonSerializable, MSIDKeyGenerator>
 
@@ -75,6 +74,9 @@
 // Last Modification info (currently used on macOS only)
 @property (readwrite, nullable) NSDate *lastModificationTime;
 @property (readwrite, nullable) NSString *lastModificationApp;
+
+@property (readwrite, nullable) NSString *tokenType;
+@property (readwrite, nullable) NSString *kid;
 
 - (BOOL)isEqualToItem:(nullable MSIDCredentialCacheItem *)item;
 

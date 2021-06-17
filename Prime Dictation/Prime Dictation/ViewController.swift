@@ -9,7 +9,7 @@
 import UIKit
 import AVFoundation
 import ProgressHUD
-import MSGraphMSALAuthProvider
+import MSAL
 import MSGraphClientSDK
 
 
@@ -48,6 +48,18 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     //MARK: View did load
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Try to acquire token silently
+        AuthenticationManager.instance.getTokenSilently { token, error in
+            if error == nil && token != nil {
+                print("Token Success!")
+               
+                AppDelegate.httpClient = MSClientFactory.createHTTPClient(with: AuthenticationManager.instance)
+            } else {
+                print("Error:")
+                print(error)
+            }
+        }
+        
 
         // Do any additional setup after loading the view.
         ListenLabel.setTitle("Listen", for: .normal)
@@ -540,36 +552,55 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     }
     
+   
+    @IBAction func SignInButton(_ sender: Any) {
+        AuthenticationManager.instance.getTokenInteractively(parentView: self) { token, error in
+            guard let _ = token, error == nil else {
+                ProgressHUD.showError("Unable to sign into OneDrive")
+                return
+            }
+            AppDelegate.httpClient = MSClientFactory.createHTTPClient(with: AuthenticationManager.instance)
+            ProgressHUD.showSuccess("Successfully signed into OneDrive!")
+        }
+    }
     
     // One Drive for Business
     @IBAction func SendButton(_ sender: Any) {
-        print(AppDelegate.config)
-        print(AppDelegate.MSPublicClientApp)
-        print(AppDelegate.MSAuthProviderOptions)
-        print(AppDelegate.MSAuthProvider)
-        print(AppDelegate.httpClient)
-        // Construct the request to send the recording
-        let request: NSMutableURLRequest = NSMutableURLRequest(url: URL(string: AppDelegate.kGraphEndpoint)!)
-
-        print(request)
-//        //Execute the request
-        let sendRecordingTask: MSURLSessionDataTask? = AppDelegate.httpClient?.dataTask(with: request, completionHandler: { (data, response, error) in
-
-            print(request)
-            if (error != nil) {
+        
+        // Try to acquire token silently
+        AuthenticationManager.instance.getTokenSilently { token, error in
+            if error == nil && token != nil && AppDelegate.httpClient != nil {
+                print("Token Success!")
+            } else {
                 print("Error:")
                 print(error)
-                ProgressHUD.showError("Please sign into your Microsoft account")
-            } else {
-                print("Data:")
-                print(data)
-                print("Response:")
-                print(response)
+                ProgressHUD.showError("Please sign into OneDrive")
+                return
             }
-        })
-
-        sendRecordingTask?.execute()
+        }
         
+        
+        let recordingToUpload: URL = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(destinationRecordingExtension)
+        print(recordingToUpload)
+        let recordingData: Data? = try? Data(contentsOf: recordingToUpload)
+        
+        let uploadRequest: NSMutableURLRequest = NSMutableURLRequest(url: URL(string: AppDelegate.kGraphEndpoint + toggledRecordingName + "." + destinationRecordingExtension + ":/microsoft.graph.createUploadSession")!)
+        uploadRequest.httpMethod = "POST"
+        
+        let uploadTask: MSURLSessionUploadTask = MSURLSessionUploadTask(request: uploadRequest, fromFile: recordingToUpload, client: AppDelegate.httpClient) { data, res, err in
+            if err == nil {
+                print("Http Body")
+                print(uploadRequest.httpBody)
+                print("URL")
+                print(uploadRequest.url)
+                ProgressHUD.showSuccess("Successfully uploaded to OneDrive!")
+            } else {
+                ProgressHUD.showError("Failed to send recording to OneDrive")
+            }
+        }
+
+      
+        uploadTask.execute()
         
 //        if let client: DropboxClient = DropboxClientsManager.authorizedClient {
 //            print("Client is already authorized")
@@ -630,63 +661,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     
     
-    @IBAction func SignInButton(_ sender: Any) {
-        if let msPublicClientApp = try? MSALPublicClientApplication(clientId: AppDelegate.kClientID) {
-            #if os(iOS)
-                let viewController = self // Pass a reference to the view controller that should be used when getting a token interactively
-            let webviewParameters = MSALWebviewParameters(parentViewController: viewController)
-                #else
-                let webviewParameters = MSALWebviewParameters()
-                #endif
-                
-            let interactiveParameters = MSALInteractiveTokenParameters(scopes: AppDelegate.kScopes, webviewParameters: webviewParameters)
-                msPublicClientApp.acquireToken(with: interactiveParameters, completionBlock: { (result, error) in
-                            
-                    guard let authResult = result, error == nil else {
-                        print(error!.localizedDescription)
-                        ProgressHUD.showError("Unable to sign in to OneDrive, access denied")
-                        return
-                    }
-                                
-                    // Get access token from result
-                    let accessToken = authResult.accessToken
-                                
-                    // You'll want to get the account identifier to retrieve and reuse the account for later acquireToken calls
-                    let accountIdentifier = authResult.account.identifier
-                    
-                    if let msAuthProviderOptions = try? MSALAuthenticationProviderOptions(scopes: AppDelegate.kScopes) {
-                        print("AuthProviderOptions")
-                        print(msAuthProviderOptions.scopesArray as Any)
-                        AppDelegate.MSAuthProviderOptions = msAuthProviderOptions
-                    } else {
-                        ProgressHUD.showError("Unable to sign into OneDrive")
-                        return
-                    }
-                    
-                    if let msAuthProvider = try? MSALAuthenticationProvider(publicClientApplication: AppDelegate.MSPublicClientApp!, andOptions: AppDelegate.MSAuthProviderOptions!) {
-                        print("AuthProvider")
-                        print(msAuthProvider)
-                        AppDelegate.MSAuthProvider = msAuthProvider
-                    } else {
-                        ProgressHUD.showError("Unable to sign into OneDrive")
-                        return
-                    }
-                    
-                    AppDelegate.httpClient = MSClientFactory.createHTTPClient(with: AppDelegate.MSAuthProvider)
-                    print(AppDelegate.httpClient)
-                    ProgressHUD.showSuccess("Successfully signed into OneDrive!")
-                })
-            print(msPublicClientApp.configuration.clientId)
-            AppDelegate.MSPublicClientApp = msPublicClientApp
-            
-            
-            
-        } else {
-            ProgressHUD.showError("Unable to sign into OneDrive")
-            return
-        }
-        
-    }
+  
     
 
     

@@ -28,16 +28,18 @@
 #import "MSALRedirectUriVerifier.h"
 #import "MSALRedirectUri+Internal.h"
 #import "MSIDConstants.h"
+#import "MSIDAppExtensionUtil.h"
 
 @implementation MSALRedirectUriVerifier
 
 + (MSALRedirectUri *)msalRedirectUriWithCustomUri:(NSString *)customRedirectUri
                                          clientId:(NSString *)clientId
+                         bypassRedirectValidation:(BOOL)bypassRedirectValidation
                                             error:(NSError * __autoreleasing *)error
 {
 #if AD_BROKER
-    // Allow the broker app to use a special redirect URI when acquiring tokens
-    if ([customRedirectUri isEqualToString:MSID_AUTHENTICATOR_REDIRECT_URI])
+    // Allow the broker app to use any non-empty redirect URI when acquiring tokens
+    if (![NSString msidIsStringNilOrBlank:customRedirectUri])
     {
         return [[MSALRedirectUri alloc] initWithRedirectUri:[NSURL URLWithString:customRedirectUri]
                                               brokerCapable:YES];
@@ -49,13 +51,13 @@
     if (![NSString msidIsStringNilOrBlank:customRedirectUri])
     {
         NSURL *redirectURI = [NSURL URLWithString:customRedirectUri];
-
-        if (![self verifySchemeIsRegistered:redirectURI error:error])
+        
+        if (!bypassRedirectValidation && ![self verifySchemeIsRegistered:redirectURI error:error])
         {
             return nil;
         }
 
-        BOOL brokerCapable = [self redirectUriIsBrokerCapable:redirectURI];
+        BOOL brokerCapable = !bypassRedirectValidation && [MSALRedirectUri redirectUriIsBrokerCapable:redirectURI];
 
         MSALRedirectUri *redirectUri = [[MSALRedirectUri alloc] initWithRedirectUri:redirectURI
                                                                       brokerCapable:brokerCapable];
@@ -88,26 +90,6 @@
     return nil;
 }
 
-+ (BOOL)redirectUriIsBrokerCapable:(NSURL *)redirectUri
-{
-    NSURL *defaultRedirectUri = [MSALRedirectUri defaultBrokerCapableRedirectUri];
-
-    // Check default MSAL format
-    if ([defaultRedirectUri isEqual:redirectUri])
-    {
-        return YES;
-    }
-
-    // Check default ADAL format
-    if ([redirectUri.host isEqualToString:[[NSBundle mainBundle] bundleIdentifier]]
-        && redirectUri.scheme.length > 0)
-    {
-        return YES;
-    }
-
-    return NO;
-}
-
 #pragma mark - Helpers
 
 + (BOOL)verifySchemeIsRegistered:(NSURL *)redirectUri
@@ -118,6 +100,11 @@
     if ([scheme isEqualToString:@"https"])
     {
         // HTTPS schemes don't need to be registered in the Info.plist file
+        return YES;
+    }
+    
+    if (([MSIDAppExtensionUtil isExecutingInAppExtension]))
+    {
         return YES;
     }
 
@@ -136,6 +123,33 @@
     MSIDFillAndLogError(error, MSIDErrorRedirectSchemeNotRegistered, message, nil);
 
     return NO;
+}
+
++ (BOOL)verifyAdditionalRequiredSchemesAreRegistered:(__unused NSError **)error
+{
+#if !AD_BROKER
+    
+    if (([MSIDAppExtensionUtil isExecutingInAppExtension]))
+    {
+        return YES;
+    }
+    
+    NSArray *querySchemes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"LSApplicationQueriesSchemes"];
+    
+    if (![querySchemes containsObject:@"msauthv2"]
+        || ![querySchemes containsObject:@"msauthv3"])
+    {
+        if (error)
+        {
+            NSString *message = @"The required query schemes \"msauthv2\" and \"msauthv3\" are not registered in the app's info.plist file. Please add \"msauthv2\" and \"msauthv3\" into Info.plist under LSApplicationQueriesSchemes without any whitespaces.";
+            MSIDFillAndLogError(error, MSIDErrorRedirectSchemeNotRegistered, message, nil);
+        }
+        
+        return NO;
+    }
+#endif
+    
+    return YES;
 }
 
 @end

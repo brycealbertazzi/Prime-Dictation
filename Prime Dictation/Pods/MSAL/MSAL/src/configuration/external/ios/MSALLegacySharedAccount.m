@@ -57,7 +57,7 @@ static NSDateFormatter *s_updateDateFormatter = nil;
             
             if (error)
             {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected shared account found without type or identifier", nil, nil, nil, nil, nil);
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected shared account found without type or identifier", nil, nil, nil, nil, nil, NO);
             }
             
             return nil;
@@ -85,7 +85,7 @@ static NSDateFormatter *s_updateDateFormatter = nil;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected parameter - no account", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected parameter - no account", nil, nil, nil, nil, nil, NO);
         }
         
         return nil;
@@ -104,7 +104,11 @@ static NSDateFormatter *s_updateDateFormatter = nil;
     
     jsonDictionary[@"signInStatus"] = @{appBundleId : @"SignedIn"};
     jsonDictionary[@"username"] = account.username;
-    jsonDictionary[@"additionalProperties"] = @{@"createdBy": appName};
+    
+    NSMutableDictionary *additionalProperties = [NSMutableDictionary new];
+    [additionalProperties addEntriesFromDictionary:@{@"createdBy": appName}];
+    [additionalProperties addEntriesFromDictionary:[self additionalPropertiesFromMSALAccount:account claims:claims]];
+    jsonDictionary[@"additionalProperties"] = additionalProperties;
     [jsonDictionary addEntriesFromDictionary:[self claimsFromMSALAccount:account claims:claims]];
     return [self initWithJSONDictionary:jsonDictionary error:error];
 }
@@ -118,6 +122,7 @@ static NSDateFormatter *s_updateDateFormatter = nil;
         NSString *appIdentifier = [[NSBundle mainBundle] bundleIdentifier];
         NSString *signinStatus = [self.signinStatusDictionary msidStringObjectForKey:appIdentifier];
         
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Requested to only returned signed in accounts. Current sign in status for the app is %@", signinStatus);
         return [signinStatus isEqualToString:@"SignedIn"];
     }
     else if (![self.signinStatusDictionary count])
@@ -140,7 +145,7 @@ static NSDateFormatter *s_updateDateFormatter = nil;
                      applicationName:(NSString *)appName
                            operation:(MSALLegacySharedAccountWriteOperation)operation
                       accountVersion:(MSALLegacySharedAccountVersion)accountVersion
-                               error:(NSError **)error
+                               error:(__unused NSError **)error
 {
     if (accountVersion == MSALLegacySharedAccountVersionV1)
     {
@@ -179,6 +184,7 @@ static NSDateFormatter *s_updateDateFormatter = nil;
     
     mutableAdditionalInfo[@"updatedBy"] = appName;
     mutableAdditionalInfo[@"updatedAt"] = [[[self class] dateFormatter] stringFromDate:[NSDate date]];
+    [mutableAdditionalInfo addEntriesFromDictionary:[self additionalPropertiesFromMSALAccount:account claims:nil]];
     
     oldDictionary[@"additionalProperties"] = mutableAdditionalInfo;
     
@@ -192,8 +198,18 @@ static NSDateFormatter *s_updateDateFormatter = nil;
     return YES;
 }
 
-- (NSDictionary *)claimsFromMSALAccount:(id<MSALAccount>)account claims:(NSDictionary *)claims
+- (NSDictionary *)claimsFromMSALAccount:(__unused id<MSALAccount>)account claims:(__unused NSDictionary *)claims
 {
+    return nil;
+}
+
+- (NSDictionary *)additionalPropertiesFromMSALAccount:(id<MSALAccount>)account claims:(__unused NSDictionary *)claims
+{
+    if (account.identifier)
+    {
+        return @{@"home_account_id": account.identifier};
+    }
+    
     return nil;
 }
 

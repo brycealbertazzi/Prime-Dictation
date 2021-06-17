@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  // WARNING: This method should be only used in classes working with "AAD".
  */
-- (NSString *)msidAADTenant;
+- (nullable NSString *)msidAADTenant;
 
 /**
  // WARNING: This method should be only used in classes working with "AAD".
@@ -40,12 +40,18 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  // WARNING: This method should be only used in classes working with "AAD".
  */
-+ (NSURL *)msidAADURLWithEnvironment:(NSString *)environment tenant:(NSString *)tenant;
++ (nullable NSURL *)msidAADURLWithEnvironment:(NSString *)environment tenant:(NSString *)tenant;
 
 /**
  // WARNING: This method should be only used in classes working with "AAD".
  */
 + (NSURL *)msidAADURLWithEnvironment:(NSString *)environment;
+
+- (BOOL)msidContainsPathComponent:(NSString *)pathComponent;
+
+- (BOOL)msidContainsPathComponents:(NSArray *)allowedPathComponents;
+
+- (BOOL)msidContainsCaseInsensitivePath:(NSString *)caseInsensitivePath;
 
 @end
 

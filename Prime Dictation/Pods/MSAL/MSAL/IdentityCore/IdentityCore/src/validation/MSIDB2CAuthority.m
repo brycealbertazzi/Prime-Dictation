@@ -25,8 +25,17 @@
 #import "MSIDB2CAuthorityResolver.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAuthority+Internal.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
+#import "MSIDProviderType.h"
 
 @implementation MSIDB2CAuthority
+
++ (void)load
+{
+    [MSIDJsonSerializableFactory registerClass:self forClassType:MSID_JSON_TYPE_B2C_AUTHORITY];
+    [MSIDJsonSerializableFactory mapJSONKey:MSID_PROVIDER_TYPE_JSON_KEY keyValue:MSID_JSON_TYPE_PROVIDER_B2C kindOfClass:MSIDAuthority.class toClassType:MSID_JSON_TYPE_B2C_AUTHORITY];
+}
 
 - (nullable instancetype)initWithURL:(NSURL *)url
                       validateFormat:(BOOL)validateFormat
@@ -88,7 +97,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"It is not B2C authority.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"It is not B2C authority.", nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }
@@ -97,7 +106,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"B2C authority should have at least 3 segments in the path (i.e. https://<host>/tfp/<tenant>/<policy>/...)", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"B2C authority should have at least 3 segments in the path (i.e. https://<host>/tfp/<tenant>/<policy>/...)", nil, nil, nil, context.correlationId, nil, YES);
         }
         
         return NO;
@@ -152,7 +161,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority is nil.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority is nil.", nil, nil, nil, context.correlationId, nil, YES);
         }
         return nil;
     }
@@ -172,7 +181,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority is not a valid format to be normalized.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority is not a valid format to be normalized.", nil, nil, nil, context.correlationId, nil, YES);
         }
         return nil;
     }

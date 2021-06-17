@@ -30,11 +30,13 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
 #import "MSIDConstants.h"
+#import "MSIDOauth2Constants.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
-
-#if TARGET_OS_IPHONE
+#import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
-#endif
+#import "MSIDAuthenticationScheme.h"
+#import "MSIDAuthenticationSchemePop.h"
+#import "MSIDAuthScheme.h"
 
 @implementation MSIDDefaultBrokerResponseHandler
 {
@@ -67,6 +69,7 @@
 - (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(NSDictionary *)encryptedParams
                                                      oidcScope:(NSString *)oidcScope
                                                  correlationId:(NSUUID *)correlationID
+                                                    authScheme:(MSIDAuthenticationScheme *)authScheme
                                                          error:(NSError **)error
 {
     NSDictionary *decryptedResponse = [self.brokerCryptoProvider decryptBrokerResponse:encryptedParams
@@ -83,7 +86,7 @@
         MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"Broker nonce mismatch!", correlationID);
         return nil;
     }
-    
+
     // Save additional tokens,
     // assuming they could come in both successful case and failure case.
     if (decryptedResponse[@"additional_tokens"])
@@ -98,17 +101,31 @@
             
             if (!additionalTokensError)
             {
+                //If Broker responds with different auth scheme, switch auth scheme to default Bearer.
+                NSString *tokenType = [brokerResponse.tokenResponse.tokenType lowercaseString];
+                NSString *tokenTypeFromAuthScheme = [MSIDAuthSchemeParamFromType(authScheme.authScheme) lowercaseString];
+                
+                if (![tokenType isEqualToString:tokenTypeFromAuthScheme])
+                {
+                    authScheme = [MSIDAuthenticationScheme new];
+                }
+                
                 tokenResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                                                oidcScope:oidcScope
+                                                                        requestAuthority:self.providedAuthority
+                                                                           instanceAware:self.instanceAware
                                                                             oauthFactory:self.oauthFactory
                                                                               tokenCache:self.tokenCache
+                                                                    accountMetadataCache:self.accountMetadataCacheAccessor
                                                                            correlationID:correlationID
+                                                                        saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
+                                                                              authScheme:authScheme
                                                                                    error:&additionalTokensError];
             }
         }
         else
         {
-            additionalTokensError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerCorruptedResponse, @"Unable to parse additional tokens.", nil, nil, nil, nil, nil);
+            additionalTokensError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerCorruptedResponse, @"Unable to parse additional tokens.", nil, nil, nil, nil, nil, YES);
         }
         
         if (!tokenResult)
@@ -152,7 +169,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to initialize keychain cache.", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to initialize keychain cache.", nil, nil, nil, nil, nil, YES);
         }
         
         return nil;
@@ -164,11 +181,30 @@
 #else
     if (error)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Broker responses not supported on macOS", nil, nil, nil, nil, nil);
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Broker responses not supported on macOS", nil, nil, nil, nil, nil, YES);
     }
     
     return nil;
 #endif
+}
+
+- (MSIDAccountMetadataCacheAccessor *)accountMetadataCacheWithKeychainGroup:(__unused NSString *)keychainGroup
+                                                                      error:(__unused NSError **)error
+{
+    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup error:error];
+    
+    if (!dataSource)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to initialize keychain cache.", nil, nil, nil, nil, nil, YES);
+        }
+        
+        return nil;
+    }
+    
+    MSIDAccountMetadataCacheAccessor *accountMetadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
+    return accountMetadataCache;
 }
 
 - (NSError *)resultFromBrokerErrorResponse:(MSIDAADV2BrokerResponse *)errorResponse
@@ -203,13 +239,15 @@
         }
     }
     //Special handling for non-string error metadata
-    NSDictionary *httpHeaders = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:errorResponse.httpHeaders];
+    NSDictionary *httpHeaders = errorResponse.httpHeaders;
     if (httpHeaders)
         userInfo[MSIDHTTPHeadersKey] = httpHeaders;
     
     userInfo[MSIDBrokerVersionKey] = errorResponse.brokerAppVer;
+    
+    MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationId, @"Broker failed with error domain %@, error code %@, oauth error %@, sub error %@, description %@", errorDomain, errorCodeString, oauthErrorCode, subError, MSID_PII_LOG_MASKABLE(errorDescription));
 
-    NSError *brokerError = MSIDCreateError(errorDomain, errorCode, errorDescription, oauthErrorCode, subError, nil, correlationId, userInfo);
+    NSError *brokerError = MSIDCreateError(errorDomain, errorCode, errorDescription, oauthErrorCode, subError, nil, correlationId, userInfo, NO);
     
     return brokerError;
 }

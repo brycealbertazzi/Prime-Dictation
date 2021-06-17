@@ -8,49 +8,39 @@
 
 import UIKit
 import ProgressHUD
-import MSGraphMSALAuthProvider
+import MSAL
 import MSGraphClientSDK
+
+
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    
+    // https://albertazzi.sharepoint.com/sites/OfficeManager2/Dictation
     public static let kRedirectUri = "msauth.com.BryceAlbertazzi.Prime-Dictation://auth"
     public static let kClientID = "934509c9-d7d5-40a7-b5c6-19707ac3af8c"
-    public static let kGraphEndpoint = "https://graph.microsoft.com/v1.0/sites/root"
+    public static let kGraphEndpoint = "https://graph.microsoft.com/v1.0/sites/63b3c104-5f76-4d8b-baa8-4bd8bf8cc846,01b526a8-671d-49a9-b83b-bd1a592f60ac/drives/b!BMGzY3Zfi026qEvYv4zIRqgmtQEdZ6lJuDu9GlkvYKyi18sP5mm9RadO1FSfu2vm/root:/"
     public static let kAuthority = "https://login.microsoftonline.com/common"
     public static let directoryID = "feba6b01-0c47-4af9-b51f-cc3d264beaa9"
     public static let objectID = "d33bde92-9941-4abb-8af8-9f5a3f6d96cc"
     
+
+    public static var publicClient: MSALPublicClientApplication?
     public static let kScopes: [String] = ["User.Read", "Files.ReadWrite.AppFolder", "Files.ReadWrite.All"/*, "Sites.ReadWrite.All"*/] // request permission to read the profile of the signed-in user
     
-    public static let config = MSALPublicClientApplicationConfig(clientId: AppDelegate.kClientID)
-    public static var MSPublicClientApp: MSALPublicClientApplication? = try? MSALPublicClientApplication(configuration: config)
-    public static var MSAuthProviderOptions: MSALAuthenticationProviderOptions?
-    public static var MSAuthProvider: MSALAuthenticationProvider?
     public static var httpClient: MSHTTPClient?
     
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        // Try to acquire token silently
-        if (AppDelegate.MSPublicClientApp != nil) {
-            if let msAuthProviderOptions = try? MSALAuthenticationProviderOptions(scopes: AppDelegate.kScopes) {
-                AppDelegate.MSAuthProviderOptions = msAuthProviderOptions
-            } else {
-                ProgressHUD.showError("Unable to sign into OneDrive")
-                return true
-            }
-            
-            if let msAuthProvider = try? MSALAuthenticationProvider(publicClientApplication: AppDelegate.MSPublicClientApp!, andOptions: AppDelegate.MSAuthProviderOptions!) {
-                AppDelegate.MSAuthProvider = msAuthProvider
-            } else {
-                ProgressHUD.showError("Unable to sign into OneDrive")
-                return true
-            }
-            AppDelegate.httpClient = MSClientFactory.createHTTPClient(with: AppDelegate.MSAuthProvider)
-            
+        // Set up the MS client App
+        do {
+            // Create the MSAL client
+            try AppDelegate.publicClient = MSALPublicClientApplication(clientId: AppDelegate.kClientID)
+        } catch {
+            print("Error creating MSAL public client: \(error)")
+            AppDelegate.publicClient = nil
         }
         
         return true
@@ -78,7 +68,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
-    
+    // <HandleMsalResponseSnippet>
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+
+        guard let sourceApplication = options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String else {
+            return false
+        }
+
+        return MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: sourceApplication)
+    }
+    // </HandleMsalResponseSnippet>
 
 }
 
