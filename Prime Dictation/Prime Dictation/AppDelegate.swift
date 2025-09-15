@@ -28,7 +28,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         key = key.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // Catch unresolved build variables, e.g. "$(DROPBOX_APP_KEY)"
         if key.hasPrefix("$(") {
             fatalError("DROPBOX_APP_KEY was not resolved. Define it in Build Settings/.xcconfig for this target & configuration.")
         }

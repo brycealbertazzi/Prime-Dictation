@@ -541,7 +541,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                                 ProgressHUD.succeed("Recording was sent to dropbox")
                             } else if let error = error {
                                 print(error)
-                                ProgressHUD.failed("Failed to send recording, check your connection")
+                                ProgressHUD.failed("Failed to send recording, try checking your connection or signing in again")
                             }
                             //Update UI on send
                             self.SignInLabel.setTitleColor(UIColor.black, for: .normal)
