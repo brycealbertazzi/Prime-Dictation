@@ -8,7 +8,6 @@
 
 import UIKit
 import SwiftyDropbox
-import DropboxAuth
 import ProgressHUD
 
 @UIApplicationMain
@@ -49,19 +48,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         
-        if let authResult = DropboxClientsManager.handleRedirectURL(url) {
-            switch authResult {
-            case .success(let token):
-                print("Succes! Logged into dropbox with token \(token)")
-                ProgressHUD.showSuccess("Successfully logged into dropbox", interaction: true)
-            case .cancel:
-                print("User has canceled OAuth flow")
-            case .error(let error, let description):
-                print("Error \(error): \(description)")
-                ProgressHUD.showError("Could not log into Dropbox", interaction: true)
+        let handled = DropboxClientsManager.handleRedirectURL(
+            url,
+            includeBackgroundClient: false,
+            completion: { authResult in
+                switch authResult {
+                case .success(let token):
+                    print("Success! token: \(token)")
+                    ProgressHUD.succeed("Logged into Dropbox")
+                case .cancel:
+                    print("User canceled OAuth flow")
+                case .error(let error, let description):
+                    print("Error \(error): \(description ?? "")")
+                    ProgressHUD.failed("Unable to log into Dropbox")
+                case .none:
+                    print("Possibly wrong redirect URI")
+                }
             }
-        }
-        return false
+        )
+        return handled
     }
 
 }

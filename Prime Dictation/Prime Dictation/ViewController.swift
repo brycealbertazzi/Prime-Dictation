@@ -9,7 +9,6 @@
 import UIKit
 import AVFoundation
 import SwiftyDropbox
-import DropboxAuth
 import ProgressHUD
 
 class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDelegate, AVAudioPlayerDelegate {
@@ -64,8 +63,23 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         recordingSession = AVAudioSession.sharedInstance()
         RecordLabel.setImage(UIImage(named: "RecordButton"), for: .normal)
         //Request permission
-        AVAudioSession.sharedInstance().requestRecordPermission { (hasPermission) in
-            
+        if #available(iOS 17.0, *) {
+            AVAudioApplication.requestRecordPermission { granted in
+                if granted {
+                    print("Mic access granted")
+                } else {
+                    print("Mic access denied")
+                }
+            }
+        } else {
+            // Fallback for older iOS versions
+            AVAudioSession.sharedInstance().requestRecordPermission { granted in
+                if granted {
+                    print("Mic access granted")
+                } else {
+                    print("Mic access denied")
+                }
+            }
         }
         savedRecordingNames = UserDefaults.standard.object(forKey: savedRecordingsKey) as? [String] ?? [String]()
         
@@ -539,7 +553,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         if let client: DropboxClient = DropboxClientsManager.authorizedClient {
             print("Client is already authorized")
             if savedRecordingNames.count > 0 {
-                ProgressHUD.show("Sending...")
+                ProgressHUD.animate("Sending...")
                 SignInLabel.isEnabled = false
                 SendLabel.isEnabled = false
                 SignInLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
@@ -561,10 +575,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                         .response { (response, error) in
                             if let response = response {
                                 print(response)
-                                ProgressHUD.showSuccess("Recording was sent to Dropbox", interaction: true)
+                                ProgressHUD.succeed("Recording was sent to dropbox")
                             } else if let error = error {
                                 print(error)
-                                ProgressHUD.showError("Failed to send recording to dropbox, check your connections", interaction: true)
+                                ProgressHUD.failed("Failed to send recording, check your connection")
                             }
                             //Update UI on send
                             self.SignInLabel.setTitleColor(UIColor.black, for: .normal)
@@ -584,7 +598,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                             ////////////
                         }
             } else {
-                ProgressHUD.showError("No recording to send")
+                ProgressHUD.failed("No recording to send")
             }
         } else {
             OpenAuthorizationFlow()
@@ -599,16 +613,19 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
    
     var url: URL = URL(string: "https://www.dropbox.com/oauth2/authorize")!
     func OpenAuthorizationFlow() {
-        DropboxClientsManager.authorizeFromController(UIApplication.shared, controller: self) { (url) in
-            DropboxClientsManager.authorizeFromController(UIApplication.shared, controller: self, openURL: { (url) in
-                if UIApplication.shared.canOpenURL(url) {
-                    UIApplication.shared.open(url, completionHandler: nil)
-                } else {
-                    print("Cannot open authorization URL")
-                    ProgressHUD.showError("Cannot connect to Dropbox servers, check your connection")
-                }
-            })
-        }
+        DropboxClientsManager.authorizeFromControllerV2(
+            UIApplication.shared,
+            controller: self,
+            loadingStatusDelegate: nil, // optional
+            openURL: { url in
+                UIApplication.shared.open(url)
+            },
+            scopeRequest: ScopeRequest(
+                scopeType: .user,                     // use .team if needed
+                scopes: ["files.content.read", "files.content.write"],
+                includeGrantedScopes: false
+            )
+        )
     }
     
     //MARK: - Playback Controls

@@ -3,21 +3,22 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		031DE4F72E78757C003222CC /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = 031DE4F62E78757C003222CC /* ProgressHUD */; };
 		034182FE22EE36B300670DD1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034182FD22EE36B300670DD1 /* AppDelegate.swift */; };
 		0341830022EE36B300670DD1 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034182FF22EE36B300670DD1 /* ViewController.swift */; };
 		0341830322EE36B300670DD1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0341830122EE36B300670DD1 /* Main.storyboard */; };
 		0341830522EE36B300670DD1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0341830422EE36B300670DD1 /* Assets.xcassets */; };
 		0341830822EE36B300670DD1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0341830622EE36B300670DD1 /* LaunchScreen.storyboard */; };
+		039401EF2E787202007AB7AE /* SwiftyDropbox in Frameworks */ = {isa = PBXBuildFile; productRef = 039401EE2E787202007AB7AE /* SwiftyDropbox */; };
+		039401F12E787202007AB7AE /* SwiftyDropboxObjC in Frameworks */ = {isa = PBXBuildFile; productRef = 039401F02E787202007AB7AE /* SwiftyDropboxObjC */; };
 		03C69A6122FE0083005D8AD1 /* Stopwatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C69A6022FE0083005D8AD1 /* Stopwatch.swift */; };
-		F216072234AECD3E3755D69D /* Pods_Prime_Dictation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033987ECA76D8909533217A7 /* Pods_Prime_Dictation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		033987ECA76D8909533217A7 /* Pods_Prime_Dictation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Prime_Dictation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		034182FA22EE36B300670DD1 /* Prime Dictation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Prime Dictation.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		034182FD22EE36B300670DD1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		034182FF22EE36B300670DD1 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -26,8 +27,6 @@
 		0341830722EE36B300670DD1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0341830922EE36B300670DD1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		03C69A6022FE0083005D8AD1 /* Stopwatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stopwatch.swift; sourceTree = "<group>"; };
-		104DBC6A9FA919AA81D98E13 /* Pods-Prime Dictation.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Prime Dictation.debug.xcconfig"; path = "Target Support Files/Pods-Prime Dictation/Pods-Prime Dictation.debug.xcconfig"; sourceTree = "<group>"; };
-		54C213373036C1D959A750D3 /* Pods-Prime Dictation.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Prime Dictation.release.xcconfig"; path = "Target Support Files/Pods-Prime Dictation/Pods-Prime Dictation.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,7 +34,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F216072234AECD3E3755D69D /* Pods_Prime_Dictation.framework in Frameworks */,
+				031DE4F72E78757C003222CC /* ProgressHUD in Frameworks */,
+				039401EF2E787202007AB7AE /* SwiftyDropbox in Frameworks */,
+				039401F12E787202007AB7AE /* SwiftyDropboxObjC in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -48,7 +49,6 @@
 				034182FC22EE36B300670DD1 /* Prime Dictation */,
 				034182FB22EE36B300670DD1 /* Products */,
 				344427BA4ED4A074A8B98DE4 /* Pods */,
-				BBF4C6BA1C9F539C7A4FF8CD /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -77,18 +77,8 @@
 		344427BA4ED4A074A8B98DE4 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				104DBC6A9FA919AA81D98E13 /* Pods-Prime Dictation.debug.xcconfig */,
-				54C213373036C1D959A750D3 /* Pods-Prime Dictation.release.xcconfig */,
 			);
 			path = Pods;
-			sourceTree = "<group>";
-		};
-		BBF4C6BA1C9F539C7A4FF8CD /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				033987ECA76D8909533217A7 /* Pods_Prime_Dictation.framework */,
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -98,11 +88,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0341830C22EE36B300670DD1 /* Build configuration list for PBXNativeTarget "Prime Dictation" */;
 			buildPhases = (
-				A6EF643F805A9CE9C64E6DB2 /* [CP] Check Pods Manifest.lock */,
 				034182F622EE36B300670DD1 /* Sources */,
 				034182F722EE36B300670DD1 /* Frameworks */,
 				034182F822EE36B300670DD1 /* Resources */,
-				A4DD73D30432B8FD2D81B62F /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -137,6 +125,10 @@
 				Base,
 			);
 			mainGroup = 034182F122EE36B300670DD1;
+			packageReferences = (
+				039401ED2E787202007AB7AE /* XCRemoteSwiftPackageReference "SwiftyDropbox" */,
+				031DE4F52E78757C003222CC /* XCRemoteSwiftPackageReference "ProgressHUD" */,
+			);
 			productRefGroup = 034182FB22EE36B300670DD1 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -158,48 +150,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		A4DD73D30432B8FD2D81B62F /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Prime Dictation/Pods-Prime Dictation-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Prime Dictation/Pods-Prime Dictation-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Prime Dictation/Pods-Prime Dictation-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A6EF643F805A9CE9C64E6DB2 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Prime Dictation-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		034182F622EE36B300670DD1 /* Sources */ = {
@@ -352,20 +302,22 @@
 		};
 		0341830D22EE36B300670DD1 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 104DBC6A9FA919AA81D98E13 /* Pods-Prime Dictation.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 20;
 				DEVELOPMENT_TEAM = 7JG2927ZK8;
 				INFOPLIST_FILE = "Prime Dictation/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				INFOPLIST_KEY_CFBundleDisplayName = "Prime Dictation";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.BryceAlbertazzi.Prime-Dictation";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -376,20 +328,22 @@
 		};
 		0341830E22EE36B300670DD1 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 54C213373036C1D959A750D3 /* Pods-Prime Dictation.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 20;
 				DEVELOPMENT_TEAM = 7JG2927ZK8;
 				INFOPLIST_FILE = "Prime Dictation/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				INFOPLIST_KEY_CFBundleDisplayName = "Prime Dictation";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.BryceAlbertazzi.Prime-Dictation";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -420,6 +374,43 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		031DE4F52E78757C003222CC /* XCRemoteSwiftPackageReference "ProgressHUD" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/relatedcode/ProgressHUD.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 14.1.4;
+			};
+		};
+		039401ED2E787202007AB7AE /* XCRemoteSwiftPackageReference "SwiftyDropbox" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/dropbox/SwiftyDropbox.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.2.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		031DE4F62E78757C003222CC /* ProgressHUD */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 031DE4F52E78757C003222CC /* XCRemoteSwiftPackageReference "ProgressHUD" */;
+			productName = ProgressHUD;
+		};
+		039401EE2E787202007AB7AE /* SwiftyDropbox */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 039401ED2E787202007AB7AE /* XCRemoteSwiftPackageReference "SwiftyDropbox" */;
+			productName = SwiftyDropbox;
+		};
+		039401F02E787202007AB7AE /* SwiftyDropboxObjC */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 039401ED2E787202007AB7AE /* XCRemoteSwiftPackageReference "SwiftyDropbox" */;
+			productName = SwiftyDropboxObjC;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 034182F222EE36B300670DD1 /* Project object */;
 }

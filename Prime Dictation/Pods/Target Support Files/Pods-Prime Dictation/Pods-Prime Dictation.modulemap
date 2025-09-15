@@ -1,6 +1,0 @@
-framework module Pods_Prime_Dictation {
-  umbrella header "Pods-Prime Dictation-umbrella.h"
-
-  export *
-  module * { export * }
-}

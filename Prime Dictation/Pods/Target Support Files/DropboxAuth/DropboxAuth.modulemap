@@ -1,6 +1,0 @@
-framework module DropboxAuth {
-  umbrella header "DropboxAuth-umbrella.h"
-
-  export *
-  module * { export * }
-}

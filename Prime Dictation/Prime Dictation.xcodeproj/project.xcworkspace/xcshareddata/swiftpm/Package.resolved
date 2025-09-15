@@ -1,0 +1,24 @@
+{
+  "originHash" : "664b12cde407079764c88ac40a8caac92f5c56cb5bef3b05d26340f92220213b",
+  "pins" : [
+    {
+      "identity" : "progresshud",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/relatedcode/ProgressHUD.git",
+      "state" : {
+        "revision" : "4aa638a88450d6d48a6620070722e875e7a179ef",
+        "version" : "14.1.4"
+      }
+    },
+    {
+      "identity" : "swiftydropbox",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dropbox/SwiftyDropbox.git",
+      "state" : {
+        "revision" : "fd59387a1af58f42ebf32a8186f717586fe66eac",
+        "version" : "10.2.2"
+      }
+    }
+  ],
+  "version" : 3
+}
