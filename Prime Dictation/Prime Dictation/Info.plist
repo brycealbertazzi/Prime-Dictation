@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>DROPBOX_APP_KEY</key>
+	<string>z4j0jn23hkj68bs</string>
+	<key>LSBundleContainsCoreMLmlmodelc</key>
+	<false/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -25,7 +29,7 @@
 			<string></string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>db-idn5cf6rx704tu2</string>
+				<string>db-z4j0jn23hkj68bs</string>
 			</array>
 		</dict>
 	</array>

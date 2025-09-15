@@ -39,6 +39,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     //MARK: View did load
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         // Do any additional setup after loading the view.
         ListenLabel.setTitle("Listen", for: .normal)
         RecordLabel.isHidden = false
@@ -567,8 +568,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBAction func SignInButton(_ sender: Any) {
         OpenAuthorizationFlow()
     }
-    
-    
    
     var url: URL = URL(string: "https://www.dropbox.com/oauth2/authorize")!
     func OpenAuthorizationFlow() {
@@ -580,8 +579,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 UIApplication.shared.open(url)
             },
             scopeRequest: ScopeRequest(
-                scopeType: .user,                     // use .team if needed
-                scopes: ["files.content.read", "files.content.write"],
+                scopeType: .user,
+                scopes: ["files.content.write", "files.content.read"],
                 includeGrantedScopes: false
             )
         )

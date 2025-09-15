@@ -14,14 +14,26 @@ import ProgressHUD
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    var primeDictationAppKey: String = "idn5cf6rx704tu2"
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        
-        DropboxClientsManager.setupWithAppKey(primeDictationAppKey)
-        
+        let appKey = loadDropboxAppKey()
+        DropboxClientsManager.setupWithAppKey(appKey.trimmingCharacters(in: .whitespacesAndNewlines))
         return true
+    }
+    
+    private func loadDropboxAppKey() -> String {
+        guard var key = Bundle.main.object(forInfoDictionaryKey: "DROPBOX_APP_KEY") as? String else {
+            fatalError("Missing DROPBOX_APP_KEY in Info.plist")
+        }
+        key = key.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Catch unresolved build variables, e.g. "$(DROPBOX_APP_KEY)"
+        if key.hasPrefix("$(") {
+            fatalError("DROPBOX_APP_KEY was not resolved. Define it in Build Settings/.xcconfig for this target & configuration.")
+        }
+        
+        return key
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
@@ -47,14 +59,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-        
         let handled = DropboxClientsManager.handleRedirectURL(
             url,
             includeBackgroundClient: false,
             completion: { authResult in
                 switch authResult {
                 case .success(let token):
-                    print("Success! token: \(token)")
                     ProgressHUD.succeed("Logged into Dropbox")
                 case .cancel:
                     print("User canceled OAuth flow")

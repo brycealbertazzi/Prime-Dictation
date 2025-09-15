@@ -8,13 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		031DE4F72E78757C003222CC /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = 031DE4F62E78757C003222CC /* ProgressHUD */; };
+		033F4CFC2E78B36000438D32 /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = 033F4CFB2E78B36000438D32 /* ProgressHUD */; };
 		034182FE22EE36B300670DD1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034182FD22EE36B300670DD1 /* AppDelegate.swift */; };
 		0341830022EE36B300670DD1 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034182FF22EE36B300670DD1 /* ViewController.swift */; };
 		0341830322EE36B300670DD1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0341830122EE36B300670DD1 /* Main.storyboard */; };
 		0341830522EE36B300670DD1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0341830422EE36B300670DD1 /* Assets.xcassets */; };
 		0341830822EE36B300670DD1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0341830622EE36B300670DD1 /* LaunchScreen.storyboard */; };
-		039401EF2E787202007AB7AE /* SwiftyDropbox in Frameworks */ = {isa = PBXBuildFile; productRef = 039401EE2E787202007AB7AE /* SwiftyDropbox */; };
-		039401F12E787202007AB7AE /* SwiftyDropboxObjC in Frameworks */ = {isa = PBXBuildFile; productRef = 039401F02E787202007AB7AE /* SwiftyDropboxObjC */; };
+		037D80972E78BABB000D5231 /* SwiftyDropbox in Frameworks */ = {isa = PBXBuildFile; productRef = 037D80962E78BABB000D5231 /* SwiftyDropbox */; };
 		03C69A6122FE0083005D8AD1 /* Stopwatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C69A6022FE0083005D8AD1 /* Stopwatch.swift */; };
 /* End PBXBuildFile section */
 
@@ -35,8 +35,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				031DE4F72E78757C003222CC /* ProgressHUD in Frameworks */,
-				039401EF2E787202007AB7AE /* SwiftyDropbox in Frameworks */,
-				039401F12E787202007AB7AE /* SwiftyDropboxObjC in Frameworks */,
+				033F4CFC2E78B36000438D32 /* ProgressHUD in Frameworks */,
+				037D80972E78BABB000D5231 /* SwiftyDropbox in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -48,7 +48,6 @@
 			children = (
 				034182FC22EE36B300670DD1 /* Prime Dictation */,
 				034182FB22EE36B300670DD1 /* Products */,
-				344427BA4ED4A074A8B98DE4 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -72,13 +71,6 @@
 				0341830922EE36B300670DD1 /* Info.plist */,
 			);
 			path = "Prime Dictation";
-			sourceTree = "<group>";
-		};
-		344427BA4ED4A074A8B98DE4 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -126,8 +118,8 @@
 			);
 			mainGroup = 034182F122EE36B300670DD1;
 			packageReferences = (
-				039401ED2E787202007AB7AE /* XCRemoteSwiftPackageReference "SwiftyDropbox" */,
 				031DE4F52E78757C003222CC /* XCRemoteSwiftPackageReference "ProgressHUD" */,
+				037D80952E78BABB000D5231 /* XCRemoteSwiftPackageReference "SwiftyDropbox" */,
 			);
 			productRefGroup = 034182FB22EE36B300670DD1 /* Products */;
 			projectDirPath = "";
@@ -235,7 +227,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -290,7 +282,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -312,7 +304,7 @@
 				INFOPLIST_FILE = "Prime Dictation/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Prime Dictation";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -338,7 +330,7 @@
 				INFOPLIST_FILE = "Prime Dictation/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Prime Dictation";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -384,7 +376,7 @@
 				minimumVersion = 14.1.4;
 			};
 		};
-		039401ED2E787202007AB7AE /* XCRemoteSwiftPackageReference "SwiftyDropbox" */ = {
+		037D80952E78BABB000D5231 /* XCRemoteSwiftPackageReference "SwiftyDropbox" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/dropbox/SwiftyDropbox.git";
 			requirement = {
@@ -400,15 +392,15 @@
 			package = 031DE4F52E78757C003222CC /* XCRemoteSwiftPackageReference "ProgressHUD" */;
 			productName = ProgressHUD;
 		};
-		039401EE2E787202007AB7AE /* SwiftyDropbox */ = {
+		033F4CFB2E78B36000438D32 /* ProgressHUD */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 039401ED2E787202007AB7AE /* XCRemoteSwiftPackageReference "SwiftyDropbox" */;
-			productName = SwiftyDropbox;
+			package = 031DE4F52E78757C003222CC /* XCRemoteSwiftPackageReference "ProgressHUD" */;
+			productName = ProgressHUD;
 		};
-		039401F02E787202007AB7AE /* SwiftyDropboxObjC */ = {
+		037D80962E78BABB000D5231 /* SwiftyDropbox */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 039401ED2E787202007AB7AE /* XCRemoteSwiftPackageReference "SwiftyDropbox" */;
-			productName = SwiftyDropboxObjC;
+			package = 037D80952E78BABB000D5231 /* XCRemoteSwiftPackageReference "SwiftyDropbox" */;
+			productName = SwiftyDropbox;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
