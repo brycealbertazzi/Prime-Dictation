@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina5_5" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -22,128 +21,16 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ThE-Sk-wrm" userLabel="Top View">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="268"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Prime Dictation" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1tL-fi-eIn">
-                                        <rect key="frame" x="96.666666666666686" y="35" width="221" height="39"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Prime Dictation" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1tL-fi-eIn">
+                                        <rect key="frame" x="97" y="65" width="221" height="39"/>
                                         <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="35"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o80-10-TL7" userLabel="QualityView">
-                                        <rect key="frame" x="0.0" y="84" width="414" height="50"/>
-                                        <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tm4-4v-pNC">
-                                                <rect key="frame" x="157" y="0.0" width="100" height="50"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" constant="100" id="SGk-pY-Chs"/>
-                                                </constraints>
-                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
-                                                <state key="normal" title="Meduim">
-                                                    <color key="titleColor" systemColor="darkTextColor"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="MediumQualityButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="c6C-XI-5fu"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="39E-dP-fCD">
-                                                <rect key="frame" x="65" y="5" width="42" height="40"/>
-                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
-                                                <state key="normal" title="Low">
-                                                    <color key="titleColor" systemColor="darkTextColor"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="LowQualityButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="wJ4-q2-Scq"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="S1m-sC-AEB">
-                                                <rect key="frame" x="307" y="5" width="43" height="40"/>
-                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
-                                                <state key="normal" title="High">
-                                                    <color key="titleColor" systemColor="darkTextColor"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="HighQualityButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Gon-wW-fd0"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XW5-ly-RIM">
-                                                <rect key="frame" x="167.66666666666666" y="5" width="79" height="40"/>
-                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
-                                                <state key="normal" title="Quality">
-                                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="QualityButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="1ZZ-dw-tKg"/>
-                                                </connections>
-                                            </button>
-                                        </subviews>
-                                        <constraints>
-                                            <constraint firstItem="XW5-ly-RIM" firstAttribute="centerX" secondItem="o80-10-TL7" secondAttribute="centerX" id="02e-8K-iDe"/>
-                                            <constraint firstItem="tm4-4v-pNC" firstAttribute="centerY" secondItem="o80-10-TL7" secondAttribute="centerY" id="Bhv-p0-dHA"/>
-                                            <constraint firstItem="tm4-4v-pNC" firstAttribute="top" secondItem="o80-10-TL7" secondAttribute="top" id="GKz-SX-yuM"/>
-                                            <constraint firstItem="39E-dP-fCD" firstAttribute="centerY" secondItem="o80-10-TL7" secondAttribute="centerY" id="RUl-KU-p6f"/>
-                                            <constraint firstAttribute="height" constant="50" id="egd-pb-jWs"/>
-                                            <constraint firstItem="XW5-ly-RIM" firstAttribute="centerY" secondItem="o80-10-TL7" secondAttribute="centerY" id="fBH-PA-h3D"/>
-                                            <constraint firstItem="S1m-sC-AEB" firstAttribute="centerY" secondItem="o80-10-TL7" secondAttribute="centerY" id="jhy-6z-3ex"/>
-                                            <constraint firstItem="tm4-4v-pNC" firstAttribute="centerX" secondItem="o80-10-TL7" secondAttribute="centerX" id="mo2-20-L2Z"/>
-                                            <constraint firstAttribute="bottom" secondItem="tm4-4v-pNC" secondAttribute="bottom" id="oHv-zN-0Lj"/>
-                                            <constraint firstItem="S1m-sC-AEB" firstAttribute="leading" secondItem="tm4-4v-pNC" secondAttribute="trailing" constant="50" id="qpJ-9a-2lK"/>
-                                            <constraint firstItem="tm4-4v-pNC" firstAttribute="leading" secondItem="39E-dP-fCD" secondAttribute="trailing" constant="50" id="urU-Vd-age"/>
-                                        </constraints>
-                                    </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Iak-O0-IL9" userLabel="Playback Speed View">
-                                        <rect key="frame" x="0.0" y="233" width="414" height="35"/>
-                                        <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IuB-47-7Rn" userLabel="PBS Toggle">
-                                                <rect key="frame" x="129.66666666666666" y="-2.3333333333333428" width="154.99999999999997" height="40"/>
-                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
-                                                <state key="normal" title="Playback Speed">
-                                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="PlaybackButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="14I-N8-F5x"/>
-                                                </connections>
-                                            </button>
-                                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="3" minValue="1" maxValue="5" translatesAutoresizingMaskIntoConstraints="NO" id="dvB-uQ-NWy" userLabel="Slider">
-                                                <rect key="frame" x="28" y="2.6666666666666572" width="253" height="31"/>
-                                                <color key="minimumTrackTintColor" red="0.66140852304489794" green="0.42190382354431882" blue="0.081994193549503672" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                                <color key="maximumTrackTintColor" red="0.49796747967479676" green="0.49593495934959347" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                                <color key="thumbTintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <connections>
-                                                    <action selector="SliderValueChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="nPf-oY-xZD"/>
-                                                    <action selector="TouchUpInside:" destination="BYZ-38-t0r" eventType="touchUpInside" id="tex-18-NU6"/>
-                                                </connections>
-                                            </slider>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1x" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0lb-EO-aKP" userLabel="PBS Display">
-                                                <rect key="frame" x="324" y="3.6666666666666572" width="60" height="28"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" constant="60" id="RWH-m2-Cxb"/>
-                                                </constraints>
-                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
-                                                <nil key="textColor"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                        </subviews>
-                                        <constraints>
-                                            <constraint firstItem="IuB-47-7Rn" firstAttribute="centerX" secondItem="Iak-O0-IL9" secondAttribute="centerX" id="1db-rp-Njk"/>
-                                            <constraint firstItem="dvB-uQ-NWy" firstAttribute="centerY" secondItem="Iak-O0-IL9" secondAttribute="centerY" id="28u-gy-PTL"/>
-                                            <constraint firstItem="0lb-EO-aKP" firstAttribute="leading" secondItem="dvB-uQ-NWy" secondAttribute="trailing" constant="45" id="4Ye-wk-G6w"/>
-                                            <constraint firstAttribute="height" constant="35" id="FCq-fQ-kcn"/>
-                                            <constraint firstItem="dvB-uQ-NWy" firstAttribute="leading" secondItem="Iak-O0-IL9" secondAttribute="leading" constant="30" id="FX5-Ni-tce"/>
-                                            <constraint firstAttribute="trailing" secondItem="0lb-EO-aKP" secondAttribute="trailing" constant="30" id="Mpr-a7-90e"/>
-                                            <constraint firstItem="0lb-EO-aKP" firstAttribute="centerY" secondItem="Iak-O0-IL9" secondAttribute="centerY" id="c20-Cj-XXl"/>
-                                            <constraint firstItem="IuB-47-7Rn" firstAttribute="centerY" secondItem="Iak-O0-IL9" secondAttribute="centerY" id="jr4-Ft-SR5"/>
-                                        </constraints>
-                                    </view>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="1tL-fi-eIn" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="top" constant="35" id="14G-OU-8AH"/>
-                                    <constraint firstAttribute="trailing" secondItem="Iak-O0-IL9" secondAttribute="trailing" id="Egc-Es-Bxj"/>
-                                    <constraint firstItem="o80-10-TL7" firstAttribute="leading" secondItem="ThE-Sk-wrm" secondAttribute="leading" id="LaT-UF-tbW"/>
-                                    <constraint firstItem="o80-10-TL7" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="Wac-ej-FMY"/>
-                                    <constraint firstItem="Iak-O0-IL9" firstAttribute="leading" secondItem="ThE-Sk-wrm" secondAttribute="leading" id="mkA-6W-VGW"/>
-                                    <constraint firstItem="o80-10-TL7" firstAttribute="top" secondItem="1tL-fi-eIn" secondAttribute="bottom" constant="10" id="njD-wk-OHl"/>
-                                    <constraint firstAttribute="trailing" secondItem="o80-10-TL7" secondAttribute="trailing" id="oVi-rD-sir"/>
                                     <constraint firstItem="1tL-fi-eIn" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="s0d-rv-qhg"/>
-                                    <constraint firstAttribute="bottom" secondItem="Iak-O0-IL9" secondAttribute="bottom" id="xs2-pd-FaC"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fhv-jG-Lfw" userLabel="Middle View">
@@ -351,18 +238,11 @@
                     <connections>
                         <outlet property="EndPlaybackLabel" destination="JP1-AS-jj7" id="HgY-ia-gVo"/>
                         <outlet property="FileNameLabel" destination="ma4-wR-ucz" id="J8z-3S-8F3"/>
-                        <outlet property="HighQualityLabel" destination="S1m-sC-AEB" id="FOx-mU-5fL"/>
                         <outlet property="ListenLabel" destination="tAV-Xq-Ydt" id="btQ-gG-77j"/>
-                        <outlet property="LowQualityLabel" destination="39E-dP-fCD" id="WyK-cI-7qt"/>
-                        <outlet property="MediumQualityLabel" destination="tm4-4v-pNC" id="bky-9t-4Si"/>
                         <outlet property="NextRecordingLabel" destination="RQo-s8-1EL" id="Qxy-BS-mC3"/>
                         <outlet property="PausePlayButtonLabel" destination="HCQ-U9-aU8" id="YZI-tG-ZqX"/>
                         <outlet property="PausePlaybackLabel" destination="Vvz-gp-8Nr" id="w3z-fG-5BT"/>
-                        <outlet property="PlaybackSpeedDisplayLabel" destination="0lb-EO-aKP" id="LxX-kw-e6Z"/>
-                        <outlet property="PlaybackSpeedSliderLabel" destination="dvB-uQ-NWy" id="mpW-6J-rx5"/>
-                        <outlet property="PlaybackSpeedToggleLabel" destination="IuB-47-7Rn" id="xOL-yp-Wfv"/>
                         <outlet property="PreviousRecordingLabel" destination="Ad2-00-0E4" id="EfO-Ok-KQM"/>
-                        <outlet property="QualityLabel" destination="XW5-ly-RIM" id="jqK-tB-LBL"/>
                         <outlet property="RecordLabel" destination="aq9-EU-DW7" id="aoh-8d-Bsn"/>
                         <outlet property="SendLabel" destination="svK-SA-aO1" id="s8t-Bh-c3r"/>
                         <outlet property="SignInLabel" destination="yhG-XG-W7K" id="l7W-3y-qLy"/>

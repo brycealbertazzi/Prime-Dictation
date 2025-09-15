@@ -27,13 +27,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var PausePlaybackLabel: UIButton!
     @IBOutlet weak var EndPlaybackLabel: UIButton!
     @IBOutlet weak var StopWatchLabel: UILabel!
-    @IBOutlet weak var LowQualityLabel: UIButton!
-    @IBOutlet weak var MediumQualityLabel: UIButton!
-    @IBOutlet weak var HighQualityLabel: UIButton!
-    @IBOutlet weak var QualityLabel: UIButton!
-    
-    
-    
+        
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
     var audioRecorder: AVAudioRecorder! //Responsible for recording our audio
     var audioPlayer: AVAudioPlayer!
@@ -53,7 +47,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         EndPlaybackLabel.isHidden = true
         PausePlaybackLabel.isHidden = true
         StopWatchLabel.isHidden = true
-        CloseQualitySelect()
         
         /*****/
         //FileNameLabel should be disabled at all times
@@ -101,25 +94,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             PreviousRecordingLabel.isEnabled = false
             NextRecordingLabel.isEnabled = false
         }
-        
-        switch UserDefaults.standard.integer(forKey: SOUND_QUALITY_KEY) {
-            case 0:
-                sampleRate = 8000
-                break
-            case 1:
-                sampleRate = 16000
-                break
-            case 2:
-                sampleRate = 44100
-                break
-            default:
-                UserDefaults.standard.set(1, forKey: SOUND_QUALITY_KEY)
-                sampleRate = 16000
-        }
-        
-        EnablePlaybackSpeedControls()
-        UpdateSliderDisplay(with: 5)
-        PlaybackSpeedSliderLabel.value = PlaybackSpeedSliderLabel.maximumValue
     }
     
     //MARK: Listen to Playback
@@ -140,7 +114,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 audioPlayer.prepareToPlay()
                 audioPlayer.volume = 1
                 audioPlayer.enableRate = true
-                audioPlayer.rate = 1 / Float(playbackListenSpeed)
+                audioPlayer.rate = 1
                 audioPlayer.play()
                 
                 ListenLabel.isHidden = true
@@ -152,8 +126,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 SignInLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
                 PausePlaybackLabel.isHidden = false
                 EndPlaybackLabel.isHidden = false
-                DisableQualityControls()
-                DisablePlaybackSpeedControls()
                 
                 Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: UpdateElapsedTimeListen(timer:))
                 watch.start()
@@ -176,8 +148,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             SendLabel.isEnabled = true
             SignInLabel.isEnabled = true
             SignInLabel.setTitleColor(UIColor.black, for: .normal)
-            EnableQualityControls()
-            EnablePlaybackSpeedControls()
             watch.stop()
         }
     }
@@ -233,7 +203,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
 
-    var sampleRate = 8000
+    var sampleRate = 16000
     @IBAction func RecordButton(_ sender: Any) {
         //Check if we have an active recorder
         if audioRecorder == nil {
@@ -259,8 +229,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
                 SignInLabel.isEnabled = false
                 SignInLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
-                DisableQualityControls()
-                DisablePlaybackSpeedControls()
                 
                 //Start Timer
                 Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: UpdateElapsedTime(timer:))
@@ -290,7 +258,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     func UpdateElapsedTimeListen(timer: Timer) {
         if watch.isRunning && !isRecordingPaused {
-            let elapsedTime = watch.elapsedTime / Double(playbackListenSpeed)
+            let elapsedTime = watch.elapsedTime
             let minutes = Int(elapsedTime / 60)
             let seconds = Int(elapsedTime.truncatingRemainder(dividingBy: 60))
             let tensOfSeconds = Int((elapsedTime * 10).truncatingRemainder(dividingBy: 10))
@@ -321,8 +289,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         SendLabel.isEnabled = true
         SignInLabel.isEnabled = true
         SignInLabel.setTitleColor(UIColor.black, for: .normal)
-        EnableQualityControls()
-        EnablePlaybackSpeedControls()
         
         //Convert the audio
         ConvertAudio(GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(recordingExtension), outputURL: GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(destinationRecordingExtension))
@@ -365,8 +331,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         SendLabel.isEnabled = true
         SignInLabel.isEnabled = true
         SignInLabel.setTitleColor(UIColor.black, for: .normal)
-        EnableQualityControls()
-        EnablePlaybackSpeedControls()
         /*************/
         ListenLabel.isHidden = false
         RecordLabel.isEnabled = true
@@ -566,8 +530,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 NextRecordingLabel.isEnabled = false
                 PreviousRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
                 NextRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
-                DisableQualityControls()
-                DisablePlaybackSpeedControls()
                 
                 //Send recording to dropbox folder for this app
                 let recordingToUpload: URL = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(destinationRecordingExtension)
@@ -593,9 +555,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                             self.NextRecordingLabel.isEnabled = true
                             self.PreviousRecordingLabel.setTitleColor(UIColor.black, for: .normal)
                             self.NextRecordingLabel.setTitleColor(UIColor.black, for: .normal)
-                            self.EnableQualityControls()
-                            self.EnablePlaybackSpeedControls()
-                            ////////////
                         }
             } else {
                 ProgressHUD.failed("No recording to send")
@@ -627,153 +586,4 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             )
         )
     }
-    
-    //MARK: - Playback Controls
-    @IBOutlet weak var PlaybackSpeedToggleLabel: UIButton!
-    @IBOutlet weak var PlaybackSpeedDisplayLabel: UILabel!
-    @IBOutlet weak var PlaybackSpeedSliderLabel: UISlider!
-    
-    @IBAction func PlaybackButtonPressed(_ sender: UIButton) {
-        ShowSlider()
-    }
-    
-    @IBAction func SliderValueChanged(_ sender: UISlider) {
-        PlaybackSpeedSliderLabel.value = roundf(PlaybackSpeedSliderLabel.value)
-        UpdateSliderDisplay(with: Int(PlaybackSpeedSliderLabel.value))
-    }
-    
-    @IBAction func TouchUpInside(_ sender: UISlider) {
-        EnablePlaybackSpeedControls()
-    }
-    
-    func DisablePlaybackSpeedControls() {
-        PlaybackSpeedToggleLabel.isHidden = true
-        PlaybackSpeedDisplayLabel.isHidden = true
-        PlaybackSpeedSliderLabel.isHidden = true
-    }
-    
-    //Also hides the slider
-    func EnablePlaybackSpeedControls() {
-        PlaybackSpeedToggleLabel.isHidden = false
-        PlaybackSpeedDisplayLabel.isHidden = true
-        PlaybackSpeedSliderLabel.isHidden = true
-    }
-    
-    func ShowSlider() {
-        PlaybackSpeedToggleLabel.isHidden = true
-        PlaybackSpeedDisplayLabel.isHidden = false
-        PlaybackSpeedSliderLabel.isHidden = false
-    }
-    
-    var playbackListenSpeed : Int = 1
-    func UpdateSliderDisplay(with value: Int) {
-        var playbackSpeed : String = "1"
-        switch value {
-        case 1:
-            playbackSpeed = "1/16x"
-            playbackListenSpeed = 16
-            break
-        case 2:
-            playbackSpeed = "1/8x"
-            playbackListenSpeed = 8
-            break
-        case 3:
-            playbackSpeed = "1/4x"
-            playbackListenSpeed = 4
-            break
-        case 4:
-            playbackSpeed = "1/2x"
-            playbackListenSpeed = 2
-            break
-        case 5:
-            playbackSpeed = "1x"
-            playbackListenSpeed = 1
-            break
-        default:
-            playbackSpeed = "1x"
-            playbackListenSpeed = 1
-        }
-        PlaybackSpeedDisplayLabel.text = playbackSpeed
-    }
-    
-    //MARK: - Quality Controls
-    @IBAction func LowQualityButtonPressed(_ sender: Any) {
-        SetQuality(rate: 8000, SKInt: 0)
-        CloseQualitySelect()
-    }
-    
-    @IBAction func MediumQualityButtonPressed(_ sender: Any) {
-        SetQuality(rate: 16000, SKInt: 1)
-        CloseQualitySelect()
-    }
-    
-    @IBAction func HighQualityButtonPressed(_ sender: Any) {
-        SetQuality(rate: 44100, SKInt: 2)
-        CloseQualitySelect()
-    }
-    
-    @IBAction func QualityButtonPressed(_ sender: Any) {
-        OpenQualitySelect()
-    }
-    
 }
-
-let SOUND_QUALITY_KEY = "SoundQualityKey"
-extension ViewController {
-    func SetQuality(rate: Int, SKInt: Int) {
-        sampleRate = rate
-        UserDefaults.standard.set(SKInt, forKey: SOUND_QUALITY_KEY)
-    }
-    
-    func OpenQualitySelect() {
-        QualityLabel.isHidden = true
-        LowQualityLabel.isHidden = false
-        MediumQualityLabel.isHidden = false
-        HighQualityLabel.isHidden = false
-        
-        //Check which one should be in orange
-        switch UserDefaults.standard.integer(forKey: SOUND_QUALITY_KEY) {
-        case 0:
-            LowQualityLabel.setTitleColor(UIColor.orange, for: .normal)
-            MediumQualityLabel.setTitleColor(UIColor.black, for: .normal)
-            HighQualityLabel.setTitleColor(UIColor.black, for: .normal)
-            break
-        case 1:
-            LowQualityLabel.setTitleColor(UIColor.black, for: .normal)
-            MediumQualityLabel.setTitleColor(UIColor.orange, for: .normal)
-            HighQualityLabel.setTitleColor(UIColor.black, for: .normal)
-            break
-        case 2:
-            LowQualityLabel.setTitleColor(UIColor.black, for: .normal)
-            MediumQualityLabel.setTitleColor(UIColor.black, for: .normal)
-            HighQualityLabel.setTitleColor(UIColor.orange, for: .normal)
-            break
-        default:
-            LowQualityLabel.setTitleColor(UIColor.black, for: .normal)
-            MediumQualityLabel.setTitleColor(UIColor.black, for: .normal)
-            HighQualityLabel.setTitleColor(UIColor.black, for: .normal)
-        }
-    }
-    
-    func CloseQualitySelect() {
-        QualityLabel.isHidden = false
-        LowQualityLabel.isHidden = true
-        MediumQualityLabel.isHidden = true
-        HighQualityLabel.isHidden = true
-    }
-    
-    func DisableQualityControls() {
-        CloseQualitySelect()
-        QualityLabel.isEnabled = false
-        QualityLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
-    }
-    
-    func EnableQualityControls() {
-        QualityLabel.isEnabled = true
-        QualityLabel.setTitleColor(UIColor.black, for: .normal)
-    }
-    
-}
-
-
-
