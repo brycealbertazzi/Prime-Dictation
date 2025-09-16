@@ -16,6 +16,8 @@
 		0341830822EE36B300670DD1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0341830622EE36B300670DD1 /* LaunchScreen.storyboard */; };
 		037D80972E78BABB000D5231 /* SwiftyDropbox in Frameworks */ = {isa = PBXBuildFile; productRef = 037D80962E78BABB000D5231 /* SwiftyDropbox */; };
 		03C69A6122FE0083005D8AD1 /* Stopwatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C69A6022FE0083005D8AD1 /* Stopwatch.swift */; };
+		03FF2A962E79E3BB00BD684D /* DropboxManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FF2A952E79E3B600BD684D /* DropboxManager.swift */; };
+		03FF2A982E79EC2900BD684D /* RecordingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FF2A972E79EC2600BD684D /* RecordingManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +29,8 @@
 		0341830722EE36B300670DD1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0341830922EE36B300670DD1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		03C69A6022FE0083005D8AD1 /* Stopwatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stopwatch.swift; sourceTree = "<group>"; };
+		03FF2A952E79E3B600BD684D /* DropboxManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropboxManager.swift; sourceTree = "<group>"; };
+		03FF2A972E79EC2600BD684D /* RecordingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +66,8 @@
 		034182FC22EE36B300670DD1 /* Prime Dictation */ = {
 			isa = PBXGroup;
 			children = (
+				03FF2A972E79EC2600BD684D /* RecordingManager.swift */,
+				03FF2A952E79E3B600BD684D /* DropboxManager.swift */,
 				034182FD22EE36B300670DD1 /* AppDelegate.swift */,
 				034182FF22EE36B300670DD1 /* ViewController.swift */,
 				03C69A6022FE0083005D8AD1 /* Stopwatch.swift */,
@@ -150,6 +156,8 @@
 			files = (
 				0341830022EE36B300670DD1 /* ViewController.swift in Sources */,
 				03C69A6122FE0083005D8AD1 /* Stopwatch.swift in Sources */,
+				03FF2A962E79E3BB00BD684D /* DropboxManager.swift in Sources */,
+				03FF2A982E79EC2900BD684D /* RecordingManager.swift in Sources */,
 				034182FE22EE36B300670DD1 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
