@@ -395,7 +395,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     func RecordingTimeForName() -> String {
         let date = Date()
-        
         let calendar = Calendar.current
         
         let year = calendar.component(.year, from: date)
@@ -404,7 +403,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         let hour = calendar.component(.hour, from: date)
         let minute = calendar.component(.minute, from: date)
         let second = calendar.component(.second, from: date)
-        let dateName = String(year) + "-" + String(month) + "-" + String(day) + "_" + String(hour) + "-" + String(minute) + "-" + String(second)
+        
+        let dateName = String(format: "%04d-%02d-%02d_%02d-%02d-%02d",
+                              year, month, day, hour, minute, second)
         
         return dateName
     }
