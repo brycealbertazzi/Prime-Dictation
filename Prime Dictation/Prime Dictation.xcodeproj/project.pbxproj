@@ -18,6 +18,8 @@
 		03C69A6122FE0083005D8AD1 /* Stopwatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C69A6022FE0083005D8AD1 /* Stopwatch.swift */; };
 		03FF2A962E79E3BB00BD684D /* DropboxManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FF2A952E79E3B600BD684D /* DropboxManager.swift */; };
 		03FF2A982E79EC2900BD684D /* RecordingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FF2A972E79EC2600BD684D /* RecordingManager.swift */; };
+		03FF2A9A2E7A291400BD684D /* OneDriveManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FF2A992E7A290D00BD684D /* OneDriveManager.swift */; };
+		03FF2A9D2E7A2A2600BD684D /* MSAL in Frameworks */ = {isa = PBXBuildFile; productRef = 03FF2A9C2E7A2A2600BD684D /* MSAL */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,9 +30,11 @@
 		0341830422EE36B300670DD1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0341830722EE36B300670DD1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0341830922EE36B300670DD1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		03A58EE52E7C7FB100B4EE58 /* Prime Dictation.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Prime Dictation.entitlements"; sourceTree = "<group>"; };
 		03C69A6022FE0083005D8AD1 /* Stopwatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stopwatch.swift; sourceTree = "<group>"; };
 		03FF2A952E79E3B600BD684D /* DropboxManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropboxManager.swift; sourceTree = "<group>"; };
 		03FF2A972E79EC2600BD684D /* RecordingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingManager.swift; sourceTree = "<group>"; };
+		03FF2A992E7A290D00BD684D /* OneDriveManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneDriveManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +43,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				031DE4F72E78757C003222CC /* ProgressHUD in Frameworks */,
+				03FF2A9D2E7A2A2600BD684D /* MSAL in Frameworks */,
 				033F4CFC2E78B36000438D32 /* ProgressHUD in Frameworks */,
 				037D80972E78BABB000D5231 /* SwiftyDropbox in Frameworks */,
 			);
@@ -66,6 +71,8 @@
 		034182FC22EE36B300670DD1 /* Prime Dictation */ = {
 			isa = PBXGroup;
 			children = (
+				03A58EE52E7C7FB100B4EE58 /* Prime Dictation.entitlements */,
+				03FF2A992E7A290D00BD684D /* OneDriveManager.swift */,
 				03FF2A972E79EC2600BD684D /* RecordingManager.swift */,
 				03FF2A952E79E3B600BD684D /* DropboxManager.swift */,
 				034182FD22EE36B300670DD1 /* AppDelegate.swift */,
@@ -126,6 +133,7 @@
 			packageReferences = (
 				031DE4F52E78757C003222CC /* XCRemoteSwiftPackageReference "ProgressHUD" */,
 				037D80952E78BABB000D5231 /* XCRemoteSwiftPackageReference "SwiftyDropbox" */,
+				03FF2A9B2E7A2A2600BD684D /* XCRemoteSwiftPackageReference "microsoft-authentication-library-for-objc" */,
 			);
 			productRefGroup = 034182FB22EE36B300670DD1 /* Products */;
 			projectDirPath = "";
@@ -159,6 +167,7 @@
 				03FF2A962E79E3BB00BD684D /* DropboxManager.swift in Sources */,
 				03FF2A982E79EC2900BD684D /* RecordingManager.swift in Sources */,
 				034182FE22EE36B300670DD1 /* AppDelegate.swift in Sources */,
+				03FF2A9A2E7A291400BD684D /* OneDriveManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -305,7 +314,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_ENTITLEMENTS = "Prime Dictation/Prime Dictation.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 20;
 				DEVELOPMENT_TEAM = 7JG2927ZK8;
@@ -318,7 +328,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.BryceAlbertazzi.Prime-Dictation";
+				PRODUCT_BUNDLE_IDENTIFIER = com.BryceAlbertazzi.PrimeDictation;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -331,7 +341,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_ENTITLEMENTS = "Prime Dictation/Prime Dictation.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 20;
 				DEVELOPMENT_TEAM = 7JG2927ZK8;
@@ -344,7 +355,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.BryceAlbertazzi.Prime-Dictation";
+				PRODUCT_BUNDLE_IDENTIFIER = com.BryceAlbertazzi.PrimeDictation;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -392,6 +403,14 @@
 				minimumVersion = 10.2.2;
 			};
 		};
+		03FF2A9B2E7A2A2600BD684D /* XCRemoteSwiftPackageReference "microsoft-authentication-library-for-objc" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AzureAD/microsoft-authentication-library-for-objc.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.4.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -409,6 +428,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 037D80952E78BABB000D5231 /* XCRemoteSwiftPackageReference "SwiftyDropbox" */;
 			productName = SwiftyDropbox;
+		};
+		03FF2A9C2E7A2A2600BD684D /* MSAL */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 03FF2A9B2E7A2A2600BD684D /* XCRemoteSwiftPackageReference "microsoft-authentication-library-for-objc" */;
+			productName = MSAL;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

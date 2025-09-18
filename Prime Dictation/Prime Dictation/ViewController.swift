@@ -33,6 +33,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     var audioPlayer: AVAudioPlayer!
     
     var dropboxManager: DropboxManager!
+    var oneDriveManager: OneDriveManager!
+    
     var recordingManager: RecordingManager!
     var watch: Stopwatch!
     
@@ -42,6 +44,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         
         recordingManager = RecordingManager(viewController: self)
         dropboxManager = DropboxManager(viewController: self, recordingManager: recordingManager)
+        oneDriveManager = OneDriveManager(viewController: self, recordingMananger: recordingManager)
+
         watch = Stopwatch(viewController: self)
         
         // Do any additional setup after loading the view.
@@ -258,10 +262,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
 
     @IBAction func SendButton(_ sender: Any) {
-        dropboxManager.SendToDropbox()
+        oneDriveManager.SendToOneDrive()
+//        dropboxManager.SendToDropbox()
     }
     
     @IBAction func SignInButton(_ sender: Any) {
-        dropboxManager.OpenDropboxAuthorizationFlow()
+        oneDriveManager.SignInInteractively()
+//        dropboxManager.OpenDropboxAuthorizationFlow()
     }
 }
+    

@@ -25,6 +25,7 @@
 			<string></string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>msauth.com.BryceAlbertazzi.PrimeDictation</string>
 				<string>db-z4j0jn23hkj68bs</string>
 			</array>
 		</dict>
@@ -35,6 +36,9 @@
 	<string>z4j0jn23hkj68bs</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
+		<string>msauthv3</string>
+		<string>msauthv2</string>
+		<string>msauth</string>
 		<string>dbapi-8-emm</string>
 		<string>dbapi-2</string>
 	</array>
@@ -42,6 +46,10 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>MS_CLIENT_APPLICATION_ID</key>
+	<string>a4eee3b8-ebed-40e2-867a-6c613d932803</string>
+	<key>MS_TENANT_DIRECTORY_ID</key>
+	<string>23a30420-283a-42e3-8786-57c7561b919e</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>The app needs access to the microphone to record and play audio</string>
 	<key>UILaunchStoryboardName</key>

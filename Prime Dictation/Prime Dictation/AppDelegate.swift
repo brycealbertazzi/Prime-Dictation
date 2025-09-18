@@ -8,6 +8,7 @@
 
 import UIKit
 import SwiftyDropbox
+import MSAL
 import ProgressHUD
 
 @UIApplicationMain
@@ -17,8 +18,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        let appKey = loadDropboxAppKey()
-        DropboxClientsManager.setupWithAppKey(appKey.trimmingCharacters(in: .whitespacesAndNewlines))
+        let dropboxAppKey = loadDropboxAppKey()
+        DropboxClientsManager.setupWithAppKey(dropboxAppKey.trimmingCharacters(in: .whitespacesAndNewlines))
+        
         return true
     }
     
@@ -34,7 +36,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         return key
     }
-
+    
+    func applicationDidFinishLaunching(_ application: UIApplication) {
+        
+    }
+    
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
@@ -56,26 +62,45 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
+    
+//    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+//        return MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String)
+//    }
 
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-        let handled = DropboxClientsManager.handleRedirectURL(
-            url,
-            includeBackgroundClient: false,
-            completion: { authResult in
+        let scheme = (url.scheme ?? "").lowercased()
+        let sourceApp = options[.sourceApplication] as? String
+
+        // Route by URL scheme
+        if scheme.hasPrefix("msauth") {
+            // MSAL returns Bool?
+            print("Handle MSAL response")
+            return MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String)
+        }
+
+        if scheme.hasPrefix("db-") {
+            // Dropbox returns Bool?
+            let handled = DropboxClientsManager.handleRedirectURL(
+                url,
+                includeBackgroundClient: false
+            ) { authResult in
                 switch authResult {
-                case .success(let token):
+                case .success:
                     ProgressHUD.succeed("Logged into Dropbox")
                 case .cancel:
-                    print("User canceled OAuth flow")
+                    print("User canceled Dropbox OAuth flow")
                 case .error(let error, let description):
-                    print("Error \(error): \(description ?? "")")
+                    print("Dropbox error \(error): \(description ?? "")")
                     ProgressHUD.failed("Unable to log into Dropbox")
                 case .none:
-                    print("Possibly wrong redirect URI")
+                    print("Dropbox: possibly wrong redirect URI")
                 }
             }
-        )
-        return handled
+            return handled
+        }
+
+        // Unknown scheme
+        return false
     }
 
 }
