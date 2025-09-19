@@ -216,17 +216,24 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTimeListen(timer:))
         }
     }
-
-    @IBAction func SendButton(_ sender: Any) {
-        oneDriveManager.SendToOneDrive()
-    }
     
     @IBAction func SignInButton(_ sender: Any) {
         oneDriveManager.SignInInteractively()
 //        dropboxManager.OpenDropboxAuthorizationFlow()
     }
+
+    @IBAction func SendButton(_ sender: Any) {
+        if recordingManager.savedRecordingNames.count > 0 {
+            let recordingUrl = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledRecordingName).appendingPathExtension(recordingManager.destinationRecordingExtension)
+            oneDriveManager.SendToOneDrive(url: recordingUrl)
+            ProgressHUD.animate("Sending...")
+            ShowSendingUI()
+        } else {
+            ProgressHUD.failed("No recording to send")
+        }
+        
+    }
     
-    //Display an alert if something goes wrong
     func displayAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))

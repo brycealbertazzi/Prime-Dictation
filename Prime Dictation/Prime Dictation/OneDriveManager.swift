@@ -16,15 +16,15 @@ final class OneDriveManager {
     // Use "common" if you support both personal + work/school accounts
     private lazy var authorityURLString: String = "https://login.microsoftonline.com/common"
 
-    private let presentingVC: UIViewController
+    private let viewController: ViewController
     private let recordingManager: RecordingManager
 
     private var msalApp: MSALPublicClientApplication?
     private var signedInAccount: MSALAccount?
 
     // MARK: - Init
-    init(viewController: UIViewController, recordingMananger: RecordingManager) {
-        self.presentingVC = viewController
+    init(viewController: ViewController, recordingMananger: RecordingManager) {
+        self.viewController = viewController
         self.recordingManager = recordingMananger
         configureMSAL()
     }
@@ -70,7 +70,7 @@ final class OneDriveManager {
         // Optional: show while opening the web view
         DispatchQueue.main.async { ProgressHUD.animate("Opening Microsoft sign-in…") }
 
-        let web = MSALWebviewParameters(authPresentationViewController: presentingVC)
+        let web = MSALWebviewParameters(authPresentationViewController: viewController)
         let params = MSALInteractiveTokenParameters(scopes: scopes, webviewParameters: web)
 
         app.acquireToken(with: params) { result, error in
@@ -98,19 +98,33 @@ final class OneDriveManager {
     }
 
     // MARK: - Public: upload entry point
-    func SendToOneDrive(preferredFileName: String? = nil, progress: ((Double) -> Void)? = nil) {
-        let recordingURL = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledRecordingName).appendingPathExtension(recordingManager.destinationRecordingExtension)
-        Task {
+    func SendToOneDrive(url: URL, preferredFileName: String? = nil, progress: ((Double) -> Void)? = nil) {
+        Task { [weak self] in
+            guard let self = self else { return }
+
+            // Always runs when this Task scope exits (success or error)
+            defer {
+                // Don’t `await` in defer; schedule a MainActor task instead
+                Task { @MainActor in
+                    self.viewController.HideSendingUI()
+                }
+            }
+
             do {
-                let token = try await getAccessTokenSilently()
-                let fileName = preferredFileName ?? recordingURL.lastPathComponent
-                let item = try await uploadRecording(accessToken: token,
-                                                     fileURL: recordingURL,
-                                                     fileName: fileName,
-                                                     progress: progress)
-                print("✅ Uploaded \(item.name) → \(item.webUrl ?? "(no webUrl)")")
+                let token = try await self.getAccessTokenSilently()
+                let fileName = preferredFileName ?? url.lastPathComponent
+                let item = try await self.uploadRecording(accessToken: token,
+                                                          fileURL: url,
+                                                          fileName: fileName,
+                                                          progress: progress)
+                await MainActor.run {
+                    print("✅ Uploaded \(item.name) → \(item.webUrl ?? "(no webUrl)")")
+                    ProgressHUD.succeed("Recording was sent to OneDrive")
+                }
             } catch {
-                print("❌ Upload failed:", error)
+                await MainActor.run {
+                    ProgressHUD.failed("Failed to send recording. Check connection or sign in again.")
+                }
             }
         }
     }

@@ -135,7 +135,6 @@ class RecordingManager {
     }
 
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        print("audioPlayerDidFinishPlaying")
         if viewController.audioPlayer.currentTime <= 0 {
             player.delegate = viewController
             viewController.ListenLabel.setTitle("Listen", for: .normal)
