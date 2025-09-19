@@ -76,14 +76,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String
             )
 
-            if handled {
-                // We can't know success/failure yet — MSAL will call your acquireToken completion.
+            if !handled {
                 DispatchQueue.main.async {
-                    ProgressHUD.animate("Finalizing Microsoft sign-in…")
-                }
-            } else {
-                DispatchQueue.main.async {
-                    ProgressHUD.failed("Couldn’t handle Microsoft sign-in redirect")
+                    ProgressHUD.failed("Unable to sign into OneDrive")
                 }
             }
             return handled

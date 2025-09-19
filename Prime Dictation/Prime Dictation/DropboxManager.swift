@@ -24,6 +24,8 @@ class DropboxManager {
     {
         if let client: DropboxClient = DropboxClientsManager.authorizedClient {
             //Send recording to dropbox folder for this app
+            ProgressHUD.animate("Sending...")
+            viewController.ShowSendingUI()
             _ = client.files.upload(path: "/" + recordingManager.toggledRecordingName + "." + recordingManager.destinationRecordingExtension, input: url)
                 .response { (response, error) in
                     if let response = response {

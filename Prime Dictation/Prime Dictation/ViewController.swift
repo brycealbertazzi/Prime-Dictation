@@ -226,12 +226,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         if recordingManager.savedRecordingNames.count > 0 {
             let recordingUrl = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledRecordingName).appendingPathExtension(recordingManager.destinationRecordingExtension)
             oneDriveManager.SendToOneDrive(url: recordingUrl)
-            ProgressHUD.animate("Sending...")
-            ShowSendingUI()
+//            dropboxManager.SendToDropbox(url: recordingUrl)
         } else {
             ProgressHUD.failed("No recording to send")
         }
-        
     }
     
     func displayAlert(title: String, message: String) {
@@ -244,14 +242,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         SendLabel.isEnabled = false
         SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
         SignInLabel.isEnabled = false
-        SignInLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
     }
     
     func EnableSignInAndSendButtons() {
         SendLabel.isEnabled = true
         SendLabel.setTitleColor(UIColor.black, for: .normal)
         SignInLabel.isEnabled = true
-        SignInLabel.setTitleColor(UIColor.black, for: .normal)
     }
     
     func ShowRecordingInProgressUI() {

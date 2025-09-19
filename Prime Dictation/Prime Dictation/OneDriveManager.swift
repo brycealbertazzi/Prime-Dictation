@@ -69,6 +69,7 @@ final class OneDriveManager {
 
         // Optional: show while opening the web view
         DispatchQueue.main.async { ProgressHUD.animate("Opening Microsoft sign-in…") }
+        viewController.ShowSendingUI()
 
         let web = MSALWebviewParameters(authPresentationViewController: viewController)
         let params = MSALInteractiveTokenParameters(scopes: scopes, webviewParameters: web)
@@ -79,6 +80,7 @@ final class OneDriveManager {
                 print("✅ token acquired, scopes:", result.scopes)
                 print("accessToken prefix:", result.accessToken.prefix(16), "…")
                 DispatchQueue.main.async { ProgressHUD.succeed("Logged into OneDrive") }
+                self.viewController.HideSendingUI()
                 return
             }
 
@@ -94,6 +96,7 @@ final class OneDriveManager {
                 print("  aad:", err)
             }
             DispatchQueue.main.async { ProgressHUD.failed("Unable to log into OneDrive") }
+            self.viewController.HideSendingUI()
         }
     }
 
@@ -101,6 +104,8 @@ final class OneDriveManager {
     func SendToOneDrive(url: URL, preferredFileName: String? = nil, progress: ((Double) -> Void)? = nil) {
         Task { [weak self] in
             guard let self = self else { return }
+            await ProgressHUD.animate("Sending...")
+            await viewController.ShowSendingUI()
 
             // Always runs when this Task scope exits (success or error)
             defer {
