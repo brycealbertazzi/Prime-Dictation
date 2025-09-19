@@ -50,14 +50,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         
         // Do any additional setup after loading the view.
         ListenLabel.setTitle("Listen", for: .normal)
-        RecordLabel.isHidden = false
-        StopButtonLabel.isHidden = true
-        PausePlayButtonLabel.isHidden = true
-        EndPlaybackLabel.isHidden = true
-        PausePlaybackLabel.isHidden = true
-        StopWatchLabel.isHidden = true
+        HideRecordingInProgressUI()
+        HideListeningUI()
         
-        /*****/
         //FileNameLabel should be disabled at all times
         FileNameLabel.isEnabled = false
         /*****/
@@ -86,13 +81,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         recordingManager.SetSavedRecordingsOnLoad()
     }
     
-    //Display an alert if something goes wrong
-    func displayAlert(title: String, message: String) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        present(alert, animated: true, completion: nil)
-    }
-    
     //MARK: Listen to Playback
     @IBAction func ListenButton(_ sender: Any) {
         //Store the path to the recording in this "path" variable
@@ -109,15 +97,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             audioPlayer.rate = 1
             audioPlayer.play()
             
-            ListenLabel.isHidden = true
-            StopWatchLabel.isHidden = false
-            RecordLabel.isEnabled = false
-            SendLabel.isEnabled = false
-            SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
-            SignInLabel.isEnabled = false
-            SignInLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
-            PausePlaybackLabel.isHidden = false
-            EndPlaybackLabel.isHidden = false
+            ShowListeningUI()
             
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTimeListen(timer:))
             watch.start()
@@ -155,14 +135,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 audioRecorder.delegate = self
                 audioRecorder.record()
                 ListenLabel.isHidden = true
-                SendLabel.isEnabled = false
-                RecordLabel.isHidden = true
-                StopButtonLabel.isHidden = false
-                PausePlayButtonLabel.isHidden = false
-                SendLabel.isEnabled = false
-                SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
-                SignInLabel.isEnabled = false
-                SignInLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+                ShowRecordingInProgressUI()
                 
                 //Start Timer
                 Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTime(timer:))
@@ -182,15 +155,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         audioRecorder = nil
         ListenLabel.isHidden = false
         ListenLabel.setTitle("Listen", for: .normal)
-        SendLabel.isEnabled = true
-        RecordLabel.isHidden = false
-        StopButtonLabel.isHidden = true
-        PausePlayButtonLabel.isHidden = true
+        HideRecordingInProgressUI()
         PausePlayButtonLabel.setImage(UIImage(named: "PauseButton-2"), for: .normal)
-        SendLabel.setTitleColor(UIColor.black, for: .normal)
-        SendLabel.isEnabled = true
-        SignInLabel.isEnabled = true
-        SignInLabel.setTitleColor(UIColor.black, for: .normal)
         
         //Convert the audio
         recordingManager.ConvertAudio()
@@ -219,25 +185,15 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             watch.resume()
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTime(timer:))
         }
-        print("AudioRecorder is Playing: \(audioRecorder.isRecording)")
     }
     
     @IBAction func EndPlaybackButton(_ sender: Any) {
         ListenLabel.setTitle("Listen", for: .normal)
         PausePlaybackLabel.setTitle("Pause", for: .normal)
         isRecordingPaused = false
-        StopWatchLabel.isHidden = true
         audioPlayer.stop()
         watch.stop()
-        SendLabel.setTitleColor(UIColor.black, for: .normal)
-        SendLabel.isEnabled = true
-        SignInLabel.isEnabled = true
-        SignInLabel.setTitleColor(UIColor.black, for: .normal)
-        /*************/
-        ListenLabel.isHidden = false
-        RecordLabel.isEnabled = true
-        PausePlaybackLabel.isHidden = true
-        EndPlaybackLabel.isHidden = true
+        HideListeningUI()
     }
     
     
@@ -263,12 +219,87 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
     @IBAction func SendButton(_ sender: Any) {
         oneDriveManager.SendToOneDrive()
-//        dropboxManager.SendToDropbox()
     }
     
     @IBAction func SignInButton(_ sender: Any) {
         oneDriveManager.SignInInteractively()
 //        dropboxManager.OpenDropboxAuthorizationFlow()
     }
-}
     
+    //Display an alert if something goes wrong
+    func displayAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func DisableSignInAndSendButtons() {
+        SendLabel.isEnabled = false
+        SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+        SignInLabel.isEnabled = false
+        SignInLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+    }
+    
+    func EnableSignInAndSendButtons() {
+        SendLabel.isEnabled = true
+        SendLabel.setTitleColor(UIColor.black, for: .normal)
+        SignInLabel.isEnabled = true
+        SignInLabel.setTitleColor(UIColor.black, for: .normal)
+    }
+    
+    func ShowRecordingInProgressUI() {
+        RecordLabel.isHidden = true
+        StopButtonLabel.isHidden = false
+        PausePlayButtonLabel.isHidden = false
+        DisableSignInAndSendButtons()
+    }
+    
+    func HideRecordingInProgressUI() {
+        RecordLabel.isHidden = false
+        StopButtonLabel.isHidden = true
+        PausePlayButtonLabel.isHidden = true
+        EnableSignInAndSendButtons()
+    }
+    
+    func ShowListeningUI() {
+        ListenLabel.isHidden = true
+        StopWatchLabel.isHidden = false
+        PausePlaybackLabel.isHidden = false
+        EndPlaybackLabel.isHidden = false
+        RecordLabel.isEnabled = false
+        DisableSignInAndSendButtons()
+    }
+    
+    func HideListeningUI() {
+        ListenLabel.isHidden = false
+        StopWatchLabel.isHidden = true
+        PausePlaybackLabel.isHidden = true
+        EndPlaybackLabel.isHidden = true
+        RecordLabel.isEnabled = true
+        EnableSignInAndSendButtons()
+    }
+    
+    func ShowSendingUI() {
+        DisableSignInAndSendButtons()
+        RecordLabel.isEnabled = false
+        ListenLabel.isEnabled = false
+        FileNameLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+        TitleOfAppLabel.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.3)
+        PreviousRecordingLabel.isEnabled = false
+        NextRecordingLabel.isEnabled = false
+        PreviousRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+        NextRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+    }
+    
+    func HideSendingUI() {
+        EnableSignInAndSendButtons()
+        RecordLabel.isEnabled = true
+        ListenLabel.isEnabled = true
+        FileNameLabel.setTitleColor(UIColor.black, for: .normal)
+        TitleOfAppLabel.textColor = UIColor.black
+        PreviousRecordingLabel.isEnabled = true
+        NextRecordingLabel.isEnabled = true
+        PreviousRecordingLabel.setTitleColor(UIColor.black, for: .normal)
+        NextRecordingLabel.setTitleColor(UIColor.black, for: .normal)
+    }
+}

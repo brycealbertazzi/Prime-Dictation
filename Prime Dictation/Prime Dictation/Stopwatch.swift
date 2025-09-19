@@ -31,12 +31,10 @@ class Stopwatch {
     
     func start() {
         startTime = Date()
-        
     }
     
     func stop() {
         startTime = nil
-
     }
     
     var timeWhenPaused: Date?
@@ -51,7 +49,6 @@ class Stopwatch {
     }
     
     func UpdateElapsedTime(timer: Timer) {
-        
         if self.isRunning && !viewController.isRecordingPaused {
             let minutes = Int(self.elapsedTime / 60)
             let seconds = Int(self.elapsedTime.truncatingRemainder(dividingBy: 60))
@@ -63,7 +60,14 @@ class Stopwatch {
     }
     
     func UpdateElapsedTimeListen(timer: Timer) {
-        if self.isRunning && !viewController.isRecordingPaused {
+        print(self.isRunning, !viewController.isRecordingPaused, elapsedTime)
+        if (overRecordingLength()) {
+            stop()
+            viewController.HideListeningUI()
+            return
+        }
+        
+        if (self.isRunning && !viewController.isRecordingPaused) {
             let elapsedTime = self.elapsedTime
             let minutes = Int(elapsedTime / 60)
             let seconds = Int(elapsedTime.truncatingRemainder(dividingBy: 60))
@@ -75,5 +79,9 @@ class Stopwatch {
         } else {
             timer.invalidate()
         }
+    }
+    
+    func overRecordingLength() -> Bool {
+        return elapsedTime > viewController.audioPlayer.duration
     }
 }

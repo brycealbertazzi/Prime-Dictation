@@ -69,17 +69,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         let scheme = (url.scheme ?? "").lowercased()
-        let sourceApp = options[.sourceApplication] as? String
 
-        // Route by URL scheme
         if scheme.hasPrefix("msauth") {
-            // MSAL returns Bool?
-            print("Handle MSAL response")
-            return MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String)
+            let handled = MSALPublicClientApplication.handleMSALResponse(
+                url,
+                sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String
+            )
+
+            if handled {
+                // We can't know success/failure yet — MSAL will call your acquireToken completion.
+                DispatchQueue.main.async {
+                    ProgressHUD.animate("Finalizing Microsoft sign-in…")
+                }
+            } else {
+                DispatchQueue.main.async {
+                    ProgressHUD.failed("Couldn’t handle Microsoft sign-in redirect")
+                }
+            }
+            return handled
         }
 
         if scheme.hasPrefix("db-") {
-            // Dropbox returns Bool?
             let handled = DropboxClientsManager.handleRedirectURL(
                 url,
                 includeBackgroundClient: false

@@ -133,20 +133,14 @@ class RecordingManager {
             }
         }
     }
-    
+
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        print("audioPlayerDidFinishPlaying")
         if viewController.audioPlayer.currentTime <= 0 {
             player.delegate = viewController
             viewController.ListenLabel.setTitle("Listen", for: .normal)
-            viewController.ListenLabel.isHidden = false
-            viewController.StopWatchLabel.isHidden = true
-            viewController.PausePlaybackLabel.isHidden = true
-            viewController.EndPlaybackLabel.isHidden = true
-            viewController.RecordLabel.isEnabled = true
-            viewController.SendLabel.setTitleColor(UIColor.black, for: .normal)
-            viewController.SendLabel.isEnabled = true
-            viewController.SignInLabel.isEnabled = true
-            viewController.SignInLabel.setTitleColor(UIColor.black, for: .normal)
+            viewController.HideListeningUI()
+            viewController.EnableSignInAndSendButtons()
             viewController.watch.stop()
         }
     }

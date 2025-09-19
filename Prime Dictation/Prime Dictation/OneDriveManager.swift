@@ -1,23 +1,26 @@
 import UIKit
+import ProgressHUD
 import MSAL
+import Foundation
+import UniformTypeIdentifiers
 
 final class OneDriveManager {
     // MARK: - Config
     private let scopes = ["User.Read", "Files.ReadWrite"]
 
     private lazy var redirectUri: String = {
-        // Must equal your Entra app's redirect & your Info.plist URL scheme
         let bundleID = Bundle.main.bundleIdentifier ?? "com.example.app"
         return "msauth.\(bundleID)://auth"
     }()
 
-    // If you chose single-tenant, use your tenant ID; otherwise use "common" or "organizations"
+    // Use "common" if you support both personal + work/school accounts
     private lazy var authorityURLString: String = "https://login.microsoftonline.com/common"
 
     private let presentingVC: UIViewController
     private let recordingManager: RecordingManager
 
     private var msalApp: MSALPublicClientApplication?
+    private var signedInAccount: MSALAccount?
 
     // MARK: - Init
     init(viewController: UIViewController, recordingMananger: RecordingManager) {
@@ -35,15 +38,16 @@ final class OneDriveManager {
             guard let authorityURL = URL(string: authorityURLString) else {
                 preconditionFailure("Bad authority URL: \(authorityURLString)")
             }
-            
             let authority = try MSALAADAuthority(url: authorityURL)
             let config = MSALPublicClientApplicationConfig(
                 clientId: clientId,
                 redirectUri: redirectUri,
                 authority: authority
             )
-            
-            print("Config", config)
+            // If using the Microsoft shared keychain group, ensure entitlements include:
+            // $(AppIdentifierPrefix)com.microsoft.adalcache
+            // config.cacheConfig.keychainSharingGroup = "com.microsoft.adalcache"
+
             self.msalApp = try MSALPublicClientApplication(configuration: config)
             print("MSAL configured ✅")
 
@@ -63,13 +67,18 @@ final class OneDriveManager {
             return
         }
 
+        // Optional: show while opening the web view
+        DispatchQueue.main.async { ProgressHUD.animate("Opening Microsoft sign-in…") }
+
         let web = MSALWebviewParameters(authPresentationViewController: presentingVC)
         let params = MSALInteractiveTokenParameters(scopes: scopes, webviewParameters: web)
 
         app.acquireToken(with: params) { result, error in
             if let result = result {
+                self.signedInAccount = result.account
                 print("✅ token acquired, scopes:", result.scopes)
                 print("accessToken prefix:", result.accessToken.prefix(16), "…")
+                DispatchQueue.main.async { ProgressHUD.succeed("Logged into OneDrive") }
                 return
             }
 
@@ -84,23 +93,238 @@ final class OneDriveManager {
             if let err = ns?.userInfo[MSALOAuthErrorKey] {
                 print("  aad:", err)
             }
+            DispatchQueue.main.async { ProgressHUD.failed("Unable to log into OneDrive") }
         }
-
     }
 
-    // Example upload (call after you have a token)
-    func SendToOneDrive() {
-//        guard let url = URL(string: "https://graph.microsoft.com/v1.0/me/drive/root:/\(fileName):/content") else {
-//            completion(false); return
-//        }
-//        var req = URLRequest(url: url)
-//        req.httpMethod = "PUT"
-//        req.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-//        req.httpBody = data
-//        URLSession.shared.dataTask(with: req) { _, resp, err in
-//            if let err = err { print("Upload error:", err); completion(false); return }
-//            completion(true)
-//        }.resume()
+    // MARK: - Public: upload entry point
+    func SendToOneDrive(preferredFileName: String? = nil, progress: ((Double) -> Void)? = nil) {
+        let recordingURL = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledRecordingName).appendingPathExtension(recordingManager.destinationRecordingExtension)
+        Task {
+            do {
+                let token = try await getAccessTokenSilently()
+                let fileName = preferredFileName ?? recordingURL.lastPathComponent
+                let item = try await uploadRecording(accessToken: token,
+                                                     fileURL: recordingURL,
+                                                     fileName: fileName,
+                                                     progress: progress)
+                print("✅ Uploaded \(item.name) → \(item.webUrl ?? "(no webUrl)")")
+            } catch {
+                print("❌ Upload failed:", error)
+            }
+        }
+    }
+
+    // MARK: - Token (silent)
+    private func getAccessTokenSilently() async throws -> String {
+        guard let app = msalApp else { throw ODRError.notConfigured }
+
+        let account: MSALAccount
+        if let acc = signedInAccount {
+            account = acc
+        } else {
+            let accounts = try app.allAccounts()
+            guard let first = accounts.first else { throw ODRError.notSignedIn }
+            account = first
+        }
+
+        return try await withCheckedThrowingContinuation { cont in
+            let silent = MSALSilentTokenParameters(scopes: scopes, account: account)
+            app.acquireTokenSilent(with: silent) { result, error in
+                if let result = result {
+                    cont.resume(returning: result.accessToken)
+                } else {
+                    cont.resume(throwing: error ?? ODRError.tokenFailure)
+                }
+            }
+        }
+    }
+
+    // MARK: - OneDrive upload (Graph)
+
+    private func uploadRecording(accessToken: String, fileURL: URL, fileName: String,
+                                 progress: ((Double) -> Void)?) async throws -> DriveItem {
+        // Ensure folder exists
+        _ = try await ensurePrimeDictationFolder(token: accessToken)
+
+        // Choose strategy by size
+        let values = try fileURL.resourceValues(forKeys: [.fileSizeKey])
+        let size = Int64(values.fileSize ?? 0)
+        if size <= 4 * 1024 * 1024 {
+            return try await uploadSmallFile(token: accessToken, fileURL: fileURL, as: fileName)
+        } else {
+            return try await uploadLargeFile(token: accessToken, fileURL: fileURL, as: fileName, progress: progress)
+        }
+    }
+
+    // Create or fetch /Prime Dictation folder
+    private func ensurePrimeDictationFolder(token: String) async throws -> DriveItem {
+        struct CreateFolderBody: Encodable {
+            let name: String
+            let folder: [String:String] = [:]
+            let conflictBehavior: String
+        }
+        let createURL = URL(string: "https://graph.microsoft.com/v1.0/me/drive/root/children")!
+        var req = authorizedRequest(url: createURL,
+                                    token: token,
+                                    method: "POST",
+                                    headers: ["Content-Type":"application/json"],
+                                    body: try JSONEncoder().encode(CreateFolderBody(name: "Prime Dictation",
+                                                                                    conflictBehavior: "replace")))
+        let (data, resp) = try await URLSession.shared.data(for: req)
+        if let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) {
+            return try decode(DriveItem.self, from: data)
+        }
+
+        // If it already exists, GET it
+        let folderPath = percentPathComponent("Prime Dictation")
+        let getURL = URL(string: "https://graph.microsoft.com/v1.0/me/drive/root:/\(folderPath)")!
+        let (gData, gResp) = try await URLSession.shared.data(for: authorizedRequest(url: getURL, token: token))
+        guard let gHttp = gResp as? HTTPURLResponse, (200...299).contains(gHttp.statusCode) else {
+            throw ODRError.badResponse(status: (gResp as? HTTPURLResponse)?.statusCode ?? -1,
+                                       body: String(data: gData, encoding: .utf8) ?? "")
+        }
+        return try decode(DriveItem.self, from: gData)
+    }
+
+    // Simple upload (≤ 4 MB)
+    private func uploadSmallFile(token: String, fileURL: URL, as fileName: String) async throws -> DriveItem {
+        let folder = percentPathComponent("Prime Dictation")
+        let name = percentPathComponent(fileName)
+        let url = URL(string: "https://graph.microsoft.com/v1.0/me/drive/root:/\(folder)/\(name):/content")!
+        let data = try Data(contentsOf: fileURL)
+        var req = authorizedRequest(url: url,
+                                    token: token,
+                                    method: "PUT",
+                                    headers: ["Content-Type": mimeType(for: fileURL)],
+                                    body: data)
+        let (respData, resp) = try await URLSession.shared.data(for: req)
+        guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            throw ODRError.badResponse(status: (resp as? HTTPURLResponse)?.statusCode ?? -1,
+                                       body: String(data: respData, encoding: .utf8) ?? "")
+        }
+        return try decode(DriveItem.self, from: respData)
+    }
+
+    // Resumable upload (> 4 MB)
+    private func uploadLargeFile(token: String, fileURL: URL, as fileName: String,
+                                 progress: ((Double) -> Void)? = nil,
+                                 chunkSize: Int = 5 * 1024 * 1024) async throws -> DriveItem {
+        let folder = percentPathComponent("Prime Dictation")
+        let name = percentPathComponent(fileName)
+        let sessionURL = URL(string: "https://graph.microsoft.com/v1.0/me/drive/root:/\(folder)/\(name):/createUploadSession")!
+
+        // Use JSONSerialization to set the @-key
+        let sessionBody: [String: Any] = [
+            "item": [
+                "name": fileName,
+                "@microsoft.graph.conflictBehavior": "replace"
+            ]
+        ]
+        let bodyData = try JSONSerialization.data(withJSONObject: sessionBody, options: [])
+
+        let createReq = authorizedRequest(url: sessionURL,
+                                          token: token,
+                                          method: "POST",
+                                          headers: ["Content-Type":"application/json"],
+                                          body: bodyData)
+        let (csData, csResp) = try await URLSession.shared.data(for: createReq)
+        guard let csHttp = csResp as? HTTPURLResponse, (200...299).contains(csHttp.statusCode),
+              let obj = try JSONSerialization.jsonObject(with: csData) as? [String: Any],
+              let uploadUrlStr = obj["uploadUrl"] as? String,
+              let uploadURL = URL(string: uploadUrlStr) else {
+            throw ODRError.missingUploadUrl
+        }
+
+        // PUT chunks
+        let attrs = try FileManager.default.attributesOfItem(atPath: fileURL.path)
+        let total = (attrs[.size] as? NSNumber)?.int64Value ?? 0
+        let handle = try FileHandle(forReadingFrom: fileURL)
+        defer { try? handle.close() }
+
+        var sent: Int64 = 0
+        while sent < total {
+            let thisChunk = min(Int64(chunkSize), total - sent)
+            try handle.seek(toOffset: UInt64(sent))
+            let data = try handle.read(upToCount: Int(thisChunk)) ?? Data()
+
+            var req = URLRequest(url: uploadURL)
+            req.httpMethod = "PUT"
+            req.httpBody = data
+            req.setValue("bytes \(sent)-\(sent + Int64(data.count) - 1)/\(total)", forHTTPHeaderField: "Content-Range")
+            req.setValue(String(data.count), forHTTPHeaderField: "Content-Length")
+
+            let (uData, uResp) = try await URLSession.shared.data(for: req)
+            guard let http = uResp as? HTTPURLResponse else {
+                throw ODRError.badResponse(status: -1, body: "")
+            }
+
+            if http.statusCode == 202 {
+                sent += Int64(data.count)
+                progress?(Double(sent) / Double(total))
+                continue
+            }
+
+            if (200...299).contains(http.statusCode) {
+                return try decode(DriveItem.self, from: uData)
+            }
+
+            throw ODRError.badResponse(status: http.statusCode,
+                                       body: String(data: uData, encoding: .utf8) ?? "")
+        }
+
+        throw ODRError.badResponse(status: -1, body: "Unexpected end of upload")
+    }
+
+    // MARK: - Helpers
+
+    private func authorizedRequest(url: URL,
+                                   token: String,
+                                   method: String = "GET",
+                                   headers: [String:String] = [:],
+                                   body: Data? = nil) -> URLRequest {
+        var req = URLRequest(url: url)
+        req.httpMethod = method
+        req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        for (k,v) in headers { req.setValue(v, forHTTPHeaderField: k) }
+        req.httpBody = body
+        return req
+    }
+
+    private func percentPathComponent(_ s: String) -> String {
+        var allowed = CharacterSet.urlPathAllowed
+        allowed.remove(charactersIn: "/")
+        return s.addingPercentEncoding(withAllowedCharacters: allowed) ?? s
+    }
+
+    private func mimeType(for fileURL: URL) -> String {
+        if let ut = UTType(filenameExtension: fileURL.pathExtension),
+           let mt = ut.preferredMIMEType {
+            return mt
+        }
+        return "application/octet-stream"
+    }
+
+    private func decode<T: Decodable>(_ type: T.Type, from data: Data) throws -> T {
+        let dec = JSONDecoder()
+        dec.keyDecodingStrategy = .convertFromSnakeCase
+        return try dec.decode(T.self, from: data)
+    }
+
+    // MARK: - Models & Errors
+    struct DriveItem: Decodable {
+        let id: String
+        let name: String
+        let size: Int64?
+        let webUrl: String?
+    }
+
+    enum ODRError: Error {
+        case notConfigured
+        case notSignedIn
+        case tokenFailure
+        case badResponse(status: Int, body: String)
+        case missingUploadUrl
     }
 
     // MARK: - Helpers (your existing loaders)
@@ -109,9 +333,7 @@ final class OneDriveManager {
             fatalError("Missing MS_CLIENT_APPLICATION_ID in Info.plist")
         }
         key = key.trimmingCharacters(in: .whitespacesAndNewlines)
-        print("key trimmed MS_CLIENT_APPLICATION_ID: \(key)")
         if key.hasPrefix("$(") { fatalError("MS_CLIENT_APPLICATION_ID not resolved") }
-        print("MS_CLIENT_APPLICATION_ID: \(key)")
         return key
     }
 
