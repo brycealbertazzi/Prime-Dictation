@@ -218,15 +218,15 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     @IBAction func SignInButton(_ sender: Any) {
-        oneDriveManager.SignInInteractively()
-//        dropboxManager.OpenDropboxAuthorizationFlow()
+//        oneDriveManager.SignInInteractively()
+        dropboxManager.OpenDropboxAuthorizationFlow()
     }
 
     @IBAction func SendButton(_ sender: Any) {
         if recordingManager.savedRecordingNames.count > 0 {
             let recordingUrl = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledRecordingName).appendingPathExtension(recordingManager.destinationRecordingExtension)
-            oneDriveManager.SendToOneDrive(url: recordingUrl)
-//            dropboxManager.SendToDropbox(url: recordingUrl)
+//            oneDriveManager.SendToOneDrive(url: recordingUrl)
+            dropboxManager.SendToDropbox(url: recordingUrl)
         } else {
             ProgressHUD.failed("No recording to send")
         }

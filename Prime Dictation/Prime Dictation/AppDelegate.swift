@@ -94,7 +94,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     ProgressHUD.succeed("Logged into Dropbox")
                 case .cancel:
                     print("User canceled Dropbox OAuth flow")
-                    ProgressHUD.failed("Dropbox login canceled")
+                    ProgressHUD.failed("Canceled Dropbox Login")
                 case .error(let error, let description):
                     print("Dropbox error \(error): \(description ?? "")")
                     ProgressHUD.failed("Unable to log into Dropbox")

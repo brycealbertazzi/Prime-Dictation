@@ -24,18 +24,22 @@ class DropboxManager {
     {
         if let client: DropboxClient = DropboxClientsManager.authorizedClient {
             //Send recording to dropbox folder for this app
-            ProgressHUD.animate("Sending...")
+            ProgressHUD.animate("Sending...", .triangleDotShift)
             viewController.ShowSendingUI()
             _ = client.files.upload(path: "/" + recordingManager.toggledRecordingName + "." + recordingManager.destinationRecordingExtension, input: url)
                 .response { (response, error) in
                     if let response = response {
                         print(response)
                         ProgressHUD.succeed("Recording was sent to dropbox")
-                    } else if let error = error {
-                        print(error)
-                        ProgressHUD.failed("Failed to send recording, try checking your connection or signing in again")
+                        self.viewController.HideSendingUI()
+                    } else if let _ = error {
+                        ProgressHUD.dismiss()
+                        self.viewController.displayAlert(title: "Recording send failed", message: "Check your internet connection and try again.", handler: {
+                            self.viewController.HideSendingUI()
+                            ProgressHUD.failed("Failed to send recording to Dropbox")
+                        })
                     }
-                    self.viewController.HideSendingUI()
+                    
                 }
         } else {
             OpenDropboxAuthorizationFlow()
