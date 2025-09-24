@@ -232,9 +232,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
     
-    func displayAlert(title: String, message: String) {
+    func displayAlert(title: String, message: String, handler: (@MainActor () -> Void)? = nil) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: {_ in
+            handler?()
+        }))
         present(alert, animated: true, completion: nil)
     }
     

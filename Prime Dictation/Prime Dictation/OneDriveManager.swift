@@ -95,8 +95,13 @@ final class OneDriveManager {
             if let err = ns?.userInfo[MSALOAuthErrorKey] {
                 print("  aad:", err)
             }
-            DispatchQueue.main.async { ProgressHUD.failed("Unable to log into OneDrive") }
-            self.viewController.HideSendingUI()
+            DispatchQueue.main.async {
+                ProgressHUD.dismiss()
+                self.viewController.displayAlert(title: "One Drive sign-in failed", message: "Check your internet connection and try again.", handler: {
+                    ProgressHUD.failed("One Drive Sign in failed")
+                    self.viewController.HideSendingUI()
+                })
+            }
         }
     }
 
@@ -104,7 +109,7 @@ final class OneDriveManager {
     func SendToOneDrive(url: URL, preferredFileName: String? = nil, progress: ((Double) -> Void)? = nil) {
         Task { [weak self] in
             guard let self = self else { return }
-            await ProgressHUD.animate("Sending...")
+            await ProgressHUD.animate("Sending...", .triangleDotShift)
             await viewController.ShowSendingUI()
 
             // Always runs when this Task scope exits (success or error)
@@ -128,7 +133,10 @@ final class OneDriveManager {
                 }
             } catch {
                 await MainActor.run {
-                    ProgressHUD.failed("Failed to send recording. Check connection or sign in again.")
+                    ProgressHUD.dismiss()
+                    self.viewController.displayAlert(title: "Recording send failed", message: "Check your internet connection and try again.", handler: {
+                        ProgressHUD.failed("Failed to send recording to OneDrive")
+                    })
                 }
             }
         }
@@ -184,7 +192,7 @@ final class OneDriveManager {
             let conflictBehavior: String
         }
         let createURL = URL(string: "https://graph.microsoft.com/v1.0/me/drive/root/children")!
-        var req = authorizedRequest(url: createURL,
+        let req = authorizedRequest(url: createURL,
                                     token: token,
                                     method: "POST",
                                     headers: ["Content-Type":"application/json"],
@@ -212,7 +220,7 @@ final class OneDriveManager {
         let name = percentPathComponent(fileName)
         let url = URL(string: "https://graph.microsoft.com/v1.0/me/drive/root:/\(folder)/\(name):/content")!
         let data = try Data(contentsOf: fileURL)
-        var req = authorizedRequest(url: url,
+        let req = authorizedRequest(url: url,
                                     token: token,
                                     method: "PUT",
                                     headers: ["Content-Type": mimeType(for: fileURL)],
