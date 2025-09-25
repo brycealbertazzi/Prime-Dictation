@@ -139,7 +139,7 @@ class RecordingManager {
             player.delegate = viewController
             viewController.ListenLabel.setTitle("Listen", for: .normal)
             viewController.HideListeningUI()
-            viewController.EnableSignInAndSendButtons()
+            viewController.EnableDestinationAndSendButtons()
             viewController.watch.stop()
         }
     }

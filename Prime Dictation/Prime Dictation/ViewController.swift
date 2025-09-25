@@ -18,10 +18,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var ListenLabel: UIButton!
     @IBOutlet weak var RecordLabel: UIButton!
     @IBOutlet weak var SendLabel: UIButton!
+    @IBOutlet weak var DestinationLabel: UIButton!
     @IBOutlet weak var FileNameLabel: UIButton!
     @IBOutlet weak var PreviousRecordingLabel: UIButton!
     @IBOutlet weak var NextRecordingLabel: UIButton!
-    @IBOutlet weak var SignInLabel: UIButton!
     @IBOutlet weak var PausePlayButtonLabel: UIButton!
     @IBOutlet weak var StopButtonLabel: UIButton!
     @IBOutlet weak var PausePlaybackLabel: UIButton!
@@ -216,11 +216,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTimeListen(timer:))
         }
     }
-    
-    @IBAction func SignInButton(_ sender: Any) {
-//        oneDriveManager.SignInInteractively()
-        dropboxManager.OpenDropboxAuthorizationFlow()
-    }
 
     @IBAction func SendButton(_ sender: Any) {
         if recordingManager.savedRecordingNames.count > 0 {
@@ -232,6 +227,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
     
+    @IBAction func DestinationButton(_ sender: UIButton) {
+        print("Destination button clicked")
+    }
+    
     func displayAlert(title: String, message: String, handler: (@MainActor () -> Void)? = nil) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: {_ in
@@ -240,30 +239,30 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         present(alert, animated: true, completion: nil)
     }
     
-    func DisableSignInAndSendButtons() {
+    func DisableDestinationAndSendButtons() {
         SendLabel.isEnabled = false
         SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
-        SignInLabel.isEnabled = false
+        DestinationLabel.isEnabled = false
     }
     
-    func EnableSignInAndSendButtons() {
+    func EnableDestinationAndSendButtons() {
         SendLabel.isEnabled = true
         SendLabel.setTitleColor(UIColor.black, for: .normal)
-        SignInLabel.isEnabled = true
+        DestinationLabel.isEnabled = true
     }
     
     func ShowRecordingInProgressUI() {
         RecordLabel.isHidden = true
         StopButtonLabel.isHidden = false
         PausePlayButtonLabel.isHidden = false
-        DisableSignInAndSendButtons()
+        DisableDestinationAndSendButtons()
     }
     
     func HideRecordingInProgressUI() {
         RecordLabel.isHidden = false
         StopButtonLabel.isHidden = true
         PausePlayButtonLabel.isHidden = true
-        EnableSignInAndSendButtons()
+        EnableDestinationAndSendButtons()
     }
     
     func ShowListeningUI() {
@@ -272,7 +271,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PausePlaybackLabel.isHidden = false
         EndPlaybackLabel.isHidden = false
         RecordLabel.isEnabled = false
-        DisableSignInAndSendButtons()
+        DisableDestinationAndSendButtons()
     }
     
     func HideListeningUI() {
@@ -281,11 +280,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PausePlaybackLabel.isHidden = true
         EndPlaybackLabel.isHidden = true
         RecordLabel.isEnabled = true
-        EnableSignInAndSendButtons()
+        EnableDestinationAndSendButtons()
     }
     
     func ShowSendingUI() {
-        DisableSignInAndSendButtons()
+        DisableDestinationAndSendButtons()
         RecordLabel.isEnabled = false
         ListenLabel.isEnabled = false
         FileNameLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
@@ -297,7 +296,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     func HideSendingUI() {
-        EnableSignInAndSendButtons()
+        EnableDestinationAndSendButtons()
         RecordLabel.isEnabled = true
         ListenLabel.isEnabled = true
         FileNameLabel.setTitleColor(UIColor.black, for: .normal)

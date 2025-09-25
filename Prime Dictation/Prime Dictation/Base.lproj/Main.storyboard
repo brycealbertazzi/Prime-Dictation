@@ -2,8 +2,10 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina5_5" orientation="portrait" appearance="light"/>
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -123,7 +125,7 @@
                                             <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="k8X-4n-nC8" secondAttribute="centerX" id="j34-VN-9aC"/>
                                         </constraints>
                                     </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4fs-SU-4uI" userLabel="SignIn/Send View">
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4fs-SU-4uI" userLabel="Destination/Send View">
                                         <rect key="frame" x="0.0" y="203" width="414" height="65"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="svK-SA-aO1">
@@ -136,21 +138,23 @@
                                                     <action selector="SendButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ImA-qy-NzW"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yhG-XG-W7K">
-                                                <rect key="frame" x="30" y="12.666666666666629" width="69" height="40"/>
-                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
-                                                <state key="normal" title="Sign In">
-                                                    <color key="titleColor" systemColor="darkTextColor"/>
+                                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TEJ-KL-gv0">
+                                                <rect key="frame" x="18" y="10" width="159" height="38"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
+                                                <state key="normal" title="Destination">
+                                                    <color key="titleColor" systemColor="labelColor"/>
                                                 </state>
                                                 <connections>
-                                                    <action selector="SignInButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Cha-s2-z6r"/>
+                                                    <action selector="DestinationButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="q9D-jl-sHq"/>
+                                                    <segue destination="UhA-a9-Y15" kind="popoverPresentation" popoverAnchorView="TEJ-KL-gv0" id="utx-rm-hkU">
+                                                        <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
+                                                    </segue>
                                                 </connections>
                                             </button>
                                         </subviews>
                                         <constraints>
-                                            <constraint firstItem="yhG-XG-W7K" firstAttribute="leading" secondItem="4fs-SU-4uI" secondAttribute="leading" constant="30" id="AX4-V6-mc5"/>
                                             <constraint firstAttribute="height" constant="65" id="J0r-sA-lp0"/>
-                                            <constraint firstItem="yhG-XG-W7K" firstAttribute="centerY" secondItem="4fs-SU-4uI" secondAttribute="centerY" id="JUY-FH-uYh"/>
                                             <constraint firstAttribute="trailing" secondItem="svK-SA-aO1" secondAttribute="trailing" constant="30" id="kDb-9u-WeT"/>
                                             <constraint firstItem="svK-SA-aO1" firstAttribute="centerY" secondItem="4fs-SU-4uI" secondAttribute="centerY" id="lrc-J5-dgK"/>
                                         </constraints>
@@ -236,6 +240,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="DestinationLabel" destination="TEJ-KL-gv0" id="dYf-oa-RfN"/>
                         <outlet property="EndPlaybackLabel" destination="JP1-AS-jj7" id="HgY-ia-gVo"/>
                         <outlet property="FileNameLabel" destination="ma4-wR-ucz" id="J8z-3S-8F3"/>
                         <outlet property="ListenLabel" destination="tAV-Xq-Ydt" id="btQ-gG-77j"/>
@@ -245,7 +250,6 @@
                         <outlet property="PreviousRecordingLabel" destination="Ad2-00-0E4" id="EfO-Ok-KQM"/>
                         <outlet property="RecordLabel" destination="aq9-EU-DW7" id="aoh-8d-Bsn"/>
                         <outlet property="SendLabel" destination="svK-SA-aO1" id="s8t-Bh-c3r"/>
-                        <outlet property="SignInLabel" destination="yhG-XG-W7K" id="l7W-3y-qLy"/>
                         <outlet property="StopButtonLabel" destination="EmE-RS-QlP" id="QWe-k5-g0Q"/>
                         <outlet property="StopWatchLabel" destination="dFf-qS-ITZ" id="Vo8-Pv-V93"/>
                         <outlet property="TitleOfAppLabel" destination="1tL-fi-eIn" id="Dkj-Gc-VwB"/>
@@ -253,7 +257,29 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1452" y="-536"/>
+            <point key="canvasLocation" x="-2535" y="-552"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="6jj-Z0-h8q">
+            <objects>
+                <viewController id="UhA-a9-Y15" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Nw9-qh-Ju0">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="716"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="BG" translatesAutoresizingMaskIntoConstraints="NO" id="7vL-zX-FOy">
+                                <rect key="frame" x="20" y="0.0" width="374" height="716"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="91F-Bu-qrb"/>
+                        <color key="backgroundColor" systemColor="labelColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="hHB-8b-a40"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="VTs-7P-DE6" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1762.3188405797102" y="-553.53260869565224"/>
         </scene>
     </scenes>
     <resources>
@@ -264,6 +290,9 @@
         <image name="PreviousArrow" width="100" height="100"/>
         <image name="RecordButton" width="100" height="100"/>
         <systemColor name="darkTextColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
     </resources>
