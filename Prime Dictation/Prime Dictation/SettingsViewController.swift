@@ -7,48 +7,35 @@
 //
 import UIKit
 import AVFoundation
-
-enum Destination: String {
-    case dropbox
-    case onedrive
-    case none
-}
+import SwiftyDropbox
 
 class SettingsViewController: UIViewController {
     var dropboxManager: DropboxManager!
     var oneDriveManager: OneDriveManager!
-    static var SELECTED_DESTINATION: Destination?
-    let defaults = UserDefaults.standard
-    let key: String = "SELECTED_DESTINATION"
+    var destinationManager: DestinationManager!
     
     @IBOutlet weak var DropboxLabel: UIButton!
     @IBOutlet weak var OneDriveLabel: UIButton!
     
     override func viewDidLoad() {
+        destinationManager = DestinationManager(settingsViewController: self)
         dropboxManager = DropboxManager(settingsViewController: self)
         oneDriveManager = OneDriveManager(settingsViewController: self)
-        if let saved = defaults.string(forKey: key),
-           let selectedDestination = Destination(rawValue: saved) {
-            Self.SELECTED_DESTINATION = selectedDestination
-            UpdateSelectedDestinationUI(destination: selectedDestination)
-        } else {
-            Self.SELECTED_DESTINATION = Destination.none
-            UpdateSelectedDestinationUI(destination: Destination.none)
-        }
         
+        destinationManager.getDestination()
+        print("SELECTED_DESTINATION: \(DestinationManager.SELECTED_DESTINATION)")
+        UpdateSelectedDestinationUI(destination: DestinationManager.SELECTED_DESTINATION)
     }
     
     @IBAction func DropboxButton(_ sender: Any) {
 //        dropboxManager.OpenDropboxAuthorizationFlow()
-        defaults.set(Destination.dropbox.rawValue, forKey: key)
-        Self .SELECTED_DESTINATION = .dropbox
+        destinationManager.setSelectedDestination(Destination.dropbox)
         UpdateSelectedDestinationUI(destination: .dropbox)
     }
     
     @IBAction func OneDriveButton(_ sender: Any) {
 //        oneDriveManager.SignInInteractively()
-        defaults.set(Destination.onedrive.rawValue, forKey: key)
-        Self .SELECTED_DESTINATION = .onedrive
+        destinationManager.setSelectedDestination(Destination.onedrive)
         UpdateSelectedDestinationUI(destination: .onedrive)
     }
     

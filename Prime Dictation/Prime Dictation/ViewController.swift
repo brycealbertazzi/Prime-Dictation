@@ -220,8 +220,17 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBAction func SendButton(_ sender: Any) {
         if recordingManager.savedRecordingNames.count > 0 {
             let recordingUrl = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledRecordingName).appendingPathExtension(recordingManager.destinationRecordingExtension)
-//            oneDriveManager.SendToOneDrive(url: recordingUrl)
-            dropboxManager.SendToDropbox(url: recordingUrl)
+            switch DestinationManager.SELECTED_DESTINATION {
+            case Destination.dropbox:
+                print("Sending to Dropbox")
+                dropboxManager.SendToDropbox(url: recordingUrl)
+            case Destination.onedrive:
+                print("Sending to OneDrive")
+                oneDriveManager.SendToOneDrive(url: recordingUrl)
+            default:
+                print("No destination selected")
+                ProgressHUD.failed("No destination selected")
+            }
         } else {
             ProgressHUD.failed("No recording to send")
         }
