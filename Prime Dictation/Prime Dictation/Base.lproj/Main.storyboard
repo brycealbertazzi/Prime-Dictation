@@ -26,7 +26,7 @@
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Prime Dictation" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1tL-fi-eIn">
                                         <rect key="frame" x="97" y="65" width="221" height="39"/>
                                         <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="35"/>
-                                        <nil key="textColor"/>
+                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
@@ -132,7 +132,7 @@
                                                 <rect key="frame" x="325" y="10" width="59" height="45"/>
                                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
                                                 <state key="normal" title="Send">
-                                                    <color key="titleColor" systemColor="darkTextColor"/>
+                                                    <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 </state>
                                                 <connections>
                                                     <action selector="SendButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ImA-qy-NzW"/>
@@ -143,7 +143,7 @@
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
                                                 <state key="normal" title="Destination">
-                                                    <color key="titleColor" systemColor="labelColor"/>
+                                                    <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 </state>
                                                 <connections>
                                                     <action selector="DestinationButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="q9D-jl-sHq"/>
@@ -243,7 +243,7 @@
                         <outlet property="DestinationLabel" destination="TEJ-KL-gv0" id="dYf-oa-RfN"/>
                         <outlet property="EndPlaybackLabel" destination="JP1-AS-jj7" id="HgY-ia-gVo"/>
                         <outlet property="FileNameLabel" destination="ma4-wR-ucz" id="J8z-3S-8F3"/>
-                        <outlet property="ListenLabel" destination="tAV-Xq-Ydt" id="btQ-gG-77j"/>
+                        <outlet property="ListenLabel" destination="tAV-Xq-Ydt" id="x77-pk-KvP"/>
                         <outlet property="NextRecordingLabel" destination="RQo-s8-1EL" id="Qxy-BS-mC3"/>
                         <outlet property="PausePlayButtonLabel" destination="HCQ-U9-aU8" id="YZI-tG-ZqX"/>
                         <outlet property="PausePlaybackLabel" destination="Vvz-gp-8Nr" id="w3z-fG-5BT"/>
@@ -257,12 +257,12 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2535" y="-552"/>
+            <point key="canvasLocation" x="-2709" y="-554"/>
         </scene>
-        <!--View Controller-->
+        <!--Settings View Controller-->
         <scene sceneID="6jj-Z0-h8q">
             <objects>
-                <viewController id="UhA-a9-Y15" sceneMemberID="viewController">
+                <viewController id="UhA-a9-Y15" customClass="SettingsViewController" customModule="Prime_Dictation" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Nw9-qh-Ju0">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="716"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -271,6 +271,35 @@
                                 <rect key="frame" x="20" y="0.0" width="374" height="716"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9qh-lx-pQg">
+                                <rect key="frame" x="152" y="412" width="110" height="45"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
+                                <state key="normal" title="OneDrive">
+                                    <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="OneDriveButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="E7Z-Pa-O4l"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Select Destination" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1pg-lu-8Ka">
+                                <rect key="frame" x="75" y="70" width="266" height="39"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="35"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r8D-RY-2sR">
+                                <rect key="frame" x="160" y="237" width="97" height="45"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
+                                <state key="normal" title="Dropbox">
+                                    <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="DropboxButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="byn-85-OuG"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="91F-Bu-qrb"/>
                         <color key="backgroundColor" systemColor="labelColor"/>
@@ -279,7 +308,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="VTs-7P-DE6" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1762.3188405797102" y="-553.53260869565224"/>
+            <point key="canvasLocation" x="-1913" y="-554"/>
         </scene>
     </scenes>
     <resources>
@@ -289,9 +318,6 @@
         <image name="PauseButton-2" width="100" height="100"/>
         <image name="PreviousArrow" width="100" height="100"/>
         <image name="RecordButton" width="100" height="100"/>
-        <systemColor name="darkTextColor">
-            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

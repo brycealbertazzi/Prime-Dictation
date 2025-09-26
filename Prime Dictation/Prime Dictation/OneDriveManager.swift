@@ -16,8 +16,9 @@ final class OneDriveManager {
     // Use "common" if you support both personal + work/school accounts
     private lazy var authorityURLString: String = "https://login.microsoftonline.com/common"
 
-    private let viewController: ViewController
-    private let recordingManager: RecordingManager
+    private let viewController: ViewController?
+    private let settingsViewController: SettingsViewController?
+    private let recordingManager: RecordingManager?
 
     private var msalApp: MSALPublicClientApplication?
     private var signedInAccount: MSALAccount?
@@ -25,7 +26,19 @@ final class OneDriveManager {
     // MARK: - Init
     init(viewController: ViewController, recordingMananger: RecordingManager) {
         self.viewController = viewController
+        self.settingsViewController = nil
         self.recordingManager = recordingMananger
+        self.msalApp = nil
+        self.signedInAccount = nil
+        configureMSAL()
+    }
+    
+    init(settingsViewController: SettingsViewController) {
+        self.settingsViewController = settingsViewController
+        self.viewController = nil
+        self.recordingManager = nil
+        self.msalApp = nil
+        self.signedInAccount = nil
         configureMSAL()
     }
 
@@ -66,12 +79,16 @@ final class OneDriveManager {
             print("MSAL app not configured")
             return
         }
+        
+        guard let settingsViewController = settingsViewController else {
+            print("Settings view controller not configured")
+            return
+        }
 
         // Optional: show while opening the web view
         DispatchQueue.main.async { ProgressHUD.animate("Opening Microsoft sign-in…") }
-        viewController.ShowSendingUI()
 
-        let web = MSALWebviewParameters(authPresentationViewController: viewController)
+        let web = MSALWebviewParameters(authPresentationViewController: settingsViewController)
         let params = MSALInteractiveTokenParameters(scopes: scopes, webviewParameters: web)
 
         app.acquireToken(with: params) { result, error in
@@ -80,7 +97,6 @@ final class OneDriveManager {
                 print("✅ token acquired, scopes:", result.scopes)
                 print("accessToken prefix:", result.accessToken.prefix(16), "…")
                 DispatchQueue.main.async { ProgressHUD.succeed("Logged into OneDrive") }
-                self.viewController.HideSendingUI()
                 return
             }
 
@@ -97,9 +113,8 @@ final class OneDriveManager {
             }
             DispatchQueue.main.async {
                 ProgressHUD.dismiss()
-                self.viewController.displayAlert(title: "One Drive sign-in failed", message: "Check your internet connection and try again.", handler: {
+                settingsViewController.displayAlert(title: "One Drive sign-in failed", message: "Check your internet connection and try again.", handler: {
                     ProgressHUD.failed("One Drive Sign in failed")
-                    self.viewController.HideSendingUI()
                 })
             }
         }
@@ -109,6 +124,8 @@ final class OneDriveManager {
     func SendToOneDrive(url: URL, preferredFileName: String? = nil, progress: ((Double) -> Void)? = nil) {
         Task { [weak self] in
             guard let self = self else { return }
+            guard let viewController = viewController else { return }
+            
             await ProgressHUD.animate("Sending...", .triangleDotShift)
             await viewController.ShowSendingUI()
 
@@ -116,7 +133,7 @@ final class OneDriveManager {
             defer {
                 // Don’t `await` in defer; schedule a MainActor task instead
                 Task { @MainActor in
-                    self.viewController.HideSendingUI()
+                    viewController.HideSendingUI()
                 }
             }
 
@@ -134,7 +151,7 @@ final class OneDriveManager {
             } catch {
                 await MainActor.run {
                     ProgressHUD.dismiss()
-                    self.viewController.displayAlert(title: "Recording send failed", message: "Check your internet connection and try again.", handler: {
+                    viewController.displayAlert(title: "Recording send failed", message: "Check your internet connection and try again.", handler: {
                         ProgressHUD.failed("Failed to send recording to OneDrive")
                     })
                 }
