@@ -97,6 +97,8 @@ final class OneDriveManager {
                 print("✅ token acquired, scopes:", result.scopes)
                 print("accessToken prefix:", result.accessToken.prefix(16), "…")
                 DispatchQueue.main.async { ProgressHUD.succeed("Logged into OneDrive") }
+//                SettingsViewController .SELECTED_DESTINATION = .onedrive
+//                settingsViewController.UpdateSelectedDestinationUI(destination: .onedrive)
                 return
             }
 
