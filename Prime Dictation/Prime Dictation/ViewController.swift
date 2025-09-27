@@ -34,6 +34,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     var dropboxManager: DropboxManager!
     var oneDriveManager: OneDriveManager!
+    var destinationManager: DestinationManager!
     
     var recordingManager: RecordingManager!
     var watch: Stopwatch!
@@ -46,12 +47,15 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         recordingManager = services.recordingManager
         dropboxManager = services.dropboxManager
         oneDriveManager = services.oneDriveManager
+        destinationManager = services.destinationManager
         
         recordingManager.attach(viewController: self)
         dropboxManager.attach(viewController: self, recordingManager: recordingManager)
         oneDriveManager.attach(viewController: self, recordingManager: recordingManager)
 
         watch = Stopwatch(viewController: self)
+        
+        destinationManager.getDestination()
         
         // Do any additional setup after loading the view.
         ListenLabel.setTitle("Listen", for: .normal)

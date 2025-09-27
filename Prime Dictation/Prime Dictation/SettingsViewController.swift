@@ -30,7 +30,6 @@ class SettingsViewController: UIViewController {
         oneDriveManager.attach(settingsViewController: self)
         destinationManager.attach(settingsViewController: self)
         
-        destinationManager.getDestination()
         UpdateSelectedDestinationUI(destination: DestinationManager.SELECTED_DESTINATION)
     }
     
