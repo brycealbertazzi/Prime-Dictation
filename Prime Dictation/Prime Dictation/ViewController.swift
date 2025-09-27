@@ -261,12 +261,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         SendLabel.isEnabled = false
         SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
         DestinationLabel.isEnabled = false
+        DestinationLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
     }
     
     func EnableDestinationAndSendButtons() {
         SendLabel.isEnabled = true
         SendLabel.setTitleColor(UIColor.black, for: .normal)
         DestinationLabel.isEnabled = true
+        DestinationLabel.setTitleColor(UIColor.black, for: .normal)
     }
     
     func ShowRecordingInProgressUI() {
