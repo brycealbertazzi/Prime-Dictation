@@ -4,6 +4,12 @@ import MSAL
 import Foundation
 import UniformTypeIdentifiers
 
+enum AuthResult {
+    case success
+    case cancel
+    case error(Error?)
+}
+
 final class OneDriveManager {
     // MARK: - Config
     private let scopes = ["User.Read", "Files.ReadWrite"]
@@ -16,37 +22,29 @@ final class OneDriveManager {
     // Use "common" if you support both personal + work/school accounts
     private lazy var authorityURLString: String = "https://login.microsoftonline.com/common"
 
-    private let viewController: ViewController?
-    private let settingsViewController: SettingsViewController?
-    private let recordingManager: RecordingManager?
+    private weak var viewController: ViewController?
+    private weak var settingsViewController: SettingsViewController?
+    private var recordingManager: RecordingManager?
 
     private var msalApp: MSALPublicClientApplication?
     private var signedInAccount: MSALAccount?
 
     // MARK: - Init
-    init(viewController: ViewController, recordingMananger: RecordingManager) {
-        self.viewController = viewController
-        self.settingsViewController = nil
-        self.recordingManager = recordingMananger
-        self.msalApp = nil
-        self.signedInAccount = nil
-        configureMSAL()
+    init() {
+        configureMSAL() // safe to set up immediately
     }
-    
-    init(settingsViewController: SettingsViewController) {
+
+    func attach(settingsViewController: SettingsViewController) {
         self.settingsViewController = settingsViewController
-        self.viewController = nil
-        self.recordingManager = nil
-        self.msalApp = nil
-        self.signedInAccount = nil
-        configureMSAL()
+    }
+    func attach(viewController: ViewController, recordingManager: RecordingManager) {
+        self.viewController = viewController
+        self.recordingManager = recordingManager
     }
 
     // MARK: - Setup
     private func configureMSAL() {
-        print("Configuring MSAL…")
         let clientId = loadMSClientApplicationId()
-
         do {
             guard let authorityURL = URL(string: authorityURLString) else {
                 preconditionFailure("Bad authority URL: \(authorityURLString)")
@@ -57,66 +55,151 @@ final class OneDriveManager {
                 redirectUri: redirectUri,
                 authority: authority
             )
-            // If using the Microsoft shared keychain group, ensure entitlements include:
-            // $(AppIdentifierPrefix)com.microsoft.adalcache
-            // config.cacheConfig.keychainSharingGroup = "com.microsoft.adalcache"
-
             self.msalApp = try MSALPublicClientApplication(configuration: config)
-            print("MSAL configured ✅")
 
+            // 👇 Restore a cached account, if any
+            if let accounts = try? self.msalApp?.allAccounts(),
+               let first = accounts.first {
+                self.signedInAccount = first
+                print("MSAL: restored cached account → \(first.username ?? "(no username)")")
+            } else {
+                print("MSAL: no cached account")
+            }
+
+            print("MSAL configured ✅")
         } catch {
-            let ns = error as NSError
-            print("MSAL init failed ❌")
-            print("  domain:", ns.domain)
-            print("  code:", ns.code)
-            print("  userInfo:", ns.userInfo)
+            print("MSAL init failed ❌ \(error)")
         }
     }
 
     // MARK: - Sign-in
-    func SignInInteractively() {
+    func SignInIfNeeded(completion: @escaping (AuthResult) -> Void) {
         guard let app = msalApp else {
-            print("MSAL app not configured")
-            return
-        }
-        
-        guard let settingsViewController = settingsViewController else {
-            print("Settings view controller not configured")
+            DispatchQueue.main.async {
+                completion(.error(ODRError.notConfigured))
+            }
             return
         }
 
-        // Optional: show while opening the web view
+        // Prefer a hydrated account; otherwise query cache now.
+        let account: MSALAccount? = signedInAccount ?? (try? app.allAccounts().first)
+
+        if let account {
+            let silent = MSALSilentTokenParameters(scopes: scopes, account: account)
+            app.acquireTokenSilent(with: silent) { [weak self] result, error in
+                guard let self = self else { return }
+
+                if let result {
+                    self.signedInAccount = result.account
+                    DispatchQueue.main.async {
+                        ProgressHUD.succeed("You're already signed in to OneDrive")
+                        completion(.success)
+                    }
+                    return
+                }
+
+                // Only fall back to interactive when MSAL says interaction is required.
+                let ns = error as NSError?
+                let needsUI = (ns?.domain == MSALErrorDomain &&
+                               ns?.code == MSALError.interactionRequired.rawValue)
+
+                if needsUI {
+                    self.presentInteractive(completion: completion)
+                } else {
+                    DispatchQueue.main.async {
+                        ProgressHUD.failed("OneDrive sign-in error")
+                        completion(.error(error))
+                    }
+                }
+            }
+            return
+        }
+
+        // No cached account → interactive if we can present UI
+        presentInteractive(completion: completion)
+    }
+
+    private func presentInteractive(completion: @escaping (AuthResult) -> Void) {
+        guard let app = msalApp else {
+            DispatchQueue.main.async {
+                completion(.error(ODRError.notConfigured))
+            }
+            return
+        }
+        guard let settingsViewController = settingsViewController else {
+            DispatchQueue.main.async {
+                completion(.error(ODRError.notConfigured))
+            }
+            return
+        }
+
         DispatchQueue.main.async { ProgressHUD.animate("Opening Microsoft sign-in…") }
 
         let web = MSALWebviewParameters(authPresentationViewController: settingsViewController)
         let params = MSALInteractiveTokenParameters(scopes: scopes, webviewParameters: web)
 
-        app.acquireToken(with: params) { result, error in
-            if let result = result {
+        app.acquireToken(with: params) { [weak self] result, error in
+            guard let self = self else { return }
+
+            if let result {
                 self.signedInAccount = result.account
-                print("✅ token acquired, scopes:", result.scopes)
-                DispatchQueue.main.async { ProgressHUD.succeed("Logged into OneDrive") }
+                DispatchQueue.main.async {
+                    ProgressHUD.succeed("Logged into OneDrive")
+                    completion(.success)
+                }
                 return
             }
 
             let ns = error as NSError?
-            print("❌ MSAL acquireToken")
-            print("  domain:", ns?.domain ?? "nil")
-            print("  code:", ns?.code ?? -1)
-            print("  userInfo:", ns?.userInfo ?? [:])
-            if let sub = ns?.userInfo[MSALHTTPResponseCodeKey] {
-                print("  http:", sub)
-            }
-            if let err = ns?.userInfo[MSALOAuthErrorKey] {
-                print("  aad:", err)
-            }
+            let userCanceled = (ns?.domain == MSALErrorDomain &&
+                                ns?.code == MSALError.userCanceled.rawValue)
+
             DispatchQueue.main.async {
                 ProgressHUD.dismiss()
-                settingsViewController.displayAlert(title: "One Drive sign-in failed", message: "Check your internet connection and try again.", handler: {
-                    ProgressHUD.failed("One Drive Sign in failed")
-                })
+                if userCanceled {
+                    DispatchQueue.main.async {
+                        completion(.cancel)
+                    }
+                }
             }
         }
+    }
+    
+    private func getAccessTokenSilently() async throws -> String {
+        guard let app = msalApp else { throw ODRError.notConfigured }
+        let account: MSALAccount
+        if let acc = signedInAccount { account = acc }
+        else { let accounts = try app.allAccounts()
+            guard let first = accounts.first else { throw ODRError.notSignedIn }
+            account = first
+        }
+        
+        return try await withCheckedThrowingContinuation {
+            cont in let silent = MSALSilentTokenParameters(scopes: scopes, account: account)
+            app.acquireTokenSilent(with: silent) {
+                result, error in if let result = result {
+                    cont.resume(returning: result.accessToken) }
+                else {
+                    cont.resume(throwing: error ?? ODRError.tokenFailure)
+                }
+            }
+        }
+    }
+    
+    // Called from AppDelegate (or your OAuth router) on redirect
+    @discardableResult
+    func handleRedirect(url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        let handled = MSALPublicClientApplication.handleMSALResponse(
+            url,
+            sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String
+        )
+
+        if !handled {
+            DispatchQueue.main.async {
+                ProgressHUD.failed("Unable to sign into OneDrive")
+            }
+        }
+        return handled
     }
 
     // MARK: - Public: upload entry point
@@ -153,31 +236,6 @@ final class OneDriveManager {
                     viewController.displayAlert(title: "Recording send failed", message: "Check your internet connection and try again.", handler: {
                         ProgressHUD.failed("Failed to send recording to OneDrive")
                     })
-                }
-            }
-        }
-    }
-
-    // MARK: - Token (silent)
-    private func getAccessTokenSilently() async throws -> String {
-        guard let app = msalApp else { throw ODRError.notConfigured }
-
-        let account: MSALAccount
-        if let acc = signedInAccount {
-            account = acc
-        } else {
-            let accounts = try app.allAccounts()
-            guard let first = accounts.first else { throw ODRError.notSignedIn }
-            account = first
-        }
-
-        return try await withCheckedThrowingContinuation { cont in
-            let silent = MSALSilentTokenParameters(scopes: scopes, account: account)
-            app.acquireTokenSilent(with: silent) { result, error in
-                if let result = result {
-                    cont.resume(returning: result.accessToken)
-                } else {
-                    cont.resume(throwing: error ?? ODRError.tokenFailure)
                 }
             }
         }

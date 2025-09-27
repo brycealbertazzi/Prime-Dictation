@@ -22,7 +22,9 @@ class DestinationManager {
     let defaults = UserDefaults.standard
     let key: String = "SELECTED_DESTINATION"
     
-    init(settingsViewController: SettingsViewController) {
+    init() {}
+    
+    func attach(settingsViewController: SettingsViewController) {
         self.settingsViewController = settingsViewController
     }
     

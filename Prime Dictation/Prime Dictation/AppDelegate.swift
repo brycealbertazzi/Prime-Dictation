@@ -71,39 +71,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let scheme = (url.scheme ?? "").lowercased()
 
         if scheme.hasPrefix("msauth") {
-            let handled = MSALPublicClientApplication.handleMSALResponse(
-                url,
-                sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String
-            )
-
-            if !handled {
-                DispatchQueue.main.async {
-                    ProgressHUD.failed("Unable to sign into OneDrive")
-                }
-            }
-            return handled
+            return AppServices.shared.oneDriveManager.handleRedirect(url: url, options: options)
         }
 
         if scheme.hasPrefix("db-") {
-            let handled = DropboxClientsManager.handleRedirectURL(
-                url,
-                includeBackgroundClient: false
-            ) { authResult in
-                switch authResult {
-                case .success:
-                    ProgressHUD.succeed("Logged into Dropbox")
-                case .cancel:
-                    print("User canceled Dropbox OAuth flow")
-                    ProgressHUD.failed("Canceled Dropbox Login")
-                case .error(let error, let description):
-                    print("Dropbox error \(error): \(description ?? "")")
-                    ProgressHUD.failed("Unable to log into Dropbox")
-                case .none:
-                    print("Dropbox: possibly wrong redirect URI")
-                    ProgressHUD.failed("Unable to log into Dropbox")
-                }
-            }
-            return handled
+            // Forward to the same DropboxManager that started the flow
+            return AppServices.shared.dropboxManager.handleRedirect(url: url)
         }
 
         // Unknown scheme

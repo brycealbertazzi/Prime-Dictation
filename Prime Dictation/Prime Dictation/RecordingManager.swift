@@ -28,7 +28,9 @@ class RecordingManager {
     
     var numberOfRecordings: Int = 0
     
-    init (viewController: ViewController) {
+    init () {}
+    
+    func attach(viewController: ViewController) {
         self.viewController = viewController
     }
     

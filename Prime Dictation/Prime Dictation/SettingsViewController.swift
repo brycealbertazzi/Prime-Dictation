@@ -8,6 +8,7 @@
 import UIKit
 import AVFoundation
 import SwiftyDropbox
+import ProgressHUD
 
 class SettingsViewController: UIViewController {
     var dropboxManager: DropboxManager!
@@ -18,30 +19,58 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var OneDriveLabel: UIButton!
     
     override func viewDidLoad() {
-        destinationManager = DestinationManager(settingsViewController: self)
-        dropboxManager = DropboxManager(settingsViewController: self)
-        oneDriveManager = OneDriveManager(settingsViewController: self)
+        super.viewDidLoad()
+
+        let services = AppServices.shared
+        dropboxManager = services.dropboxManager
+        oneDriveManager = services.oneDriveManager
+        destinationManager = services.destinationManager
+
+        dropboxManager.attach(settingsViewController: self)
+        oneDriveManager.attach(settingsViewController: self)
+        destinationManager.attach(settingsViewController: self)
         
         destinationManager.getDestination()
-        print("SELECTED_DESTINATION: \(DestinationManager.SELECTED_DESTINATION)")
         UpdateSelectedDestinationUI(destination: DestinationManager.SELECTED_DESTINATION)
     }
     
     @IBAction func DropboxButton(_ sender: Any) {
-//        dropboxManager.OpenDropboxAuthorizationFlow()
-        destinationManager.setSelectedDestination(Destination.dropbox)
-        UpdateSelectedDestinationUI(destination: .dropbox)
+        dropboxManager.OpenAuthorizationFlow { result in
+            switch result {
+            case .success:
+                self.UpdateSelectedDestinationUserDefaults(destination: .dropbox)
+                self.UpdateSelectedDestinationUI(destination: .dropbox)
+            case .cancel:
+                ProgressHUD.failed("Canceled Dropbox Login")
+            case .error(_, _):
+                ProgressHUD.failed("Unable to log into Dropbox")
+            case .none:
+                ProgressHUD.failed("Unable to log into Dropbox")
+            }
+        }
     }
     
     @IBAction func OneDriveButton(_ sender: Any) {
-//        oneDriveManager.SignInInteractively()
-        destinationManager.setSelectedDestination(Destination.onedrive)
-        UpdateSelectedDestinationUI(destination: .onedrive)
+        oneDriveManager.SignInIfNeeded { result in
+            switch result {
+            case .success:
+                self.UpdateSelectedDestinationUserDefaults(destination: .onedrive)
+                self.UpdateSelectedDestinationUI(destination: .onedrive)
+                break
+            case .cancel:
+                ProgressHUD.failed("Canceled OneDrive Login")
+            case .error:
+                ProgressHUD.failed("Unable to log into OneDrive")
+            }
+        }
+    }
+    
+    func UpdateSelectedDestinationUserDefaults(destination: Destination) {
+        destinationManager.setSelectedDestination(destination)
     }
     
     func UpdateSelectedDestinationUI(destination: Destination? = Destination.none) {
         let selectedColor: UIColor = .systemBlue
-        print(destination!)
         if destination == .dropbox {
             DropboxLabel.setTitleColor(selectedColor, for: .normal)
             OneDriveLabel.setTitleColor(.black, for: .normal)

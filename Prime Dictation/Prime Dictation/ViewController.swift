@@ -42,9 +42,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        recordingManager = RecordingManager(viewController: self)
-        dropboxManager = DropboxManager(viewController: self, recordingManager: recordingManager)
-        oneDriveManager = OneDriveManager(viewController: self, recordingMananger: recordingManager)
+        let services = AppServices.shared
+        recordingManager = services.recordingManager
+        dropboxManager = services.dropboxManager
+        oneDriveManager = services.oneDriveManager
+        
+        recordingManager.attach(viewController: self)
+        dropboxManager.attach(viewController: self, recordingManager: recordingManager)
+        oneDriveManager.attach(viewController: self, recordingManager: recordingManager)
 
         watch = Stopwatch(viewController: self)
         

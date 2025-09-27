@@ -11,18 +11,81 @@ import SwiftyDropbox
 import ProgressHUD
 
 class DropboxManager {
+    enum AuthResult
+    {
+        case success
+        case cancel
+        case error(Error?, String?)
+        case none
+    }
     
     var viewController: ViewController?
     var settingsViewController: SettingsViewController?
     var recordingManager: RecordingManager?
     
-    init(viewController: ViewController, recordingManager: RecordingManager) {
+    private var authCompletion: ((AuthResult) -> Void)?
+    static var DROPBOX_AUTH_RESULT: DropboxOAuthResult? = nil
+    
+    init() {}
+
+    func attach(settingsViewController: SettingsViewController) {
+        self.settingsViewController = settingsViewController
+    }
+    
+    func attach(viewController: ViewController, recordingManager: RecordingManager) {
         self.viewController = viewController
         self.recordingManager = recordingManager
     }
     
-    init(settingsViewController: SettingsViewController) {
-        self.settingsViewController = settingsViewController
+    var url: URL = URL(string: "https://www.dropbox.com/oauth2/authorize")!
+    // Start auth; do NOT handle result here
+    func OpenAuthorizationFlow(completion: @escaping (AuthResult) -> Void) {
+        // Short-circuit if already signed in
+        if DropboxClientsManager.authorizedClient != nil {
+            ProgressHUD.succeed("You're already signed in to Dropbox")
+            completion(.success)
+            return
+        }
+
+        guard let presenter = settingsViewController else { return }
+        self.authCompletion = completion
+
+        ProgressHUD.animate("Opening Dropbox…")
+
+        DropboxClientsManager.authorizeFromControllerV2(
+            UIApplication.shared,
+            controller: presenter,
+            loadingStatusDelegate: nil,
+            openURL: { UIApplication.shared.open($0) },
+            scopeRequest: ScopeRequest(
+                scopeType: .user,
+                scopes: ["files.content.write", "files.content.read"],
+                includeGrantedScopes: false
+            )
+        )
+        // ⬆️ Do not inspect a result here; wait for the redirect callback.
+    }
+    
+    // Called from AppDelegate (or your OAuth router) on redirect
+    @discardableResult
+    func handleRedirect(url: URL) -> Bool {
+        DropboxClientsManager.handleRedirectURL(url, includeBackgroundClient: false) { [weak self] result in
+            guard let self = self else { return }
+            ProgressHUD.dismiss()
+
+            switch result {
+            case .success:
+                self.authCompletion?(.success)
+            case .cancel:
+                self.authCompletion?(.cancel)
+            case .error(let e, let desc):
+                self.authCompletion?(.error(e, desc))
+            case .none:
+                self.authCompletion?(.none)
+            }
+            self.authCompletion = nil
+        }
+        return true
     }
     
     func SendToDropbox(url: URL)
@@ -53,27 +116,20 @@ class DropboxManager {
                     
                 }
         } else {
-            OpenDropboxAuthorizationFlow()
+            OpenAuthorizationFlow { result in
+                switch result {
+                case .success:
+                    ProgressHUD.succeed("Logged into Dropbox")
+                    self.settingsViewController?.UpdateSelectedDestinationUserDefaults(destination: .dropbox)
+                    self.settingsViewController?.UpdateSelectedDestinationUI(destination: .dropbox)
+                case .cancel:
+                    ProgressHUD.failed("Canceled Dropbox Login")
+                case .error(_, _):
+                    ProgressHUD.failed("Unable to log into Dropbox")
+                case .none:
+                    ProgressHUD.failed("Unable to log into Dropbox")
+                }
+            }
         }
-    }
-    
-    var url: URL = URL(string: "https://www.dropbox.com/oauth2/authorize")!
-    func OpenDropboxAuthorizationFlow()
-    {
-        guard let settingsViewController = settingsViewController else { return }
-        
-        DropboxClientsManager.authorizeFromControllerV2(
-            UIApplication.shared,
-            controller: settingsViewController,
-            loadingStatusDelegate: nil, // optional
-            openURL: { url in
-                UIApplication.shared.open(url)
-            },
-            scopeRequest: ScopeRequest(
-                scopeType: .user,
-                scopes: ["files.content.write", "files.content.read"],
-                includeGrantedScopes: false
-            )
-        )
     }
 }
