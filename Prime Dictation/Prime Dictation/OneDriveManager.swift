@@ -71,6 +71,35 @@ final class OneDriveManager {
             print("MSAL init failed ❌ \(error)")
         }
     }
+    
+    @MainActor
+    func SignOutAppOnly(completion: @escaping (Bool) -> Void) {
+        guard let app = msalApp else { completion(false); return }
+        let accounts = (try? app.allAccounts()) ?? []
+        for acc in accounts { try? app.remove(acc) }  // clears tokens for your app
+        signedInAccount = nil
+        completion(true)
+    }
+    
+    @MainActor
+    func SignOutEverywhere(completion: @escaping (Bool) -> Void) {
+        guard let app = msalApp else { completion(false); return }
+        guard let account = (try? app.allAccounts().first) else { completion(true); return }
+        guard let settingsViewController = settingsViewController else { completion(false); return }
+
+        // This will present the iOS browser consent dialog
+        let web = MSALWebviewParameters(authPresentationViewController: settingsViewController)
+        let params = MSALSignoutParameters(webviewParameters: web)
+        params.signoutFromBrowser = true
+        params.wipeAccount = false  // be careful with wipeAccount
+
+        app.signout(with: account, signoutParameters: params) { [weak self] success, _ in
+            Task { @MainActor in
+                if success { self?.signedInAccount = nil }
+                completion(success)
+            }
+        }
+    }
 
     // MARK: - Sign-in
     func SignInIfNeeded(completion: @escaping (AuthResult) -> Void) {
@@ -92,7 +121,6 @@ final class OneDriveManager {
                 if let result {
                     self.signedInAccount = result.account
                     DispatchQueue.main.async {
-                        ProgressHUD.succeed("You're already signed in to OneDrive")
                         completion(.success)
                     }
                     return
@@ -144,7 +172,7 @@ final class OneDriveManager {
             if let result {
                 self.signedInAccount = result.account
                 DispatchQueue.main.async {
-                    ProgressHUD.succeed("Logged into OneDrive")
+                    ProgressHUD.succeed("Signed into OneDrive")
                     completion(.success)
                 }
                 return

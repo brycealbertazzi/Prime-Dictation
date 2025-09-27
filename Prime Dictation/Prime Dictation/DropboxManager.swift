@@ -37,20 +37,31 @@ class DropboxManager {
         self.recordingManager = recordingManager
     }
     
+    var isSignedIn: Bool {
+        DropboxClientsManager.authorizedClient != nil || DropboxClientsManager.authorizedTeamClient != nil
+    }
+    
+    @MainActor
+    func signOutAppOnly(completion: @escaping (Bool) -> Void) {
+        // If nothing is linked, treat as success
+        guard isSignedIn else { completion(true); return }
+
+        // Clear local tokens for both user & team clients (if any)
+        DropboxClientsManager.unlinkClients()
+        completion(true)
+    }
+    
     var url: URL = URL(string: "https://www.dropbox.com/oauth2/authorize")!
     // Start auth; do NOT handle result here
     func OpenAuthorizationFlow(completion: @escaping (AuthResult) -> Void) {
         // Short-circuit if already signed in
         if DropboxClientsManager.authorizedClient != nil {
-            ProgressHUD.succeed("You're already signed in to Dropbox")
             completion(.success)
             return
         }
 
         guard let presenter = settingsViewController else { return }
         self.authCompletion = completion
-
-        ProgressHUD.animate("Opening Dropbox…")
 
         DropboxClientsManager.authorizeFromControllerV2(
             UIApplication.shared,
@@ -63,7 +74,6 @@ class DropboxManager {
                 includeGrantedScopes: false
             )
         )
-        // ⬆️ Do not inspect a result here; wait for the redirect callback.
     }
     
     // Called from AppDelegate (or your OAuth router) on redirect
@@ -75,6 +85,7 @@ class DropboxManager {
 
             switch result {
             case .success:
+                ProgressHUD.succeed("Signed into Dropbox")
                 self.authCompletion?(.success)
             case .cancel:
                 self.authCompletion?(.cancel)
@@ -119,7 +130,6 @@ class DropboxManager {
             OpenAuthorizationFlow { result in
                 switch result {
                 case .success:
-                    ProgressHUD.succeed("Logged into Dropbox")
                     self.settingsViewController?.UpdateSelectedDestinationUserDefaults(destination: .dropbox)
                     self.settingsViewController?.UpdateSelectedDestinationUI(destination: .dropbox)
                 case .cancel:
