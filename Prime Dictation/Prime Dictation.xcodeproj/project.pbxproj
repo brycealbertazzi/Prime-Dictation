@@ -20,6 +20,8 @@
 		03E7193D2E862D4B003B6BF1 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E7193C2E862D47003B6BF1 /* SettingsViewController.swift */; };
 		03E7193F2E8748FA003B6BF1 /* DestinationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E7193E2E8748F4003B6BF1 /* DestinationManager.swift */; };
 		03E719412E8764D0003B6BF1 /* AppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E719402E8764CE003B6BF1 /* AppServices.swift */; };
+		03E719432E87AFE2003B6BF1 /* SwiftyDropbox in Frameworks */ = {isa = PBXBuildFile; productRef = 03E719422E87AFE2003B6BF1 /* SwiftyDropbox */; };
+		03E719452E87B012003B6BF1 /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = 03E719442E87B012003B6BF1 /* ProgressHUD */; };
 		03FF2A962E79E3BB00BD684D /* DropboxManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FF2A952E79E3B600BD684D /* DropboxManager.swift */; };
 		03FF2A982E79EC2900BD684D /* RecordingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FF2A972E79EC2600BD684D /* RecordingManager.swift */; };
 		03FF2A9A2E7A291400BD684D /* OneDriveManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FF2A992E7A290D00BD684D /* OneDriveManager.swift */; };
@@ -50,10 +52,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				031DE4F72E78757C003222CC /* ProgressHUD in Frameworks */,
+				03E719452E87B012003B6BF1 /* ProgressHUD in Frameworks */,
 				03FF2A9D2E7A2A2600BD684D /* MSAL in Frameworks */,
 				033F4CFC2E78B36000438D32 /* ProgressHUD in Frameworks */,
 				037D80972E78BABB000D5231 /* SwiftyDropbox in Frameworks */,
 				030BE2E22E8460B8006E3311 /* SwiftyDropbox in Frameworks */,
+				03E719432E87AFE2003B6BF1 /* SwiftyDropbox in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -331,7 +335,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Prime Dictation/Prime Dictation.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 22;
 				DEVELOPMENT_TEAM = 7JG2927ZK8;
 				INFOPLIST_FILE = "Prime Dictation/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Prime Dictation";
@@ -341,10 +345,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 2.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.BryceAlbertazzi.PrimeDictation;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -358,7 +366,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Prime Dictation/Prime Dictation.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 22;
 				DEVELOPMENT_TEAM = 7JG2927ZK8;
 				INFOPLIST_FILE = "Prime Dictation/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Prime Dictation";
@@ -368,10 +376,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 2.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.BryceAlbertazzi.PrimeDictation;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -447,6 +459,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 037D80952E78BABB000D5231 /* XCRemoteSwiftPackageReference "SwiftyDropbox" */;
 			productName = SwiftyDropbox;
+		};
+		03E719422E87AFE2003B6BF1 /* SwiftyDropbox */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 037D80952E78BABB000D5231 /* XCRemoteSwiftPackageReference "SwiftyDropbox" */;
+			productName = SwiftyDropbox;
+		};
+		03E719442E87B012003B6BF1 /* ProgressHUD */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 031DE4F52E78757C003222CC /* XCRemoteSwiftPackageReference "ProgressHUD" */;
+			productName = ProgressHUD;
 		};
 		03FF2A9C2E7A2A2600BD684D /* MSAL */ = {
 			isa = XCSwiftPackageProductDependency;

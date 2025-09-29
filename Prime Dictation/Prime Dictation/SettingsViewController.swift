@@ -64,6 +64,24 @@ class SettingsViewController: UIViewController {
         }
     }
     
+    @IBAction func SelectFolderButton(_ sender: Any) {
+        switch DestinationManager.SELECTED_DESTINATION {
+        case.dropbox:
+            break
+        case .onedrive:
+            ProgressHUD.animate("Opening file picker", .activityIndicator)
+            oneDriveManager.PresentOneDriveFolderPicker { selection in
+                // Optional: update your UI to show the chosen folder
+                print(selection)
+                ProgressHUD.succeed("OneDrive folder selected")
+            }
+            break
+        default:
+            break
+        }
+    }
+    
+    
     @IBAction func SignOutButton(_ sender: Any) {
         switch DestinationManager.SELECTED_DESTINATION {
         case .dropbox:
