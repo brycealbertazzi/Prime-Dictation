@@ -245,7 +245,9 @@ final class OneDriveManager {
                 let token = try await getAccessTokenSilently()
                 let driveId = try await getDefaultDriveId(token: token)
                 let startCtx = DriveContext(driveId: driveId, itemId: "root")
-                let vc = FolderPickerViewController(manager: self, accessToken: token, start: startCtx) { [weak self] sel in
+                let map = await buildSelectedBranchMap(token: token, driveId: driveId)
+
+                let vc = FolderPickerViewController(manager: self, accessToken: token, start: startCtx, branchMap: map) { [weak self] sel in
                     self?.saveSelection(sel)
                     onPicked?(sel)
                 }
@@ -561,6 +563,91 @@ final class OneDriveManager {
         dec.keyDecodingStrategy = .convertFromSnakeCase
         return try dec.decode(T.self, from: data)
     }
+    
+    // Special key for "root" when parentReference.id is nil
+    private static let rootKey = "__root__"
+
+    // Fetch parentReference for an item
+    private func fetchParentRef(token: String, driveId: String, itemId: String) async throws -> (parentId: String?, parentDriveId: String?) {
+        struct ItemParentOnly: Decodable {
+            let id: String
+            let parentReference: ParentReference?
+            struct ParentReference: Decodable { let id: String?; let driveId: String?; let path: String? }
+        }
+        let url = URL(string: "https://graph.microsoft.com/v1.0/drives/\(driveId)/items/\(itemId)?$select=id,parentReference")!
+        let (data, resp) = try await URLSession.shared.data(for: authorizedRequest(url: url, token: token))
+        guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            throw ODRError.badResponse(status: (resp as? HTTPURLResponse)?.statusCode ?? -1,
+                                       body: String(data: data, encoding: .utf8) ?? "")
+        }
+        let parsed = try decode(ItemParentOnly.self, from: data)
+        return (parsed.parentReference?.id, parsed.parentReference?.driveId)
+    }
+    
+    // Cache: driveId -> rootItemId
+    private var driveRootIdCache: [String:String] = [:]
+
+    private func getDriveRootItemId(token: String, driveId: String) async throws -> String {
+        if let cached = driveRootIdCache[driveId] { return cached }
+        // This returns the *item id* of the root folder
+        let url = URL(string: "https://graph.microsoft.com/v1.0/drives/\(driveId)/root?$select=id")!
+        let (data, resp) = try await URLSession.shared.data(for: authorizedRequest(url: url, token: token))
+        guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            throw ODRError.badResponse(status: (resp as? HTTPURLResponse)?.statusCode ?? -1,
+                                       body: String(data: data, encoding: .utf8) ?? "")
+        }
+        struct RootIdOnly: Decodable { let id: String }
+        let rootId = try decode(RootIdOnly.self, from: data).id
+        driveRootIdCache[driveId] = rootId
+        return rootId
+    }
+
+    /// Build a mapping of { parentItemId(or RootKey) -> childItemId } along the saved selection path up to root.
+    /// Returns empty map if no saved selection or drive mismatch.
+    private func buildSelectedBranchMap(token: String, driveId: String) async -> [String:String] {
+        guard let saved = loadSelection() else { return [:] }
+
+        // If the saved destination is in another drive (e.g., SharePoint via shortcut),
+        // mark root -> target so the root-level shortcut row (remoteItem.id) can match.
+        if saved.driveId != driveId {
+            return [Self.rootKey: saved.itemId]
+        }
+
+        // Same drive: walk up until the *real* drive root item id
+        var map: [String:String] = [:]
+        var childId = saved.itemId
+        var hops = 0
+
+        do {
+            let rootItemId = try await getDriveRootItemId(token: token, driveId: driveId)
+
+            while hops < 100 {
+                let (parentId, parentDriveId) = try await fetchParentRef(token: token, driveId: driveId, itemId: childId)
+
+                // Crossed drives or no parent -> treat current child as under root
+                if parentDriveId != driveId || parentId == nil {
+                    map[Self.rootKey] = childId
+                    break
+                }
+
+                // If the parent is the *root item*, stop: current child is the first-level folder
+                if parentId == rootItemId {
+                    map[Self.rootKey] = childId
+                    break
+                }
+
+                // Otherwise map parent -> child and move up
+                map[parentId!] = childId
+                childId = parentId!
+                hops += 1
+            }
+        } catch {
+            // If anything fails, return whatever mapping we have so far
+            return map
+        }
+        return map
+    }
+
 
     // MARK: - Models & Errors used by uploads/default-folder
     struct DriveItem: Decodable {
@@ -605,7 +692,7 @@ final class OneDriveManager {
         return key
     }
 
-    // MARK: - UIKit Folder Picker (programmatic)
+    // MARK: - UIKit Folder Picker (with persistent ✓ on saved path)
     private final class FolderPickerViewController: UITableViewController {
         private weak var manager: OneDriveManager?
         private let token: String
@@ -614,11 +701,26 @@ final class OneDriveManager {
         private var nextPage: URL?
         private let onPicked: (OneDriveSelection) -> Void
 
-        init(manager: OneDriveManager, accessToken: String, start: DriveContext, onPicked: @escaping (OneDriveSelection) -> Void) {
+        /// Map of { parentId (or RootKey) -> childId } along the saved/active destination path.
+        private var branchMap: [String:String]
+
+        /// Computed each time based on ctx & branchMap:
+        private var selectedChildIdAtThisLevel: String? {
+            let parentKey = (ctx.itemId == "root") ? OneDriveManager.rootKey : ctx.itemId
+            return branchMap[parentKey]
+        }
+
+        init(manager: OneDriveManager,
+             accessToken: String,
+             start: DriveContext,
+             branchMap: [String:String],
+             onPicked: @escaping (OneDriveSelection) -> Void)
+        {
             self.manager = manager
             self.token = accessToken
             self.ctx = start
             self.onPicked = onPicked
+            self.branchMap = branchMap
             super.init(style: .insetGrouped)
             self.title = "Choose OneDrive Folder"
         }
@@ -627,13 +729,16 @@ final class OneDriveManager {
 
         override func viewDidLoad() {
             super.viewDidLoad()
-            navigationItem.rightBarButtonItem = UIBarButtonItem(systemItem: .done, primaryAction: UIAction { [weak self] _ in
-                guard let self else { return }
-                // Picking current folder (ctx) as selection
-                let sel = OneDriveSelection(driveId: self.ctx.driveId, itemId: self.ctx.itemId)
-                self.onPicked(sel)
-                self.dismiss(animated: true)
-            })
+            print("branch map \(branchMap)")
+            navigationItem.rightBarButtonItem = UIBarButtonItem(
+                primaryAction: UIAction { [weak self] _ in
+                    guard let self else { return }
+                    let sel = OneDriveSelection(driveId: self.ctx.driveId, itemId: self.ctx.itemId)
+                    print("sel \(sel)")
+                    self.onPicked(sel)
+                    self.dismiss(animated: true)
+                }
+            )
             tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
             Task { await loadPage(reset: true) }
             ProgressHUD.dismiss()
@@ -660,8 +765,14 @@ final class OneDriveManager {
                 ProgressHUD.failed("Unable to list OneDrive folders")
             }
         }
+        
+        // Matches either the visible row id or the shortcut's target id
+        private func itemMatchesSelected(_ item: PickerDriveItem, selectedId: String?) -> Bool {
+            guard let selectedId else { return false }
+            return item.id == selectedId || item.remoteItem?.id == selectedId
+        }
 
-        // Table
+        // MARK: - Table
         override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
             items.count + (nextPage != nil ? 1 : 0)
         }
@@ -673,24 +784,112 @@ final class OneDriveManager {
                 cell.accessoryType = .none
                 return cell
             }
+
             let item = items[indexPath.row]
             let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
             cell.textLabel?.text = item.name
-            cell.accessoryType = .disclosureIndicator
+
+            // Is this the saved/selected row at THIS level?
+            let isSelected = itemMatchesSelected(item, selectedId: selectedChildIdAtThisLevel)
+
+            if isSelected {
+                // ✅ Selected row: force the checkmark and STOP (no async override)
+                cell.accessoryType = .checkmark
+                return cell
+            } else {
+                // Default assume it *might* have subfolders; show chevron for now
+                cell.accessoryType = .disclosureIndicator
+            }
+
+            // 🔍 Asynchronously detect if this row has *subfolders* (not just files)
+            Task { [weak tableView] in
+                guard let manager = self.manager else { return }
+                do {
+                    let (children, _) = try await manager.listChildren(
+                        token: self.token,
+                        ctx: DriveContext(driveId: self.ctx.driveId, itemId: item.id)
+                    )
+                    let hasSubfolders = children.contains { $0.folder != nil || $0.remoteItem?.folder != nil }
+
+                    await MainActor.run {
+                        // Bail if cell scrolled off or index changed
+                        guard let tv = tableView,
+                              let currentCell = tv.cellForRow(at: indexPath) else { return }
+
+                        // DO NOT override the selected row (race safety)
+                        let stillSelected = self.itemMatchesSelected(item, selectedId: self.selectedChildIdAtThisLevel)
+                        if stillSelected { return }
+
+                        currentCell.accessoryType = hasSubfolders ? .disclosureIndicator : .none
+                    }
+                } catch {
+                    // On error, leave chevron as-is (safe default)
+                }
+            }
+
             return cell
         }
 
         override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
             tableView.deselectRow(at: indexPath, animated: true)
+
             if nextPage != nil && indexPath.row == items.count {
                 Task { await loadPage(reset: false) }
                 return
             }
+
+            guard let manager else { return }
             let item = items[indexPath.row]
-            guard let manager, let next = manager.nextContext(from: ctx, tapped: item) else { return }
-            // push deeper
-            let vc = FolderPickerViewController(manager: manager, accessToken: token, start: next, onPicked: onPicked)
-            navigationController?.pushViewController(vc, animated: true)
+            guard let next = manager.nextContext(from: ctx, tapped: item) else { return }
+
+            // If this folder has zero children at all, it's definitely a leaf → select & close
+            if (item.folder?.childCount ?? 0) == 0 {
+                let sel = OneDriveSelection(driveId: next.driveId, itemId: next.itemId)
+                onPicked(sel)
+                self.dismiss(animated: true)
+                return
+            }
+
+            // Otherwise, check whether it has ANY subfolders by listing and filtering.
+            Task {
+                do {
+                    let (children, _) = try await manager.listChildren(token: token, ctx: next, next: nil)
+                    let subfolders = children.filter { $0.folder != nil || $0.remoteItem?.folder != nil }
+                    if subfolders.isEmpty {
+                        // No subfolders → treat as leaf; select & close
+                        let sel = OneDriveSelection(driveId: next.driveId, itemId: next.itemId)
+                        await MainActor.run {
+                            onPicked(sel)
+                            self.dismiss(animated: true)
+                        }
+                    } else {
+                        // Has subfolders → navigate deeper
+                        await MainActor.run {
+                            let vc = FolderPickerViewController(
+                                manager: manager,
+                                accessToken: token,
+                                start: next,
+                                branchMap: branchMap,
+                                onPicked: onPicked
+                            )
+                            self.navigationController?.pushViewController(vc, animated: true)
+                        }
+                    }
+                } catch {
+                    // If we can't list, fall back to navigating (better than doing nothing)
+                    await MainActor.run {
+                        let vc = FolderPickerViewController(
+                            manager: manager,
+                            accessToken: token,
+                            start: next,
+                            branchMap: branchMap,
+                            onPicked: onPicked
+                        )
+                        self.navigationController?.pushViewController(vc, animated: true)
+                    }
+                }
+            }
         }
+
     }
 }
