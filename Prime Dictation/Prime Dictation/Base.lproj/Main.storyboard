@@ -331,6 +331,7 @@
                     <connections>
                         <outlet property="DropboxLabel" destination="r8D-RY-2sR" id="1ky-qD-7D5"/>
                         <outlet property="OneDriveLabel" destination="9qh-lx-pQg" id="w1N-IF-UIc"/>
+                        <outlet property="SelectFolderIcon" destination="AWb-dR-20j" id="Hsz-IJ-I79"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="VTs-7P-DE6" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

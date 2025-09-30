@@ -17,6 +17,7 @@ class SettingsViewController: UIViewController {
     
     @IBOutlet weak var DropboxLabel: UIButton!
     @IBOutlet weak var OneDriveLabel: UIButton!
+    @IBOutlet weak var SelectFolderIcon: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -77,6 +78,7 @@ class SettingsViewController: UIViewController {
             }
             break
         default:
+            ProgressHUD.failed("No destination selected")
             break
         }
     }
@@ -111,6 +113,8 @@ class SettingsViewController: UIViewController {
     
     func UpdateSelectedDestinationUI(destination: Destination? = Destination.none) {
         let selectedColor: UIColor = .systemBlue
+        SelectFolderIcon.isEnabled = true
+        SelectFolderIcon.alpha = 1.0
         if destination == .dropbox {
             DropboxLabel.setTitleColor(selectedColor, for: .normal)
             OneDriveLabel.setTitleColor(.black, for: .normal)
@@ -120,6 +124,8 @@ class SettingsViewController: UIViewController {
         } else {
             DropboxLabel.setTitleColor(.black, for: .normal)
             OneDriveLabel.setTitleColor(.black, for: .normal)
+            SelectFolderIcon.isEnabled = false
+            SelectFolderIcon.alpha = 0.3
         }
     }
     

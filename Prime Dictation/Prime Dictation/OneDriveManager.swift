@@ -280,7 +280,6 @@ final class OneDriveManager {
                                                           to: target,
                                                           progress: progress)
                 await MainActor.run {
-                    print("✅ Uploaded \(item.name) → \(item.webUrl ?? "(no webUrl)")")
                     ProgressHUD.succeed("Recording was sent to OneDrive")
                 }
             } catch {
@@ -846,6 +845,7 @@ final class OneDriveManager {
             if (item.folder?.childCount ?? 0) == 0 {
                 let sel = OneDriveSelection(driveId: next.driveId, itemId: next.itemId)
                 onPicked(sel)
+                print("onPicked \(sel)")
                 self.dismiss(animated: true)
                 return
             }
