@@ -70,7 +70,6 @@ class SettingsViewController: UIViewController {
         case.dropbox:
             ProgressHUD.animate("Opening file picker", .activityIndicator)
             dropboxManager.PresentDropboxFolderPicker { selection in
-                
                 ProgressHUD.succeed("Dropbox folder selected")
             }
             break
