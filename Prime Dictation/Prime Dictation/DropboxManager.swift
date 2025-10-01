@@ -645,9 +645,6 @@ final class DropboxManager {
                     .response { meta, metaErr in
                         if let _ = meta as? Files.FolderMetadata {
                             completion(.success(false)) // already exists
-                        } else {
-                            // Propagate whichever error we have
-                          
                         }
                     }
             }

@@ -132,7 +132,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         if audioRecorder == nil {
             //If we are not already recording audio, start the recording
             recordingManager.numberOfRecordings += 1
-            recordingManager.recordingName = recordingManager.RecordingTimeForFileName()
+            recordingManager.recordingName = recordingManager.RecordingTimeForName()
             let fileName = recordingManager.GetDirectory().appendingPathComponent(recordingManager.recordingName).appendingPathExtension(recordingManager.recordingExtension)
             
             let settings = [ AVFormatIDKey: Int(kAudioFormatMPEG4AAC), AVSampleRateKey: recordingManager.sampleRate, AVNumberOfChannelsKey: 1, AVEncoderAudioQualityKey: AVAudioQuality.low.rawValue,

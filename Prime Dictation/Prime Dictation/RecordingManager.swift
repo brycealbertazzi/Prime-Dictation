@@ -96,12 +96,6 @@ class RecordingManager {
         f.dateFormat = "EEE MMM d yyyy 'at' hh_mm ss's'"
         return f.string(from: now)
     }
-
-    // Use this for actual file names (OneDrive forbids ":" in names)
-    func RecordingTimeForFileName(now: Date = Date()) -> String {
-        let raw = RecordingTimeForName(now: now)
-        return raw.replacingOccurrences(of: ":", with: "·") // "6·10pm"
-    }
     
     func CheckToggledRecordingsIndex(goingToPreviousRecording: Bool) {
         if (goingToPreviousRecording) {
