@@ -17,6 +17,7 @@ class RecordingManager {
     let recordingExtension: String = "m4a"
     let destinationRecordingExtension: String = "wav"
     var recordingName: String = String()
+    var recordingDisplayName: String = String()
     
     var savedRecordingsKey: String = "savedRecordings"
     var savedRecordingNames: [String] = []
@@ -39,7 +40,7 @@ class RecordingManager {
         savedRecordingNames = UserDefaults.standard.object(forKey: savedRecordingsKey) as? [String] ?? [String]()
         
         if (savedRecordingNames.count > 1) {
-            viewController.FileNameLabel.setTitle(savedRecordingNames[savedRecordingNames.count - 1] + ".wav", for: .normal)
+            viewController.FileNameLabel.setTitle(savedRecordingNames[savedRecordingNames.count - 1], for: .normal)
         
             toggledRecordingsIndex = savedRecordingNames.count - 1
             toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
@@ -47,7 +48,7 @@ class RecordingManager {
         } else if (savedRecordingNames.count == 1) {
             toggledRecordingsIndex = savedRecordingNames.count - 1
             toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
-            viewController.FileNameLabel.setTitle(toggledRecordingName + ".wav", for: .normal)
+            viewController.FileNameLabel.setTitle(toggledRecordingName, for: .normal)
             viewController.PreviousRecordingLabel.isEnabled = false
             viewController.NextRecordingLabel.isEnabled = false
         }
@@ -82,25 +83,24 @@ class RecordingManager {
             viewController.PreviousRecordingLabel.isEnabled = true
         }
         
-        viewController.FileNameLabel.setTitle(toggledRecordingName + ".wav", for: .normal)
+        viewController.FileNameLabel.setTitle(toggledRecordingName, for: .normal)
     
     }
     
-    func RecordingTimeForName() -> String {
-        let date = Date()
-        let calendar = Calendar.current
-        
-        let year = calendar.component(.year, from: date)
-        let month = calendar.component(.month, from: date)
-        let day = calendar.component(.day, from: date)
-        let hour = calendar.component(.hour, from: date)
-        let minute = calendar.component(.minute, from: date)
-        let second = calendar.component(.second, from: date)
-        
-        let dateName = String(format: "%04d-%02d-%02d_%02d-%02d-%02d",
-                              year, month, day, hour, minute, second)
-        
-        return dateName
+    func RecordingTimeForName(now: Date = Date()) -> String {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX") // stable, English abbreviations
+        f.timeZone = .current
+        f.amSymbol = "am"
+        f.pmSymbol = "pm"
+        f.dateFormat = "EEE MMM d yyyy 'at' hh_mm ss's'"
+        return f.string(from: now)
+    }
+
+    // Use this for actual file names (OneDrive forbids ":" in names)
+    func RecordingTimeForFileName(now: Date = Date()) -> String {
+        let raw = RecordingTimeForName(now: now)
+        return raw.replacingOccurrences(of: ":", with: "·") // "6·10pm"
     }
     
     func CheckToggledRecordingsIndex(goingToPreviousRecording: Bool) {
