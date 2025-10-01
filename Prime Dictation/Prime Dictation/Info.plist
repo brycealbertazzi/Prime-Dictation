@@ -26,14 +26,14 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>msauth.com.BryceAlbertazzi.PrimeDictation</string>
-				<string>db-z4j0jn23hkj68bs</string>
+				<string>db-ddjsydnk1llkb8j</string>
 			</array>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>DROPBOX_APP_KEY</key>
-	<string>z4j0jn23hkj68bs</string>
+	<string>ddjsydnk1llkb8j</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>msauthv3</string>

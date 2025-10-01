@@ -244,7 +244,7 @@ final class OneDriveManager {
             do {
                 let token = try await getAccessTokenSilently()
                 let driveId = try await getDefaultDriveId(token: token)
-                let startCtx = DriveContext(driveId: driveId, itemId: "root")
+                let startCtx = DriveContext(driveId: driveId, itemId: "root", name: "One Drive")
                 let map = await buildSelectedBranchMap(token: token, driveId: driveId)
 
                 let vc = FolderPickerViewController(manager: self, accessToken: token, start: startCtx, branchMap: map) { [weak self] sel in
@@ -274,7 +274,7 @@ final class OneDriveManager {
                 let token = try await self.getAccessTokenSilently()
                 let target = try await self.resolveSelectionOrDefault(token: token) // user choice or "/Prime Dictation"
                 let fileName = preferredFileName ?? url.lastPathComponent
-                let item = try await self.uploadRecording(accessToken: token,
+                _ = try await self.uploadRecording(accessToken: token,
                                                           fileURL: url,
                                                           fileName: fileName,
                                                           to: target,
@@ -492,7 +492,12 @@ final class OneDriveManager {
         enum CodingKeys: String, CodingKey { case value; case nextLink = "@odata.nextLink" }
     }
 
-    fileprivate struct DriveContext { let driveId: String; let itemId: String } // itemId can be "root"
+    fileprivate struct DriveContext
+    {
+        let driveId: String
+        let itemId: String
+        let name: String?
+    } // itemId can be "root"
 
     fileprivate func listChildren(token: String, ctx: DriveContext, next: URL? = nil) async throws -> (items: [PickerDriveItem], next: URL?) {
         let url: URL = {
@@ -518,13 +523,13 @@ final class OneDriveManager {
     fileprivate func nextContext(from current: DriveContext, tapped item: PickerDriveItem) -> DriveContext? {
         // Real folder in current drive
         if item.folder != nil {
-            return DriveContext(driveId: current.driveId, itemId: item.id)
+            return DriveContext(driveId: current.driveId, itemId: item.id, name: item.name)
         }
         // Shortcut (Add to OneDrive) targeting a folder, possibly in another drive
         if let remote = item.remoteItem, remote.folder != nil,
            let targetDriveId = remote.parentReference?.driveId,
            let targetItemId  = remote.id {
-            return DriveContext(driveId: targetDriveId, itemId: targetItemId)
+            return DriveContext(driveId: targetDriveId, itemId: targetItemId, name: item.name)
         }
         return nil
     }
@@ -721,14 +726,13 @@ final class OneDriveManager {
             self.onPicked = onPicked
             self.branchMap = branchMap
             super.init(style: .insetGrouped)
-            self.title = "Choose OneDrive Folder"
+            self.title = "OneDrive"
         }
 
         required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
         override func viewDidLoad() {
             super.viewDidLoad()
-            print("branch map \(branchMap)")
             navigationItem.rightBarButtonItem = UIBarButtonItem(
                 primaryAction: UIAction { [weak self] _ in
                     guard let self else { return }
@@ -744,8 +748,9 @@ final class OneDriveManager {
         }
 
         private func setTitleFor(ctx: DriveContext) {
-            if ctx.itemId == "root" { self.title = "OneDrive: /" }
-            else { self.title = "OneDrive Folder" }
+            if ctx.itemId == "root" { self.title = "OneDrive" }
+            else { print("ctx: \(ctx)")
+                self.title = ctx.name }
         }
 
         @MainActor
@@ -806,7 +811,7 @@ final class OneDriveManager {
                 do {
                     let (children, _) = try await manager.listChildren(
                         token: self.token,
-                        ctx: DriveContext(driveId: self.ctx.driveId, itemId: item.id)
+                        ctx: DriveContext(driveId: self.ctx.driveId, itemId: item.id, name: item.name)
                     )
                     let hasSubfolders = children.contains { $0.folder != nil || $0.remoteItem?.folder != nil }
 
@@ -845,7 +850,6 @@ final class OneDriveManager {
             if (item.folder?.childCount ?? 0) == 0 {
                 let sel = OneDriveSelection(driveId: next.driveId, itemId: next.itemId)
                 onPicked(sel)
-                print("onPicked \(sel)")
                 self.dismiss(animated: true)
                 return
             }

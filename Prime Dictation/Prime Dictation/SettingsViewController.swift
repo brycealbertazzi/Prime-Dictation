@@ -68,12 +68,16 @@ class SettingsViewController: UIViewController {
     @IBAction func SelectFolderButton(_ sender: Any) {
         switch DestinationManager.SELECTED_DESTINATION {
         case.dropbox:
+            ProgressHUD.animate("Opening file picker", .activityIndicator)
+            dropboxManager.PresentDropboxFolderPicker { selection in
+                
+                ProgressHUD.succeed("Dropbox folder selected")
+            }
             break
         case .onedrive:
             ProgressHUD.animate("Opening file picker", .activityIndicator)
             oneDriveManager.PresentOneDriveFolderPicker { selection in
                 // Optional: update your UI to show the chosen folder
-                print(selection)
                 ProgressHUD.succeed("OneDrive folder selected")
             }
             break
@@ -125,7 +129,7 @@ class SettingsViewController: UIViewController {
             DropboxLabel.setTitleColor(.black, for: .normal)
             OneDriveLabel.setTitleColor(.black, for: .normal)
             SelectFolderIcon.isEnabled = false
-            SelectFolderIcon.alpha = 0.3
+            SelectFolderIcon.alpha = 0.36
         }
     }
     
