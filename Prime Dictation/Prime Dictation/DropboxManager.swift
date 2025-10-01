@@ -1,15 +1,3 @@
-//
-//  DropboxManager.swift
-//  Prime Dictation
-//
-//  Folder picker + persistent selection (Dropbox), mirroring OneDrive UX
-//  - Per-level selection with single checkmark
-//  - Tap checked item: navigate if non-leaf, unselect (promote parent) if leaf
-//  - Caching + background probing to minimize chevron flicker
-//  - If no child is selected at a level → parent context is considered selected
-//  - ✅ "Done" button confirms current selection and closes; tapping a leaf only checks it
-//
-
 import UIKit
 import AVFoundation
 import SwiftyDropbox
@@ -27,10 +15,17 @@ final class DropboxManager {
     }
 
     struct DBSelection: Codable {
-        /// Dropbox stable folder id like "id:xxxxxxxx"
+        /// Dropbox stable folder id like "id:xxxxxxxx", or synthetic root id below
         let folderId: String
         /// Last known lowercase path (optional; we always resolve by id when needed)
         let pathLower: String?
+        /// Account this selection belongs to (nil for legacy saves)
+        let accountId: String?
+        init(folderId: String, pathLower: String?, accountId: String? = nil) {
+            self.folderId = folderId
+            self.pathLower = pathLower
+            self.accountId = accountId
+        }
     }
 
     // Internal picker item model (folders only)
@@ -44,6 +39,11 @@ final class DropboxManager {
     fileprivate struct PathContext {
         let pathLower: String  // "" for root, otherwise "/foo/bar"
     }
+
+    // MARK: - Keys / Constants
+
+    static let rootKey = "__root__"
+    static let rootSelectionId = "__dbx_root__" // synthetic id representing user's root
 
     // MARK: - Wiring
 
@@ -79,7 +79,7 @@ final class DropboxManager {
         // If nothing is linked, treat as success
         guard isSignedIn else { completion(true); return }
         DropboxClientsManager.unlinkClients()
-        clearSavedSelection()
+        // Do NOT clear saved selection; we keep it for restore on next sign-in (account-aware).
         completion(true)
     }
 
@@ -150,9 +150,8 @@ final class DropboxManager {
                             client: client,
                             start: start,
                             branchMap: map,
-                            onPicked: { [weak self] sel in
-                                guard let self = self else { return }
-                                self.saveSelection(sel)
+                            onPicked: { sel in
+                                // Save with current account id inside the picker already; callback is FYI
                                 onPicked?(sel)
                             }
                         )
@@ -260,6 +259,14 @@ final class DropboxManager {
         try? data.write(to: selectionBackupURL, options: [.atomic])
     }
 
+    private func saveSelectionWithCurrentAccount(client: DropboxClient, selection sel: DBSelection) {
+        getCurrentAccountId(client: client) { [weak self] acctId in
+            guard let self else { return }
+            let enriched = DBSelection(folderId: sel.folderId, pathLower: sel.pathLower, accountId: acctId)
+            self.saveSelection(enriched)
+        }
+    }
+
     private func loadSelection() -> DBSelection? {
         let defaults = UserDefaults.standard
         if let data = defaults.data(forKey: selectionDefaultsKey),
@@ -305,114 +312,160 @@ final class DropboxManager {
         NotificationCenter.default.removeObserver(self)
     }
 
+    // MARK: - Account helpers
+
+    private func getCurrentAccountId(client: DropboxClient, completion: @escaping (String?) -> Void) {
+        client.users.getCurrentAccount().response { (resp, _) in
+            completion(resp?.accountId)
+        }
+    }
+
     // MARK: - Default folder resolution (callbacks)
 
-    /// Returns saved selection if present; otherwise ensure/create "/Prime Dictation" and return its id.
+    /// Returns a validated selection, account-aware:
+    /// - If saved selection exists and is root → return it.
+    /// - If same account (or legacy with nil accountId) → try by id, then by pathLower.
+    /// - If different account → skip id, try by pathLower; else ensure/create "/Prime Dictation".
     private func resolveSelectionOrDefault(client: DropboxClient,
                                            completion: @escaping (Result<DBSelection, Error>) -> Void) {
-        if let sel = loadSelection() {
-            completion(.success(sel))
+        // Root selection (synthetic) is account-agnostic
+        if let saved = loadSelection(), saved.folderId == Self.rootSelectionId {
+            completion(.success(saved))
             return
         }
 
+        getCurrentAccountId(client: client) { [weak self] currentId in
+            guard let self else { return }
+
+            // No prior selection → ensure default and return
+            guard let saved = self.loadSelection() else {
+                self.ensureDefaultDropboxFolder(client: client, completion: completion)
+                return
+            }
+
+            let sameAccount = (saved.accountId == nil || saved.accountId == currentId)
+
+            func finishAndPersist(from meta: (id: String, pathLower: String?)) {
+                let sel = DBSelection(folderId: meta.id, pathLower: meta.pathLower, accountId: currentId)
+                self.saveSelection(sel)
+                completion(.success(sel))
+            }
+
+            if sameAccount {
+                self.getFolderMetadata(client: client, idOrPath: saved.folderId) { idResult in
+                    switch idResult {
+                    case .success(let meta):
+                        finishAndPersist(from: meta)
+                    case .failure:
+                        if let path = saved.pathLower {
+                            self.getFolderMetadata(client: client, idOrPath: path) { pathRes in
+                                switch pathRes {
+                                case .success(let meta): finishAndPersist(from: meta)
+                                case .failure: self.ensureDefaultDropboxFolder(client: client, completion: completion)
+                                }
+                            }
+                        } else {
+                            self.ensureDefaultDropboxFolder(client: client, completion: completion)
+                        }
+                    }
+                }
+            } else {
+                // Different account → skip id; try pathLower only
+                if let path = saved.pathLower {
+                    self.getFolderMetadata(client: client, idOrPath: path) { pathRes in
+                        switch pathRes {
+                        case .success(let meta): finishAndPersist(from: meta)
+                        case .failure: self.ensureDefaultDropboxFolder(client: client, completion: completion)
+                        }
+                    }
+                } else {
+                    self.ensureDefaultDropboxFolder(client: client, completion: completion)
+                }
+            }
+        }
+    }
+
+    /// Ensures "/Prime Dictation" exists and returns its selection
+    private func ensureDefaultDropboxFolder(client: DropboxClient,
+                                            completion: @escaping (Result<DBSelection, Error>) -> Void) {
         let defaultPath = "/Prime Dictation"
         folderExists(client: client, pathLower: defaultPath.lowercased()) { [weak self] exists in
             guard let self else { return }
-            if exists {
+            let finishWithMeta: () -> Void = {
                 self.getFolderMetadata(client: client, idOrPath: defaultPath) { metaResult in
                     switch metaResult {
                     case .failure(let e):
                         completion(.failure(e))
                     case .success(let meta):
                         let selection = DBSelection(folderId: meta.id, pathLower: meta.pathLower)
-                        self.saveSelection(selection)
+                        // Save with current account id
+                        self.saveSelectionWithCurrentAccount(client: client, selection: selection)
                         completion(.success(selection))
                     }
                 }
+            }
+            if exists {
+                finishWithMeta()
             } else {
-                self.createFolder(client: client, path: defaultPath) { createResult in
-                    switch createResult {
-                    case .failure(let e):
-                        completion(.failure(e))
-                    case .success:
-                        self.getFolderMetadata(client: client, idOrPath: defaultPath) { metaResult in
-                            switch metaResult {
-                            case .failure(let e):
-                                completion(.failure(e))
-                            case .success(let meta):
-                                let selection = DBSelection(folderId: meta.id, pathLower: meta.pathLower)
-                                self.saveSelection(selection)
-                                completion(.success(selection))
-                            }
-                        }
-                    }
+                self.createFolder(client: client, path: defaultPath) { _ in
+                    // Regardless of create success (could be already exists), try to fetch metadata.
+                    finishWithMeta()
                 }
             }
         }
     }
 
-    // MARK: - Picker: build map “only selected at THIS level” (callback)
-    static let rootKey = "__root__"
-    static let rootSelectionId = "__dbx_root__" // synthetic id representing the user’s root
+    // MARK: - Picker: build map for ALL ancestor levels (account-aware)
 
-    /// Only computes a single mapping for THIS level:
-    ///  - if selected folder is immediate child of root → { rootKey : selectedId }
-    ///  - if deeper → { parentPathLower : selectedId }
+    /// Computes a mapping for *every* level along the saved selection’s path:
+    ///   If selection is /clients/acme/2025, returns:
+    ///     {
+    ///       "__root__"      : id("/clients"),
+    ///       "/clients"      : id("/clients/acme"),
+    ///       "/clients/acme" : id("/clients/acme/2025")
+    ///     }
+    /// Only pre-checks if saved.accountId matches current account (or nil legacy).
     private func buildSelectedMap(client: DropboxClient,
                                   completion: @escaping (Result<[String:String], Error>) -> Void) {
-        // No prior selection → nothing to pre-check
-        guard let saved = loadSelection() else {
-            completion(.success([:]))
-            return
-        }
+        guard let saved = loadSelection() else { completion(.success([:])); return }
+        if saved.folderId == Self.rootSelectionId { completion(.success([:])); return }
 
-        // Root selection → also nothing to pre-check (no child selected at root)
-        if saved.folderId == Self.rootSelectionId {
-            completion(.success([:]))
-            return
-        }
+        getCurrentAccountId(client: client) { [weak self] currentId in
+            guard let self else { return }
 
-        // Resolve saved selection to get its current pathLower
-        getFolderMetadata(client: client, idOrPath: saved.folderId) { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .failure(let e):
-                completion(.failure(e))
+            if let savedId = saved.accountId, let currentId, savedId != currentId {
+                // Different account → don't pre-check anything
+                completion(.success([:]))
+                return
+            }
 
-            case .success(let meta):
-                guard let selPathLower = meta.pathLower, !selPathLower.isEmpty, selPathLower != "/" else {
-                    // Selection is effectively root or we can’t resolve a proper path
+            // Helper: once we know the current valid pathLower, build the chain map
+            func buildMap(from selPathLower: String) {
+                guard !selPathLower.isEmpty, selPathLower != "/" else {
                     completion(.success([:]))
                     return
                 }
-
-                // Walk each component and build { parentKey → childId } at that level.
                 let components = selPathLower.split(separator: "/").map { String($0) }
                 var mapping: [String:String] = [:]
 
-                // Helper to join components as lowercase path with leading slash or empty for root
                 func joinPath(_ comps: ArraySlice<String>) -> String {
-                    if comps.isEmpty { return "" }        // root
+                    if comps.isEmpty { return "" } // root
                     return "/" + comps.joined(separator: "/")
                 }
 
-                // Recursively fetch metadata for each child path to get the child id and fill the map
                 func processLevel(_ idx: Int) {
-                    // idx goes from 0..<(components.count)
-                    // at idx = 0: parent = "", child = "/\(components[0])"
                     if idx >= components.count {
                         completion(.success(mapping))
                         return
                     }
-
                     let parentPath = joinPath(components.prefix(idx)[...])
-                    let childPath = joinPath(components.prefix(idx + 1)[...])
+                    let childPath  = joinPath(components.prefix(idx + 1)[...])
 
                     self.getFolderMetadata(client: client, idOrPath: childPath) { res in
                         switch res {
-                        case .failure(let e):
-                            // If one level fails, return what we have so far (or fail hard)
-                            completion(.failure(e))
+                        case .failure:
+                            // return what we have so far; don't block picker
+                            completion(.success(mapping))
                         case .success(let childMeta):
                             let parentKey = parentPath.isEmpty ? Self.rootKey : parentPath
                             mapping[parentKey] = childMeta.id
@@ -423,9 +476,27 @@ final class DropboxManager {
 
                 processLevel(0)
             }
+
+            // Try by id first (cheap if id still valid); otherwise by saved pathLower; else empty
+            self.getFolderMetadata(client: client, idOrPath: saved.folderId) { result in
+                switch result {
+                case .success(let meta):
+                    buildMap(from: meta.pathLower ?? "/")
+                case .failure:
+                    if let path = saved.pathLower {
+                        self.getFolderMetadata(client: client, idOrPath: path) { pathRes in
+                            switch pathRes {
+                            case .success(let meta): buildMap(from: meta.pathLower ?? "/")
+                            case .failure: completion(.success([:]))
+                            }
+                        }
+                    } else {
+                        completion(.success([:]))
+                    }
+                }
+            }
         }
     }
-
 
     // MARK: - Caches to minimize chevron flicker
 
@@ -443,6 +514,7 @@ final class DropboxManager {
     }
 
     // MARK: - Picker UI (callback-based)
+
     @MainActor
     private final class FolderPickerViewController: UITableViewController {
         private weak var manager: DropboxManager?
@@ -452,7 +524,7 @@ final class DropboxManager {
         private var cursor: String?
         private let onPicked: (DBSelection) -> Void
 
-        /// Map { parentKey → selectedChildId } for ONLY the current level (see buildSelectedMap)
+        /// Map { parentKey → selectedChildId } for ONLY the current level (but prebuilt for all ancestors)
         private var branchMap: [String:String]
 
         /// parentKey for this level (root → rootKey)
@@ -483,7 +555,7 @@ final class DropboxManager {
         override func viewDidLoad() {
             super.viewDidLoad()
 
-            // ✅ "Done" confirms current selection (checked child at this level if present; otherwise the current context)
+            // "Done" confirms current selection (checked child at this level if present; otherwise the current context)
             navigationItem.rightBarButtonItem = UIBarButtonItem(
                 title: "Done",
                 style: .done,
@@ -495,51 +567,49 @@ final class DropboxManager {
             load(reset: true)
             ProgressHUD.dismiss()
         }
-        
+
         // Confirm the effective selection and dismiss:
         // - If a child is checked at this level → that folder
-        // - Else → the current context folder
+        // - Else → the current context folder (root safe via synthetic id)
         @objc private func confirmSelectionAndDismiss() {
             guard let manager = self.manager else { return }
 
+            let saveAndDismiss: (DBSelection) -> Void = { [weak self] sel in
+                guard let self = self else { return }
+                manager.saveSelectionWithCurrentAccount(client: self.client, selection: sel)
+                self.onPicked(sel)
+                self.dismiss(animated: true)
+            }
+
             if let selectedId = selectedChildIdAtThisLevel {
-                // Resolve by id as before
+                // Resolve metadata by id
                 manager.getFolderMetadata(client: client, idOrPath: selectedId) { [weak self] res in
                     guard let self = self else { return }
                     switch res {
                     case .failure:
                         ProgressHUD.failed("Unable to pick this folder")
                     case .success(let meta):
-                        let sel = DBSelection(folderId: meta.id, pathLower: meta.pathLower)
-                        self.onPicked(sel)
-                        self.dismiss(animated: true)
+                        saveAndDismiss(DBSelection(folderId: meta.id, pathLower: meta.pathLower))
                     }
                 }
             } else {
-                // No child checked → confirming the current context
+                // No child checked → choose current context folder
                 if ctx.pathLower.isEmpty {
-                    // ✅ root: don’t call getMetadata(""); just persist a synthetic “root” selection
-                    let sel = DBSelection(folderId: DropboxManager.rootSelectionId, pathLower: "/")
-                    onPicked(sel)
-                    self.dismiss(animated: true)
+                    // root: synthetic id, no metadata call
+                    saveAndDismiss(DBSelection(folderId: DropboxManager.rootSelectionId, pathLower: "/"))
                 } else {
-                    // Non-root context: resolve normally
-                    let idOrPath = ctx.pathLower
-                    manager.getFolderMetadata(client: client, idOrPath: idOrPath) { [weak self] res in
-                        guard let self = self else { return }
+                    manager.getFolderMetadata(client: client, idOrPath: ctx.pathLower) { [weak self] res in
+                        guard let _ = self else { return }
                         switch res {
                         case .failure:
                             ProgressHUD.failed("Unable to pick this folder")
                         case .success(let meta):
-                            let sel = DBSelection(folderId: meta.id, pathLower: meta.pathLower)
-                            self.onPicked(sel)
-                            self.dismiss(animated: true)
+                            saveAndDismiss(DBSelection(folderId: meta.id, pathLower: meta.pathLower))
                         }
                     }
                 }
             }
         }
-
 
         private func load(reset: Bool) {
             guard let manager else { return }
@@ -654,7 +724,6 @@ final class DropboxManager {
                         self.navigationController?.pushViewController(vc, animated: true)
                     } else {
                         // Leaf + already selected → unselect (parent becomes effective selection)
-                        // (No dismissal or persistence here; Done will confirm later)
                         applyCheckmarkChange(nil)
                     }
                 } else {
@@ -672,8 +741,7 @@ final class DropboxManager {
                         )
                         self.navigationController?.pushViewController(vc, animated: true)
                     } else {
-                        // ✅ Leaf → just check it; DO NOT confirm or dismiss.
-                        // Confirmation happens only when the user taps "Done".
+                        // Leaf → just check it; DO NOT confirm or dismiss. "Done" will confirm later.
                     }
                 }
             }
@@ -713,12 +781,12 @@ final class DropboxManager {
             }
         } else {
             client.files.listFolder(
-                path: pathLower,                  // "" means app-root for App-folder apps, or real root for Full Dropbox apps
+                path: pathLower,                  // "" = app-root (App folder apps) or true root (Full Dropbox apps)
                 recursive: false,
                 includeMediaInfo: false,
                 includeDeleted: false,
                 includeHasExplicitSharedMembers: true,
-                includeMountedFolders: true,      // 👈 include shared/mounted folders
+                includeMountedFolders: true,      // include shared/mounted folders
                 includeNonDownloadableFiles: false
             ).response { (resp: Files.ListFolderResult?, err: CallError<Files.ListFolderError>?) in
                 if let resp = resp {
@@ -781,6 +849,7 @@ final class DropboxManager {
     }
 
     /// Get *folder* metadata (id + current pathLower) for a given id or path.
+    /// Get *folder* metadata (id + current pathLower) for a given id or path.
     fileprivate func getFolderMetadata(client: DropboxClient,
                                        idOrPath: String,
                                        completion: @escaping (Result<(id: String, pathLower: String?), Error>) -> Void) {
@@ -788,8 +857,8 @@ final class DropboxManager {
             if let folder = resp as? Files.FolderMetadata {
                 completion(.success((folder.id, folder.pathLower)))
             } else if let _ = resp {
-                completion(.failure(NSError(domain: "Dropbox", code: -2, userInfo: [NSLocalizedDescriptionKey: "Not a folder"])))}
-            else if let err = err {
+                completion(.failure(NSError(domain: "Dropbox", code: -2, userInfo: [NSLocalizedDescriptionKey: "Not a folder"])))
+            } else if let err = err {
                 completion(.failure(err))
             } else {
                 completion(.failure(NSError(domain: "Dropbox", code: -3)))
@@ -831,7 +900,7 @@ final class DropboxManager {
         }
     }
 
-    /// Resolve current absolute path for a saved selection (by id).
+    /// Resolve current absolute path for a saved selection (by id), root-safe.
     private func resolveCurrentPath(client: DropboxClient,
                                     selection: DBSelection,
                                     completion: @escaping (Result<String, Error>) -> Void) {
@@ -841,8 +910,10 @@ final class DropboxManager {
         }
         getFolderMetadata(client: client, idOrPath: selection.folderId) { result in
             switch result {
-            case .failure(let e): completion(.failure(e))
-            case .success(let meta): completion(.success(meta.pathLower ?? "/"))
+            case .failure(let e):
+                completion(.failure(e))
+            case .success(let meta):
+                completion(.success(meta.pathLower ?? "/"))
             }
         }
     }
