@@ -31,7 +31,7 @@
                                     </label>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="1tL-fi-eIn" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="top" constant="50" id="14G-OU-8AH"/>
+                                    <constraint firstItem="1tL-fi-eIn" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="top" constant="75" id="14G-OU-8AH"/>
                                     <constraint firstItem="1tL-fi-eIn" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="s0d-rv-qhg"/>
                                 </constraints>
                             </view>
