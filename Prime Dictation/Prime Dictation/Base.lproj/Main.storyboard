@@ -89,18 +89,41 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nJI-Eq-CWr" userLabel="Bottom View">
                                 <rect key="frame" x="0.0" y="468" width="414" height="268"/>
                                 <subviews>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="k8X-4n-nC8" userLabel="Stop/Record/Pause View">
-                                        <rect key="frame" x="0.0" y="0.0" width="414" height="203"/>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TEJ-KL-gv0">
+                                        <rect key="frame" x="30" y="173" width="145" height="45"/>
+                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
+                                        <state key="normal" title="Destination">
+                                            <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="DestinationButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="q9D-jl-sHq"/>
+                                            <segue destination="UhA-a9-Y15" kind="popoverPresentation" popoverAnchorView="TEJ-KL-gv0" id="utx-rm-hkU">
+                                                <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
+                                            </segue>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="svK-SA-aO1">
+                                        <rect key="frame" x="315" y="173" width="59" height="45"/>
+                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
+                                        <state key="normal" title="Send">
+                                            <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="SendButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ImA-qy-NzW"/>
+                                        </connections>
+                                    </button>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xv6-iB-UAN" userLabel="Recording View">
+                                        <rect key="frame" x="32" y="25" width="350" height="172"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EmE-RS-QlP" userLabel="Stop">
-                                                <rect key="frame" x="49" y="51.666666666666629" width="100" height="100"/>
+                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EmE-RS-QlP" userLabel="Stop">
+                                                <rect key="frame" x="10" y="36" width="100" height="100"/>
                                                 <state key="normal" image="EndButton"/>
                                                 <connections>
                                                     <action selector="StopRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8PK-a2-dMr"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aq9-EU-DW7" userLabel="Record">
-                                                <rect key="frame" x="157" y="51.666666666666629" width="100" height="100"/>
+                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aq9-EU-DW7" userLabel="Record">
+                                                <rect key="frame" x="125" y="36" width="100" height="100"/>
                                                 <state key="normal" image="RecordButton">
                                                     <color key="titleColor" red="0.95523184539999995" green="0.25774388710000001" blue="0.200147456" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                 </state>
@@ -108,8 +131,8 @@
                                                     <action selector="RecordButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ny2-1D-Ccm"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HCQ-U9-aU8" userLabel="Pause">
-                                                <rect key="frame" x="265" y="51.666666666666629" width="100" height="100"/>
+                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HCQ-U9-aU8" userLabel="Pause">
+                                                <rect key="frame" x="240" y="36" width="100" height="100"/>
                                                 <state key="normal" image="PauseButton-2"/>
                                                 <connections>
                                                     <action selector="PausePlayRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="HAA-jW-asP"/>
@@ -117,60 +140,22 @@
                                             </button>
                                         </subviews>
                                         <constraints>
-                                            <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="k8X-4n-nC8" secondAttribute="centerY" id="HMT-To-naS"/>
-                                            <constraint firstItem="EmE-RS-QlP" firstAttribute="centerY" secondItem="k8X-4n-nC8" secondAttribute="centerY" id="Md9-MO-Nv9"/>
-                                            <constraint firstItem="HCQ-U9-aU8" firstAttribute="leading" secondItem="aq9-EU-DW7" secondAttribute="trailing" constant="8" id="Qyh-t7-zc9"/>
-                                            <constraint firstItem="HCQ-U9-aU8" firstAttribute="centerY" secondItem="k8X-4n-nC8" secondAttribute="centerY" id="Sqm-qF-NxU"/>
-                                            <constraint firstItem="aq9-EU-DW7" firstAttribute="leading" secondItem="EmE-RS-QlP" secondAttribute="trailing" constant="8" id="Wyb-mi-RxN"/>
-                                            <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="k8X-4n-nC8" secondAttribute="centerX" id="j34-VN-9aC"/>
-                                        </constraints>
-                                    </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4fs-SU-4uI" userLabel="Destination/Send View">
-                                        <rect key="frame" x="0.0" y="203" width="414" height="65"/>
-                                        <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="svK-SA-aO1">
-                                                <rect key="frame" x="325" y="10" width="59" height="45"/>
-                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
-                                                <state key="normal" title="Send">
-                                                    <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="SendButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ImA-qy-NzW"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TEJ-KL-gv0">
-                                                <rect key="frame" x="18" y="10" width="159" height="38"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
-                                                <state key="normal" title="Destination">
-                                                    <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="DestinationButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="q9D-jl-sHq"/>
-                                                    <segue destination="UhA-a9-Y15" kind="popoverPresentation" popoverAnchorView="TEJ-KL-gv0" id="utx-rm-hkU">
-                                                        <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
-                                                    </segue>
-                                                </connections>
-                                            </button>
-                                        </subviews>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="65" id="J0r-sA-lp0"/>
-                                            <constraint firstAttribute="trailing" secondItem="svK-SA-aO1" secondAttribute="trailing" constant="30" id="kDb-9u-WeT"/>
-                                            <constraint firstItem="svK-SA-aO1" firstAttribute="centerY" secondItem="4fs-SU-4uI" secondAttribute="centerY" id="lrc-J5-dgK"/>
+                                            <constraint firstAttribute="width" constant="350" id="0bb-xY-SH3"/>
+                                            <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="xv6-iB-UAN" secondAttribute="centerX" id="9UJ-9s-5vo"/>
+                                            <constraint firstItem="HCQ-U9-aU8" firstAttribute="leading" secondItem="aq9-EU-DW7" secondAttribute="trailing" constant="15" id="MTM-Lp-b04"/>
+                                            <constraint firstItem="aq9-EU-DW7" firstAttribute="leading" secondItem="EmE-RS-QlP" secondAttribute="trailing" constant="15" id="mJc-7x-j1u"/>
+                                            <constraint firstAttribute="height" constant="172" id="xKo-BL-Qqq"/>
                                         </constraints>
                                     </view>
                                 </subviews>
                                 <gestureRecognizers/>
                                 <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="4fs-SU-4uI" secondAttribute="trailing" id="6Ej-4h-zHr"/>
-                                    <constraint firstItem="k8X-4n-nC8" firstAttribute="leading" secondItem="nJI-Eq-CWr" secondAttribute="leading" id="DLY-Mo-P2f"/>
-                                    <constraint firstItem="4fs-SU-4uI" firstAttribute="top" secondItem="k8X-4n-nC8" secondAttribute="bottom" id="DNk-1I-cZ1"/>
-                                    <constraint firstAttribute="bottom" secondItem="4fs-SU-4uI" secondAttribute="bottom" id="EJ1-zj-nVn"/>
-                                    <constraint firstItem="k8X-4n-nC8" firstAttribute="top" secondItem="nJI-Eq-CWr" secondAttribute="top" id="Gn3-fz-Kqo"/>
-                                    <constraint firstItem="k8X-4n-nC8" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="LEV-D2-2cn"/>
-                                    <constraint firstAttribute="trailing" secondItem="k8X-4n-nC8" secondAttribute="trailing" id="TxW-M1-qrM"/>
-                                    <constraint firstItem="4fs-SU-4uI" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="VE1-b5-mBS"/>
-                                    <constraint firstItem="4fs-SU-4uI" firstAttribute="leading" secondItem="nJI-Eq-CWr" secondAttribute="leading" id="yC7-Y7-WwB"/>
+                                    <constraint firstItem="xv6-iB-UAN" firstAttribute="top" secondItem="nJI-Eq-CWr" secondAttribute="top" constant="25" id="0WN-3G-Q8d"/>
+                                    <constraint firstItem="TEJ-KL-gv0" firstAttribute="centerY" secondItem="svK-SA-aO1" secondAttribute="centerY" id="7Gt-cE-h6W"/>
+                                    <constraint firstItem="TEJ-KL-gv0" firstAttribute="leading" secondItem="nJI-Eq-CWr" secondAttribute="leading" constant="30" id="A3i-1b-gR7"/>
+                                    <constraint firstItem="xv6-iB-UAN" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="Mta-b2-w0b"/>
+                                    <constraint firstAttribute="trailing" secondItem="svK-SA-aO1" secondAttribute="trailing" constant="40" id="cq6-Pe-4pg"/>
+                                    <constraint firstAttribute="bottom" secondItem="TEJ-KL-gv0" secondAttribute="bottom" constant="50" id="u4g-J3-kaI"/>
                                 </constraints>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAV-Xq-Ydt">
@@ -235,6 +220,7 @@
                             <constraint firstItem="dFf-qS-ITZ" firstAttribute="leading" secondItem="JP1-AS-jj7" secondAttribute="trailing" constant="10" id="oV5-IC-Fvf"/>
                             <constraint firstItem="nJI-Eq-CWr" firstAttribute="top" secondItem="Fhv-jG-Lfw" secondAttribute="bottom" id="omD-h8-6rK"/>
                             <constraint firstItem="tAV-Xq-Ydt" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="bottom" constant="10" id="rpc-jz-A7p"/>
+                            <constraint firstItem="Fhv-jG-Lfw" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="sc3-We-gzl"/>
                             <constraint firstItem="dFf-qS-ITZ" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="us9-zi-V8z"/>
                             <constraint firstItem="nJI-Eq-CWr" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="ywD-Ke-9VV"/>
                         </constraints>
@@ -257,7 +243,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2709" y="-554"/>
+            <point key="canvasLocation" x="-2710.144927536232" y="-554.34782608695662"/>
         </scene>
         <!--Settings View Controller-->
         <scene sceneID="6jj-Z0-h8q">
