@@ -289,7 +289,7 @@ final class OneDriveManager {
             } catch {
                 await MainActor.run {
                     ProgressHUD.dismiss()
-                    viewController.displayAlert(title: "Recording send failed", message: "Check your internet connection and try again.", handler: {
+                    viewController.displayAlert(title: "Recording send failed", message: "Your selected folder may have been deleted or you lost connection.", handler: {
                         ProgressHUD.failed("Failed to send recording to OneDrive")
                     })
                 }

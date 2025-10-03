@@ -339,7 +339,7 @@ final class DropboxManager {
 
             // No prior selection → ensure default and return
             guard let saved = self.loadSelection() else {
-                self.ensureDefaultDropboxFolder(client: client, completion: completion)
+                DisplayNoFolderSelectedError()
                 return
             }
 
@@ -361,11 +361,11 @@ final class DropboxManager {
                             self.getFolderMetadata(client: client, idOrPath: path) { pathRes in
                                 switch pathRes {
                                 case .success(let meta): finishAndPersist(from: meta)
-                                case .failure: self.ensureDefaultDropboxFolder(client: client, completion: completion)
+                                case .failure: self.DisplayNoFolderSelectedError()
                                 }
                             }
                         } else {
-                            self.ensureDefaultDropboxFolder(client: client, completion: completion)
+                            self.DisplayNoFolderSelectedError()
                         }
                     }
                 }
@@ -375,44 +375,20 @@ final class DropboxManager {
                     self.getFolderMetadata(client: client, idOrPath: path) { pathRes in
                         switch pathRes {
                         case .success(let meta): finishAndPersist(from: meta)
-                        case .failure: self.ensureDefaultDropboxFolder(client: client, completion: completion)
+                        case .failure: self.DisplayNoFolderSelectedError()
                         }
                     }
                 } else {
-                    self.ensureDefaultDropboxFolder(client: client, completion: completion)
+                    DisplayNoFolderSelectedError()
                 }
             }
         }
     }
-
-    /// Ensures "/Prime Dictation" exists and returns its selection
-    private func ensureDefaultDropboxFolder(client: DropboxClient,
-                                            completion: @escaping (Result<DBSelection, Error>) -> Void) {
-        let defaultPath = "/Prime Dictation"
-        folderExists(client: client, pathLower: defaultPath.lowercased()) { [weak self] exists in
-            guard let self else { return }
-            let finishWithMeta: () -> Void = {
-                self.getFolderMetadata(client: client, idOrPath: defaultPath) { metaResult in
-                    switch metaResult {
-                    case .failure(let e):
-                        completion(.failure(e))
-                    case .success(let meta):
-                        let selection = DBSelection(folderId: meta.id, pathLower: meta.pathLower)
-                        // Save with current account id
-                        self.saveSelectionWithCurrentAccount(client: client, selection: selection)
-                        completion(.success(selection))
-                    }
-                }
-            }
-            if exists {
-                finishWithMeta()
-            } else {
-                self.createFolder(client: client, path: defaultPath) { _ in
-                    // Regardless of create success (could be already exists), try to fetch metadata.
-                    finishWithMeta()
-                }
-            }
-        }
+    
+    func DisplayNoFolderSelectedError() {
+        viewController?.displayAlert(title: "Recording send failed", message: "Your selected folder may have been deleted or you lost connection.", handler: {
+            ProgressHUD.failed("Failed to send recording to Dropbox")
+        })
     }
 
     // MARK: - Picker: build map for ALL ancestor levels (account-aware)
