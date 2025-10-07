@@ -10,6 +10,7 @@ import UIKit
 import SwiftyDropbox
 import MSAL
 import ProgressHUD
+import GoogleSignIn
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -20,6 +21,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         let dropboxAppKey = loadDropboxAppKey()
         DropboxClientsManager.setupWithAppKey(dropboxAppKey.trimmingCharacters(in: .whitespacesAndNewlines))
+        
+        let GDClientID = loadGoogleDriveClientID()
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration.init(clientID: GDClientID)
         
         return true
     }
@@ -32,6 +36,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         if key.hasPrefix("$(") {
             fatalError("DROPBOX_APP_KEY was not resolved. Define it in Build Settings/.xcconfig for this target & configuration.")
+        }
+        
+        return key
+    }
+    
+    private func loadGoogleDriveClientID() -> String {
+        guard var key = Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String else {
+            fatalError("Missing GIDGlientID in Info.plist")
+        }
+        key = key.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if key.hasPrefix("$(") {
+            fatalError("GIDGlientID was not resolved. Define it in Build Settings/.xcconfig for this target & configuration.")
         }
         
         return key
@@ -69,7 +86,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         let scheme = (url.scheme ?? "").lowercased()
-
+        print("scheme \(scheme)")
+        if scheme.hasPrefix("com.googleusercontent.apps") {
+            print("handling GD sign in")
+            return GIDSignIn.sharedInstance.handle(url)
+        }
+        
         if scheme.hasPrefix("msauth") {
             return AppServices.shared.oneDriveManager.handleRedirect(url: url, options: options)
         }

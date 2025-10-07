@@ -34,6 +34,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     var dropboxManager: DropboxManager!
     var oneDriveManager: OneDriveManager!
+    var googleDriveManager: GoogleDriveManager!
     var destinationManager: DestinationManager!
     
     var recordingManager: RecordingManager!
@@ -47,11 +48,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         recordingManager = services.recordingManager
         dropboxManager = services.dropboxManager
         oneDriveManager = services.oneDriveManager
+        googleDriveManager = services.googleDriveManager
         destinationManager = services.destinationManager
         
         recordingManager.attach(viewController: self)
         dropboxManager.attach(viewController: self, recordingManager: recordingManager)
         oneDriveManager.attach(viewController: self, recordingManager: recordingManager)
+        googleDriveManager.attach(viewController: self, recordingManager: recordingManager)
 
         watch = Stopwatch(viewController: self)
         
@@ -236,6 +239,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             case Destination.onedrive:
                 print("Sending to OneDrive")
                 oneDriveManager.SendToOneDrive(url: recordingUrl)
+            case Destination.googledrive:
+                print("Sending to Google Drive")
+                googleDriveManager.SendToGoogleDrive(url: recordingUrl)
             default:
                 print("No destination selected")
                 ProgressHUD.failed("No destination selected")
@@ -326,4 +332,21 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PreviousRecordingLabel.setTitleColor(UIColor.black, for: .normal)
         NextRecordingLabel.setTitleColor(UIColor.black, for: .normal)
     }
+    
+    func NoRecordingsUI() {
+        ListenLabel.isHidden = true
+        FileNameLabel.isHidden = true
+        SendLabel.isEnabled = false
+        PreviousRecordingLabel.isHidden = true
+        NextRecordingLabel.isHidden = true
+    }
+    
+    func HasRecordingsUI(numberOfRecordings: Int) {
+        ListenLabel.isHidden = false
+        FileNameLabel.isHidden = false
+        SendLabel.isEnabled = true
+        PreviousRecordingLabel.isHidden = numberOfRecordings <= 1 // Show back arrow of there are 2 or more recordings
+        NextRecordingLabel.isHidden = true
+    }
+    
 }

@@ -38,29 +38,17 @@ class RecordingManager {
     func SetSavedRecordingsOnLoad()
     {
         savedRecordingNames = UserDefaults.standard.object(forKey: savedRecordingsKey) as? [String] ?? [String]()
-        
-        if (savedRecordingNames.count > 1) {
-            viewController.FileNameLabel.setTitle(savedRecordingNames[savedRecordingNames.count - 1], for: .normal)
-        
-            toggledRecordingsIndex = savedRecordingNames.count - 1
-            toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
-            viewController.NextRecordingLabel.isEnabled = false
-        } else if (savedRecordingNames.count == 1) {
-            toggledRecordingsIndex = savedRecordingNames.count - 1
-            toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
-            viewController.FileNameLabel.setTitle(toggledRecordingName, for: .normal)
-            viewController.PreviousRecordingLabel.isEnabled = false
-            viewController.NextRecordingLabel.isEnabled = false
-        }
-        else
-        {
-            viewController.PreviousRecordingLabel.isEnabled = false
-            viewController.NextRecordingLabel.isEnabled = false
+        let recordingCount = savedRecordingNames.count
+        if (recordingCount > 0) {
+            SelectMostRecentRecording()
+        } else {
+            viewController.NoRecordingsUI()
         }
     }
     
     func UpdateSavedRecordings() {
-        if savedRecordingNames.count < maxNumSavedRecordings {
+        let recordingCount = savedRecordingNames.count
+        if recordingCount < maxNumSavedRecordings {
             savedRecordingNames.append(recordingName)
         } else {
             //Delete the oldest recording and add the next one
@@ -75,16 +63,15 @@ class RecordingManager {
             savedRecordingNames.append(recordingName)
         }
         UserDefaults.standard.set(savedRecordingNames, forKey: savedRecordingsKey)
-        toggledRecordingsIndex = savedRecordingNames.count - 1
-        toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
-        
-        if (savedRecordingNames.count >= 2) {
-            viewController.NextRecordingLabel.isEnabled = false
-            viewController.PreviousRecordingLabel.isEnabled = true
-        }
-        
-        viewController.FileNameLabel.setTitle(toggledRecordingName, for: .normal)
+        SelectMostRecentRecording()
+    }
     
+    func SelectMostRecentRecording() {
+        let recordingCount = savedRecordingNames.count
+        toggledRecordingsIndex = recordingCount - 1
+        toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
+        viewController.FileNameLabel.setTitle(savedRecordingNames[toggledRecordingsIndex], for: .normal)
+        viewController.HasRecordingsUI(numberOfRecordings: recordingCount)
     }
     
     func RecordingTimeForName(now: Date = Date()) -> String {
@@ -98,35 +85,26 @@ class RecordingManager {
     }
     
     func CheckToggledRecordingsIndex(goingToPreviousRecording: Bool) {
+        let recordingCount = savedRecordingNames.count
+        
         if (goingToPreviousRecording) {
             //Index bounds check for previous recording button
-            if (toggledRecordingsIndex <= 1) {
-                toggledRecordingsIndex -= 1
-                viewController.PreviousRecordingLabel.isEnabled = false
-                if (savedRecordingNames.count == 2) {
-                    viewController.NextRecordingLabel.isEnabled = true
-                }
-                
-            } else {
-                if (!viewController.NextRecordingLabel.isEnabled) {
-                    viewController.NextRecordingLabel.isEnabled = true
-                }
-                toggledRecordingsIndex -= 1
+            if (toggledRecordingsIndex <= 0) { return }
+            viewController.NextRecordingLabel.isHidden = false
+            if (toggledRecordingsIndex == 1) {
+                // Going to the oldest recording
+                viewController.PreviousRecordingLabel.isHidden = true
             }
+            toggledRecordingsIndex -= 1
         } else {
             //Index bounds check for next recording button
-            if (toggledRecordingsIndex >= savedRecordingNames.count - 2) {
-                toggledRecordingsIndex += 1
-                viewController.NextRecordingLabel.isEnabled = false
-                if (savedRecordingNames.count == 2) {
-                    viewController.PreviousRecordingLabel.isEnabled = true
-                }
-            } else {
-                if (!viewController.PreviousRecordingLabel.isEnabled) {
-                    viewController.PreviousRecordingLabel.isEnabled = true
-                }
-                toggledRecordingsIndex += 1
+            if (toggledRecordingsIndex >= recordingCount - 1) { return }
+            viewController.PreviousRecordingLabel.isHidden = false
+            if (toggledRecordingsIndex == recordingCount - 2) {
+                // Going to the newest recording
+                viewController.NextRecordingLabel.isHidden = true
             }
+            toggledRecordingsIndex += 1
         }
     }
 

@@ -559,8 +559,7 @@ final class DropboxManager {
 
             if let selectedId = selectedChildIdAtThisLevel {
                 // Resolve metadata by id
-                manager.getFolderMetadata(client: client, idOrPath: selectedId) { [weak self] res in
-                    guard let self = self else { return }
+                manager.getFolderMetadata(client: client, idOrPath: selectedId) { res in
                     switch res {
                     case .failure:
                         ProgressHUD.failed("Unable to pick this folder")

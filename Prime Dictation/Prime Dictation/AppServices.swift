@@ -13,6 +13,7 @@ final class AppServices {
     // Keep one instance of each manager for the whole app
     let dropboxManager = DropboxManager()
     let oneDriveManager = OneDriveManager()
+    let googleDriveManager = GoogleDriveManager()
     let recordingManager = RecordingManager()
     let destinationManager = DestinationManager()
 

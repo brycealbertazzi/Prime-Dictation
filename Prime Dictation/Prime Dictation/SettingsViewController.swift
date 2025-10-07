@@ -13,10 +13,12 @@ import ProgressHUD
 class SettingsViewController: UIViewController {
     var dropboxManager: DropboxManager!
     var oneDriveManager: OneDriveManager!
+    var googleDriveManager: GoogleDriveManager!
     var destinationManager: DestinationManager!
     
     @IBOutlet weak var DropboxLabel: UIButton!
     @IBOutlet weak var OneDriveLabel: UIButton!
+    @IBOutlet weak var GoogleDriveLabel: UIButton!
     @IBOutlet weak var SelectFolderIcon: UIButton!
     
     override func viewDidLoad() {
@@ -25,10 +27,12 @@ class SettingsViewController: UIViewController {
         let services = AppServices.shared
         dropboxManager = services.dropboxManager
         oneDriveManager = services.oneDriveManager
+        googleDriveManager = services.googleDriveManager
         destinationManager = services.destinationManager
 
         dropboxManager.attach(settingsViewController: self)
         oneDriveManager.attach(settingsViewController: self)
+        googleDriveManager.attach(settingsViewController: self)
         destinationManager.attach(settingsViewController: self)
         
         UpdateSelectedDestinationUI(destination: DestinationManager.SELECTED_DESTINATION)
@@ -65,19 +69,46 @@ class SettingsViewController: UIViewController {
         }
     }
     
+    @IBAction func GoogleDriveButton(_ sender: Any) {
+        googleDriveManager.openAuthorizationFlow { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success:
+                self.UpdateSelectedDestinationUserDefaults(destination: .googledrive)
+                self.UpdateSelectedDestinationUI(destination: .googledrive)
+            case .cancel:
+                ProgressHUD.failed("Canceled Google Drive Login")
+            case .error(_, _):
+                ProgressHUD.failed("Unable to log into Google Drive")
+            case .none:
+                ProgressHUD.failed("Unable to log into Google Drive")
+            }
+        }
+    }
+    
     @IBAction func SelectFolderButton(_ sender: Any) {
-        switch DestinationManager.SELECTED_DESTINATION {
-        case.dropbox:
+        let currentDestination = DestinationManager.SELECTED_DESTINATION
+        
+        switch currentDestination {
+        case .dropbox:
             ProgressHUD.animate("Opening file picker", .activityIndicator)
             dropboxManager.PresentDropboxFolderPicker { selection in
+                // Your folder selection logic for Dropbox
                 ProgressHUD.succeed("Dropbox folder selected")
             }
             break
         case .onedrive:
             ProgressHUD.animate("Opening file picker", .activityIndicator)
             oneDriveManager.PresentOneDriveFolderPicker { selection in
-                // Optional: update your UI to show the chosen folder
+                // Your folder selection logic for OneDrive
                 ProgressHUD.succeed("OneDrive folder selected")
+            }
+            break
+        case .googledrive:
+            ProgressHUD.animate("Opening file picker", .activityIndicator)
+            googleDriveManager.presentGoogleDriveFolderPicker { selection in
+                // Your folder selection logic for Google Drive
+                ProgressHUD.succeed("Google Drive folder selected")
             }
             break
         default:
@@ -88,7 +119,9 @@ class SettingsViewController: UIViewController {
     
     
     @IBAction func SignOutButton(_ sender: Any) {
-        switch DestinationManager.SELECTED_DESTINATION {
+        let currentDestination = DestinationManager.SELECTED_DESTINATION
+        
+        switch currentDestination {
         case .dropbox:
             print("Signing out of Dropbox")
             dropboxManager.signOutAppOnly(completion: {(error) in
@@ -101,6 +134,14 @@ class SettingsViewController: UIViewController {
             print("Signing out of OneDrive")
             oneDriveManager.SignOutAppOnly(completion: { (error) in
                 ProgressHUD.succeed("Signed out of OneDrive")
+                self.UpdateSelectedDestinationUserDefaults(destination: Destination.none)
+                self.UpdateSelectedDestinationUI(destination: Destination.none)
+            })
+            break
+        case .googledrive:
+            print("Signing out of Google Drive")
+            googleDriveManager.signOutAppOnly(completion: { (error) in
+                ProgressHUD.succeed("Signed out of Google Drive")
                 self.UpdateSelectedDestinationUserDefaults(destination: Destination.none)
                 self.UpdateSelectedDestinationUI(destination: Destination.none)
             })
@@ -118,17 +159,23 @@ class SettingsViewController: UIViewController {
         let selectedColor: UIColor = .systemBlue
         SelectFolderIcon.isEnabled = true
         SelectFolderIcon.alpha = 1.0
-        if destination == .dropbox {
+
+        DropboxLabel.setTitleColor(.black, for: .normal)
+        OneDriveLabel.setTitleColor(.black, for: .normal)
+        GoogleDriveLabel.setTitleColor(.black, for: .normal)
+
+        switch destination {
+        case .dropbox:
             DropboxLabel.setTitleColor(selectedColor, for: .normal)
-            OneDriveLabel.setTitleColor(.black, for: .normal)
-        } else if destination == .onedrive {
+        case .onedrive:
             OneDriveLabel.setTitleColor(selectedColor, for: .normal)
-            DropboxLabel.setTitleColor(.black, for: .normal)
-        } else {
-            DropboxLabel.setTitleColor(.black, for: .normal)
-            OneDriveLabel.setTitleColor(.black, for: .normal)
+        case .googledrive:
+            GoogleDriveLabel.setTitleColor(selectedColor, for: .normal)
+        case .none?:
             SelectFolderIcon.isEnabled = false
             SelectFolderIcon.alpha = 0.36
+        default:
+            break
         }
     }
     

@@ -258,7 +258,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9qh-lx-pQg">
-                                <rect key="frame" x="152" y="412" width="110" height="45"/>
+                                <rect key="frame" x="152" y="336" width="110" height="45"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
                                 <state key="normal" title="OneDrive">
@@ -309,6 +309,18 @@
                                     <action selector="SelectFolderButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="dM4-aU-6w1"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SGc-lp-6ij" userLabel="Google Drive Label">
+                                <rect key="frame" x="124" y="434" width="176" height="47"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="tintColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Google Drive">
+                                    <fontDescription key="titleFontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="GoogleDriveButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="6Hw-c0-Otc"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="91F-Bu-qrb"/>
                         <color key="backgroundColor" systemColor="labelColor"/>
@@ -316,6 +328,7 @@
                     <navigationItem key="navigationItem" id="hHB-8b-a40"/>
                     <connections>
                         <outlet property="DropboxLabel" destination="r8D-RY-2sR" id="1ky-qD-7D5"/>
+                        <outlet property="GoogleDriveLabel" destination="SGc-lp-6ij" id="kYb-Bf-FdF"/>
                         <outlet property="OneDriveLabel" destination="9qh-lx-pQg" id="w1N-IF-UIc"/>
                         <outlet property="SelectFolderIcon" destination="AWb-dR-20j" id="Hsz-IJ-I79"/>
                     </connections>

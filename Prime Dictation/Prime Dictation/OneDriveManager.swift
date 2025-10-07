@@ -937,7 +937,7 @@ final class OneDriveManager {
                             await MainActor.run {
                                 let vc = FolderPickerViewController(
                                     manager: manager,
-                                    accessToken: token,
+                                    accessToken: self.token,
                                     start: next,
                                     branchMap: self.branchMap,
                                     onPicked: self.onPicked
