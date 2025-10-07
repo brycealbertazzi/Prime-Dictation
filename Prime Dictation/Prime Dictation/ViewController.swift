@@ -337,6 +337,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         ListenLabel.isHidden = true
         FileNameLabel.isHidden = true
         SendLabel.isEnabled = false
+        SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
         PreviousRecordingLabel.isHidden = true
         NextRecordingLabel.isHidden = true
     }
@@ -345,6 +346,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         ListenLabel.isHidden = false
         FileNameLabel.isHidden = false
         SendLabel.isEnabled = true
+        SendLabel.setTitleColor(UIColor.black, for: .normal)
         PreviousRecordingLabel.isHidden = numberOfRecordings <= 1 // Show back arrow of there are 2 or more recordings
         NextRecordingLabel.isHidden = true
     }

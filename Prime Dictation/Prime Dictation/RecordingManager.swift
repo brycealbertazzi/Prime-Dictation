@@ -80,7 +80,7 @@ class RecordingManager {
         f.timeZone = .current
         f.amSymbol = "am"
         f.pmSymbol = "pm"
-        f.dateFormat = "EEE MMM d yyyy 'at' hh_mm ss's'"
+        f.dateFormat = "EEE MMM d yyyy 'at' h:mma"
         return f.string(from: now)
     }
     
