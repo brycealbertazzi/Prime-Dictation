@@ -263,6 +263,42 @@ final class OneDriveManager {
             }
         }
     }
+    
+    func sanitizeForOneDriveFileName(_ name: String, fallback: String = "Recording") -> String {
+        // Illegal in OneDrive/Windows:  \ / : * ? " < > |  and control chars
+        let invalid = CharacterSet(charactersIn: "\\/:*?\"<>|").union(.controlCharacters)
+
+        // Replace illegal characters with "-"
+        var cleaned = ""
+        cleaned.reserveCapacity(name.count)
+        for scalar in name.unicodeScalars {
+            if invalid.contains(scalar) {
+                cleaned.append("-")
+            } else {
+                cleaned.append(String(scalar))
+            }
+        }
+
+        // OneDrive/Windows: name cannot end with a space or a dot
+        while let last = cleaned.unicodeScalars.last, last == " " || last == "." {
+            cleaned.removeLast()
+            cleaned.append("-")
+        }
+
+        // Ensure non-empty result
+        if cleaned.isEmpty { return fallback }
+
+        // Enforce 255-character component limit (preserving extension if present)
+        if cleaned.count > 255 {
+            let ext = (cleaned as NSString).pathExtension
+            var base = (cleaned as NSString).deletingPathExtension
+            let maxBase = max(1, 255 - (ext.isEmpty ? 0 : ext.count + 1))
+            if base.count > maxBase { base = String(base.prefix(maxBase)) }
+            cleaned = ext.isEmpty ? base : "\(base).\(ext)"
+        }
+
+        return cleaned
+    }
 
     // MARK: - Public: upload entry point (uses selected folder or default)
     func SendToOneDrive(url: URL, preferredFileName: String? = nil, progress: ((Double) -> Void)? = nil) {
@@ -278,9 +314,12 @@ final class OneDriveManager {
                 let token = try await self.getAccessTokenSilently()
                 let target = try await self.resolveSelectionOrDefault(token: token) // user choice or "/Prime Dictation"
                 let fileName = preferredFileName ?? url.lastPathComponent
+                let sanitizedFileName = self.sanitizeForOneDriveFileName(fileName)
+                
+                print("sanitizedFileName: \(sanitizedFileName)")
                 _ = try await self.uploadRecording(accessToken: token,
                                                    fileURL: url,
-                                                   fileName: fileName,
+                                                   fileName: sanitizedFileName,
                                                    to: target,
                                                    progress: progress)
                 await MainActor.run {

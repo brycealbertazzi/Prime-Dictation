@@ -93,6 +93,27 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         recordingManager.SetSavedRecordingsOnLoad()
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "ShowSettingsPopover",
+           let vc = segue.destination as? SettingsViewController,
+           let pop = vc.popoverPresentationController {
+
+            if let anchor = sender as? UIView {
+                pop.sourceView = anchor
+                pop.sourceRect = anchor.bounds
+                pop.permittedArrowDirections = [.up, .down]
+            } else {
+                pop.sourceView = view
+                pop.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 1, height: 1)
+                pop.permittedArrowDirections = []
+            }
+            pop.delegate = self
+
+            // Optional: prevent swipe-down dismissal when full screen
+            vc.isModalInPresentation = true
+        }
+    }
+    
     //MARK: Listen to Playback
     @IBAction func ListenButton(_ sender: Any) {
         //Store the path to the recording in this "path" variable
@@ -228,6 +249,33 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTimeListen(timer:))
         }
     }
+    
+    private func showSettingsPopover(anchorView: UIView?, barButtonItem: UIBarButtonItem?) {
+        let vc = storyboard!.instantiateViewController(withIdentifier: "SettingsViewController") as! SettingsViewController
+        vc.modalPresentationStyle = .popover
+
+        if let pop = vc.popoverPresentationController {
+            if let item = barButtonItem {
+                pop.barButtonItem = item
+            } else if let view = anchorView {
+                pop.sourceView = view
+                pop.sourceRect = view.bounds           // correct coordinate space
+                pop.permittedArrowDirections = [.up, .down]
+            } else {
+                // Fallback center (avoid if you want identical positioning)
+                pop.sourceView = self.view
+                pop.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 1, height: 1)
+                pop.permittedArrowDirections = []
+            }
+            pop.delegate = self
+        }
+
+        // Allow swipe-down to dismiss when it adapts (don’t lock it)
+        vc.isModalInPresentation = false
+
+        present(vc, animated: true)
+    }
+
 
     @IBAction func SendButton(_ sender: Any) {
         if recordingManager.savedRecordingNames.count > 0 {
@@ -244,15 +292,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 googleDriveManager.SendToGoogleDrive(url: recordingUrl)
             default:
                 print("No destination selected")
-                ProgressHUD.failed("No destination selected")
+                showSettingsPopover(anchorView: DestinationLabel, barButtonItem: nil)
             }
         } else {
             ProgressHUD.failed("No recording to send")
         }
-    }
-    
-    @IBAction func DestinationButton(_ sender: UIButton) {
-        print("Destination button clicked")
     }
     
     func displayAlert(title: String, message: String, handler: (@MainActor () -> Void)? = nil) {
@@ -350,5 +394,21 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PreviousRecordingLabel.isHidden = numberOfRecordings <= 1 // Show back arrow of there are 2 or more recordings
         NextRecordingLabel.isHidden = true
     }
-    
 }
+
+extension ViewController: UIPopoverPresentationControllerDelegate {
+
+    // Make iPhone behave like your Destination button: a sheet that supports swipe-down
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        // On compact width (iPhone), use a sheet (swipe-down supported). On iPad, keep popover.
+        return traitCollection.horizontalSizeClass == .compact ? .pageSheet : .none
+    }
+
+    // Optional: wrap in a nav controller when it becomes a sheet to show a title/close button
+    func presentationController(_ controller: UIPresentationController,
+                                viewControllerForAdaptivePresentationStyle style: UIModalPresentationStyle) -> UIViewController? {
+        guard style != .none else { return nil }
+        return UINavigationController(rootViewController: controller.presentedViewController)
+    }
+}
+
