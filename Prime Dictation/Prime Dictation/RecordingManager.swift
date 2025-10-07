@@ -76,12 +76,40 @@ class RecordingManager {
     
     func RecordingTimeForName(now: Date = Date()) -> String {
         let f = DateFormatter()
-        f.locale = Locale(identifier: "en_US_POSIX") // stable, English abbreviations
+        f.locale = Locale(identifier: "en_US_POSIX")
         f.timeZone = .current
         f.amSymbol = "am"
         f.pmSymbol = "pm"
         f.dateFormat = "EEE MMM d yyyy 'at' h:mma"
-        return f.string(from: now)
+
+        let base = f.string(from: now)
+        let n = DuplicateRecordingsThisMinute(fileName: base)
+        return n > 0 ? "\(base)(\(n))" : base
+    }
+
+    /// Finds the next numeric suffix for files that share the same minute stamp.
+    /// Matches exactly `fileName` or `fileName(<number>)` and returns the next number to use.
+    func DuplicateRecordingsThisMinute(fileName: String) -> Int {
+        var maxSuffix = -1 // -1 means no existing files; 0 means base name exists
+
+        for name in savedRecordingNames {
+            if name == fileName {
+                maxSuffix = max(maxSuffix, 0)
+            } else if name.hasPrefix(fileName + "("), name.hasSuffix(")") {
+                // Extract the digits between the parentheses
+                let start = name.index(name.startIndex, offsetBy: fileName.count + 1)
+                let end = name.index(before: name.endIndex)
+                if start <= end {
+                    let digits = name[start..<end]
+                    if let n = Int(digits) {
+                        maxSuffix = max(maxSuffix, n)
+                    }
+                }
+            }
+        }
+
+        // Next available suffix (handles 10+, 100+, etc.)
+        return maxSuffix + 1
     }
     
     func CheckToggledRecordingsIndex(goingToPreviousRecording: Bool) {
