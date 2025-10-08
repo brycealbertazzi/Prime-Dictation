@@ -117,40 +117,6 @@ class SettingsViewController: UIViewController {
         }
     }
     
-    
-    @IBAction func SignOutButton(_ sender: Any) {
-        let currentDestination = DestinationManager.SELECTED_DESTINATION
-        
-        switch currentDestination {
-        case .dropbox:
-            print("Signing out of Dropbox")
-            dropboxManager.signOutAppOnly(completion: {(error) in
-                ProgressHUD.succeed("Signed out of Dropbox")
-                self.UpdateSelectedDestinationUserDefaults(destination: Destination.none)
-                self.UpdateSelectedDestinationUI(destination: Destination.none)
-            })
-            break
-        case .onedrive:
-            print("Signing out of OneDrive")
-            oneDriveManager.SignOutAppOnly(completion: { (error) in
-                ProgressHUD.succeed("Signed out of OneDrive")
-                self.UpdateSelectedDestinationUserDefaults(destination: Destination.none)
-                self.UpdateSelectedDestinationUI(destination: Destination.none)
-            })
-            break
-        case .googledrive:
-            print("Signing out of Google Drive")
-            googleDriveManager.signOutAppOnly(completion: { (error) in
-                ProgressHUD.succeed("Signed out of Google Drive")
-                self.UpdateSelectedDestinationUserDefaults(destination: Destination.none)
-                self.UpdateSelectedDestinationUI(destination: Destination.none)
-            })
-            break
-        default:
-            break
-        }
-    }
-    
     func UpdateSelectedDestinationUserDefaults(destination: Destination) {
         destinationManager.setSelectedDestination(destination)
     }

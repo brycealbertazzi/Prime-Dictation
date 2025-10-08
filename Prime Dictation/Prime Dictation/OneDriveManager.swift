@@ -797,6 +797,28 @@ final class OneDriveManager {
                     self.dismiss(animated: true)
                 }
             )
+            navigationItem.leftBarButtonItem = UIBarButtonItem(
+                primaryAction: UIAction(title: "Sign Out") { [weak self] _ in
+                    guard let self = self, let manager = self.manager else { return }
+                    ProgressHUD.animate("Signing out…")
+                    manager.SignOutAppOnly { success in
+                        Task { @MainActor in
+                            guard let settingsVC = manager.settingsViewController else {
+                                print("Unable to find settings view controller on OneDrive signout")
+                                return
+                            }
+                            if success {
+                                settingsVC.UpdateSelectedDestinationUserDefaults(destination: Destination.none)
+                                settingsVC.UpdateSelectedDestinationUI(destination: Destination.none)
+                                self.dismiss(animated: true)
+                                ProgressHUD.succeed("Signed out of OneDrive")
+                            } else {
+                                ProgressHUD.failed("Sign out failed")
+                            }
+                        }
+                    }
+                }
+            )
             tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
             Task { await loadPage(reset: true) }
             ProgressHUD.dismiss()

@@ -72,7 +72,7 @@ final class DropboxManager {
     }
 
     @MainActor
-    func signOutAppOnly(completion: @escaping (Bool) -> Void) {
+    func SignOutAppOnly(completion: @escaping (Bool) -> Void) {
         // If nothing is linked, treat as success
         guard isSignedIn else { completion(true); return }
         DropboxClientsManager.unlinkClients()
@@ -495,6 +495,29 @@ final class DropboxManager {
                 style: .done,
                 target: self,
                 action: #selector(confirmSelectionAndDismiss)
+            )
+            // Sign Out - Signs the user out of Dropbox
+            navigationItem.leftBarButtonItem = UIBarButtonItem(
+                primaryAction: UIAction(title: "Sign Out") { [weak self] _ in
+                    guard let self = self, let manager = self.manager else { return }
+                    ProgressHUD.animate("Signing out…")
+                    manager.SignOutAppOnly { success in
+                        Task { @MainActor in
+                            guard let settingsVC = manager.settingsViewController else {
+                                print("Unable to find settings view controller on Dropbox signout")
+                                return
+                            }
+                            if success {
+                                settingsVC.UpdateSelectedDestinationUserDefaults(destination: Destination.none)
+                                settingsVC.UpdateSelectedDestinationUI(destination: Destination.none)
+                                self.dismiss(animated: true)
+                                ProgressHUD.succeed("Signed out of Dropbox")
+                            } else {
+                                ProgressHUD.failed("Sign out failed")
+                            }
+                        }
+                    }
+                }
             )
 
             tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
