@@ -309,17 +309,6 @@
                                     <action selector="GoogleDriveButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="6Hw-c0-Otc"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cgb-1L-Ind">
-                                <rect key="frame" x="259" y="574" width="90" height="35"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Sign Out">
-                                    <backgroundConfiguration key="background"/>
-                                </buttonConfiguration>
-                                <connections>
-                                    <action selector="TempSignOutButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="paf-rE-lwj"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="91F-Bu-qrb"/>
                         <color key="backgroundColor" systemColor="labelColor"/>

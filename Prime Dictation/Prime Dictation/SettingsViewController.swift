@@ -118,14 +118,6 @@ class SettingsViewController: UIViewController {
         }
     }
     
-//    REMOVE LATER!!!!!
-    @IBAction func TempSignOutButton(_ sender: Any) {
-        googleDriveManager.SignOutAppOnly(completion: {_ in
-            
-        })
-    }
-    
-    
     func UpdateSelectedDestinationUserDefaults(destination: Destination) {
         destinationManager.setSelectedDestination(destination)
     }

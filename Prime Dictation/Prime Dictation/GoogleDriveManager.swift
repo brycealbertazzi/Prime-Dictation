@@ -389,7 +389,8 @@ final class GoogleDriveManager: NSObject {
     func SignOutAndRevoke(completion: @escaping (Bool) -> Void) {
         GIDSignIn.sharedInstance.disconnect { [weak self] _ in
             Task { @MainActor in
-                self?.resetGoogleDriveState()
+                guard let self = self else { return }
+                self.resetGoogleDriveState()
                 completion(true)
             }
         }
