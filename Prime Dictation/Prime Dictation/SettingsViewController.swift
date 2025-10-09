@@ -74,6 +74,7 @@ class SettingsViewController: UIViewController {
             guard let self = self else { return }
             switch result {
             case .success:
+                print("GD sign in success")
                 self.UpdateSelectedDestinationUserDefaults(destination: .googledrive)
                 self.UpdateSelectedDestinationUI(destination: .googledrive)
             case .cancel:
@@ -116,6 +117,14 @@ class SettingsViewController: UIViewController {
             break
         }
     }
+    
+//    REMOVE LATER!!!!!
+    @IBAction func TempSignOutButton(_ sender: Any) {
+        googleDriveManager.SignOutAppOnly(completion: {_ in
+            
+        })
+    }
+    
     
     func UpdateSelectedDestinationUserDefaults(destination: Destination) {
         destinationManager.setSelectedDestination(destination)

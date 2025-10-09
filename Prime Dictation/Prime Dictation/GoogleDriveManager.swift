@@ -1,5 +1,3 @@
-
-
 //
 //  GoogleDriveManager.swift
 //  Prime Dictation
@@ -53,36 +51,95 @@ class GDFolderPickerViewController: UITableViewController {
         self.checkedFolderId = manager.persistedSelection?.folderId
         self.title = "Select Folder"
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Use .value1 to allow a detail label in case we want to show extra info later
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "folderCell")
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(doneButtonTapped))
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelButtonTapped))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            primaryAction: UIAction(title: "Sign Out") { [weak self] _ in
+                guard let self = self else { return }
+                ProgressHUD.animate("Signing out…")
+                manager.SignOutAppOnly { success in
+                    Task { @MainActor in
+                        guard let settingsVC = self.manager.settingsViewController else {
+                            print("Unable to find settings view controller on Google Drive signout")
+                            return
+                        }
+                        if success {
+                            settingsVC.UpdateSelectedDestinationUserDefaults(destination: Destination.none)
+                            settingsVC.UpdateSelectedDestinationUI(destination: Destination.none)
+                            self.dismiss(animated: true)
+                            ProgressHUD.succeed("Signed out of Google Drive")
+                        } else {
+                            ProgressHUD.failed("Sign out failed")
+                        }
+                    }
+                }
+            }
+        )
         fetchFolders()
     }
     
+    @inline(__always)
+    private func s(_ any: Any?) -> String {
+        if let s = any as? String { return s }
+        if let n = any as? NSNumber { return n.stringValue }
+        if let sOpt = any as? String? { return sOpt ?? "" }
+        return any.map { String(describing: $0) } ?? ""
+    }
+
     @objc private func doneButtonTapped() {
+        // If a folder is checked, return that
+        if let id = checkedFolderId,
+           let f = folders.first(where: { $0.id == id }) {
+            let selection = GDSelection(
+                folderId: id,
+                name: f.name,
+                accountId: manager.currentAccountId
+            )
+            manager.updateSelectedFolder(selection)
+            onPicked(selection)
+            dismiss(animated: true)
+            return
+        }
+
+        // Otherwise default to ROOT (My Drive)
+        let rootSelection = GDSelection(
+            folderId: GoogleDriveManager.googleDriveRootId,
+            name: "Google Drive (root)",
+            accountId: manager.currentAccountId
+        )
+        manager.updateSelectedFolder(rootSelection)
+        onPicked(rootSelection)
         dismiss(animated: true)
     }
+
+
 
     @objc private func cancelButtonTapped() {
         dismiss(animated: true)
     }
 
     private func fetchFolders() {
-        ProgressHUD.animate("Loading Google Drive folders...")
+        ProgressHUD.animate("Loading Google Drive folders…")
+
         let query = GTLRDriveQuery_FilesList.query()
         query.q = "'\(parentFolderId)' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
-        query.fields = "files(id, name)"
-        
-        service.executeQuery(query) { [weak self] (ticket, result, error) in
+        query.fields = "files(id,name,mimeType),nextPageToken"
+        query.supportsAllDrives = true
+        query.includeItemsFromAllDrives = true
+        query.spaces = "drive"
+//        query.pageSize = 200
+
+        service.executeQuery(query) { [weak self] (_, result, error) in
             guard let self = self else { return }
-            ProgressHUD.dismiss()
+            defer { ProgressHUD.dismiss() }
 
             if let error = error {
                 ProgressHUD.failed("Failed to load folders: \(error.localizedDescription)")
@@ -90,86 +147,123 @@ class GDFolderPickerViewController: UITableViewController {
                 return
             }
 
-            guard let files = (result as? GTLRDrive_FileList)?.files as? [GTLRDrive_File] else {
+            guard let fileList = result as? GTLRDrive_FileList else {
+                self.folders = []
+                self.tableView.reloadData()
                 return
             }
 
-            self.folders = files.map { file in
-                return PickerFolder(id: file.identifier ?? "", name: file.name ?? "", isChecked: file.identifier == self.checkedFolderId, hasChildren: false, isLeaf: false)
+            // ✅ Map over the DRIVE ITEMS, not self.folders
+            let items: [GTLRDrive_File] = fileList.files ?? []
+
+            self.folders = items.map { file in
+                let id = self.s(file.identifier)
+                let name = self.s(file.name)
+                return PickerFolder(
+                    id: id,
+                    name: name.isEmpty ? "(untitled)" : name,
+                    isChecked: id == self.checkedFolderId,
+                    hasChildren: false,
+                    isLeaf: true
+                )
             }
+
             self.tableView.reloadData()
-            self.checkIfHasChildren(for: self.folders)
+            self.checkFoldersForChildren(parentFolders: items)
         }
     }
 
-    private func checkIfHasChildren(for folders: [PickerFolder]) {
-        for (index, folder) in folders.enumerated() {
-            let query = GTLRDriveQuery_FilesList.query()
-            query.q = "'\(folder.id)' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
-            query.pageSize = 1
-            query.fields = "files(id)"
 
-            service.executeQuery(query) { [weak self] (ticket, result, error) in
-                guard let self = self else { return }
-                
-                // First, check for potential errors.
-                if let error = error {
-                    // Handle the error appropriately, e.g., log it or show an alert.
-                    print("Error checking for children: \(error.localizedDescription)")
-                    return
-                }
-                
-                // Optional-bind the result to ensure it's a GTLRDrive_FileList
-                if let fileList = result as? GTLRDrive_FileList {
-                    // Now, use a standard 'if' statement to check the boolean condition.
-                    let hasChildren = fileList.files?.isEmpty == false
-                    self.folders[index].hasChildren = hasChildren
-                    self.folders[index].isLeaf = !hasChildren
-                    
-                    // The reload should happen on the main thread for UI updates.
-                    DispatchQueue.main.async {
-                        self.tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
-                    }
+    private func checkFoldersForChildren(parentFolders: [GTLRDrive_File]) {
+        let parentIDs = parentFolders.map { s($0.identifier) }.filter { !$0.isEmpty }
+        guard !parentIDs.isEmpty else { return }
+
+        let parentSubqueries = parentIDs.map { "'\($0)' in parents" }
+        let combinedQuery = parentSubqueries.joined(separator: " or ")
+
+        let childrenQuery = GTLRDriveQuery_FilesList.query()
+        childrenQuery.q = "(\(combinedQuery)) and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
+        childrenQuery.fields = "files(id,parents),nextPageToken"
+        childrenQuery.supportsAllDrives = true
+        childrenQuery.includeItemsFromAllDrives = true
+        childrenQuery.spaces = "drive"
+//        childrenQuery.pageSize = 200
+
+        service.executeQuery(childrenQuery) { [weak self] (_, result, error) in
+            guard let self = self else { return }
+            if let error = error {
+                print("Children check error: \(error.localizedDescription)")
+                return
+            }
+
+            guard let list = result as? GTLRDrive_FileList else { return }
+            let children: [GTLRDrive_File] = list.files ?? []
+            let parentIdsWithChildren = Set(children.flatMap { $0.parents ?? [] })
+
+            var needsReload = false
+            for i in 0..<self.folders.count {
+                let id = self.folders[i].id
+                if parentIdsWithChildren.contains(id) {
+                    self.folders[i].hasChildren = true
+                    self.folders[i].isLeaf = false
+                    needsReload = true
                 }
             }
+            if needsReload { DispatchQueue.main.async { self.tableView.reloadData() } }
         }
     }
 
-    
+
+
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return folders.count
+        folders.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "folderCell", for: indexPath)
+        let reuse = "folderCell"
+        let cell = tableView.dequeueReusableCell(withIdentifier: reuse) ??
+                   UITableViewCell(style: .default, reuseIdentifier: reuse)
+
         let folder = folders[indexPath.row]
         cell.textLabel?.text = folder.name
-        cell.accessoryType = folder.id == checkedFolderId ? .checkmark : .none
-        cell.detailTextLabel?.text = nil // Clear any previous detail text
-        if folder.isLeaf == false {
-            cell.accessoryType = .disclosureIndicator
-        }
+        cell.accessoryType = folder.id == checkedFolderId
+            ? .checkmark
+            : (folder.isLeaf ? .none : .disclosureIndicator)
+
         return cell
     }
+
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let selectedFolder = folders[indexPath.row]
-        
+
         if selectedFolder.isLeaf {
             if selectedFolder.id == checkedFolderId {
-                // Leaf folder is already checked, uncheck it
+                // Uncheck
                 checkedFolderId = nil
                 manager.updateSelectedFolder(nil)
+                tableView.reloadData()
             } else {
-                // Check leaf folder
+                // Select and notify caller immediately
                 checkedFolderId = selectedFolder.id
-                manager.updateSelectedFolder(GDSelection(folderId: selectedFolder.id, name: selectedFolder.name, accountId: manager.currentAccountId))
+                let selection = GDSelection(
+                    folderId: selectedFolder.id,
+                    name: selectedFolder.name,
+                    accountId: manager.currentAccountId
+                )
+                manager.updateSelectedFolder(selection)
+                onPicked(selection)                 // 🔔 notify your SelectFolderButton closure
+                dismiss(animated: true)             // close the picker
             }
-            tableView.reloadData()
         } else {
-            // Non-leaf folder, navigate deeper
-            let newVC = GDFolderPickerViewController(manager: manager, service: service, parentFolderId: selectedFolder.id, onPicked: onPicked)
+            // Navigate deeper
+            let newVC = GDFolderPickerViewController(
+                manager: manager,
+                service: service,
+                parentFolderId: selectedFolder.id,
+                onPicked: onPicked
+            )
             navigationController?.pushViewController(newVC, animated: true)
         }
     }
@@ -190,7 +284,7 @@ final class GoogleDriveManager: NSObject {
     // MARK: - Keys / Constants
 
     private static let googleDriveSelectionKey = "googleDriveSelection"
-    private static let googleDriveRootId = "root"
+    fileprivate static let googleDriveRootId = "root"
 
     // MARK: - Wiring
 
@@ -203,21 +297,24 @@ final class GoogleDriveManager: NSObject {
 
     // User's Google Account ID
     var currentAccountId: String?
-    
+
     // Auth Completion
     private var authCompletion: ((AuthResult) -> Void)?
-    
+
     // MARK: - Persisted Data
 
     var persistedSelection: GDSelection? {
-        didSet {
-            saveSelection()
-        }
+        didSet { saveSelection() }
     }
 
     override init() {
         super.init()
         loadSelection()
+        GIDSignIn.sharedInstance.restorePreviousSignIn { [weak self] user, _ in
+            guard let self = self else { return }
+            self.ensureServiceFromCurrentUser()
+        }
+        
     }
 
     func attach(settingsViewController: SettingsViewController) {
@@ -231,93 +328,137 @@ final class GoogleDriveManager: NSObject {
 
     // MARK: - Auth
 
+    // ✅ Your minimal, user-friendly scopes (no download permission):
+    // - drive.file: create/manage only files your app creates/opens
+    // - drive.metadata.readonly: list folders & file metadata without downloading content
+    private let driveScopes = [
+        "https://www.googleapis.com/auth/drive.file",
+        "https://www.googleapis.com/auth/drive.metadata.readonly"
+    ]
+
+    private func ensureServiceFromCurrentUser() {
+        guard let user = GIDSignIn.sharedInstance.currentUser else { return }
+        if driveService == nil { driveService = GTLRDriveService() }
+        driveService?.authorizer = user.fetcherAuthorizer
+        currentAccountId = user.userID
+    }
+
+    private func hasAllDriveScopes(_ user: GIDGoogleUser?) -> Bool {
+        guard let granted = user?.grantedScopes else { return false }
+        let grantedSet = Set(granted)
+        return Set(driveScopes).isSubset(of: grantedSet)
+    }
+
     var isSignedIn: Bool {
-        return driveService?.authorizer?.canAuthorize ?? false
+        // If we already have a valid authorizer, we're good.
+        if driveService?.authorizer?.canAuthorize == true,
+           hasAllDriveScopes(GIDSignIn.sharedInstance.currentUser) {
+            return true
+        }
+
+        // Otherwise, rebuild from the cached user (after a relaunch, etc.)
+        ensureServiceFromCurrentUser()
+
+        // Check again
+        if driveService?.authorizer?.canAuthorize == true,
+           hasAllDriveScopes(GIDSignIn.sharedInstance.currentUser) {
+            return true
+        }
+
+        return false
     }
 
     @MainActor
-    func signOutAppOnly(completion: @escaping (Bool) -> Void) {
-        guard isSignedIn else { completion(true); return }
-        GIDSignIn.sharedInstance.signOut()
+    private func resetGoogleDriveState() {
+        // Nuke any state that might contaminate a new session
+        driveService?.additionalHTTPHeaders = [:]
+        driveService?.additionalURLQueryParameters = [:]
         driveService = nil
         currentAccountId = nil
-        // Clear saved selection
         persistedSelection = nil
+    }
+
+    @MainActor
+    func SignOutAppOnly(completion: @escaping (Bool) -> Void) {
+        GIDSignIn.sharedInstance.signOut()
+        resetGoogleDriveState()
         completion(true)
     }
 
+    @MainActor
+    func SignOutAndRevoke(completion: @escaping (Bool) -> Void) {
+        GIDSignIn.sharedInstance.disconnect { [weak self] _ in
+            Task { @MainActor in
+                self?.resetGoogleDriveState()
+                completion(true)
+            }
+        }
+    }
+
     func openAuthorizationFlow(completion: @escaping (AuthResult) -> Void) {
-        print("opening auth flow")
-        // Short-circuit if already signed in and has Drive scope
-        if isSignedIn {
-            if let user = GIDSignIn.sharedInstance.currentUser,
-               user.grantedScopes?.contains("https://www.googleapis.com/auth/drive") == true {
-                print("is signed in with drive scope")
+        // Try to reuse existing session
+        ensureServiceFromCurrentUser()
+
+        if let user = GIDSignIn.sharedInstance.currentUser {
+            if hasAllDriveScopes(user) {
+                // Already signed in with needed scopes
                 completion(.success)
                 return
-            }
-        }
-        
-        guard let presenter = settingsViewController else {
-            completion(.none)
-            print("No presenter")
-            return
-        }
-        
-        self.authCompletion = completion
-        
-        let driveScope = "https://www.googleapis.com/auth/drive"
-        
-        GIDSignIn.sharedInstance.signIn(withPresenting: presenter) { [weak self] signInResult, error in
-            print("GIDSignIn")
-            guard let self = self else { return }
-            ProgressHUD.dismiss()
-            
-            if let error = error {
-                print("GID sign in Error")
-                // Now, check the error code directly on the GIDSignInError object
-                if (error as NSError).code == GIDSignInError.Code.canceled.rawValue {
-                    self.authCompletion?(.cancel)
-                } else {
-                    self.authCompletion?(.error(error, "Google Sign-In failed: \(error.localizedDescription)"))
-                }
-                self.authCompletion = nil
-                return
-            }
-            print("Getting sign in result")
-            guard let signInResult = signInResult else {
-                self.authCompletion?(.cancel)
-                self.authCompletion = nil
-                return
-            }
-            print("sign in result \(signInResult)")
-            
-            if signInResult.user.grantedScopes?.contains(driveScope) == true {
-                self.setupDriveService(with: signInResult)
-                print("Signed in to GD")
-                ProgressHUD.succeed("Signed into Google Drive")
-                self.authCompletion?(.success)
-                self.authCompletion = nil
-            } else {
-                print("Adding scopes")
-                signInResult.user.addScopes([driveScope], presenting: presenter) { result, error in
-                    if let error = error {
-                        print("Unable to grant drive access")
-                        self.authCompletion?(.error(error, "Failed to grant Drive access."))
-                    } else if let result = result, result.user.grantedScopes?.contains(driveScope) == true {
-                        self.setupDriveService(with: result)
-                        print("Signed in to GD with added scopes")
-                        ProgressHUD.succeed("Signed into Google Drive")
-                        self.authCompletion?(.success)
-                    } else {
-                        self.authCompletion?(.cancel)
+            } else if let presenter = settingsViewController {
+                // Signed in but missing scopes → incremental auth prompts consent
+                user.addScopes(driveScopes, presenting: presenter) { [weak self] result, error in
+                    guard let self = self else { return }
+                    if let error {
+                        completion(.error(error, "Failed to grant Google Drive access."))
+                        return
                     }
-                    self.authCompletion = nil
+                    if let result, self.hasAllDriveScopes(result.user) {
+                        self.setupDriveService(with: result)
+                        ProgressHUD.succeed("Signed into Google Drive")
+                        completion(.success)
+                    } else {
+                        completion(.cancel)
+                    }
+                }
+                return
+            }
+        }
+
+        // Fall back to interactive sign-in (first time or no cached user)
+        guard let presenter = settingsViewController else { completion(.none); return }
+        GIDSignIn.sharedInstance.signIn(withPresenting: presenter) { [weak self] signInResult, error in
+            guard let self = self else { return }
+            if let error = error {
+                if (error as NSError).code == GIDSignInError.Code.canceled.rawValue { completion(.cancel) }
+                else { completion(.error(error, "Google Sign-In failed: \(error.localizedDescription)")) }
+                return
+            }
+            guard let signInResult = signInResult else { completion(.cancel); return }
+
+            if self.hasAllDriveScopes(signInResult.user) {
+                self.setupDriveService(with: signInResult)
+                ProgressHUD.succeed("Signed into Google Drive")
+                completion(.success)
+            } else {
+                // Request the Drive scopes incrementally to force the consent screen
+                signInResult.user.addScopes(self.driveScopes, presenting: presenter) { [weak self] result, error in
+                    guard let self = self else { return }
+                    if let error {
+                        completion(.error(error, "Failed to grant Google Drive access."))
+                        return
+                    }
+                    if let result, self.hasAllDriveScopes(result.user) {
+                        self.setupDriveService(with: result)
+                        ProgressHUD.succeed("Signed into Google Drive")
+                        completion(.success)
+                    } else {
+                        completion(.cancel)
+                    }
                 }
             }
         }
     }
-    
+
     private func setupDriveService(with result: GIDSignInResult) {
         let driveService = GTLRDriveService()
         driveService.authorizer = result.user.fetcherAuthorizer
@@ -329,139 +470,148 @@ final class GoogleDriveManager: NSObject {
 
     @MainActor
     func presentGoogleDriveFolderPicker(onPicked: ((GDSelection) -> Void)? = nil) {
-        guard let settingsVC = settingsViewController else {
-            ProgressHUD.failed("Open Settings first")
-            return
-        }
-
+        
         func presentPicker(_ service: GTLRDriveService) {
             let vc = GDFolderPickerViewController(
                 manager: self,
                 service: service,
                 parentFolderId: GoogleDriveManager.googleDriveRootId,
                 onPicked: { [weak self] selection in
-                    guard let self = self else { return }
-                    self.updateSelectedFolder(selection)
+                    self?.updateSelectedFolder(selection)
                     onPicked?(selection)
                 }
             )
             let nav = UINavigationController(rootViewController: vc)
             nav.modalPresentationStyle = .formSheet
-            settingsVC.present(nav, animated: true)
+            settingsViewController?.present(nav, animated: true) {
+                ProgressHUD.dismiss()   // hide "Opening file picker"
+            }
         }
 
-        if isSignedIn, let service = driveService {
-            presentPicker(service)
-        } else {
-            openAuthorizationFlow { [weak self] res in
-                guard let self = self else { return }
-                switch res {
-                case .success:
-                    if let service = self.driveService {
-                        presentPicker(service)
-                    } else {
-                        ProgressHUD.failed("Google Drive client unavailable")
-                    }
-                case .cancel:
-                    ProgressHUD.failed("Canceled Google Login")
-                case .error(_, _):
-                    ProgressHUD.failed("Unable to log into Google Drive")
-                case .none:
-                    break
+        // Ensure we’re signed in
+        let go: () -> Void = { [weak self] in
+            guard let self = self, let service = self.driveService else {
+                print("Google Drive client unavailable"); return
+            }
+            // Preflight: refresh tokens so presenting the VC won’t cause a refresh
+            GIDSignIn.sharedInstance.currentUser?.refreshTokensIfNeeded { _, err in
+                Task { @MainActor in
+                    if let err { print("Google auth refresh failed: \(err.localizedDescription)") }
+                    presentPicker(service)
                 }
             }
         }
+
+        if isSignedIn, driveService != nil {
+            go()
+        } else {
+            openAuthorizationFlow { res in
+                if case .success = res { go() }
+            }
+        }
     }
-    
+
     // MARK: - Upload
 
     func SendToGoogleDrive(url: URL) {
         guard let viewController else { return }
-        
         guard let service = driveService else {
             viewController.displayAlert(title: "Google Drive not signed in", message: "Please sign in and select a folder in Settings.")
             return
         }
-        
-        guard let destination = persistedSelection else {
-            viewController.displayAlert(title: "No Google Drive folder selected", message: "Please select a folder in Settings.")
-            return
-        }
-        
-        ProgressHUD.animate("Sending...", .triangleDotShift)
-        viewController.ShowSendingUI()
 
-        // Check if destination folder still exists
-        checkFolderExists(folderId: destination.folderId, service: service) { [weak self] exists in
-            guard let self = self else { return }
-            if exists {
-                self.performUpload(fileURL: url, destinationFolderId: destination.folderId, service: service)
-            } else {
+        // 👇 If no selection, default to root
+        let destFolderId = persistedSelection?.folderId ?? GoogleDriveManager.googleDriveRootId
+
+        viewController.ShowSendingUI()
+        ProgressHUD.animate("Sending...", .triangleDotShift)
+
+        checkFolderExists(folderId: destFolderId, service: service) { [weak self] exists in
+            guard let self = self, let viewController = self.viewController else { return }
+
+            guard exists else {
                 ProgressHUD.failed("Destination folder not found")
-                viewController.ShowSendingUI()
-                viewController.displayAlert(title: "Folder Not Found", message: "The selected Google Drive folder was not found. Please select a new destination in Settings.")
+                viewController.HideSendingUI()
+                viewController.displayAlert(
+                    title: "Folder Not Found",
+                    message: "Please select a new destination in Settings."
+                )
                 self.persistedSelection = nil
+                return
+            }
+
+            self.performUpload(fileURL: url, destinationFolderId: destFolderId, service: service) { result in
+                switch result {
+                case .success: ProgressHUD.succeed("Sent to Google Drive!")
+                case .failure(let error): ProgressHUD.failed("Upload failed: \(error.localizedDescription)")
+                }
+                viewController.HideSendingUI()
             }
         }
     }
-    
+
+
+
     private func checkFolderExists(folderId: String, service: GTLRDriveService, completion: @escaping (Bool) -> Void) {
         if folderId == GoogleDriveManager.googleDriveRootId {
-            completion(true) // Root folder always exists
+            DispatchQueue.main.async { completion(true) } // Root always exists
             return
         }
-        
+
         let query = GTLRDriveQuery_FilesGet.query(withFileId: folderId)
         query.fields = "id"
-        service.executeQuery(query) { (ticket, file, error) in
-            completion(file != nil && error == nil)
+        service.executeQuery(query) { (_, file, error) in
+            DispatchQueue.main.async {
+                completion(file != nil && error == nil)
+            }
         }
     }
 
-    private func performUpload(fileURL: URL, destinationFolderId: String, service: GTLRDriveService) {
-        guard let viewController, let recordingManager else { return }
+    private func performUpload(
+        fileURL: URL,
+        destinationFolderId: String,
+        service: GTLRDriveService,
+        completion: @escaping (Result<Void, Error>) -> Void
+    ) {
+        guard let recordingManager else {
+            completion(.failure(NSError(domain: "PrimeDictation", code: -1,
+                                        userInfo: [NSLocalizedDescriptionKey: "Missing recording manager"])))
+            return
+        }
 
         let recordingName = recordingManager.toggledRecordingName + "." + recordingManager.destinationRecordingExtension
 
-        // Determine the MIME type dynamically from the file's extension
         let mimeType: String
-        if let fileExtension = fileURL.pathExtension.isEmpty ? nil : fileURL.pathExtension,
-           let utType = UTType(filenameExtension: fileExtension),
-           let preferredMIMEType = utType.preferredMIMEType {
-            mimeType = preferredMIMEType
-        } else {
-            // Fallback for an unknown or missing file type
-            mimeType = "application/octet-stream"
-        }
+        if let ext = fileURL.pathExtension.isEmpty ? nil : fileURL.pathExtension,
+           let utType = UTType(filenameExtension: ext),
+           let preferred = utType.preferredMIMEType {
+            mimeType = preferred
+        } else { mimeType = "application/octet-stream" }
 
         let file = GTLRDrive_File()
         file.name = recordingName
-        file.parents = [destinationFolderId]
+        if destinationFolderId != GoogleDriveManager.googleDriveRootId {
+            file.parents = [destinationFolderId]       // normal folder
+        } else {
+            file.parents = nil                         // root upload
+        }
 
         let uploadParameters = GTLRUploadParameters(fileURL: fileURL, mimeType: mimeType)
         let query = GTLRDriveQuery_FilesCreate.query(withObject: file, uploadParameters: uploadParameters)
 
-        service.executeQuery(query) { (ticket, result, error) in
-            DispatchQueue.main.async { // Ensure UI updates happen on the main thread
-                if let error = error {
-                    ProgressHUD.failed("Upload failed: \(error.localizedDescription)")
-                } else {
-                    ProgressHUD.succeed("Sent to Google Drive!")
-                    // You might want to update the last updated date on the file
-                }
-                viewController.ShowSendingUI()
-            }
+        service.executeQuery(query) { _, _, error in
+            DispatchQueue.main.async { error == nil ? completion(.success(())) : completion(.failure(error!)) }
         }
     }
 
-    
+
     // MARK: - Persistence
-    
+
     func loadSelection() {
         guard let data = UserDefaults.standard.data(forKey: GoogleDriveManager.googleDriveSelectionKey) else { return }
         persistedSelection = try? JSONDecoder().decode(GDSelection.self, from: data)
     }
-    
+
     func saveSelection() {
         if let selection = persistedSelection {
             if let encoded = try? JSONEncoder().encode(selection) {
@@ -471,7 +621,7 @@ final class GoogleDriveManager: NSObject {
             UserDefaults.standard.removeObject(forKey: GoogleDriveManager.googleDriveSelectionKey)
         }
     }
-    
+
     func updateSelectedFolder(_ selection: GDSelection?) {
         // Only update if the selected folder is in the current account
         if let selection = selection, selection.accountId == currentAccountId {
@@ -484,6 +634,11 @@ final class GoogleDriveManager: NSObject {
     // MARK: - Display Helpers
 
     func getSelectionDisplayString() -> String {
-        return persistedSelection?.name ?? "No Google Drive Folder Selected"
+        if let sel = persistedSelection {
+            return sel.folderId == GoogleDriveManager.googleDriveRootId ? "Google Drive (root)" : sel.name
+        } else {
+            return "Google Drive (root)"
+        }
     }
+    
 }

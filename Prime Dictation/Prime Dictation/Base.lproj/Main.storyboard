@@ -300,13 +300,24 @@
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SGc-lp-6ij" userLabel="Google Drive Label">
                                 <rect key="frame" x="124" y="434" width="176" height="47"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="tintColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Google Drive">
-                                    <fontDescription key="titleFontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
-                                </buttonConfiguration>
+                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="Google Drive">
+                                    <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
                                 <connections>
                                     <action selector="GoogleDriveButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="6Hw-c0-Otc"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cgb-1L-Ind">
+                                <rect key="frame" x="259" y="574" width="90" height="35"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Sign Out">
+                                    <backgroundConfiguration key="background"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="TempSignOutButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="paf-rE-lwj"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -316,7 +327,7 @@
                     <navigationItem key="navigationItem" id="hHB-8b-a40"/>
                     <connections>
                         <outlet property="DropboxLabel" destination="r8D-RY-2sR" id="1ky-qD-7D5"/>
-                        <outlet property="GoogleDriveLabel" destination="SGc-lp-6ij" id="kYb-Bf-FdF"/>
+                        <outlet property="GoogleDriveLabel" destination="SGc-lp-6ij" id="6E1-VU-e6u"/>
                         <outlet property="OneDriveLabel" destination="9qh-lx-pQg" id="w1N-IF-UIc"/>
                         <outlet property="SelectFolderIcon" destination="AWb-dR-20j" id="Hsz-IJ-I79"/>
                     </connections>
