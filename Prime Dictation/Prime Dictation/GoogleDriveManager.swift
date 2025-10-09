@@ -89,10 +89,10 @@ class GDFolderPickerViewController: UITableViewController {
     @inline(__always)
     private func s(_ any: Any?) -> String {
         if let s = any as? String { return s }
-        if let n = any as? NSNumber { return n.stringValue }
-        if let sOpt = any as? String? { return sOpt ?? "" }
-        return any.map { String(describing: $0) } ?? ""
+        if let n = any as? NSNumber { return n.stringValue } // Correct way to handle NSNumber
+        return "" // Default case for any other unhandled type
     }
+
 
     @objc private func doneButtonTapped() {
         // If a folder is checked, return that
@@ -120,100 +120,54 @@ class GDFolderPickerViewController: UITableViewController {
         dismiss(animated: true)
     }
 
-
-
     @objc private func cancelButtonTapped() {
         dismiss(animated: true)
     }
 
     private func fetchFolders() {
         ProgressHUD.animate("Loading Google Drive folders…")
-
-        let query = GTLRDriveQuery_FilesList.query()
-        query.q = "'\(parentFolderId)' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
-        query.fields = "files(id,name,mimeType),nextPageToken"
-        query.supportsAllDrives = true
-        query.includeItemsFromAllDrives = true
-        query.spaces = "drive"
-//        query.pageSize = 200
-
-        service.executeQuery(query) { [weak self] (_, result, error) in
+        manager.httpListFolders(parentId: parentFolderId) { [weak self] result in
             guard let self = self else { return }
-            defer { ProgressHUD.dismiss() }
-
-            if let error = error {
+            switch result {
+            case .failure(let error):
                 ProgressHUD.failed("Failed to load folders: \(error.localizedDescription)")
                 self.dismiss(animated: true)
-                return
-            }
-
-            guard let fileList = result as? GTLRDrive_FileList else {
-                self.folders = []
-                self.tableView.reloadData()
-                return
-            }
-
-            // ✅ Map over the DRIVE ITEMS, not self.folders
-            let items: [GTLRDrive_File] = fileList.files ?? []
-
-            self.folders = items.map { file in
-                let id = self.s(file.identifier)
-                let name = self.s(file.name)
-                return PickerFolder(
-                    id: id,
-                    name: name.isEmpty ? "(untitled)" : name,
-                    isChecked: id == self.checkedFolderId,
-                    hasChildren: false,
-                    isLeaf: true
-                )
-            }
-
-            self.tableView.reloadData()
-            self.checkFoldersForChildren(parentFolders: items)
-        }
-    }
-
-
-    private func checkFoldersForChildren(parentFolders: [GTLRDrive_File]) {
-        let parentIDs = parentFolders.map { s($0.identifier) }.filter { !$0.isEmpty }
-        guard !parentIDs.isEmpty else { return }
-
-        let parentSubqueries = parentIDs.map { "'\($0)' in parents" }
-        let combinedQuery = parentSubqueries.joined(separator: " or ")
-
-        let childrenQuery = GTLRDriveQuery_FilesList.query()
-        childrenQuery.q = "(\(combinedQuery)) and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
-        childrenQuery.fields = "files(id,parents),nextPageToken"
-        childrenQuery.supportsAllDrives = true
-        childrenQuery.includeItemsFromAllDrives = true
-        childrenQuery.spaces = "drive"
-//        childrenQuery.pageSize = 200
-
-        service.executeQuery(childrenQuery) { [weak self] (_, result, error) in
-            guard let self = self else { return }
-            if let error = error {
-                print("Children check error: \(error.localizedDescription)")
-                return
-            }
-
-            guard let list = result as? GTLRDrive_FileList else { return }
-            let children: [GTLRDrive_File] = list.files ?? []
-            let parentIdsWithChildren = Set(children.flatMap { $0.parents ?? [] })
-
-            var needsReload = false
-            for i in 0..<self.folders.count {
-                let id = self.folders[i].id
-                if parentIdsWithChildren.contains(id) {
-                    self.folders[i].hasChildren = true
-                    self.folders[i].isLeaf = false
-                    needsReload = true
+            case .success(let rows):
+                self.folders = rows.map { (id, name) in
+                    PickerFolder(id: id,
+                                 name: name,
+                                 isChecked: id == self.checkedFolderId,
+                                 hasChildren: false,
+                                 isLeaf: true)
                 }
+                self.tableView.reloadData()
+                self.checkFoldersForChildren(parentFolderIds: rows.map { $0.id })
             }
-            if needsReload { DispatchQueue.main.async { self.tableView.reloadData() } }
+            ProgressHUD.dismiss()
         }
     }
 
-
+    private func checkFoldersForChildren(parentFolderIds: [String]) {
+        guard !parentFolderIds.isEmpty else { return }
+        manager.httpParentsHavingChildFolders(parentIDs: parentFolderIds) { [weak self] res in
+            guard let self = self else { return }
+            switch res {
+            case .failure(let e):
+                print("Children check error (HTTP): \(e.localizedDescription)")
+            case .success(let parentsWithKids):
+                var reload = false
+                for i in 0..<self.folders.count {
+                    let id = self.folders[i].id
+                    if parentsWithKids.contains(id) {
+                        self.folders[i].hasChildren = true
+                        self.folders[i].isLeaf = false
+                        reload = true
+                    }
+                }
+                if reload { self.tableView.reloadData() }
+            }
+        }
+    }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         folders.count
@@ -253,8 +207,7 @@ class GDFolderPickerViewController: UITableViewController {
                     accountId: manager.currentAccountId
                 )
                 manager.updateSelectedFolder(selection)
-                onPicked(selection)                 // 🔔 notify your SelectFolderButton closure
-                dismiss(animated: true)             // close the picker
+                tableView.reloadData()
             }
         } else {
             // Navigate deeper
@@ -316,6 +269,62 @@ final class GoogleDriveManager: NSObject {
         }
         
     }
+    
+    // MARK: - Preflight auth & Drive
+
+    /// Refreshes Google tokens and performs a tiny Drive "ping" WITHOUT using GTLR,
+    /// so we avoid any 3rd-party refresh parameter plumbing.
+    /// Calls completion(true) only if both steps succeed.
+    private func preflightAuthAndDrive(_ completion: @escaping (Bool) -> Void) {
+        // 0) Must have a signed-in user
+        guard GIDSignIn.sharedInstance.currentUser != nil else {
+            completion(false); return
+        }
+
+        // 1) Refresh tokens OUTSIDE any UI lifecycle
+        GIDSignIn.sharedInstance.currentUser?.refreshTokensIfNeeded { [weak self] _, refreshErr in
+            guard let self = self else { return }
+            if let refreshErr {
+                print("Preflight refresh failed: \(refreshErr.localizedDescription)")
+                DispatchQueue.main.async { completion(false) }
+                return
+            }
+
+            // 2) Raw HTTP ping to Drive root (no GTLR, no GTMSessionFetcher)
+            guard let token = GIDSignIn.sharedInstance.currentUser?.accessToken.tokenString,
+                  let url = URL(string: "https://www.googleapis.com/drive/v3/files/root?fields=id") else {
+                DispatchQueue.main.async { completion(false) }
+                return
+            }
+            var req = URLRequest(url: url)
+            req.httpMethod = "GET"
+            req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+            // Be extra safe: ensure string-only headers
+            // (URLSession ignores non-strings anyway, but belt & suspenders.)
+            for (k, v) in req.allHTTPHeaderFields ?? [:] {
+                if !(v is String) { req.setValue(String(describing: v), forHTTPHeaderField: k) }
+            }
+
+            URLSession.shared.dataTask(with: req) { _, resp, err in
+                if let err {
+                    print("Preflight HTTP ping failed: \(err.localizedDescription)")
+                    DispatchQueue.main.async { completion(false) }
+                    return
+                }
+                if let http = resp as? HTTPURLResponse, (200..<300).contains(http.statusCode) {
+                    // 3) Now it’s safe to let GTLR use the same refreshed token.
+                    // Also ensure any lingering GTLR params are clean & string-only.
+                    self.driveService?.additionalHTTPHeaders = [:]
+                    self.driveService?.additionalURLQueryParameters = [:]
+                    DispatchQueue.main.async { completion(true) }
+                } else {
+                    DispatchQueue.main.async { completion(false) }
+                }
+            }.resume()
+        }
+    }
+
 
     func attach(settingsViewController: SettingsViewController) {
         self.settingsViewController = settingsViewController
@@ -326,8 +335,8 @@ final class GoogleDriveManager: NSObject {
         self.recordingManager = recordingManager
     }
 
-    // MARK: - Auth
 
+    // MARK: - Auth
     // ✅ Your minimal, user-friendly scopes (no download permission):
     // - drive.file: create/manage only files your app creates/opens
     // - drive.metadata.readonly: list folders & file metadata without downloading content
@@ -395,6 +404,51 @@ final class GoogleDriveManager: NSObject {
             }
         }
     }
+    
+    /// Force any token-refresh parameter bags to be [String:String].
+    /// Some third-party AuthSession layers stash numbers here → causes NSNumber→NSString crash.
+    fileprivate func sanitizeAuthorizerParameters() {
+        guard let authObj = driveService?.authorizer as? NSObject else { return }
+
+        // Keys we've seen in the wild on various auth stacks
+        let candidateKeys = [
+            "additionalTokenRefreshParameters",
+            "additionalParameters",
+            "tokenRefreshParameters" // belt-and-suspenders
+        ]
+
+        for key in candidateKeys {
+            let selGet = NSSelectorFromString(key)
+            guard authObj.responds(to: selGet) else { continue }
+
+            // Read current params (may be [AnyHashable: Any])
+            let paramsAny = authObj.value(forKey: key) as Any?
+            guard let dict = paramsAny as? [AnyHashable: Any] else { continue }
+
+            // Debug: log any non-String values
+            for (k, v) in dict {
+                if !(v is String) {
+                    print("⚠️ Non-string refresh param for \(key): \(k) = \(type(of: v)) -> \(v)")
+                }
+            }
+
+            // Coerce to [String:String]
+            var coerced = [String: String]()
+            for (k, v) in dict {
+                let ks = String(describing: k)
+                if let s = v as? String { coerced[ks] = s }
+                else { coerced[ks] = String(describing: v) } // NSNumber → its stringValue
+            }
+
+            // Write back
+            authObj.setValue(coerced, forKey: key)
+        }
+
+        // Also ensure GTLR service bags are clean (string-only)
+        driveService?.additionalHTTPHeaders = [:]
+        driveService?.additionalURLQueryParameters = [:]
+    }
+
 
     func openAuthorizationFlow(completion: @escaping (AuthResult) -> Void) {
         // Try to reuse existing session
@@ -465,13 +519,227 @@ final class GoogleDriveManager: NSObject {
         driveService.authorizer = result.user.fetcherAuthorizer
         self.driveService = driveService
         self.currentAccountId = result.user.userID
+        
+        sanitizeAuthorizerParameters()
     }
+    
+    // MARK: - RAW HTTP helpers for listing folders (bypass GTLR in picker)
+
+    struct DriveFileDTO: Decodable { let id: String?; let name: String?; let parents: [String]? }
+    struct DriveListDTO: Decodable { let files: [DriveFileDTO]? }
+    struct DriveUploadResultDTO: Decodable { let id: String? }
+
+    func withFreshAccessToken(_ done: @escaping (Result<String, Error>) -> Void) {
+        guard let user = GIDSignIn.sharedInstance.currentUser else {
+            return done(.failure(NSError(domain: "PrimeDictation", code: -1,
+                                         userInfo: [NSLocalizedDescriptionKey: "Not signed in"])))
+        }
+        user.refreshTokensIfNeeded { _, err in
+            if let err { return done(.failure(err)) }
+            guard let token = GIDSignIn.sharedInstance.currentUser?.accessToken.tokenString else
+            {
+                return done(.failure(NSError(domain: "PrimeDictation", code: -2,
+                                             userInfo: [NSLocalizedDescriptionKey: "Missing access token"])))
+            }
+            done(.success(token))
+        }
+    }
+
+    func httpCheckFolderExists(folderId: String, completion: @escaping (Bool) -> Void) {
+        if folderId == GoogleDriveManager.googleDriveRootId {
+            return completion(true)
+        }
+        withFreshAccessToken { res in
+            guard case .success(let token) = res else {
+                return DispatchQueue.main.async { completion(false) }
+            }
+            var comps = URLComponents(string: "https://www.googleapis.com/drive/v3/files/\(folderId)")!
+            comps.queryItems = [
+                URLQueryItem(name: "fields", value: "id"),
+                URLQueryItem(name: "supportsAllDrives", value: "true")
+            ]
+            var req = URLRequest(url: comps.url!)
+            req.httpMethod = "GET"
+            req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+            URLSession.shared.dataTask(with: req) { _, resp, _ in
+                let ok = (resp as? HTTPURLResponse).map { (200..<300).contains($0.statusCode) } ?? false
+                DispatchQueue.main.async { completion(ok) }
+            }.resume()
+        }
+    }
+
+    /// List subfolders of a parent via raw HTTP (no GTLR).
+    func httpListFolders(parentId: String, completion: @escaping (Result<[(id: String, name: String)], Error>) -> Void) {
+        withFreshAccessToken { res in
+            switch res {
+            case .failure(let e): completion(.failure(e))
+            case .success(let token):
+                var comps = URLComponents(string: "https://www.googleapis.com/drive/v3/files")!
+                comps.queryItems = [
+                    URLQueryItem(name: "q", value: "'\(parentId)' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false"),
+                    URLQueryItem(name: "fields", value: "files(id,name)"),
+                    URLQueryItem(name: "supportsAllDrives", value: "true"),
+                    URLQueryItem(name: "includeItemsFromAllDrives", value: "true"),
+                    URLQueryItem(name: "spaces", value: "drive"),
+                    URLQueryItem(name: "pageSize", value: "200")
+                ]
+                var req = URLRequest(url: comps.url!)
+                req.httpMethod = "GET"
+                req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+                URLSession.shared.dataTask(with: req) { data, resp, err in
+                    if let err { return DispatchQueue.main.async { completion(.failure(err)) } }
+                    guard let data,
+                          let http = resp as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+                        let code = (resp as? HTTPURLResponse)?.statusCode ?? -1
+                        return DispatchQueue.main.async {
+                            completion(.failure(NSError(domain: "PrimeDictation", code: code,
+                                                        userInfo: [NSLocalizedDescriptionKey: "Drive list failed (\(code))"])))
+                        }
+                    }
+                    do {
+                        let dto = try JSONDecoder().decode(DriveListDTO.self, from: data)
+                        let rows: [(id: String, name: String)] = (dto.files ?? []).map { f in
+                            let id = f.id ?? ""
+                            let name = (f.name?.isEmpty == false) ? (f.name ?? "") : "(untitled)"
+                            return (id: id, name: name)
+                        }
+                        DispatchQueue.main.async { completion(.success(rows)) }
+                    } catch {
+                        DispatchQueue.main.async { completion(.failure(error)) }
+                    }
+                }.resume()
+            }
+        }
+    }
+
+    /// For a set of parent IDs, returns which of them have at least one subfolder.
+    func httpParentsHavingChildFolders(parentIDs: [String], completion: @escaping (Result<Set<String>, Error>) -> Void) {
+        guard !parentIDs.isEmpty else { return completion(.success([])) }
+        withFreshAccessToken { res in
+            switch res {
+            case .failure(let e): completion(.failure(e))
+            case .success(let token):
+                let ors = parentIDs.map { "'\($0)' in parents" }.joined(separator: " or ")
+                var comps = URLComponents(string: "https://www.googleapis.com/drive/v3/files")!
+                comps.queryItems = [
+                    URLQueryItem(name: "q", value: "(\(ors)) and mimeType = 'application/vnd.google-apps.folder' and trashed = false"),
+                    URLQueryItem(name: "fields", value: "files(parents)"),
+                    URLQueryItem(name: "supportsAllDrives", value: "true"),
+                    URLQueryItem(name: "includeItemsFromAllDrives", value: "true"),
+                    URLQueryItem(name: "spaces", value: "drive"),
+                    URLQueryItem(name: "pageSize", value: "1000")
+                ]
+                var req = URLRequest(url: comps.url!)
+                req.httpMethod = "GET"
+                req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+                URLSession.shared.dataTask(with: req) { data, resp, err in
+                    if let err { return DispatchQueue.main.async { completion(.failure(err)) } }
+                    guard let data,
+                          let http = resp as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+                        let code = (resp as? HTTPURLResponse)?.statusCode ?? -1
+                        return DispatchQueue.main.async {
+                            completion(.failure(NSError(domain: "PrimeDictation", code: code,
+                                                        userInfo: [NSLocalizedDescriptionKey: "Drive children probe failed (\(code))"])))
+                        }
+                    }
+                    do {
+                        let dto = try JSONDecoder().decode(DriveListDTO.self, from: data)
+                        let parents = Set((dto.files ?? []).flatMap { $0.parents ?? [] })
+                        DispatchQueue.main.async { completion(.success(parents)) }
+                    } catch {
+                        DispatchQueue.main.async { completion(.failure(error)) }
+                    }
+                }.resume()
+            }
+        }
+    }
+
+    // Resumable upload (safe for larger audio files)
+    func httpResumableUpload(fileURL: URL,
+                             destFolderId: String?,
+                             mimeType: String,
+                             fileName: String,
+                             completion: @escaping (Result<String, Error>) -> Void) {
+        withFreshAccessToken { res in
+            guard case .success(let token) = res else {
+                if case .failure(let e) = res { completion(.failure(e)) }
+                return
+            }
+
+            // 1) Start session
+            var start = URLRequest(url: URL(string: "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable")!)
+            start.httpMethod = "POST"
+            start.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            start.setValue("application/json; charset=UTF-8", forHTTPHeaderField: "Content-Type")
+            start.setValue(mimeType, forHTTPHeaderField: "X-Upload-Content-Type")
+
+            var meta: [String: Any] = ["name": fileName]
+            if let dest = destFolderId, dest != GoogleDriveManager.googleDriveRootId {
+                meta["parents"] = [dest]
+            }
+            let metaData = try! JSONSerialization.data(withJSONObject: meta, options: [])
+            start.httpBody = metaData
+
+            URLSession.shared.dataTask(with: start) { _, resp, err in
+                if let err { return DispatchQueue.main.async { completion(.failure(err)) } }
+                guard let http = resp as? HTTPURLResponse,
+                      (200..<400).contains(http.statusCode) else {
+                    let code = (resp as? HTTPURLResponse)?.statusCode ?? -1
+                    return DispatchQueue.main.async {
+                        completion(.failure(NSError(domain: "PrimeDictation", code: code,
+                                                    userInfo: [NSLocalizedDescriptionKey: "Failed to start upload session (\(code))"])))
+                    }
+                }
+
+                // Case-insensitive Location header
+                let locationHeader = http.allHeaderFields.first {
+                    (String(describing: $0.key)).caseInsensitiveCompare("Location") == .orderedSame
+                }?.value as? String
+
+                guard let location = locationHeader, let uploadURL = URL(string: location) else {
+                    return DispatchQueue.main.async {
+                        completion(.failure(NSError(domain: "PrimeDictation", code: -3,
+                                                    userInfo: [NSLocalizedDescriptionKey: "Missing upload URL"])))
+                    }
+                }
+
+                // 2) Upload content
+                var put = URLRequest(url: uploadURL)
+                put.httpMethod = "PUT"
+                put.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+                put.setValue(mimeType, forHTTPHeaderField: "Content-Type")
+
+                let task = URLSession.shared.uploadTask(with: put, fromFile: fileURL) { data, resp2, err2 in
+                    if let err2 { return DispatchQueue.main.async { completion(.failure(err2)) } }
+                    guard let http2 = resp2 as? HTTPURLResponse, (200..<300).contains(http2.statusCode) else {
+                        let code = (resp2 as? HTTPURLResponse)?.statusCode ?? -1
+                        return DispatchQueue.main.async {
+                            completion(.failure(NSError(domain: "PrimeDictation", code: code,
+                                                        userInfo: [NSLocalizedDescriptionKey: "Upload failed (\(code))"])))
+                        }
+                    }
+                    if let data, let dto = try? JSONDecoder().decode(DriveUploadResultDTO.self, from: data),
+                       let id = dto.id {
+                        DispatchQueue.main.async { completion(.success(id)) }
+                    } else {
+                        DispatchQueue.main.async { completion(.success("")) } // success, no body
+                    }
+                }
+                task.resume()
+            }.resume()
+        }
+    }
+
+
 
     // MARK: - Present folder picker
 
     @MainActor
     func presentGoogleDriveFolderPicker(onPicked: ((GDSelection) -> Void)? = nil) {
-        
+
         func presentPicker(_ service: GTLRDriveService) {
             let vc = GDFolderPickerViewController(
                 manager: self,
@@ -484,64 +752,71 @@ final class GoogleDriveManager: NSObject {
             )
             let nav = UINavigationController(rootViewController: vc)
             nav.modalPresentationStyle = .formSheet
-            settingsViewController?.present(nav, animated: true) {
-                ProgressHUD.dismiss()   // hide "Opening file picker"
-            }
+            settingsViewController?.present(nav, animated: true) { ProgressHUD.dismiss() }
         }
 
-        // Ensure we’re signed in
-        let go: () -> Void = { [weak self] in
+        let proceed: () -> Void = { [weak self] in
             guard let self = self, let service = self.driveService else {
-                print("Google Drive client unavailable"); return
+                self?.sanitizeAuthorizerParameters()
+                ProgressHUD.failed("Google Drive client unavailable"); return
             }
-            // Preflight: refresh tokens so presenting the VC won’t cause a refresh
-            GIDSignIn.sharedInstance.currentUser?.refreshTokensIfNeeded { _, err in
-                Task { @MainActor in
-                    if let err { print("Google auth refresh failed: \(err.localizedDescription)") }
-                    presentPicker(service)
-                }
+            // 👇 Critical: preflight outside the picker UI
+            self.preflightAuthAndDrive { ok in
+                if ok { presentPicker(service) }
+                else { ProgressHUD.failed("Google Drive auth failed. Please try again.") }
             }
         }
 
         if isSignedIn, driveService != nil {
-            go()
+            proceed()
         } else {
             openAuthorizationFlow { res in
-                if case .success = res { go() }
+                if case .success = res { proceed() }
             }
         }
     }
 
     // MARK: - Upload
-
     func SendToGoogleDrive(url: URL) {
         guard let viewController else { return }
-        guard let service = driveService else {
+        guard driveService != nil else {
             viewController.displayAlert(title: "Google Drive not signed in", message: "Please sign in and select a folder in Settings.")
             return
         }
 
-        // 👇 If no selection, default to root
         let destFolderId = persistedSelection?.folderId ?? GoogleDriveManager.googleDriveRootId
 
         viewController.ShowSendingUI()
         ProgressHUD.animate("Sending...", .triangleDotShift)
 
-        checkFolderExists(folderId: destFolderId, service: service) { [weak self] exists in
+        httpCheckFolderExists(folderId: destFolderId) { [weak self] exists in
             guard let self = self, let viewController = self.viewController else { return }
 
             guard exists else {
                 ProgressHUD.failed("Destination folder not found")
                 viewController.HideSendingUI()
-                viewController.displayAlert(
-                    title: "Folder Not Found",
-                    message: "Please select a new destination in Settings."
-                )
+                viewController.displayAlert(title: "Folder Not Found", message: "Please select a new destination in Settings.")
                 self.persistedSelection = nil
                 return
             }
 
-            self.performUpload(fileURL: url, destinationFolderId: destFolderId, service: service) { result in
+            guard let recordingManager = self.recordingManager else {
+                ProgressHUD.failed("No recording to send")
+                viewController.HideSendingUI()
+                return
+            }
+            let fileName = recordingManager.toggledRecordingName + "." + recordingManager.destinationRecordingExtension
+            let mimeType: String = {
+                if let ext = url.pathExtension.isEmpty ? nil : url.pathExtension,
+                   let ut = UTType(filenameExtension: ext),
+                   let preferred = ut.preferredMIMEType { return preferred }
+                return "application/octet-stream"
+            }()
+
+            self.httpResumableUpload(fileURL: url,
+                                     destFolderId: destFolderId,
+                                     mimeType: mimeType,
+                                     fileName: fileName) { result in
                 switch result {
                 case .success: ProgressHUD.succeed("Sent to Google Drive!")
                 case .failure(let error): ProgressHUD.failed("Upload failed: \(error.localizedDescription)")
