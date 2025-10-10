@@ -36,6 +36,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     var oneDriveManager: OneDriveManager!
     var googleDriveManager: GoogleDriveManager!
     var destinationManager: DestinationManager!
+    var emailManager: EmailManager!
     
     var recordingManager: RecordingManager!
     var watch: Stopwatch!
@@ -50,11 +51,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         oneDriveManager = services.oneDriveManager
         googleDriveManager = services.googleDriveManager
         destinationManager = services.destinationManager
+        emailManager = services.emailManager
         
         recordingManager.attach(viewController: self)
         dropboxManager.attach(viewController: self, recordingManager: recordingManager)
         oneDriveManager.attach(viewController: self, recordingManager: recordingManager)
         googleDriveManager.attach(viewController: self, recordingManager: recordingManager)
+        emailManager.attach(viewController: self, recordingManager: recordingManager)
 
         watch = Stopwatch(viewController: self)
         
@@ -290,6 +293,16 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             case Destination.googledrive:
                 print("Sending to Google Drive")
                 googleDriveManager.SendToGoogleDrive(url: recordingUrl)
+            case Destination.email:
+                print("Sending to Email")
+                do {
+                    let fileData = try Data(contentsOf: recordingUrl)
+                    let fileName = recordingUrl.lastPathComponent
+                    emailManager.SendToEmail(fileData: fileData, fileName: fileName)
+                } catch {
+                    // 5. Handle any errors, such as the file not being found or read.
+                    ProgressHUD.failed("Could not find or read the recording file. Error: \(error.localizedDescription)")
+                }
             default:
                 print("No destination selected")
                 showSettingsPopover(anchorView: DestinationLabel, barButtonItem: nil)

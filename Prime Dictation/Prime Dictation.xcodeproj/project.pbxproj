@@ -57,6 +57,7 @@
 		03BE28C72E94433A00392139 /* GoogleAPIClientForREST_AreaInsights in Frameworks */ = {isa = PBXBuildFile; productRef = 03BE28C62E94433A00392139 /* GoogleAPIClientForREST_AreaInsights */; };
 		03BE28C92E94433A00392139 /* GoogleAPIClientForREST_ArtifactRegistry in Frameworks */ = {isa = PBXBuildFile; productRef = 03BE28C82E94433A00392139 /* GoogleAPIClientForREST_ArtifactRegistry */; };
 		03BE28CB2E9443D500392139 /* GoogleAPIClientForREST_Drive in Frameworks */ = {isa = PBXBuildFile; productRef = 03BE28CA2E9443D500392139 /* GoogleAPIClientForREST_Drive */; };
+		03BE28CD2E987E5F00392139 /* EmailManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03BE28CC2E987E5C00392139 /* EmailManager.swift */; };
 		03C69A6122FE0083005D8AD1 /* Stopwatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C69A6022FE0083005D8AD1 /* Stopwatch.swift */; };
 		03E7193D2E862D4B003B6BF1 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E7193C2E862D47003B6BF1 /* SettingsViewController.swift */; };
 		03E7193F2E8748FA003B6BF1 /* DestinationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E7193E2E8748F4003B6BF1 /* DestinationManager.swift */; };
@@ -79,6 +80,7 @@
 		0341830922EE36B300670DD1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		03A58EE52E7C7FB100B4EE58 /* Prime Dictation.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Prime Dictation.entitlements"; sourceTree = "<group>"; };
 		03BE287E2E9441D800392139 /* GoogleDriveManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleDriveManager.swift; sourceTree = "<group>"; };
+		03BE28CC2E987E5C00392139 /* EmailManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailManager.swift; sourceTree = "<group>"; };
 		03C69A6022FE0083005D8AD1 /* Stopwatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stopwatch.swift; sourceTree = "<group>"; };
 		03E7193C2E862D47003B6BF1 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		03E7193E2E8748F4003B6BF1 /* DestinationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationManager.swift; sourceTree = "<group>"; };
@@ -165,6 +167,7 @@
 		034182FC22EE36B300670DD1 /* Prime Dictation */ = {
 			isa = PBXGroup;
 			children = (
+				03BE28CC2E987E5C00392139 /* EmailManager.swift */,
 				03BE287E2E9441D800392139 /* GoogleDriveManager.swift */,
 				03E719402E8764CE003B6BF1 /* AppServices.swift */,
 				03E7193E2E8748F4003B6BF1 /* DestinationManager.swift */,
@@ -271,6 +274,7 @@
 				03FF2A982E79EC2900BD684D /* RecordingManager.swift in Sources */,
 				03E719412E8764D0003B6BF1 /* AppServices.swift in Sources */,
 				034182FE22EE36B300670DD1 /* AppDelegate.swift in Sources */,
+				03BE28CD2E987E5F00392139 /* EmailManager.swift in Sources */,
 				03FF2A9A2E7A291400BD684D /* OneDriveManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

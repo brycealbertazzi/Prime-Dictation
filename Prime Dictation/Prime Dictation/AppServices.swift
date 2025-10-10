@@ -16,6 +16,7 @@ final class AppServices {
     let googleDriveManager = GoogleDriveManager()
     let recordingManager = RecordingManager()
     let destinationManager = DestinationManager()
+    let emailManager = EmailManager()
 
     private init() {}
 }

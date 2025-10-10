@@ -14,6 +14,7 @@ enum Destination: String {
     case dropbox
     case onedrive
     case googledrive
+    case email
     case none
 }
 

@@ -15,11 +15,13 @@ class SettingsViewController: UIViewController {
     var oneDriveManager: OneDriveManager!
     var googleDriveManager: GoogleDriveManager!
     var destinationManager: DestinationManager!
+    var emailManager: EmailManager!
     
     @IBOutlet weak var DropboxLabel: UIButton!
     @IBOutlet weak var OneDriveLabel: UIButton!
     @IBOutlet weak var GoogleDriveLabel: UIButton!
     @IBOutlet weak var SelectFolderIcon: UIButton!
+    @IBOutlet weak var EmailLabel: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,13 +31,22 @@ class SettingsViewController: UIViewController {
         oneDriveManager = services.oneDriveManager
         googleDriveManager = services.googleDriveManager
         destinationManager = services.destinationManager
+        emailManager = services.emailManager
 
         dropboxManager.attach(settingsViewController: self)
         oneDriveManager.attach(settingsViewController: self)
         googleDriveManager.attach(settingsViewController: self)
         destinationManager.attach(settingsViewController: self)
+        emailManager.attach(settingsViewController: self)
         
         UpdateSelectedDestinationUI(destination: DestinationManager.SELECTED_DESTINATION)
+    }
+    
+    @IBAction func EmailButton(_ sender: Any) {
+        emailManager.handleEmailButtonTap(from: self)
+        emailManager.handleEmailButtonTap(from: self)
+        UpdateSelectedDestinationUserDefaults(destination: .email)
+        UpdateSelectedDestinationUI(destination: .email)
     }
     
     @IBAction func DropboxButton(_ sender: Any) {
@@ -123,7 +134,6 @@ class SettingsViewController: UIViewController {
         googleDriveManager.SignOutAndRevoke(completion: {_ in})
     }
     
-    
     func UpdateSelectedDestinationUserDefaults(destination: Destination) {
         destinationManager.setSelectedDestination(destination)
     }
@@ -136,6 +146,7 @@ class SettingsViewController: UIViewController {
         DropboxLabel.setTitleColor(.black, for: .normal)
         OneDriveLabel.setTitleColor(.black, for: .normal)
         GoogleDriveLabel.setTitleColor(.black, for: .normal)
+        EmailLabel.setTitleColor(.black, for: .normal)
 
         switch destination {
         case .dropbox:
@@ -144,7 +155,11 @@ class SettingsViewController: UIViewController {
             OneDriveLabel.setTitleColor(selectedColor, for: .normal)
         case .googledrive:
             GoogleDriveLabel.setTitleColor(selectedColor, for: .normal)
-        case .none?:
+        case .email: // No need for the nested if check
+            EmailLabel.setTitleColor(selectedColor, for: .normal)
+            SelectFolderIcon.isEnabled = false
+            SelectFolderIcon.alpha = 0.36
+        case .none?: // Handles the nil case directly
             SelectFolderIcon.isEnabled = false
             SelectFolderIcon.alpha = 0.36
         default:
