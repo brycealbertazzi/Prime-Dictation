@@ -458,14 +458,20 @@ final class DropboxManager {
         private var cursor: String?
         private let onPicked: (DBSelection) -> Void
 
-        /// Map { parentKey → selectedChildId } for ONLY the current level (but prebuilt for all ancestors)
+        /// Map { parentKey → selectedChildId } (prebuilt for the saved selection path).
         private var branchMap: [String:String]
 
-        /// parentKey for this level (root → rootKey)
+        /// Per-level parent key (root uses special key).
         private var parentKey: String { ctx.pathLower.isEmpty ? DropboxManager.rootKey : ctx.pathLower }
 
-        /// For checkmark at this level: get/set selected child id within this parent level
-        private var selectedChildIdAtThisLevel: String? {
+        /// The currently selected folder (global) → shows a ✓ (leaf or non-leaf).
+        private var selectedId: String?
+
+        /// At this level, override which child is considered the path child (blue chevron).
+        private var pathChildOverride: [String:String] = [:]
+
+        /// For Done semantics: which child is “picked” at this level (used to resolve if user taps Done here).
+        private var workingSelectedChildId: String? {
             get { branchMap[parentKey] }
             set { branchMap[parentKey] = newValue }
         }
@@ -478,10 +484,17 @@ final class DropboxManager {
             self.manager = manager
             self.client = client
             self.ctx = start
-            self.onPicked = onPicked
             self.branchMap = branchMap
+            self.onPicked = onPicked
             super.init(style: .insetGrouped)
-            self.title = ctx.pathLower.isEmpty ? "Dropbox" : ctx.pathLower.capitalized.replacingOccurrences(of: "/", with: "")
+
+            // Derive current selected id from the chain: value not present as a key (like we did for OneDrive).
+            let childSet = Set(branchMap.values)
+            let parentSet = Set(branchMap.keys.filter { $0 != DropboxManager.rootKey })
+            self.selectedId = childSet.subtracting(parentSet).first
+
+            self.title = ctx.pathLower.isEmpty ? "Dropbox" :
+                ctx.pathLower.replacingOccurrences(of: "/", with: " / ").trimmingCharacters(in: .whitespaces)
         }
 
         required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
@@ -489,14 +502,13 @@ final class DropboxManager {
         override func viewDidLoad() {
             super.viewDidLoad()
 
-            // "Done" confirms current selection (checked child at this level if present; otherwise the current context)
+            // Done: pick working selection at this level (or the current folder)
             navigationItem.rightBarButtonItem = UIBarButtonItem(
                 title: "Done",
                 style: .done,
                 target: self,
                 action: #selector(confirmSelectionAndDismiss)
             )
-            // Sign Out - Signs the user out of Dropbox
             navigationItem.leftBarButtonItem = UIBarButtonItem(
                 primaryAction: UIAction(title: "Sign Out") { [weak self] _ in
                     guard let self = self, let manager = self.manager else { return }
@@ -525,42 +537,37 @@ final class DropboxManager {
             ProgressHUD.dismiss()
         }
 
-        // Confirm the effective selection and dismiss:
-        // - If a child is checked at this level → that folder
-        // - Else → the current context folder (root safe via synthetic id)
+        // Confirm selection: if a child at this level is “picked”, use it; else use current folder
         @objc private func confirmSelectionAndDismiss() {
             guard let manager = self.manager else { return }
 
-            let saveAndDismiss: (DBSelection) -> Void = { [weak self] sel in
+            let finish: (DBSelection) -> Void = { [weak self] sel in
                 guard let self = self else { return }
                 manager.saveSelection(sel)
                 self.onPicked(sel)
                 self.dismiss(animated: true)
             }
 
-            if let selectedId = selectedChildIdAtThisLevel {
-                // Resolve metadata by id
-                manager.getFolderMetadata(client: client, idOrPath: selectedId) { res in
+            if let selectedChild = workingSelectedChildId {
+                manager.getFolderMetadata(client: client, idOrPath: selectedChild) { res in
                     switch res {
                     case .failure:
                         ProgressHUD.failed("Unable to pick this folder")
                     case .success(let meta):
-                        saveAndDismiss(DBSelection(folderId: meta.id, pathLower: meta.pathLower))
+                        finish(DBSelection(folderId: meta.id, pathLower: meta.pathLower))
                     }
                 }
             } else {
-                // No child checked → choose current context folder
+                // current context (root-safe)
                 if ctx.pathLower.isEmpty {
-                    // root: synthetic id, no metadata call
-                    saveAndDismiss(DBSelection(folderId: DropboxManager.rootSelectionId, pathLower: "/"))
+                    finish(DBSelection(folderId: DropboxManager.rootSelectionId, pathLower: "/"))
                 } else {
-                    manager.getFolderMetadata(client: client, idOrPath: ctx.pathLower) { [weak self] res in
-                        guard let _ = self else { return }
+                    manager.getFolderMetadata(client: client, idOrPath: ctx.pathLower) { res in
                         switch res {
                         case .failure:
                             ProgressHUD.failed("Unable to pick this folder")
                         case .success(let meta):
-                            saveAndDismiss(DBSelection(folderId: meta.id, pathLower: meta.pathLower))
+                            finish(DBSelection(folderId: meta.id, pathLower: meta.pathLower))
                         }
                     }
                 }
@@ -581,11 +588,7 @@ final class DropboxManager {
                     case .failure:
                         ProgressHUD.failed("Unable to list Dropbox folders")
                     case .success(let payload):
-                        if reset {
-                            self.items = payload.items
-                        } else {
-                            self.items.append(contentsOf: payload.items)
-                        }
+                        if reset { self.items = payload.items } else { self.items.append(contentsOf: payload.items) }
                         self.cursor = payload.cursor
                         self.tableView.reloadData()
                     }
@@ -593,7 +596,21 @@ final class DropboxManager {
             }
         }
 
+        // MARK: - Accessory helpers
+
+        private func setChevron(on cell: UITableViewCell, blue: Bool) {
+            let iv = UIImageView(image: UIImage(systemName: "chevron.right"))
+            iv.tintColor = blue ? .systemBlue : .label
+            cell.accessoryView = iv
+            cell.accessoryType = .none
+        }
+
+        private func currentPathChildId() -> String? {
+            pathChildOverride[parentKey] ?? branchMap[parentKey]
+        }
+
         // MARK: - Table datasource
+
         override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
             items.count + ((cursor != nil) ? 1 : 0) // "Load more…" row
         }
@@ -603,6 +620,7 @@ final class DropboxManager {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
                 cell.textLabel?.text = "Load more…"
                 cell.accessoryType = .none
+                cell.accessoryView = nil
                 return cell
             }
 
@@ -610,26 +628,44 @@ final class DropboxManager {
             let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
             cell.textLabel?.text = item.name
 
-            // Checkmark only if this row is the selected child at THIS level
-            if let selectedId = selectedChildIdAtThisLevel, item.id == selectedId {
+            // Always clear accessories first (reuse-safe)
+            cell.accessoryType = .none
+            cell.accessoryView = nil
+
+            // ✓ only for the globally selected folder (leaf or non-leaf)
+            if let sel = selectedId, sel == item.id {
                 cell.accessoryType = .checkmark
                 return cell
             }
 
-            // Use cached knowledge to set chevron with minimal flicker
-            if let manager, let cached = manager.cachedHasSubfolders(for: item.pathLower) {
-                cell.accessoryType = cached ? .disclosureIndicator : .none
+            // If we know leaf/non-leaf, color chevrons appropriately; else optimistic + probe
+            if let has = manager?.cachedHasSubfolders(for: item.pathLower) {
+                if has {
+                    let isAncestorHere = (item.id == currentPathChildId())
+                    setChevron(on: cell, blue: isAncestorHere)
+                } else {
+                    // leaf → none
+                }
             } else {
-                // Optimistic: assume navigable until probe says otherwise
-                cell.accessoryType = .disclosureIndicator
-                // Background probe (deduped) to refine
-                manager?.probeHasSubfoldersCached(client: client, pathLower: item.pathLower) { [weak tableView] has in
+                // Optimistic: show chevron with current tint decision, then probe to correct
+                let isAncestorHere = (item.id == currentPathChildId())
+                setChevron(on: cell, blue: isAncestorHere)
+
+                manager?.probeHasSubfoldersCached(client: client, pathLower: item.pathLower) { [weak self, weak tableView] has in
                     DispatchQueue.main.async {
-                        guard let tv = tableView,
+                        guard let self = self,
+                              let tv = tableView,
                               let currentCell = tv.cellForRow(at: indexPath) else { return }
-                        // Don't override ✓ row
-                        if let selectedId = self.selectedChildIdAtThisLevel, item.id == selectedId { return }
-                        currentCell.accessoryType = has ? .disclosureIndicator : .none
+
+                        // Don't override ✓ rows
+                        if let sel = self.selectedId, sel == item.id { return }
+
+                        currentCell.accessoryType = .none
+                        currentCell.accessoryView = nil
+                        if has {
+                            let isAncestorNow = (item.id == self.currentPathChildId())
+                            self.setChevron(on: currentCell, blue: isAncestorNow)
+                        } // else leave none
                     }
                 }
             }
@@ -646,67 +682,67 @@ final class DropboxManager {
                 return
             }
 
-            let item = items[indexPath.row]
             guard let manager = self.manager else { return }
+            let item = items[indexPath.row]
+            let tappedId = item.id
+            let wasSelected = (tappedId == selectedId)
 
-            let applyCheckmarkChange: (_ newSelectedId: String?) -> Void = { [weak self] newId in
-                guard let self = self else { return }
-                let previous = self.selectedChildIdAtThisLevel
-                self.selectedChildIdAtThisLevel = newId
-
-                // Update just the affected rows to avoid flashing
-                var indexPathsToReload: [IndexPath] = [indexPath]
-                if let prevId = previous, prevId != item.id, let prevRow = self.items.firstIndex(where: { $0.id == prevId }) {
-                    indexPathsToReload.append(IndexPath(row: prevRow, section: 0))
+            // previous blue chevron at this level (to flip to black if we choose a sibling)
+            let prevPathChildId = currentPathChildId()
+            let prevPathIndex: IndexPath? = {
+                if let pid = prevPathChildId, let idx = items.firstIndex(where: { $0.id == pid }) {
+                    return IndexPath(row: idx, section: 0)
                 }
-                self.tableView.reloadRows(at: indexPathsToReload, with: .none)
+                return nil
+            }()
+
+            func reload(_ a: IndexPath, _ b: IndexPath?) {
+                var arr = [a]
+                if let b, b != a { arr.append(b) }
+                tableView.reloadRows(at: arr, with: .none)
             }
 
-            // Decide based on hasSubfolders (cached if possible)
-            let proceed: (Bool) -> Void = { [weak self] has in
+            let handleTap: (Bool) -> Void = { [weak self] hasSub in
                 guard let self = self else { return }
-                if let selectedId = self.selectedChildIdAtThisLevel, selectedId == item.id {
-                    // Tapped a folder that already has a ✓
-                    if has {
-                        // Navigate inside (keep checkmark at this level)
-                        let next = PathContext(pathLower: item.pathLower)
-                        let vc = FolderPickerViewController(
-                            manager: manager,
-                            client: self.client,
-                            start: next,
-                            branchMap: self.branchMap, // carry map forward
-                            onPicked: self.onPicked
-                        )
-                        self.navigationController?.pushViewController(vc, animated: true)
-                    } else {
-                        // Leaf + already selected → unselect (parent becomes effective selection)
-                        applyCheckmarkChange(nil)
-                    }
+
+                // Update path child override so chevron on old path flips blue→black
+                self.pathChildOverride[self.parentKey] = tappedId
+
+                if hasSub {
+                    // Non-leaf: selecting it sets it as the selected folder (✓), then navigate
+                    self.selectedId = tappedId
+                    self.workingSelectedChildId = tappedId
+                    reload(indexPath, prevPathIndex)
+
+                    let next = PathContext(pathLower: item.pathLower)
+                    let vc = FolderPickerViewController(
+                        manager: manager,
+                        client: self.client,
+                        start: next,
+                        branchMap: self.branchMap,
+                        onPicked: self.onPicked
+                    )
+                    self.navigationController?.pushViewController(vc, animated: true)
                 } else {
-                    // Tapped a *different* folder at this level → move the ✓ here
-                    applyCheckmarkChange(item.id)
-                    if has {
-                        // Navigate deeper immediately (no confirmation yet)
-                        let next = PathContext(pathLower: item.pathLower)
-                        let vc = FolderPickerViewController(
-                            manager: manager,
-                            client: self.client,
-                            start: next,
-                            branchMap: self.branchMap,
-                            onPicked: self.onPicked
-                        )
-                        self.navigationController?.pushViewController(vc, animated: true)
+                    // Leaf: toggle ✓ on/off
+                    if wasSelected {
+                        // Deselect → parent becomes effective again; clear override so ancestor chevrons restore
+                        self.selectedId = nil
+                        self.workingSelectedChildId = nil
+                        self.pathChildOverride[self.parentKey] = nil
                     } else {
-                        // Leaf → just check it; DO NOT confirm or dismiss. "Done" will confirm later.
+                        self.selectedId = tappedId
+                        self.workingSelectedChildId = tappedId
                     }
+                    reload(indexPath, prevPathIndex)
                 }
             }
 
             if let cached = manager.cachedHasSubfolders(for: item.pathLower) {
-                proceed(cached)
+                handleTap(cached)
             } else {
                 manager.probeHasSubfoldersCached(client: client, pathLower: item.pathLower) { has in
-                    DispatchQueue.main.async { proceed(has) }
+                    DispatchQueue.main.async { handleTap(has) }
                 }
             }
         }
