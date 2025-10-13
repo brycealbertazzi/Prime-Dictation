@@ -37,6 +37,7 @@ class GDFolderPickerViewController: UITableViewController {
     let manager: GoogleDriveManager
     let service: GTLRDriveService
     let parentFolderId: String
+    
     let onPicked: (GDSelection) -> Void
     fileprivate var folders: [PickerFolder] = []
     var checkedFolderId: String?
@@ -86,6 +87,13 @@ class GDFolderPickerViewController: UITableViewController {
         fetchFolders()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        refreshSelectedPathAncestors { [weak self] in
+            self?.tableView.reloadData()
+        }
+    }
+    
     @inline(__always)
     private func s(_ any: Any?) -> String {
         if let s = any as? String { return s }
@@ -98,27 +106,37 @@ class GDFolderPickerViewController: UITableViewController {
         // If a folder is checked, return that
         if let id = checkedFolderId,
            let f = folders.first(where: { $0.id == id }) {
-            let selection = GDSelection(
-                folderId: id,
-                name: f.name,
-                accountId: manager.currentAccountId
-            )
+            let selection = GDSelection(folderId: id, name: f.name, accountId: manager.currentAccountId)
             manager.updateSelectedFolder(selection)
             onPicked(selection)
             dismiss(animated: true)
             return
         }
 
-        // Otherwise default to ROOT (My Drive)
-        let rootSelection = GDSelection(
-            folderId: GoogleDriveManager.googleDriveRootId,
-            name: "Google Drive (root)",
-            accountId: manager.currentAccountId
-        )
-        manager.updateSelectedFolder(rootSelection)
-        onPicked(rootSelection)
-        dismiss(animated: true)
+        // Nothing checked → use THIS LEVEL'S PARENT as the destination
+        ProgressHUD.animate("Confirming parent…")
+        manager.httpGetFileName(fileId: parentFolderId) { [weak self] result in
+            guard let self = self else { return }
+            let parentName: String
+            switch result {
+            case .success(let name): parentName = name
+            case .failure:           parentName = (self.parentFolderId == GoogleDriveManager.googleDriveRootId)
+                                       ? "Google Drive (root)"
+                                       : "(untitled)"
+            }
+
+            let fallbackToParent = GDSelection(
+                folderId: self.parentFolderId,
+                name: parentName,
+                accountId: self.manager.currentAccountId
+            )
+            self.manager.updateSelectedFolder(fallbackToParent)
+            self.onPicked(fallbackToParent)
+            ProgressHUD.dismiss()
+            self.dismiss(animated: true)
+        }
     }
+
 
     @objc private func cancelButtonTapped() {
         dismiss(animated: true)
@@ -141,11 +159,45 @@ class GDFolderPickerViewController: UITableViewController {
                                  isLeaf: true)
                 }
                 self.tableView.reloadData()
+                self.tableView.reloadData()
                 self.checkFoldersForChildren(parentFolderIds: rows.map { $0.id })
             }
             ProgressHUD.dismiss()
         }
     }
+    
+    // Add property
+    private var selectedPathAncestorIds = Set<String>()   // folders that are ancestors of the selected folder (any depth)
+
+    // Build the ancestor set for a given file id (up to root)
+    private func buildAncestorSet(of fileId: String, acc: Set<String> = [], done: @escaping (Set<String>) -> Void) {
+        if fileId == GoogleDriveManager.googleDriveRootId { return done(acc) }
+        manager.httpGetParents(fileId: fileId) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .failure:
+                done(acc) // fail-closed: no ancestors
+            case .success(let parents):
+                guard let parent = parents.first else { return done(acc) }
+                var next = acc; next.insert(parent)
+                self.buildAncestorSet(of: parent, acc: next, done: done)
+            }
+        }
+    }
+
+    // Refresh ancestor set based on current persisted selection
+    private func refreshSelectedPathAncestors(_ completion: (() -> Void)? = nil) {
+        guard let sel = manager.persistedSelection else {
+            selectedPathAncestorIds = []
+            completion?()
+            return
+        }
+        buildAncestorSet(of: sel.folderId) { [weak self] set in
+            self?.selectedPathAncestorIds = set
+            completion?()
+        }
+    }
+
 
     private func checkFoldersForChildren(parentFolderIds: [String]) {
         guard !parentFolderIds.isEmpty else { return }
@@ -180,12 +232,35 @@ class GDFolderPickerViewController: UITableViewController {
 
         let folder = folders[indexPath.row]
         cell.textLabel?.text = folder.name
-        cell.accessoryType = folder.id == checkedFolderId
-            ? .checkmark
-            : (folder.isLeaf ? .none : .disclosureIndicator)
+        
+        // Always clear the accessoryView to prevent reuse issues
+        cell.accessoryView = nil
+
+        if folder.id == checkedFolderId {
+            cell.accessoryType = .checkmark
+        } else if !folder.isLeaf {
+            // Create a custom image view for the chevron
+            let chevronImage = UIImage(systemName: "chevron.right")
+            let chevronImageView = UIImageView(image: chevronImage)
+            
+            // Conditionally set the color of the chevron
+            // For example, make it blue if the folder is expandable
+//            chevronImageView.tintColor = .systemBlue
+            if (selectedPathAncestorIds.contains(folder.id)) {
+                chevronImageView.tintColor = .systemBlue
+            } else {
+                chevronImageView.tintColor = .black
+            }
+            
+            
+            cell.accessoryView = chevronImageView
+        } else {
+            cell.accessoryType = .none
+        }
 
         return cell
     }
+
 
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -207,6 +282,18 @@ class GDFolderPickerViewController: UITableViewController {
                     accountId: manager.currentAccountId
                 )
                 manager.updateSelectedFolder(selection)
+                refreshSelectedPathAncestors { [weak self] in
+                    guard let self = self else { return }
+                    // Optionally refresh visible pickers in the stack so parent chevrons update immediately
+                    if let vcs = self.navigationController?.viewControllers {
+                        for vc in vcs {
+                            (vc as? GDFolderPickerViewController)?.selectedPathAncestorIds = self.selectedPathAncestorIds
+                            (vc as? GDFolderPickerViewController)?.tableView.reloadData()
+                        }
+                    } else {
+                        self.tableView.reloadData()
+                    }
+                }
                 tableView.reloadData()
             }
         } else {
@@ -566,6 +653,85 @@ final class GoogleDriveManager: NSObject {
                 let ok = (resp as? HTTPURLResponse).map { (200..<300).contains($0.statusCode) } ?? false
                 DispatchQueue.main.async { completion(ok) }
             }.resume()
+        }
+    }
+
+    func httpGetParents(fileId: String, completion: @escaping (Result<[String], Error>) -> Void) {
+        if fileId == GoogleDriveManager.googleDriveRootId {
+            return completion(.success([]))
+        }
+        withFreshAccessToken { res in
+            switch res {
+            case .failure(let e): completion(.failure(e))
+            case .success(let token):
+                var comps = URLComponents(string: "https://www.googleapis.com/drive/v3/files/\(fileId)")!
+                comps.queryItems = [
+                    URLQueryItem(name: "fields", value: "parents"),
+                    URLQueryItem(name: "supportsAllDrives", value: "true")
+                ]
+                var req = URLRequest(url: comps.url!)
+                req.httpMethod = "GET"
+                req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+                URLSession.shared.dataTask(with: req) { data, resp, err in
+                    if let err { return DispatchQueue.main.async { completion(.failure(err)) } }
+                    guard let data,
+                          let http = resp as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+                        let code = (resp as? HTTPURLResponse)?.statusCode ?? -1
+                        return DispatchQueue.main.async {
+                            completion(.failure(NSError(domain: "PrimeDictation", code: code,
+                                                        userInfo: [NSLocalizedDescriptionKey: "Parents fetch failed (\(code))"])))
+                        }
+                    }
+                    struct ParentsDTO: Decodable { let parents: [String]? }
+                    do {
+                        let dto = try JSONDecoder().decode(ParentsDTO.self, from: data)
+                        DispatchQueue.main.async { completion(.success(dto.parents ?? [])) }
+                    } catch {
+                        DispatchQueue.main.async { completion(.failure(error)) }
+                    }
+                }.resume()
+            }
+        }
+    }
+    
+    // Fetch a file/folder name by id (root handled specially)
+    func httpGetFileName(fileId: String, completion: @escaping (Result<String, Error>) -> Void) {
+        if fileId == GoogleDriveManager.googleDriveRootId {
+            return completion(.success("Google Drive (root)"))
+        }
+        withFreshAccessToken { res in
+            switch res {
+            case .failure(let e): completion(.failure(e))
+            case .success(let token):
+                var comps = URLComponents(string: "https://www.googleapis.com/drive/v3/files/\(fileId)")!
+                comps.queryItems = [
+                    URLQueryItem(name: "fields", value: "name"),
+                    URLQueryItem(name: "supportsAllDrives", value: "true")
+                ]
+                var req = URLRequest(url: comps.url!)
+                req.httpMethod = "GET"
+                req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+                URLSession.shared.dataTask(with: req) { data, resp, err in
+                    if let err { return DispatchQueue.main.async { completion(.failure(err)) } }
+                    guard let data,
+                          let http = resp as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+                        let code = (resp as? HTTPURLResponse)?.statusCode ?? -1
+                        return DispatchQueue.main.async {
+                            completion(.failure(NSError(domain: "PrimeDictation", code: code,
+                                                        userInfo: [NSLocalizedDescriptionKey: "Name fetch failed (\(code))"])))
+                        }
+                    }
+                    struct NameDTO: Decodable { let name: String? }
+                    do {
+                        let dto = try JSONDecoder().decode(NameDTO.self, from: data)
+                        DispatchQueue.main.async { completion(.success(dto.name ?? "(untitled)")) }
+                    } catch {
+                        DispatchQueue.main.async { completion(.failure(error)) }
+                    }
+                }.resume()
+            }
         }
     }
 

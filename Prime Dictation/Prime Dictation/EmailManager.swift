@@ -92,6 +92,7 @@ class EmailManager: NSObject {
         }
         
         if MFMailComposeViewController.canSendMail() {
+            print("email \(email)")
             let mailComposer = MFMailComposeViewController()
             mailComposer.mailComposeDelegate = self
             mailComposer.setToRecipients([email])
@@ -104,7 +105,7 @@ class EmailManager: NSObject {
                 vc.present(mailComposer, animated: true)
             } else {
                 // Fallback if settingsViewController is nil
-                UIApplication.shared.keyWindow?.rootViewController?.present(mailComposer, animated: true)
+                UIApplication.shared.findKeyWindow()?.rootViewController?.present(mailComposer, animated: true)
             }
             
         } else {

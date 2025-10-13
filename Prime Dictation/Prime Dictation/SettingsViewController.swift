@@ -129,11 +129,6 @@ class SettingsViewController: UIViewController {
         }
     }
     
-    // DELETE LATER!!!!!
-    @IBAction func TmpSignOutDeleteLater(_ sender: Any) {
-        googleDriveManager.SignOutAndRevoke(completion: {_ in})
-    }
-    
     func UpdateSelectedDestinationUserDefaults(destination: Destination) {
         destinationManager.setSelectedDestination(destination)
     }
