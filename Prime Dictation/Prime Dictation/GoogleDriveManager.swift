@@ -244,12 +244,10 @@ class GDFolderPickerViewController: UITableViewController {
             let chevronImageView = UIImageView(image: chevronImage)
             
             // Conditionally set the color of the chevron
-            // For example, make it blue if the folder is expandable
-//            chevronImageView.tintColor = .systemBlue
             if (selectedPathAncestorIds.contains(folder.id)) {
                 chevronImageView.tintColor = .systemBlue
             } else {
-                chevronImageView.tintColor = .black
+                chevronImageView.tintColor = .label
             }
             
             
