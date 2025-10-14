@@ -80,6 +80,31 @@ final class DropboxManager {
         clearSavedSelection()
         completion(true)
     }
+    
+    @MainActor
+    func SignOutAndRevoke(completion: @escaping (Bool) -> Void) {
+        // If nothing is linked, we’re effectively signed out
+        guard isSignedIn else { completion(true); return }
+
+        // Revoke any active user/team tokens on Dropbox’s side
+        let group = DispatchGroup()
+        var success = true
+
+        if let userClient = DropboxClientsManager.authorizedClient {
+            group.enter()
+            userClient.auth.tokenRevoke().response { _, err in
+                if let err { print("Dropbox token revoke (user) failed: \(err)"); success = false }
+                group.leave()
+            }
+        }
+
+        group.notify(queue: .main) {
+            // Always unlink locally afterwards
+            DropboxClientsManager.unlinkClients()
+            self.clearSavedSelection()
+            completion(success)
+        }
+    }
 
     // Start auth; result handled via handleRedirect
     private var authCompletion: ((AuthResult) -> Void)?
@@ -89,18 +114,20 @@ final class DropboxManager {
         guard let presenter = settingsViewController else { completion(.none); return }
         self.authCompletion = completion
 
+        let scope = ScopeRequest(
+            scopeType: .user,
+            scopes: ["files.content.write", "files.content.read", "files.metadata.read", "sharing.read"],
+            includeGrantedScopes: false
+        )
         DropboxClientsManager.authorizeFromControllerV2(
             UIApplication.shared,
             controller: presenter,
             loadingStatusDelegate: nil,
             openURL: { UIApplication.shared.open($0) },
-            scopeRequest: ScopeRequest(
-                scopeType: .user,
-                scopes: ["files.content.write", "files.content.read", "files.metadata.read", "sharing.read"],
-                includeGrantedScopes: true
-            )
+            scopeRequest: scope,
         )
     }
+
 
     // Called from AppDelegate (or your OAuth router) on redirect
     @discardableResult
@@ -125,8 +152,6 @@ final class DropboxManager {
         return true
     }
 
-    // MARK: - Present folder picker (no async/await)
-
     @MainActor
     func PresentDropboxFolderPicker(onPicked: ((DBSelection) -> Void)? = nil) {
         guard let _ = settingsViewController else {
@@ -135,6 +160,9 @@ final class DropboxManager {
         }
 
         func presentNow(_ client: DropboxClient) {
+            // 🔑 Always start with a clean view of the world for this session
+            self.resetSubfolderCache()
+
             let start = PathContext(pathLower: "") // root
             buildSelectedMap(client: client) { [weak self] result in
                 guard let self = self else { return }
@@ -149,7 +177,6 @@ final class DropboxManager {
                             start: start,
                             branchMap: map,
                             onPicked: { sel in
-                                // Save selection (no account tracking)
                                 self.saveSelection(sel)
                                 onPicked?(sel)
                             }
@@ -165,8 +192,8 @@ final class DropboxManager {
         if let client = DropboxClientsManager.authorizedClient {
             presentNow(client)
         } else {
-            OpenAuthorizationFlow { [weak self] res in
-                guard self != nil else { return }
+            ProgressHUD.dismiss()
+            OpenAuthorizationFlow { res in
                 switch res {
                 case .success:
                     if let client = DropboxClientsManager.authorizedClient { presentNow(client) }
@@ -446,6 +473,14 @@ final class DropboxManager {
     private func setCachedHasSubfolders(_ value: Bool, for pathLower: String) {
         hasSubfoldersCache.setObject(NSNumber(value: value), forKey: pathLower as NSString)
     }
+    
+    private func resetSubfolderCache() {
+        hasSubfoldersCache.removeAllObjects()
+        // Clear in-flight coalescing too so we don't “reuse” stale probes
+        subfolderProbeQueue.async { [weak self] in
+            self?.inflightSubfolderChecks.removeAll()
+        }
+    }
 
     // MARK: - Picker UI (callback-based)
 
@@ -513,7 +548,7 @@ final class DropboxManager {
                 primaryAction: UIAction(title: "Sign Out") { [weak self] _ in
                     guard let self = self, let manager = self.manager else { return }
                     ProgressHUD.animate("Signing out…")
-                    manager.SignOutAppOnly { success in
+                    manager.SignOutAndRevoke { success in
                         Task { @MainActor in
                             guard let settingsVC = manager.settingsViewController else {
                                 print("Unable to find settings view controller on Dropbox signout")
@@ -640,9 +675,11 @@ final class DropboxManager {
 
             // If we know leaf/non-leaf, color chevrons appropriately; else optimistic + probe
             if let has = manager?.cachedHasSubfolders(for: item.pathLower) {
+                print("cachedHasSubfolders: \(item.pathLower), \(has)")
                 if has {
                     let isAncestorHere = (item.id == currentPathChildId())
                     setChevron(on: cell, blue: isAncestorHere)
+                    print("isAncestorHere: \(isAncestorHere)")
                 } else {
                     // leaf → none
                 }
@@ -653,6 +690,7 @@ final class DropboxManager {
 
                 manager?.probeHasSubfoldersCached(client: client, pathLower: item.pathLower) { [weak self, weak tableView] has in
                     DispatchQueue.main.async {
+                        print("do not know leaf: \(item.pathLower), cachedHasSubfolders:\(has)")
                         guard let self = self,
                               let tv = tableView,
                               let currentCell = tv.cellForRow(at: indexPath) else { return }

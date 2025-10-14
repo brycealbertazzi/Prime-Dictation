@@ -1,5 +1,5 @@
 {
-  "originHash" : "bdfaa80f27b4309c2ad059a7b798955c4899660f1bf31d3f650eb4049c3f896a",
+  "originHash" : "edca8af40a4efaa1c967307f78fc2f4a790911093fc1027277e59cce0ad579b7",
   "pins" : [
     {
       "identity" : "app-check",
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/AzureAD/microsoft-authentication-library-for-objc.git",
       "state" : {
-        "revision" : "8d4b948242ab2b9a4ad035a0a0005a4200ccec7a",
-        "version" : "2.4.1"
+        "revision" : "a1d61914224f152abf11ba6ce4368bf6ae51c61d",
+        "version" : "2.4.2"
       }
     },
     {
@@ -96,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dropbox/SwiftyDropbox.git",
       "state" : {
-        "revision" : "fd59387a1af58f42ebf32a8186f717586fe66eac",
-        "version" : "10.2.2"
+        "revision" : "8c51369ef9cdf288cb6ffc7224710f661f746943",
+        "version" : "10.2.3"
       }
     }
   ],
