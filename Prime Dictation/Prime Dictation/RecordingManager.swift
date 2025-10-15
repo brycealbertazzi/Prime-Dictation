@@ -8,6 +8,7 @@
 import UIKit
 import AVFoundation
 import SwiftyDropbox
+import ProgressHUD
 
 class RecordingManager {
     
@@ -16,8 +17,7 @@ class RecordingManager {
     
     let recordingExtension: String = "m4a"
     let destinationRecordingExtension: String = "wav"
-    var recordingName: String = String()
-    var recordingDisplayName: String = String()
+    var recordingName: String = String() // The name of the most recent recording the user made
     
     var savedRecordingsKey: String = "savedRecordings"
     var savedRecordingNames: [String] = []
@@ -56,7 +56,6 @@ class RecordingManager {
             do {
                 try FileManager.default.removeItem(at: GetDirectory().appendingPathComponent(oldestRecording).appendingPathExtension("wav"))
                 try FileManager.default.removeItem(at: GetDirectory().appendingPathComponent(oldestRecording).appendingPathExtension("m4a"))
-                
             } catch {
                 viewController.displayAlert(title: "Error!", message: "Could not delete oldest recording in queue")
             }
@@ -72,6 +71,20 @@ class RecordingManager {
         toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
         viewController.FileNameLabel.setTitle(savedRecordingNames[toggledRecordingsIndex], for: .normal)
         viewController.HasRecordingsUI(numberOfRecordings: recordingCount)
+    }
+    
+    func RenameFile(newName: String) {
+        let oldName = self.toggledRecordingName
+        
+        do {
+            try FileManager.default.moveItem(at: GetDirectory().appendingPathComponent(oldName).appendingPathExtension("wav"), to: GetDirectory().appendingPathComponent(newName).appendingPathExtension("wav"))
+            self.savedRecordingNames[self.toggledRecordingsIndex] = newName
+            self.toggledRecordingName = newName
+            viewController.FileNameLabel.setTitle(newName, for: .normal)
+            UserDefaults.standard.set(self.savedRecordingNames, forKey: self.savedRecordingsKey)
+        } catch {
+            ProgressHUD.failed("Failed to remane file")
+        }
     }
     
     func RecordingTimeForName(now: Date = Date()) -> String {

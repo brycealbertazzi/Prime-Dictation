@@ -48,22 +48,38 @@
                                                     <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 </state>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RQo-s8-1EL">
-                                                <rect key="frame" x="237" y="46" width="75" height="75"/>
+                                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RQo-s8-1EL">
+                                                <rect key="frame" x="238" y="57" width="75" height="75"/>
                                                 <state key="normal" image="NextArrow"/>
                                                 <connections>
                                                     <action selector="NextRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="V8A-PZ-5T9"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ad2-00-0E4">
-                                                <rect key="frame" x="62" y="46" width="75" height="75"/>
+                                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ad2-00-0E4">
+                                                <rect key="frame" x="63" y="57" width="75" height="75"/>
                                                 <state key="normal" image="PreviousArrow"/>
                                                 <connections>
                                                     <action selector="PreviousRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="fcw-wf-7kx"/>
                                                 </connections>
                                             </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IlT-gg-nU8" userLabel="Rename File Label">
+                                                <rect key="frame" x="170" y="63.666666666666686" width="35" height="40"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="40" id="LTr-HL-0OD"/>
+                                                    <constraint firstAttribute="width" constant="35" id="uRp-Yb-bOg"/>
+                                                </constraints>
+                                                <color key="tintColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="plain">
+                                                    <backgroundConfiguration key="background" image="pencil.and.list.clipboard" catalog="system"/>
+                                                </buttonConfiguration>
+                                                <connections>
+                                                    <action selector="RenameFileButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Y4a-Lq-BsA"/>
+                                                </connections>
+                                            </button>
                                         </subviews>
                                         <constraints>
+                                            <constraint firstItem="IlT-gg-nU8" firstAttribute="centerY" secondItem="Ad2-00-0E4" secondAttribute="centerY" id="2bT-e3-jm8"/>
                                             <constraint firstAttribute="width" constant="375" id="5DF-ua-lz8"/>
                                             <constraint firstAttribute="trailing" secondItem="RQo-s8-1EL" secondAttribute="trailing" constant="63" id="CUw-r5-YuU"/>
                                             <constraint firstAttribute="trailing" secondItem="Ad2-00-0E4" secondAttribute="trailing" constant="238" id="IAe-WY-NHE"/>
@@ -75,6 +91,7 @@
                                             <constraint firstItem="RQo-s8-1EL" firstAttribute="top" secondItem="OPi-8M-xC4" secondAttribute="top" constant="46" id="i9o-Dm-N4R"/>
                                             <constraint firstItem="RQo-s8-1EL" firstAttribute="leading" secondItem="OPi-8M-xC4" secondAttribute="leading" constant="237" id="qvo-uK-cZF"/>
                                             <constraint firstAttribute="height" constant="121" id="rDc-7N-BNo"/>
+                                            <constraint firstItem="IlT-gg-nU8" firstAttribute="centerX" secondItem="OPi-8M-xC4" secondAttribute="centerX" id="uVi-Wn-ATL"/>
                                             <constraint firstItem="Ad2-00-0E4" firstAttribute="leading" secondItem="OPi-8M-xC4" secondAttribute="leading" constant="62" id="vkY-mG-Lad"/>
                                         </constraints>
                                     </view>
@@ -234,6 +251,7 @@
                         <outlet property="PausePlaybackLabel" destination="Vvz-gp-8Nr" id="w3z-fG-5BT"/>
                         <outlet property="PreviousRecordingLabel" destination="Ad2-00-0E4" id="EfO-Ok-KQM"/>
                         <outlet property="RecordLabel" destination="aq9-EU-DW7" id="aoh-8d-Bsn"/>
+                        <outlet property="RenameFileLabel" destination="IlT-gg-nU8" id="nB1-qy-DPv"/>
                         <outlet property="SendLabel" destination="svK-SA-aO1" id="s8t-Bh-c3r"/>
                         <outlet property="StopButtonLabel" destination="EmE-RS-QlP" id="QWe-k5-g0Q"/>
                         <outlet property="StopWatchLabel" destination="dFf-qS-ITZ" id="Vo8-Pv-V93"/>
@@ -347,6 +365,7 @@
         <image name="PreviousArrow" width="100" height="100"/>
         <image name="RecordButton" width="100" height="100"/>
         <image name="folder.fill.badge.gearshape" catalog="system" width="128" height="93"/>
+        <image name="pencil.and.list.clipboard" catalog="system" width="114" height="128"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

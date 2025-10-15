@@ -20,6 +20,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var SendLabel: UIButton!
     @IBOutlet weak var DestinationLabel: UIButton!
     @IBOutlet weak var FileNameLabel: UIButton!
+    @IBOutlet weak var RenameFileLabel: UIButton!
     @IBOutlet weak var PreviousRecordingLabel: UIButton!
     @IBOutlet weak var NextRecordingLabel: UIButton!
     @IBOutlet weak var PausePlayButtonLabel: UIButton!
@@ -152,6 +153,29 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         recordingManager.CheckToggledRecordingsIndex(goingToPreviousRecording: false)
         recordingManager.toggledRecordingName = recordingManager.savedRecordingNames[recordingManager.toggledRecordingsIndex]
         FileNameLabel.setTitle(recordingManager.toggledRecordingName, for: .normal)
+    }
+    
+    @IBAction func RenameFileButton(_ sender: Any) {
+        let alert = UIAlertController(title: "Rename File", message: nil, preferredStyle: .alert)
+        
+        alert.addTextField { textField in
+            textField.placeholder = "Enter file name..."
+            textField.text = self.recordingManager.toggledRecordingName
+            textField.keyboardType = .default
+            textField.autocapitalizationType = .none
+        }
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        alert.addAction(UIAlertAction(title: "Save", style: .default) { _ in
+            if let newName = alert.textFields?.first?.text, !newName.isEmpty {
+                self.recordingManager.RenameFile(newName: newName)
+            } else {
+                ProgressHUD.failed("Name cannot be empty.")
+            }
+        })
+        
+        self.present(alert, animated: true)
     }
 
     @IBAction func RecordButton(_ sender: Any) {
