@@ -83,7 +83,11 @@ class RecordingManager {
             viewController.FileNameLabel.setTitle(newName, for: .normal)
             UserDefaults.standard.set(self.savedRecordingNames, forKey: self.savedRecordingsKey)
         } catch {
-            ProgressHUD.failed("Failed to remane file")
+            print(oldName, newName)
+            if (oldName == newName) {
+                return
+            }
+            ProgressHUD.failed("Failed to rename file")
         }
     }
     
