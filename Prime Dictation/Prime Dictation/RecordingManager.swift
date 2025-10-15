@@ -53,12 +53,14 @@ class RecordingManager {
         } else {
             //Delete the oldest recording and add the next one
             let oldestRecording = savedRecordingNames.removeFirst()
-            print("oldest recording \(oldestRecording)")
+
             do {
-                try FileManager.default.removeItem(at: GetDirectory().appendingPathComponent(oldestRecording).appendingPathExtension("wav"))
-                try FileManager.default.removeItem(at: GetDirectory().appendingPathComponent(oldestRecording).appendingPathExtension("m4a"))
+                let wavUrl = GetDirectory().appendingPathComponent(oldestRecording).appendingPathExtension("wav")
+                let m4aUrl = GetDirectory().appendingPathComponent(oldestRecording).appendingPathExtension("m4a")
+                if (FileManager.default.fileExists(atPath: wavUrl.path)) {try FileManager.default.removeItem(at: wavUrl)} else {print("WAV FILE DOES NOT EXIST!!!!")}
+                if (FileManager.default.fileExists(atPath: m4aUrl.path)) {try FileManager.default.removeItem(at: m4aUrl)} else {print("M4A FILES DOES NOT EXIST!!!!")}
             } catch {
-                viewController.displayAlert(title: "Error!", message: "Could not delete oldest recording in queue")
+                print("UNABLE TO DETETE THE FILE OF AN OLDEST RECORDING IN QUEUE!!!!")
             }
             savedRecordingNames.append(recordingName)
         }
