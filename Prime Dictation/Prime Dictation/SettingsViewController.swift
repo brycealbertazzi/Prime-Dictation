@@ -55,6 +55,12 @@ class SettingsViewController: UIViewController {
             case .success:
                 self.UpdateSelectedDestinationUserDefaults(destination: .dropbox)
                 self.UpdateSelectedDestinationUI(destination: .dropbox)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                    self.dropboxManager.PresentDropboxFolderPicker { selection in }
+                }
+            case .alreadyAuthenticated:
+                self.UpdateSelectedDestinationUserDefaults(destination: .dropbox)
+                self.UpdateSelectedDestinationUI(destination: .dropbox)
             case .cancel:
                 ProgressHUD.failed("Canceled Dropbox Login")
             case .error(_, _):
@@ -71,7 +77,12 @@ class SettingsViewController: UIViewController {
             case .success:
                 self.UpdateSelectedDestinationUserDefaults(destination: .onedrive)
                 self.UpdateSelectedDestinationUI(destination: .onedrive)
-                break
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                    self.oneDriveManager.PresentOneDriveFolderPicker { selection in }
+                }
+            case .alreadyAuthenticated:
+                self.UpdateSelectedDestinationUserDefaults(destination: .onedrive)
+                self.UpdateSelectedDestinationUI(destination: .onedrive)
             case .cancel:
                 ProgressHUD.failed("Canceled OneDrive Login")
             case .error:
@@ -85,7 +96,12 @@ class SettingsViewController: UIViewController {
             guard let self = self else { return }
             switch result {
             case .success:
-                print("GD sign in success")
+                self.UpdateSelectedDestinationUserDefaults(destination: .googledrive)
+                self.UpdateSelectedDestinationUI(destination: .googledrive)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                    self.googleDriveManager.presentGoogleDriveFolderPicker { selection in }
+                }
+            case .alreadyAuthenticated:
                 self.UpdateSelectedDestinationUserDefaults(destination: .googledrive)
                 self.UpdateSelectedDestinationUI(destination: .googledrive)
             case .cancel:

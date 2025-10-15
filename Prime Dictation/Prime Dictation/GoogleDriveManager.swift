@@ -386,6 +386,7 @@ final class GoogleDriveManager: NSObject {
 
     enum AuthResult {
         case success
+        case alreadyAuthenticated
         case cancel
         case error(Error?, String?)
         case none
@@ -614,7 +615,7 @@ final class GoogleDriveManager: NSObject {
         if let user = GIDSignIn.sharedInstance.currentUser {
             if hasAllDriveScopes(user) {
                 // Already signed in with needed scopes
-                completion(.success)
+                completion(.alreadyAuthenticated)
                 return
             } else if let presenter = settingsViewController {
                 // Signed in but missing scopes → incremental auth prompts consent

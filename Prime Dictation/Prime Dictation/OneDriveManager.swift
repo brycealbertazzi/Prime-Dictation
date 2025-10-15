@@ -18,6 +18,7 @@ import UniformTypeIdentifiers
 // MARK: - Auth result
 enum AuthResult {
     case success
+    case alreadyAuthenticated
     case cancel
     case error(Error?)
 }
@@ -132,7 +133,7 @@ final class OneDriveManager {
 
                 if let result {
                     self.signedInAccount = result.account
-                    DispatchQueue.main.async { completion(.success) }
+                    DispatchQueue.main.async { completion(.alreadyAuthenticated) }
                     return
                 }
 

@@ -9,6 +9,7 @@ final class DropboxManager {
 
     enum AuthResult {
         case success
+        case alreadyAuthenticated
         case cancel
         case error(Error?, String?)
         case none
@@ -113,7 +114,7 @@ final class DropboxManager {
     private var authCompletion: ((AuthResult) -> Void)?
     func OpenAuthorizationFlow(completion: @escaping (AuthResult) -> Void) {
         // Short-circuit if already signed in
-        if isSignedIn { completion(.success); return }
+        if isSignedIn { completion(.alreadyAuthenticated); return }
         guard let presenter = settingsViewController else { completion(.none); return }
         self.authCompletion = completion
 
@@ -208,7 +209,7 @@ final class DropboxManager {
             ProgressHUD.dismiss()
             OpenAuthorizationFlow { res in
                 switch res {
-                case .success:
+                case .success, .alreadyAuthenticated:
                     if let client = DropboxClientsManager.authorizedClient { presentNow(client) }
                     else { ProgressHUD.failed("Dropbox client unavailable") }
                 case .cancel: ProgressHUD.failed("Canceled Dropbox Login")
@@ -254,7 +255,7 @@ final class DropboxManager {
         guard let client = DropboxClientsManager.authorizedClient else {
             OpenAuthorizationFlow { [weak self] result in
                 switch result {
-                case .success:
+                case .success, .alreadyAuthenticated:
                     self?.settingsViewController?.UpdateSelectedDestinationUserDefaults(destination: .dropbox)
                     self?.settingsViewController?.UpdateSelectedDestinationUI(destination: .dropbox)
                 case .cancel:
