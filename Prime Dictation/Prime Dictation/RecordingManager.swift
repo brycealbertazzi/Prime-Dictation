@@ -78,6 +78,9 @@ class RecordingManager {
     
     func RenameFile(newName: String) {
         let oldName = self.toggledRecordingName
+        if (oldName == newName) {
+            return
+        }
         let n = DuplicateRecordingsThisMinute(fileName: newName)
         let newNameWithSuffix = n > 0 ? "\(newName)(\(n))" : newName
         do {
@@ -88,10 +91,6 @@ class RecordingManager {
             viewController.FileNameLabel.setTitle(newNameWithSuffix, for: .normal)
             UserDefaults.standard.set(self.savedRecordingNames, forKey: self.savedRecordingsKey)
         } catch {
-            print(oldName, newName)
-            if (oldName == newName) {
-                return
-            }
             ProgressHUD.failed("Failed to rename file")
         }
     }
