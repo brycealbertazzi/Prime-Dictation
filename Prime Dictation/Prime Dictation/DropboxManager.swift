@@ -19,9 +19,11 @@ final class DropboxManager {
         let folderId: String
         /// Last known lowercase path (optional; we always resolve by id when needed)
         let pathLower: String?
-        init(folderId: String, pathLower: String?) {
+        let name: String?
+        init(folderId: String, pathLower: String?, name: String?) {
             self.folderId = folderId
             self.pathLower = pathLower
+            self.name = name
         }
     }
 
@@ -357,12 +359,12 @@ final class DropboxManager {
 
         // No prior selection → use ROOT
         guard let saved = self.loadSelection() else {
-            completion(.success(DBSelection(folderId: Self.rootSelectionId, pathLower: "/")))
+            completion(.success(DBSelection(folderId: Self.rootSelectionId, pathLower: "/", name: "Root")))
             return
         }
 
-        func finishAndPersist(from meta: (id: String, pathLower: String?)) {
-            let sel = DBSelection(folderId: meta.id, pathLower: meta.pathLower)
+        func finishAndPersist(from meta: (id: String, pathLower: String?, name: String?)) {
+            let sel = DBSelection(folderId: meta.id, pathLower: meta.pathLower, name: meta.name)
             self.saveSelection(sel)
             completion(.success(sel))
         }
@@ -380,12 +382,12 @@ final class DropboxManager {
                         case .success(let meta): finishAndPersist(from: meta)
                         case .failure:
                             // Fall back to root
-                            completion(.success(DBSelection(folderId: Self.rootSelectionId, pathLower: "/")))
+                            completion(.success(DBSelection(folderId: Self.rootSelectionId, pathLower: "/", name: "Root")))
                         }
                     }
                 } else {
                     // Fall back to root
-                    completion(.success(DBSelection(folderId: Self.rootSelectionId, pathLower: "/")))
+                    completion(.success(DBSelection(folderId: Self.rootSelectionId, pathLower: "/", name: "Root")))
                 }
             }
         }
@@ -622,6 +624,8 @@ final class DropboxManager {
                 manager.saveSelection(sel)
                 self.onPicked(sel)
                 self.dismiss(animated: true)
+                let folderDislayName = sel.name ?? "Dropbox"
+                ProgressHUD.succeed("\(folderDislayName) selected")
             }
 
             if let selectedChild = workingSelectedChildId {
@@ -630,20 +634,22 @@ final class DropboxManager {
                     case .failure:
                         ProgressHUD.failed("Unable to pick this folder")
                     case .success(let meta):
-                        finish(DBSelection(folderId: meta.id, pathLower: meta.pathLower))
+                        let name = meta.name ?? meta.pathLower?.split(separator: "/").last.map(String.init) ?? "Dropbox"
+                        finish(DBSelection(folderId: meta.id, pathLower: meta.pathLower, name: name))
                     }
                 }
             } else {
                 // current context (root-safe)
                 if ctx.pathLower.isEmpty {
-                    finish(DBSelection(folderId: DropboxManager.rootSelectionId, pathLower: "/"))
+                    finish(DBSelection(folderId: DropboxManager.rootSelectionId, pathLower: "/", name: "Root"))
                 } else {
                     manager.getFolderMetadata(client: client, idOrPath: ctx.pathLower) { res in
                         switch res {
                         case .failure:
                             ProgressHUD.failed("Unable to pick this folder")
                         case .success(let meta):
-                            finish(DBSelection(folderId: meta.id, pathLower: meta.pathLower))
+                            let name = meta.name ?? meta.pathLower?.split(separator: "/").last.map(String.init) ?? "Dropbox"
+                            finish(DBSelection(folderId: meta.id, pathLower: meta.pathLower, name: name))
                         }
                     }
                 }
@@ -928,10 +934,10 @@ final class DropboxManager {
     /// Get *folder* metadata (id + current pathLower) for a given id or path.
     fileprivate func getFolderMetadata(client: DropboxClient,
                                        idOrPath: String,
-                                       completion: @escaping (Result<(id: String, pathLower: String?), Error>) -> Void) {
+                                       completion: @escaping (Result<(id: String, pathLower: String?, name: String?), Error>) -> Void) {
         client.files.getMetadata(path: idOrPath).response { (resp: Files.Metadata?, err: CallError<Files.GetMetadataError>?) in
             if let folder = resp as? Files.FolderMetadata {
-                completion(.success((folder.id, folder.pathLower)))
+                completion(.success((folder.id, folder.pathLower, folder.name)))
             } else if let _ = resp {
                 completion(.failure(NSError(domain: "Dropbox", code: -2, userInfo: [NSLocalizedDescriptionKey: "Not a folder"])))
             } else if let err = err {

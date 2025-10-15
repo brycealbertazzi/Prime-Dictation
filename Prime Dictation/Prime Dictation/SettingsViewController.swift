@@ -104,24 +104,15 @@ class SettingsViewController: UIViewController {
         switch currentDestination {
         case .dropbox:
             ProgressHUD.animate("Opening file picker", .activityIndicator)
-            dropboxManager.PresentDropboxFolderPicker { selection in
-                // Your folder selection logic for Dropbox
-                ProgressHUD.succeed("Dropbox folder selected")
-            }
+            dropboxManager.PresentDropboxFolderPicker { selection in }
             break
         case .onedrive:
             ProgressHUD.animate("Opening file picker", .activityIndicator)
-            oneDriveManager.PresentOneDriveFolderPicker { selection in
-                // Your folder selection logic for OneDrive
-                ProgressHUD.succeed("OneDrive folder selected")
-            }
+            oneDriveManager.PresentOneDriveFolderPicker { selection in }
             break
         case .googledrive:
             ProgressHUD.animate("Opening file picker", .activityIndicator)
-            googleDriveManager.presentGoogleDriveFolderPicker { selection in
-                // Your folder selection logic for Google Drive
-                ProgressHUD.succeed("Google Drive folder selected")
-            }
+            googleDriveManager.presentGoogleDriveFolderPicker { selection in }
             break
         default:
             ProgressHUD.failed("No destination selected")

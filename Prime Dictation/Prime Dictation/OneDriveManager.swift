@@ -766,7 +766,11 @@ final class OneDriveManager {
         private var branchMap: [String:String]
 
         /// Working selection at THIS level (used for Done button semantics)
-        private var workingSelectedChildId: String?
+        private var workingSelectedChildId: String? {
+            get { branchMap[currentParentKey] }
+            set { branchMap[currentParentKey] = newValue }
+        }
+
 
         /// Track previously-checked row so we can reload it when selection changes
         private var selectedIndexPath: IndexPath?
@@ -779,6 +783,24 @@ final class OneDriveManager {
             let parentKey = (ctx.itemId == "root") ? OneDriveManager.rootKey : ctx.itemId
             return branchMap[parentKey]
         }
+
+        // Footer button (Clear Selection)
+        private let footerHeight: CGFloat = 68.0
+        private lazy var footerViewContainer: UIView = {
+            let v = UIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: footerHeight))
+            v.backgroundColor = .clear
+            return v
+        }()
+        private lazy var clearButton: UIButton = {
+            let b = UIButton(type: .system)
+            b.setTitle("Clear Selection", for: .normal)
+            b.addTarget(self, action: #selector(clearSelectionTapped), for: .touchUpInside)
+            b.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+            b.sizeToFit()
+            b.center = CGPoint(x: footerViewContainer.bounds.midX, y: footerViewContainer.bounds.midY)
+            b.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleTopMargin, .flexibleBottomMargin]
+            return b
+        }()
 
         init(manager: OneDriveManager,
              accessToken: String,
@@ -809,12 +831,25 @@ final class OneDriveManager {
                 systemItem: .done,
                 primaryAction: UIAction { [weak self] _ in
                     guard let self else { return }
-                    // If a child row is selected → pick it; otherwise pick the current folder (ctx)
+                    // Determine chosen selection (child or current folder)
                     let chosen = workingSelectedChildId
                         .flatMap { OneDriveSelection(driveId: self.ctx.driveId, itemId: $0) }
                         ?? OneDriveSelection(driveId: ctx.driveId, itemId: ctx.itemId)
+
+                    // Compute display name for HUD
+                    let displayName: String = {
+                        if let w = self.workingSelectedChildId,
+                           let item = self.items.first(where: { ($0.remoteItem?.id ?? $0.id) == w }) {
+                            return item.name
+                        }
+                        // current folder
+                        if self.ctx.itemId == "root" { return "Root" }
+                        return self.ctx.name ?? "OneDrive"
+                    }()
+
                     onPicked(chosen)
                     self.dismiss(animated: true)
+                    ProgressHUD.succeed("\(displayName) selected")
                 }
             )
             navigationItem.leftBarButtonItem = UIBarButtonItem(
@@ -839,14 +874,39 @@ final class OneDriveManager {
                     }
                 }
             )
+
+            // Footer with Clear button
+            footerViewContainer.addSubview(clearButton)
+            tableView.tableFooterView = footerViewContainer
+
             tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
             Task { await loadPage(reset: true) }
             ProgressHUD.dismiss()
         }
 
+        override func viewDidLayoutSubviews() {
+            super.viewDidLayoutSubviews()
+            // Ensure footer width matches table width (tableFooterView doesn't auto-layout)
+            guard let footer = tableView.tableFooterView, footer === footerViewContainer else { return }
+            let targetWidth = tableView.bounds.width
+            if abs(footer.frame.width - targetWidth) > 0.5 {
+                footer.frame.size.width = targetWidth
+                tableView.tableFooterView = footer // reassign to apply new size
+            }
+        }
+
         private func setTitleFor(ctx: DriveContext) {
             if ctx.itemId == "root" { self.title = "OneDrive" }
             else { self.title = ctx.name ?? "OneDrive Folder" }
+        }
+
+        // Clear Selection footer action (mirrors Dropbox behavior)
+        @objc private func clearSelectionTapped() {
+            // Clear selection at THIS level so the current folder (parent) is effectively selected
+            selectedLeafId = nil
+            workingSelectedChildId = nil
+            pathChildOverride[currentParentKey] = nil
+            tableView.reloadData()
         }
 
         @MainActor
