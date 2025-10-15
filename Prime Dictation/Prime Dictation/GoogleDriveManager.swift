@@ -43,6 +43,27 @@ class GDFolderPickerViewController: UITableViewController {
     var checkedFolderId: String?
     fileprivate var foldersToExpand: [String: [PickerFolder]] = [:]
 
+    // Ancestor tracking for blue chevrons (same idea as OD/DB)
+    private var selectedPathAncestorIds = Set<String>()   // ancestors of the selected folder (any depth)
+
+    // Footer (Clear Selection), matches DB/OD look & behavior
+    private let footerHeight: CGFloat = 68.0
+    private lazy var footerViewContainer: UIView = {
+        let v = UIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: footerHeight))
+        v.backgroundColor = .clear
+        return v
+    }()
+    private lazy var clearButton: UIButton = {
+        let b = UIButton(type: .system)
+        b.setTitle("Clear Selection", for: .normal)
+        b.addTarget(self, action: #selector(clearSelectionTapped), for: .touchUpInside)
+        b.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        b.sizeToFit()
+        b.center = CGPoint(x: footerViewContainer.bounds.midX, y: footerViewContainer.bounds.midY)
+        b.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleTopMargin, .flexibleBottomMargin]
+        return b
+    }()
+
     init(manager: GoogleDriveManager, service: GTLRDriveService, parentFolderId: String, onPicked: @escaping (GDSelection) -> Void) {
         self.manager = manager
         self.service = service
@@ -50,7 +71,7 @@ class GDFolderPickerViewController: UITableViewController {
         self.onPicked = onPicked
         super.init(style: .plain)
         self.checkedFolderId = manager.persistedSelection?.folderId
-        self.title = "Select Folder"
+        self.title = "Google Drive" // will be refined by setTitleFromParentId()
     }
 
     required init?(coder: NSCoder) {
@@ -59,14 +80,22 @@ class GDFolderPickerViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Use .value1 to allow a detail label in case we want to show extra info later
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "folderCell")
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(doneButtonTapped))
+
+        // Done
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: "Done",
+            style: .done,
+            target: self,
+            action: #selector(doneButtonTapped)
+        )
+
+        // Sign Out (unchanged)
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             primaryAction: UIAction(title: "Sign Out") { [weak self] _ in
                 guard let self = self else { return }
                 ProgressHUD.animate("Signing out…")
-                manager.SignOutAppOnly { success in
+                self.manager.SignOutAppOnly { success in
                     Task { @MainActor in
                         guard let settingsVC = self.manager.settingsViewController else {
                             print("Unable to find settings view controller on Google Drive signout")
@@ -84,24 +113,55 @@ class GDFolderPickerViewController: UITableViewController {
                 }
             }
         )
+
+        // Footer with Clear Selection (same UX as DB/OD)
+        footerViewContainer.addSubview(clearButton)
+        tableView.tableFooterView = footerViewContainer
+
+        // Title = current folder name
+        setTitleFromParentId()
+
+        // Load data
         fetchFolders()
+        ProgressHUD.dismiss()
     }
-    
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // Keep footer width in sync with table width
+        guard let footer = tableView.tableFooterView, footer === footerViewContainer else { return }
+        let targetWidth = tableView.bounds.width
+        if abs(footer.frame.width - targetWidth) > 0.5 {
+            footer.frame.size.width = targetWidth
+            tableView.tableFooterView = footer // reassign to apply
+        }
+    }
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         refreshSelectedPathAncestors { [weak self] in
             self?.tableView.reloadData()
         }
     }
-    
-    @inline(__always)
-    private func s(_ any: Any?) -> String {
-        if let s = any as? String { return s }
-        if let n = any as? NSNumber { return n.stringValue } // Correct way to handle NSNumber
-        return "" // Default case for any other unhandled type
+
+    // MARK: - Title = current folder name
+    private func setTitleFromParentId() {
+        if parentFolderId == GoogleDriveManager.googleDriveRootId {
+            self.title = "Google Drive"
+            return
+        }
+        manager.httpGetFileName(fileId: parentFolderId) { [weak self] res in
+            guard let self = self else { return }
+            switch res {
+            case .success(let name):
+                self.title = name.isEmpty ? "Google Drive" : name
+            case .failure:
+                self.title = "Google Drive"
+            }
+        }
     }
 
-
+    // MARK: - Done (show which folder was selected)
     @objc private func doneButtonTapped() {
         // If a folder is checked, return that
         if let id = checkedFolderId,
@@ -109,20 +169,21 @@ class GDFolderPickerViewController: UITableViewController {
             let selection = GDSelection(folderId: id, name: f.name, accountId: manager.currentAccountId)
             manager.updateSelectedFolder(selection)
             onPicked(selection)
+            ProgressHUD.succeed("\(f.name) selected")
             dismiss(animated: true)
             return
         }
 
-        // Nothing checked → use THIS LEVEL'S PARENT as the destination
+        // Nothing checked → use THIS LEVEL'S PARENT as the destination (root-safe)
         ProgressHUD.animate("Confirming parent…")
         manager.httpGetFileName(fileId: parentFolderId) { [weak self] result in
             guard let self = self else { return }
             let parentName: String
             switch result {
-            case .success(let name): parentName = name
-            case .failure:           parentName = (self.parentFolderId == GoogleDriveManager.googleDriveRootId)
-                                       ? "Google Drive (root)"
-                                       : "(untitled)"
+            case .success(let name):
+                parentName = (self.parentFolderId == GoogleDriveManager.googleDriveRootId) ? "Root" : (name.isEmpty ? "(untitled)" : name)
+            case .failure:
+                parentName = (self.parentFolderId == GoogleDriveManager.googleDriveRootId) ? "Root" : "(untitled)"
             }
 
             let fallbackToParent = GDSelection(
@@ -132,16 +193,42 @@ class GDFolderPickerViewController: UITableViewController {
             )
             self.manager.updateSelectedFolder(fallbackToParent)
             self.onPicked(fallbackToParent)
-            ProgressHUD.dismiss()
+            ProgressHUD.succeed("\(parentName) selected")
             self.dismiss(animated: true)
         }
     }
-
 
     @objc private func cancelButtonTapped() {
         dismiss(animated: true)
     }
 
+    // MARK: - Clear Selection (match DB/OD semantics)
+    @objc private func clearSelectionTapped() {
+        // Set selection to the CURRENT PARENT (root if at top level),
+        // clear any ✓ at this level, and make all chevrons black here.
+        checkedFolderId = nil
+
+        manager.httpGetFileName(fileId: parentFolderId) { [weak self] res in
+            guard let self = self else { return }
+            let parentName: String
+            switch res {
+            case .success(let n):
+                parentName = (self.parentFolderId == GoogleDriveManager.googleDriveRootId) ? "Google Drive" : (n.isEmpty ? "(untitled)" : n)
+            case .failure:
+                parentName = (self.parentFolderId == GoogleDriveManager.googleDriveRootId) ? "Google Drive" : "(untitled)"
+            }
+
+            let newSel = GDSelection(folderId: self.parentFolderId, name: parentName, accountId: self.manager.currentAccountId)
+            self.manager.updateSelectedFolder(newSel)
+
+            // Recompute path ancestors for the new (parent) selection so chevrons turn black here.
+            self.refreshSelectedPathAncestors { [weak self] in
+                self?.tableView.reloadData()
+            }
+        }
+    }
+
+    // MARK: - Data loading
     private func fetchFolders() {
         ProgressHUD.animate("Loading Google Drive folders…")
         manager.httpListFolders(parentId: parentFolderId) { [weak self] result in
@@ -159,15 +246,11 @@ class GDFolderPickerViewController: UITableViewController {
                                  isLeaf: true)
                 }
                 self.tableView.reloadData()
-                self.tableView.reloadData()
                 self.checkFoldersForChildren(parentFolderIds: rows.map { $0.id })
             }
             ProgressHUD.dismiss()
         }
     }
-    
-    // Add property
-    private var selectedPathAncestorIds = Set<String>()   // folders that are ancestors of the selected folder (any depth)
 
     // Build the ancestor set for a given file id (up to root)
     private func buildAncestorSet(of fileId: String, acc: Set<String> = [], done: @escaping (Set<String>) -> Void) {
@@ -198,7 +281,6 @@ class GDFolderPickerViewController: UITableViewController {
         }
     }
 
-
     private func checkFoldersForChildren(parentFolderIds: [String]) {
         guard !parentFolderIds.isEmpty else { return }
         manager.httpParentsHavingChildFolders(parentIDs: parentFolderIds) { [weak self] res in
@@ -221,6 +303,7 @@ class GDFolderPickerViewController: UITableViewController {
         }
     }
 
+    // MARK: - Table
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         folders.count
     }
@@ -232,34 +315,22 @@ class GDFolderPickerViewController: UITableViewController {
 
         let folder = folders[indexPath.row]
         cell.textLabel?.text = folder.name
-        
-        // Always clear the accessoryView to prevent reuse issues
+
+        // Always clear reused accessories up front
+        cell.accessoryType = .none
         cell.accessoryView = nil
 
         if folder.id == checkedFolderId {
             cell.accessoryType = .checkmark
         } else if !folder.isLeaf {
-            // Create a custom image view for the chevron
-            let chevronImage = UIImage(systemName: "chevron.right")
-            let chevronImageView = UIImageView(image: chevronImage)
-            
-            // Conditionally set the color of the chevron
-            if (selectedPathAncestorIds.contains(folder.id)) {
-                chevronImageView.tintColor = .systemBlue
-            } else {
-                chevronImageView.tintColor = .label
-            }
-            
-            
+            // Chevron; blue if an ancestor of the (persisted) selected folder
+            let chevronImageView = UIImageView(image: UIImage(systemName: "chevron.right"))
+            chevronImageView.tintColor = selectedPathAncestorIds.contains(folder.id) ? .systemBlue : .label
             cell.accessoryView = chevronImageView
-        } else {
-            cell.accessoryType = .none
         }
 
         return cell
     }
-
-
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
@@ -267,12 +338,14 @@ class GDFolderPickerViewController: UITableViewController {
 
         if selectedFolder.isLeaf {
             if selectedFolder.id == checkedFolderId {
-                // Uncheck
+                // Uncheck → clear app-level selection (chevrons return based on ancestors of parent/current)
                 checkedFolderId = nil
                 manager.updateSelectedFolder(nil)
-                tableView.reloadData()
+                refreshSelectedPathAncestors { [weak self] in
+                    self?.tableView.reloadData()
+                }
             } else {
-                // Select and notify caller immediately
+                // Select this leaf (toggle ✓) and update path chevrons across stack
                 checkedFolderId = selectedFolder.id
                 let selection = GDSelection(
                     folderId: selectedFolder.id,
@@ -282,7 +355,6 @@ class GDFolderPickerViewController: UITableViewController {
                 manager.updateSelectedFolder(selection)
                 refreshSelectedPathAncestors { [weak self] in
                     guard let self = self else { return }
-                    // Optionally refresh visible pickers in the stack so parent chevrons update immediately
                     if let vcs = self.navigationController?.viewControllers {
                         for vc in vcs {
                             (vc as? GDFolderPickerViewController)?.selectedPathAncestorIds = self.selectedPathAncestorIds
@@ -292,7 +364,6 @@ class GDFolderPickerViewController: UITableViewController {
                         self.tableView.reloadData()
                     }
                 }
-                tableView.reloadData()
             }
         } else {
             // Navigate deeper
@@ -306,6 +377,7 @@ class GDFolderPickerViewController: UITableViewController {
         }
     }
 }
+
 
 // Main Manager Class
 final class GoogleDriveManager: NSObject {
