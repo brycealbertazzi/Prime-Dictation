@@ -53,6 +53,7 @@ class RecordingManager {
         } else {
             //Delete the oldest recording and add the next one
             let oldestRecording = savedRecordingNames.removeFirst()
+            print("oldest recording \(oldestRecording)")
             do {
                 try FileManager.default.removeItem(at: GetDirectory().appendingPathComponent(oldestRecording).appendingPathExtension("wav"))
                 try FileManager.default.removeItem(at: GetDirectory().appendingPathComponent(oldestRecording).appendingPathExtension("m4a"))
@@ -75,12 +76,14 @@ class RecordingManager {
     
     func RenameFile(newName: String) {
         let oldName = self.toggledRecordingName
-        
+        let n = DuplicateRecordingsThisMinute(fileName: newName)
+        let newNameWithSuffix = n > 0 ? "\(newName)(\(n))" : newName
         do {
-            try FileManager.default.moveItem(at: GetDirectory().appendingPathComponent(oldName).appendingPathExtension("wav"), to: GetDirectory().appendingPathComponent(newName).appendingPathExtension("wav"))
-            self.savedRecordingNames[self.toggledRecordingsIndex] = newName
-            self.toggledRecordingName = newName
-            viewController.FileNameLabel.setTitle(newName, for: .normal)
+            try FileManager.default.moveItem(at: GetDirectory().appendingPathComponent(oldName).appendingPathExtension("wav"), to: GetDirectory().appendingPathComponent(newNameWithSuffix).appendingPathExtension("wav"))
+            try FileManager.default.moveItem(at: GetDirectory().appendingPathComponent(oldName).appendingPathExtension("m4a"), to: GetDirectory().appendingPathComponent(newNameWithSuffix).appendingPathExtension("m4a"))
+            self.savedRecordingNames[self.toggledRecordingsIndex] = newNameWithSuffix
+            self.toggledRecordingName = newNameWithSuffix
+            viewController.FileNameLabel.setTitle(newNameWithSuffix, for: .normal)
             UserDefaults.standard.set(self.savedRecordingNames, forKey: self.savedRecordingsKey)
         } catch {
             print(oldName, newName)

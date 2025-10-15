@@ -163,6 +163,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             textField.text = self.recordingManager.toggledRecordingName
             textField.keyboardType = .default
             textField.autocapitalizationType = .none
+            textField.clearButtonMode = .whileEditing
         }
         
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
