@@ -16,7 +16,7 @@ class RecordingManager {
     var sampleRate = 16000
     
     let recordingExtension: String = "m4a"
-    let destinationRecordingExtension: String = "wav"
+    let destinationRecordingExtension: String = "m4a"
     var recordingName: String = String() // The name of the most recent recording the user made
     
     var savedRecordingsKey: String = "savedRecordings"
@@ -55,9 +55,7 @@ class RecordingManager {
             let oldestRecording = savedRecordingNames.removeFirst()
 
             do {
-                let wavUrl = GetDirectory().appendingPathComponent(oldestRecording).appendingPathExtension("wav")
                 let m4aUrl = GetDirectory().appendingPathComponent(oldestRecording).appendingPathExtension("m4a")
-                if (FileManager.default.fileExists(atPath: wavUrl.path)) {try FileManager.default.removeItem(at: wavUrl)} else {print("WAV FILE DOES NOT EXIST!!!!")}
                 if (FileManager.default.fileExists(atPath: m4aUrl.path)) {try FileManager.default.removeItem(at: m4aUrl)} else {print("M4A FILES DOES NOT EXIST!!!!")}
             } catch {
                 print("UNABLE TO DETETE THE FILE OF AN OLDEST RECORDING IN QUEUE!!!!")
@@ -84,7 +82,6 @@ class RecordingManager {
         let n = DuplicateRecordingsThisMinute(fileName: newName)
         let newNameWithSuffix = n > 0 ? "\(newName)(\(n))" : newName
         do {
-            try FileManager.default.moveItem(at: GetDirectory().appendingPathComponent(oldName).appendingPathExtension("wav"), to: GetDirectory().appendingPathComponent(newNameWithSuffix).appendingPathExtension("wav"))
             try FileManager.default.moveItem(at: GetDirectory().appendingPathComponent(oldName).appendingPathExtension("m4a"), to: GetDirectory().appendingPathComponent(newNameWithSuffix).appendingPathExtension("m4a"))
             self.savedRecordingNames[self.toggledRecordingsIndex] = newNameWithSuffix
             self.toggledRecordingName = newNameWithSuffix
@@ -176,95 +173,5 @@ class RecordingManager {
         let documentDirectory = path[0]
         //Return the url to that directory
         return documentDirectory
-    }
-    
-    func ConvertAudio() {
-        let url = GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(recordingExtension)
-        let outputURL = GetDirectory().appendingPathComponent(recordingName).appendingPathExtension(destinationRecordingExtension)
-        
-        var error : OSStatus = noErr
-        var destinationFile: ExtAudioFileRef? = nil
-        var sourceFile : ExtAudioFileRef? = nil
-        
-        var srcFormat : AudioStreamBasicDescription = AudioStreamBasicDescription()
-        var dstFormat : AudioStreamBasicDescription = AudioStreamBasicDescription()
-        
-        ExtAudioFileOpenURL(url as CFURL, &sourceFile)
-        
-        var thePropertySize: UInt32 = UInt32(MemoryLayout.stride(ofValue: srcFormat))
-        
-        ExtAudioFileGetProperty(sourceFile!,
-                                kExtAudioFileProperty_FileDataFormat,
-                                &thePropertySize, &srcFormat)
-        
-        dstFormat.mSampleRate = Float64(sampleRate)  //Set sample rate
-        dstFormat.mFormatID = kAudioFormatLinearPCM
-        dstFormat.mChannelsPerFrame = 1
-        dstFormat.mBitsPerChannel = 16
-        dstFormat.mBytesPerPacket = 2 * dstFormat.mChannelsPerFrame
-        dstFormat.mBytesPerFrame = 2 * dstFormat.mChannelsPerFrame
-        dstFormat.mFramesPerPacket = 1
-        dstFormat.mFormatFlags = kLinearPCMFormatFlagIsPacked |
-        kAudioFormatFlagIsSignedInteger
-        
-        // Create destination file
-        error = ExtAudioFileCreateWithURL(
-            outputURL as CFURL,
-            kAudioFileWAVEType,
-            &dstFormat,
-            nil,
-            AudioFileFlags.eraseFile.rawValue,
-            &destinationFile)
-        print("Error 1 in convertAudio: \(error.description)")
-        
-        error = ExtAudioFileSetProperty(sourceFile!,
-                                        kExtAudioFileProperty_ClientDataFormat,
-                                        thePropertySize,
-                                        &dstFormat)
-        print("Error 2 in convertAudio: \(error.description)")
-        
-        error = ExtAudioFileSetProperty(destinationFile!,
-                                        kExtAudioFileProperty_ClientDataFormat,
-                                        thePropertySize,
-                                        &dstFormat)
-        print("Error 3 in convertAudio: \(error.description)")
-        
-        let bufferByteSize : UInt32 = 32768
-        var srcBuffer = [UInt8](repeating: 0, count: 32768)
-        var sourceFrameOffset : ULONG = 0
-        
-        while(true){
-            var fillBufList = AudioBufferList(
-                mNumberBuffers: 1,
-                mBuffers: AudioBuffer(
-                    mNumberChannels: 2,
-                    mDataByteSize: UInt32(srcBuffer.count),
-                    mData: &srcBuffer
-                )
-            )
-            var numFrames : UInt32 = 0
-            
-            if(dstFormat.mBytesPerFrame > 0){
-                numFrames = bufferByteSize / dstFormat.mBytesPerFrame
-            }
-            
-            error = ExtAudioFileRead(sourceFile!, &numFrames, &fillBufList)
-            print("Error 4 in convertAudio: \(error.description)")
-            
-            if(numFrames == 0){
-                error = noErr;
-                break;
-            }
-            
-            sourceFrameOffset += numFrames
-            error = ExtAudioFileWrite(destinationFile!, numFrames, &fillBufList)
-            print("Error 5 in convertAudio: \(error.description)")
-        }
-        
-        error = ExtAudioFileDispose(destinationFile!)
-        print("Error 6 in convertAudio: \(error.description)")
-        error = ExtAudioFileDispose(sourceFile!)
-        print("Error 7 in convertAudio: \(error.description)")
-    
     }
 }

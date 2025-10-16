@@ -121,7 +121,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     //MARK: Listen to Playback
     @IBAction func ListenButton(_ sender: Any) {
         //Store the path to the recording in this "path" variable
-        let previousRecordingPath = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledRecordingName).appendingPathExtension(recordingManager.destinationRecordingExtension)
+        let previousRecordingPath = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledRecordingName).appendingPathExtension(recordingManager.recordingExtension)
         
         //Play the previously recorded recording
         do {
@@ -187,13 +187,21 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             recordingManager.recordingName = recordingManager.RecordingTimeForName()
             let fileName = recordingManager.GetDirectory().appendingPathComponent(recordingManager.recordingName).appendingPathExtension(recordingManager.recordingExtension)
             
-            let settings = [ AVFormatIDKey: Int(kAudioFormatMPEG4AAC), AVSampleRateKey: recordingManager.sampleRate, AVNumberOfChannelsKey: 1, AVEncoderAudioQualityKey: AVAudioQuality.low.rawValue,
+            let settings: [String: Any] = [
+                AVFormatIDKey: kAudioFormatMPEG4AAC,
+                AVSampleRateKey: 44100,
+                AVNumberOfChannelsKey: 1,
+                AVEncoderBitRateKey: 48000,                  
+                AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
             ]
+
             //Start the recording
             do {
                 try recordingSession.setCategory(.record)
                 audioRecorder = try AVAudioRecorder(url: fileName, settings: settings)
                 audioRecorder.delegate = self
+                audioRecorder.prepareToRecord()
+                audioRecorder.isMeteringEnabled = false
                 audioRecorder.record()
                 ListenLabel.isHidden = true
                 ShowRecordingInProgressUI()
@@ -218,9 +226,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         ListenLabel.setTitle("Listen", for: .normal)
         HideRecordingInProgressUI()
         PausePlayButtonLabel.setImage(UIImage(named: "PauseButton-2"), for: .normal)
-        
-        //Convert the audio
-        recordingManager.ConvertAudio()
         
         //Save the number of recordings
         UserDefaults.standard.set(recordingManager.numberOfRecordings, forKey: "myNumber")
