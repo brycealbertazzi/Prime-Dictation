@@ -136,6 +136,10 @@ class SettingsViewController: UIViewController {
         }
     }
     
+    @IBAction func DismissPopover(_ sender: Any) {
+        dismiss(animated: true)
+    }
+    
     func UpdateSelectedDestinationUserDefaults(destination: Destination) {
         destinationManager.setSelectedDestination(destination)
     }

@@ -339,9 +339,28 @@
                                     <action selector="GoogleDriveButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="6Hw-c0-Otc"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="coM-Cj-5Ge" userLabel="Close Pop Up Button">
+                                <rect key="frame" x="192" y="20" width="30" height="20"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="20" id="73w-IY-Jtn"/>
+                                    <constraint firstAttribute="width" constant="30" id="awK-YQ-3Xr"/>
+                                </constraints>
+                                <color key="tintColor" red="0.48818057345360821" green="0.48818057345360821" blue="0.48818057345360821" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain">
+                                    <backgroundConfiguration key="background" image="chevron.down" catalog="system"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="DismissPopover:" destination="UhA-a9-Y15" eventType="touchUpInside" id="T2x-j3-Qb5"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="91F-Bu-qrb"/>
                         <color key="backgroundColor" systemColor="labelColor"/>
+                        <constraints>
+                            <constraint firstItem="coM-Cj-5Ge" firstAttribute="top" secondItem="91F-Bu-qrb" secondAttribute="top" constant="20" id="9I2-Ia-0Wh"/>
+                            <constraint firstItem="coM-Cj-5Ge" firstAttribute="centerX" secondItem="91F-Bu-qrb" secondAttribute="centerX" id="c6G-3T-Lbj"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="hHB-8b-a40"/>
                     <connections>
@@ -364,6 +383,7 @@
         <image name="PauseButton-2" width="100" height="100"/>
         <image name="PreviousArrow" width="100" height="100"/>
         <image name="RecordButton" width="100" height="100"/>
+        <image name="chevron.down" catalog="system" width="128" height="70"/>
         <image name="folder.fill.badge.gearshape" catalog="system" width="128" height="93"/>
         <image name="pencil.and.list.clipboard" catalog="system" width="114" height="128"/>
         <systemColor name="labelColor">
