@@ -228,7 +228,7 @@ final class DropboxManager {
             ProgressHUD.animate("Sending...", .triangleDotShift)
             viewController.ShowSendingUI()
 
-            let recordingName = recordingManager.toggledRecordingName + "." + recordingManager.destinationRecordingExtension
+            let recordingName = recordingManager.toggledRecordingName + "." + recordingManager.audioRecordingExtension
             let normalized = folderPath.isEmpty ? "/" : folderPath
             let finalPath = (normalized == "/") ? "/\(recordingName)" : "\(normalized)/\(recordingName)"
 

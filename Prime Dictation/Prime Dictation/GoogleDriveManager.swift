@@ -458,10 +458,8 @@ final class GoogleDriveManager: NSObject {
             req.httpMethod = "GET"
             req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-            // Be extra safe: ensure string-only headers
-            // (URLSession ignores non-strings anyway, but belt & suspenders.)
             for (k, v) in req.allHTTPHeaderFields ?? [:] {
-                if !(v is String) { req.setValue(String(describing: v), forHTTPHeaderField: k) }
+                req.setValue(String(describing: v), forHTTPHeaderField: k)
             }
 
             URLSession.shared.dataTask(with: req) { _, resp, err in
@@ -1042,7 +1040,7 @@ final class GoogleDriveManager: NSObject {
                 viewController.HideSendingUI()
                 return
             }
-            let fileName = recordingManager.toggledRecordingName + "." + recordingManager.destinationRecordingExtension
+            let fileName = recordingManager.toggledRecordingName + "." + recordingManager.audioRecordingExtension
             let mimeType: String = {
                 if let ext = url.pathExtension.isEmpty ? nil : url.pathExtension,
                    let ut = UTType(filenameExtension: ext),
@@ -1092,7 +1090,7 @@ final class GoogleDriveManager: NSObject {
             return
         }
 
-        let recordingName = recordingManager.toggledRecordingName + "." + recordingManager.destinationRecordingExtension
+        let recordingName = recordingManager.toggledRecordingName + "." + recordingManager.audioRecordingExtension
 
         let mimeType: String
         if let ext = fileURL.pathExtension.isEmpty ? nil : fileURL.pathExtension,

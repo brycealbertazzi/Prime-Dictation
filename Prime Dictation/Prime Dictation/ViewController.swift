@@ -28,7 +28,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var PausePlaybackLabel: UIButton!
     @IBOutlet weak var EndPlaybackLabel: UIButton!
     @IBOutlet weak var StopWatchLabel: UILabel!
-        
+    @IBOutlet weak var TranscribeLabel: UIButton!
+    
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
     var audioRecorder: AVAudioRecorder! //Responsible for recording our audio
     var audioPlayer: AVAudioPlayer!
@@ -121,7 +122,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     //MARK: Listen to Playback
     @IBAction func ListenButton(_ sender: Any) {
         //Store the path to the recording in this "path" variable
-        let previousRecordingPath = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledRecordingName).appendingPathExtension(recordingManager.recordingExtension)
+        let previousRecordingPath = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledRecordingName).appendingPathExtension(recordingManager.audioRecordingExtension)
         
         //Play the previously recorded recording
         do {
@@ -145,13 +146,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     @IBAction func PreviousRecordingButton(_ sender: Any) {
         recordingManager.CheckToggledRecordingsIndex(goingToPreviousRecording: true)
-        recordingManager.toggledRecordingName = recordingManager.savedRecordingNames[recordingManager.toggledRecordingsIndex]
+        recordingManager.toggledRecordingName = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex].fileName
         FileNameLabel.setTitle(recordingManager.toggledRecordingName, for: .normal)
     }
     
     @IBAction func NextRecordingButton(_ sender: Any) {
         recordingManager.CheckToggledRecordingsIndex(goingToPreviousRecording: false)
-        recordingManager.toggledRecordingName = recordingManager.savedRecordingNames[recordingManager.toggledRecordingsIndex]
+        recordingManager.toggledRecordingName = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex].fileName
         FileNameLabel.setTitle(recordingManager.toggledRecordingName, for: .normal)
     }
     
@@ -185,7 +186,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             //If we are not already recording audio, start the recording
             recordingManager.numberOfRecordings += 1
             recordingManager.recordingName = recordingManager.RecordingTimeForName()
-            let fileName = recordingManager.GetDirectory().appendingPathComponent(recordingManager.recordingName).appendingPathExtension(recordingManager.recordingExtension)
+            let fileName = recordingManager.GetDirectory().appendingPathComponent(recordingManager.recordingName).appendingPathExtension(recordingManager.audioRecordingExtension)
             
             let settings: [String: Any] = [
                 AVFormatIDKey: kAudioFormatMPEG4AAC,
@@ -283,6 +284,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
     
+    @IBAction func TranscribeButton(_ sender: Any) {
+    }
+    
     private func showSettingsPopover(anchorView: UIView?, barButtonItem: UIBarButtonItem?) {
         let vc = storyboard!.instantiateViewController(withIdentifier: "SettingsViewController") as! SettingsViewController
         vc.modalPresentationStyle = .popover
@@ -311,8 +315,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
 
     @IBAction func SendButton(_ sender: Any) {
-        if recordingManager.savedRecordingNames.count > 0 {
-            let recordingUrl = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledRecordingName).appendingPathExtension(recordingManager.destinationRecordingExtension)
+        if recordingManager.savedAudioTranscriptionObjects.count > 0 {
+            let recordingUrl = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledRecordingName).appendingPathExtension(recordingManager.audioRecordingExtension)
             switch DestinationManager.SELECTED_DESTINATION {
             case Destination.dropbox:
                 print("Sending to Dropbox")
@@ -427,6 +431,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
         PreviousRecordingLabel.isHidden = true
         NextRecordingLabel.isHidden = true
+        TranscribeLabel.isHidden = true
+        RenameFileLabel.isHidden = true
     }
     
     func HasRecordingsUI(numberOfRecordings: Int) {
@@ -436,6 +442,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         SendLabel.setTitleColor(UIColor.black, for: .normal)
         PreviousRecordingLabel.isHidden = numberOfRecordings <= 1 // Show back arrow of there are 2 or more recordings
         NextRecordingLabel.isHidden = true
+        TranscribeLabel.isHidden = false
+        RenameFileLabel.isHidden = false
     }
 }
 

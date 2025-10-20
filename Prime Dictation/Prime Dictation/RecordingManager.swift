@@ -10,17 +10,22 @@ import AVFoundation
 import SwiftyDropbox
 import ProgressHUD
 
+struct AudioTranscriptionObject : Codable {
+    var fileName: String
+    var hasTranscription: Bool
+}
+
 class RecordingManager {
     
     var viewController: ViewController!
     var sampleRate = 16000
     
-    let recordingExtension: String = "m4a"
-    let destinationRecordingExtension: String = "m4a"
+    let audioRecordingExtension: String = "m4a"
+    let transcriptionRecordingExtension: String = "txt"
     var recordingName: String = String() // The name of the most recent recording the user made
     
-    var savedRecordingsKey: String = "savedRecordings"
-    var savedRecordingNames: [String] = []
+    var savedAudioTranscriptionObjectsKey: String = "savedAudioTranscriptionObjectsKey"
+    var savedAudioTranscriptionObjects: [AudioTranscriptionObject] = []
     let maxNumSavedRecordings = 10
     
     //Stores the current recording in queue the user wants to listen to
@@ -37,8 +42,8 @@ class RecordingManager {
     
     func SetSavedRecordingsOnLoad()
     {
-        savedRecordingNames = UserDefaults.standard.object(forKey: savedRecordingsKey) as? [String] ?? [String]()
-        let recordingCount = savedRecordingNames.count
+        savedAudioTranscriptionObjects = UserDefaults.standard.loadCodable([AudioTranscriptionObject].self, forKey: savedAudioTranscriptionObjectsKey) ?? [AudioTranscriptionObject]()
+        let recordingCount = savedAudioTranscriptionObjects.count
         if (recordingCount > 0) {
             SelectMostRecentRecording()
         } else {
@@ -47,30 +52,35 @@ class RecordingManager {
     }
     
     func UpdateSavedRecordings() {
-        let recordingCount = savedRecordingNames.count
+        let recordingCount = savedAudioTranscriptionObjects.count
         if recordingCount < maxNumSavedRecordings {
-            savedRecordingNames.append(recordingName)
+            savedAudioTranscriptionObjects.append(AudioTranscriptionObject(fileName: recordingName, hasTranscription: false))
         } else {
             //Delete the oldest recording and add the next one
-            let oldestRecording = savedRecordingNames.removeFirst()
+            let oldestRecording = savedAudioTranscriptionObjects.removeFirst()
 
             do {
-                let m4aUrl = GetDirectory().appendingPathComponent(oldestRecording).appendingPathExtension("m4a")
+                let m4aUrl = GetDirectory().appendingPathComponent(oldestRecording.fileName).appendingPathExtension(audioRecordingExtension)
                 if (FileManager.default.fileExists(atPath: m4aUrl.path)) {try FileManager.default.removeItem(at: m4aUrl)} else {print("M4A FILES DOES NOT EXIST!!!!")}
             } catch {
                 print("UNABLE TO DETETE THE FILE OF AN OLDEST RECORDING IN QUEUE!!!!")
             }
-            savedRecordingNames.append(recordingName)
+            savedAudioTranscriptionObjects.append(AudioTranscriptionObject(fileName: recordingName, hasTranscription: false))
         }
-        UserDefaults.standard.set(savedRecordingNames, forKey: savedRecordingsKey)
+        do {
+            print("SAVING NEW SAVED RECORDINGS TO USERDEFAULTS \(savedAudioTranscriptionObjects)")
+            try UserDefaults.standard.setCodable(savedAudioTranscriptionObjects, forKey: savedAudioTranscriptionObjectsKey)
+        } catch {
+            print("Unable to save audio transcription objects to UserDefaults")
+        }
         SelectMostRecentRecording()
     }
     
     func SelectMostRecentRecording() {
-        let recordingCount = savedRecordingNames.count
+        let recordingCount = savedAudioTranscriptionObjects.count
         toggledRecordingsIndex = recordingCount - 1
-        toggledRecordingName = savedRecordingNames[toggledRecordingsIndex]
-        viewController.FileNameLabel.setTitle(savedRecordingNames[toggledRecordingsIndex], for: .normal)
+        toggledRecordingName = savedAudioTranscriptionObjects[toggledRecordingsIndex].fileName
+        viewController.FileNameLabel.setTitle(savedAudioTranscriptionObjects[toggledRecordingsIndex].fileName, for: .normal)
         viewController.HasRecordingsUI(numberOfRecordings: recordingCount)
     }
     
@@ -82,11 +92,16 @@ class RecordingManager {
         let n = DuplicateRecordingsThisMinute(fileName: newName)
         let newNameWithSuffix = n > 0 ? "\(newName)(\(n))" : newName
         do {
-            try FileManager.default.moveItem(at: GetDirectory().appendingPathComponent(oldName).appendingPathExtension("m4a"), to: GetDirectory().appendingPathComponent(newNameWithSuffix).appendingPathExtension("m4a"))
-            self.savedRecordingNames[self.toggledRecordingsIndex] = newNameWithSuffix
+            try FileManager.default.moveItem(at: GetDirectory().appendingPathComponent(oldName).appendingPathExtension(audioRecordingExtension), to: GetDirectory().appendingPathComponent(newNameWithSuffix).appendingPathExtension(audioRecordingExtension))
+            self.savedAudioTranscriptionObjects[self.toggledRecordingsIndex].fileName = newNameWithSuffix
             self.toggledRecordingName = newNameWithSuffix
             viewController.FileNameLabel.setTitle(newNameWithSuffix, for: .normal)
-            UserDefaults.standard.set(self.savedRecordingNames, forKey: self.savedRecordingsKey)
+            do {
+                print("SAVING NEW SAVED RECORDINGS TO USERDEFAULTS \(savedAudioTranscriptionObjects)")
+                try UserDefaults.standard.setCodable(savedAudioTranscriptionObjects, forKey: savedAudioTranscriptionObjectsKey)
+            } catch {
+                print("Unable to save audio transcription objects to UserDefaults when renaming file")
+            }
         } catch {
             ProgressHUD.failed("Failed to rename file")
         }
@@ -110,7 +125,8 @@ class RecordingManager {
     func DuplicateRecordingsThisMinute(fileName: String) -> Int {
         var maxSuffix = -1 // -1 means no existing files; 0 means base name exists
 
-        for name in savedRecordingNames {
+        for object in savedAudioTranscriptionObjects {
+            let name = object.fileName
             if name == fileName {
                 maxSuffix = max(maxSuffix, 0)
             } else if name.hasPrefix(fileName + "("), name.hasSuffix(")") {
@@ -131,7 +147,7 @@ class RecordingManager {
     }
     
     func CheckToggledRecordingsIndex(goingToPreviousRecording: Bool) {
-        let recordingCount = savedRecordingNames.count
+        let recordingCount = savedAudioTranscriptionObjects.count
         
         if (goingToPreviousRecording) {
             //Index bounds check for previous recording button
@@ -173,5 +189,22 @@ class RecordingManager {
         let documentDirectory = path[0]
         //Return the url to that directory
         return documentDirectory
+    }
+}
+
+extension UserDefaults {
+    func setCodable<T: Codable>(_ value: T, forKey key: String) throws {
+        let data = try JSONEncoder().encode(value)
+        self.set(data, forKey: key)
+    }
+
+    func loadCodable<T: Codable>(_ type: T.Type, forKey key: String) -> T? {
+        guard let data = data(forKey: key) else { return nil }
+        do { return try JSONDecoder().decode(T.self, from: data) }
+        catch {
+            // Optional: log once
+            print("UserDefaults decode error for \(key):", error)
+            return nil
+        }
     }
 }
