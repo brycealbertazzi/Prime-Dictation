@@ -1021,7 +1021,7 @@ final class GoogleDriveManager: NSObject {
 
         let destFolderId = persistedSelection?.folderId ?? GoogleDriveManager.googleDriveRootId
 
-        viewController.ShowSendingUI()
+        viewController.DisableUI()
         ProgressHUD.animate("Sending...", .triangleDotShift)
 
         httpCheckFolderExists(folderId: destFolderId) { [weak self] exists in
@@ -1029,7 +1029,7 @@ final class GoogleDriveManager: NSObject {
 
             guard exists else {
                 ProgressHUD.failed("Destination folder not found")
-                viewController.HideSendingUI()
+                viewController.EnableUI()
                 viewController.displayAlert(title: "Folder Not Found", message: "Please select a new destination in Settings.")
                 self.persistedSelection = nil
                 return
@@ -1037,7 +1037,7 @@ final class GoogleDriveManager: NSObject {
 
             guard let recordingManager = self.recordingManager else {
                 ProgressHUD.failed("No recording to send")
-                viewController.HideSendingUI()
+                viewController.EnableUI()
                 return
             }
             let fileName = recordingManager.toggledRecordingName + "." + recordingManager.audioRecordingExtension
@@ -1056,7 +1056,7 @@ final class GoogleDriveManager: NSObject {
                 case .success: ProgressHUD.succeed("Sent to Google Drive!")
                 case .failure(let error): ProgressHUD.failed("Upload failed: \(error.localizedDescription)")
                 }
-                viewController.HideSendingUI()
+                viewController.EnableUI()
             }
         }
     }

@@ -58,6 +58,10 @@
 		03BE28C92E94433A00392139 /* GoogleAPIClientForREST_ArtifactRegistry in Frameworks */ = {isa = PBXBuildFile; productRef = 03BE28C82E94433A00392139 /* GoogleAPIClientForREST_ArtifactRegistry */; };
 		03BE28CB2E9443D500392139 /* GoogleAPIClientForREST_Drive in Frameworks */ = {isa = PBXBuildFile; productRef = 03BE28CA2E9443D500392139 /* GoogleAPIClientForREST_Drive */; };
 		03BE28CD2E987E5F00392139 /* EmailManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03BE28CC2E987E5C00392139 /* EmailManager.swift */; };
+		03BE28D02EA822C300392139 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 03BE28CF2EA822C300392139 /* FirebaseAuth */; };
+		03BE28D22EA822C300392139 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 03BE28D12EA822C300392139 /* FirebaseCore */; };
+		03BE28D42EA829BB00392139 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03BE28D32EA829BB00392139 /* GoogleService-Info.plist */; };
+		03BE28D62EA82C0800392139 /* TranscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03BE28D52EA82C0500392139 /* TranscriptionManager.swift */; };
 		03C69A6122FE0083005D8AD1 /* Stopwatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C69A6022FE0083005D8AD1 /* Stopwatch.swift */; };
 		03E7193D2E862D4B003B6BF1 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E7193C2E862D47003B6BF1 /* SettingsViewController.swift */; };
 		03E7193F2E8748FA003B6BF1 /* DestinationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E7193E2E8748F4003B6BF1 /* DestinationManager.swift */; };
@@ -81,6 +85,8 @@
 		03A58EE52E7C7FB100B4EE58 /* Prime Dictation.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Prime Dictation.entitlements"; sourceTree = "<group>"; };
 		03BE287E2E9441D800392139 /* GoogleDriveManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleDriveManager.swift; sourceTree = "<group>"; };
 		03BE28CC2E987E5C00392139 /* EmailManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailManager.swift; sourceTree = "<group>"; };
+		03BE28D32EA829BB00392139 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		03BE28D52EA82C0500392139 /* TranscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionManager.swift; sourceTree = "<group>"; };
 		03C69A6022FE0083005D8AD1 /* Stopwatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stopwatch.swift; sourceTree = "<group>"; };
 		03E7193C2E862D47003B6BF1 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		03E7193E2E8748F4003B6BF1 /* DestinationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationManager.swift; sourceTree = "<group>"; };
@@ -126,6 +132,8 @@
 				03BE28AB2E94433A00392139 /* GoogleAPIClientForREST_Analytics in Frameworks */,
 				03BE28A52E94433A00392139 /* GoogleAPIClientForREST_Aiplatform in Frameworks */,
 				03BE28BF2E94433A00392139 /* GoogleAPIClientForREST_ApigeeRegistry in Frameworks */,
+				03BE28D02EA822C300392139 /* FirebaseAuth in Frameworks */,
+				03BE28D22EA822C300392139 /* FirebaseCore in Frameworks */,
 				03BE28B32E94433A00392139 /* GoogleAPIClientForREST_AndroidEnterprise in Frameworks */,
 				03BE28AF2E94433A00392139 /* GoogleAPIClientForREST_AnalyticsHub in Frameworks */,
 				03BE288F2E94433A00392139 /* GoogleAPIClientForREST_Acceleratedmobilepageurl in Frameworks */,
@@ -167,6 +175,7 @@
 		034182FC22EE36B300670DD1 /* Prime Dictation */ = {
 			isa = PBXGroup;
 			children = (
+				03BE28D52EA82C0500392139 /* TranscriptionManager.swift */,
 				03BE28CC2E987E5C00392139 /* EmailManager.swift */,
 				03BE287E2E9441D800392139 /* GoogleDriveManager.swift */,
 				03E719402E8764CE003B6BF1 /* AppServices.swift */,
@@ -182,6 +191,7 @@
 				0341830122EE36B300670DD1 /* Main.storyboard */,
 				0341830422EE36B300670DD1 /* Assets.xcassets */,
 				0341830622EE36B300670DD1 /* LaunchScreen.storyboard */,
+				03BE28D32EA829BB00392139 /* GoogleService-Info.plist */,
 				0341830922EE36B300670DD1 /* Info.plist */,
 			);
 			path = "Prime Dictation";
@@ -237,6 +247,7 @@
 				03FF2A9B2E7A2A2600BD684D /* XCRemoteSwiftPackageReference "microsoft-authentication-library-for-objc" */,
 				03BE28782E94243300392139 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				03BE287D2E94246A00392139 /* XCRemoteSwiftPackageReference "google-api-objectivec-client-for-rest" */,
+				03BE28CE2EA8220A00392139 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = 034182FB22EE36B300670DD1 /* Products */;
 			projectDirPath = "";
@@ -253,6 +264,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0341830822EE36B300670DD1 /* LaunchScreen.storyboard in Resources */,
+				03BE28D42EA829BB00392139 /* GoogleService-Info.plist in Resources */,
 				0341830522EE36B300670DD1 /* Assets.xcassets in Resources */,
 				0341830322EE36B300670DD1 /* Main.storyboard in Resources */,
 			);
@@ -273,6 +285,7 @@
 				03BE287F2E9441DC00392139 /* GoogleDriveManager.swift in Sources */,
 				03FF2A982E79EC2900BD684D /* RecordingManager.swift in Sources */,
 				03E719412E8764D0003B6BF1 /* AppServices.swift in Sources */,
+				03BE28D62EA82C0800392139 /* TranscriptionManager.swift in Sources */,
 				034182FE22EE36B300670DD1 /* AppDelegate.swift in Sources */,
 				03BE28CD2E987E5F00392139 /* EmailManager.swift in Sources */,
 				03FF2A9A2E7A291400BD684D /* OneDriveManager.swift in Sources */,
@@ -535,6 +548,14 @@
 				kind = branch;
 			};
 		};
+		03BE28CE2EA8220A00392139 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.4.0;
+			};
+		};
 		03FF2A9B2E7A2A2600BD684D /* XCRemoteSwiftPackageReference "microsoft-authentication-library-for-objc" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AzureAD/microsoft-authentication-library-for-objc.git";
@@ -765,6 +786,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 03BE287D2E94246A00392139 /* XCRemoteSwiftPackageReference "google-api-objectivec-client-for-rest" */;
 			productName = GoogleAPIClientForREST_Drive;
+		};
+		03BE28CF2EA822C300392139 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 03BE28CE2EA8220A00392139 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		03BE28D12EA822C300392139 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 03BE28CE2EA8220A00392139 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
 		};
 		03E719422E87AFE2003B6BF1 /* SwiftyDropbox */ = {
 			isa = XCSwiftPackageProductDependency;

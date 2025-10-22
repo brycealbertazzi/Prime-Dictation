@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>SIGNED_URL_GC_FUNCTION</key>
+	<string>https://get-signed-url-for-gc-bucket-486981472809.us-central1.run.app</string>
+	<key>GC_BUCKET_URL</key>
+	<string>prime-dictation-audio-files</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

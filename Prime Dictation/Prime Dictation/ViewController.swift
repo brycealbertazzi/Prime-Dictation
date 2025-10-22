@@ -10,6 +10,7 @@ import UIKit
 import AVFoundation
 import SwiftyDropbox
 import ProgressHUD
+import FirebaseAuth
 
 class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDelegate, AVAudioPlayerDelegate {
 
@@ -41,6 +42,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     var emailManager: EmailManager!
     
     var recordingManager: RecordingManager!
+    var transcriptionManager: TranscriptionManager!
     var watch: Stopwatch!
     
     //MARK: View did load
@@ -49,6 +51,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         
         let services = AppServices.shared
         recordingManager = services.recordingManager
+        transcriptionManager = services.transcriptionManager
         dropboxManager = services.dropboxManager
         oneDriveManager = services.oneDriveManager
         googleDriveManager = services.googleDriveManager
@@ -56,10 +59,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         emailManager = services.emailManager
         
         recordingManager.attach(viewController: self)
+        transcriptionManager.attach(viewController: self, recordingMananger: recordingManager)
         dropboxManager.attach(viewController: self, recordingManager: recordingManager)
         oneDriveManager.attach(viewController: self, recordingManager: recordingManager)
         googleDriveManager.attach(viewController: self, recordingManager: recordingManager)
         emailManager.attach(viewController: self, recordingManager: recordingManager)
+        
 
         watch = Stopwatch(viewController: self)
         
@@ -285,6 +290,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     @IBAction func TranscribeButton(_ sender: Any) {
+        // Hop into an async context
+        Task { @MainActor in
+            let transcribedText: String? = await transcriptionManager.transcribeAudioFile()
+        }
     }
     
     private func showSettingsPopover(anchorView: UIView?, barButtonItem: UIBarButtonItem?) {
@@ -400,7 +409,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         EnableDestinationAndSendButtons()
     }
     
-    func ShowSendingUI() {
+    func DisableUI() {
         DisableDestinationAndSendButtons()
         RecordLabel.isEnabled = false
         ListenLabel.isEnabled = false
@@ -410,9 +419,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         NextRecordingLabel.isEnabled = false
         PreviousRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
         NextRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+        RenameFileLabel.isEnabled = false
+        TranscribeLabel.isEnabled = false
+        TranscribeLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
     }
     
-    func HideSendingUI() {
+    func EnableUI() {
         EnableDestinationAndSendButtons()
         RecordLabel.isEnabled = true
         ListenLabel.isEnabled = true
@@ -422,6 +434,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         NextRecordingLabel.isEnabled = true
         PreviousRecordingLabel.setTitleColor(UIColor.black, for: .normal)
         NextRecordingLabel.setTitleColor(UIColor.black, for: .normal)
+        RenameFileLabel.isEnabled = true
+        TranscribeLabel.isEnabled = true
+        TranscribeLabel.setTitleColor(UIColor.systemPurple, for: .normal)
     }
     
     func NoRecordingsUI() {

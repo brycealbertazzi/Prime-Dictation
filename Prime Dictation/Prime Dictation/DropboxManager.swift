@@ -226,7 +226,7 @@ final class DropboxManager {
 
         func doUpload(_ client: DropboxClient, folderPath: String) {
             ProgressHUD.animate("Sending...", .triangleDotShift)
-            viewController.ShowSendingUI()
+            viewController.DisableUI()
 
             let recordingName = recordingManager.toggledRecordingName + "." + recordingManager.audioRecordingExtension
             let normalized = folderPath.isEmpty ? "/" : folderPath
@@ -247,7 +247,7 @@ final class DropboxManager {
                                 }
                             )
                         }
-                        viewController.HideSendingUI()
+                        viewController.EnableUI()
                     }
                 }
         }

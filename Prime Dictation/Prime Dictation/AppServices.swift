@@ -11,12 +11,15 @@ final class AppServices {
     static let shared = AppServices()
 
     // Keep one instance of each manager for the whole app
+    let destinationManager = DestinationManager()
     let dropboxManager = DropboxManager()
     let oneDriveManager = OneDriveManager()
     let googleDriveManager = GoogleDriveManager()
-    let recordingManager = RecordingManager()
-    let destinationManager = DestinationManager()
     let emailManager = EmailManager()
+    
+    let recordingManager = RecordingManager()
+    let transcriptionManager = TranscriptionManager()
+    
 
     private init() {}
 }

@@ -11,6 +11,8 @@ import SwiftyDropbox
 import MSAL
 import ProgressHUD
 import GoogleSignIn
+import FirebaseCore
+import FirebaseAuth
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -24,6 +26,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let GDClientID = loadGoogleDriveClientID()
         GIDSignIn.sharedInstance.configuration = GIDConfiguration.init(clientID: GDClientID)
+        
+        FirebaseApp.configure()
         
         return true
     }

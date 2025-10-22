@@ -308,8 +308,8 @@ final class OneDriveManager {
             guard let viewController = viewController else { return }
 
             await ProgressHUD.animate("Sending...", .triangleDotShift)
-            await viewController.ShowSendingUI()
-            defer { Task { @MainActor in viewController.HideSendingUI() } }
+            await viewController.DisableUI()
+            defer { Task { @MainActor in viewController.EnableUI() } }
 
             do {
                 let token = try await self.getAccessTokenSilently()
