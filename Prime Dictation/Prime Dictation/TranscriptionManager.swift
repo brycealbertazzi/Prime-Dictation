@@ -27,9 +27,50 @@ class TranscriptionManager {
             print("Unable to obtain signed URL")
             return nil
         }
-
+        guard let recordingURL = recordingManager.toggledRecordingURL else {
+            print("Unable to find recording URL")
+            return nil
+        }
+        
+        do {
+            try await uploadRecordingToCGBucket(to: signedURL, from: recordingURL)
+        } catch {
+            print("Unable to upload recording to GC Bucket")
+            return nil
+        }
+        
+        
+        
         return ""
     }
+    
+    func uploadRecordingToCGBucket(to signedURL: URL, from fileURL: URL) async throws {
+        let data = try Data(contentsOf: fileURL)
+
+        var req = URLRequest(url: signedURL)
+        req.httpMethod = "PUT"
+        req.setValue("audio/mp4", forHTTPHeaderField: "Content-Type") // must match signing
+        req.httpBody = data
+
+        do {
+            let (respData, resp) = try await URLSession.shared.data(for: req)
+            guard let http = resp as? HTTPURLResponse else {
+                print("❌ Not HTTPURLResponse"); return
+            }
+            print("⬅️ PUT status:", http.statusCode)
+            print("⬅️ Headers:", http.allHeaderFields)
+
+            if http.statusCode != 200 {
+                let bodyText = String(data: respData, encoding: .utf8) ?? "<non-utf8 \(respData.count) bytes>"
+                print("⬅️ Body:", bodyText)   // GCS returns XML error text — this is the key!
+                return
+            }
+            print("✅ Upload OK (\(data.count) bytes)")
+        } catch {
+            print("❌ URLSession error:", error)
+        }
+    }
+
     
     func mintSignedURL() async throws -> URL?  {
         var bearer: String = ""

@@ -31,6 +31,7 @@ class RecordingManager {
     //Stores the current recording in queue the user wants to listen to
     var toggledRecordingName: String = String()
     var toggledRecordingsIndex: Int = Int()
+    var toggledRecordingURL: URL? = nil
     
     var numberOfRecordings: Int = 0
     
@@ -76,10 +77,15 @@ class RecordingManager {
         SelectMostRecentRecording()
     }
     
+    func setToggledRecordingURL() {
+        toggledRecordingURL = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(audioRecordingExtension)
+    }
+    
     func SelectMostRecentRecording() {
         let recordingCount = savedAudioTranscriptionObjects.count
         toggledRecordingsIndex = recordingCount - 1
         toggledRecordingName = savedAudioTranscriptionObjects[toggledRecordingsIndex].fileName
+        setToggledRecordingURL()
         viewController.FileNameLabel.setTitle(savedAudioTranscriptionObjects[toggledRecordingsIndex].fileName, for: .normal)
         viewController.HasRecordingsUI(numberOfRecordings: recordingCount)
     }
@@ -95,6 +101,7 @@ class RecordingManager {
             try FileManager.default.moveItem(at: GetDirectory().appendingPathComponent(oldName).appendingPathExtension(audioRecordingExtension), to: GetDirectory().appendingPathComponent(newNameWithSuffix).appendingPathExtension(audioRecordingExtension))
             self.savedAudioTranscriptionObjects[self.toggledRecordingsIndex].fileName = newNameWithSuffix
             self.toggledRecordingName = newNameWithSuffix
+            self.setToggledRecordingURL()
             viewController.FileNameLabel.setTitle(newNameWithSuffix, for: .normal)
             do {
                 print("SAVING NEW SAVED RECORDINGS TO USERDEFAULTS \(savedAudioTranscriptionObjects)")

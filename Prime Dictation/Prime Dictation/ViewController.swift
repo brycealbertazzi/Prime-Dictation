@@ -152,12 +152,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBAction func PreviousRecordingButton(_ sender: Any) {
         recordingManager.CheckToggledRecordingsIndex(goingToPreviousRecording: true)
         recordingManager.toggledRecordingName = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex].fileName
+        recordingManager.setToggledRecordingURL()
         FileNameLabel.setTitle(recordingManager.toggledRecordingName, for: .normal)
     }
     
     @IBAction func NextRecordingButton(_ sender: Any) {
         recordingManager.CheckToggledRecordingsIndex(goingToPreviousRecording: false)
         recordingManager.toggledRecordingName = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex].fileName
+        recordingManager.setToggledRecordingURL()
         FileNameLabel.setTitle(recordingManager.toggledRecordingName, for: .normal)
     }
     
@@ -322,10 +324,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         present(vc, animated: true)
     }
 
-
     @IBAction func SendButton(_ sender: Any) {
         if recordingManager.savedAudioTranscriptionObjects.count > 0 {
-            let recordingUrl = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledRecordingName).appendingPathExtension(recordingManager.audioRecordingExtension)
+            guard let recordingUrl = recordingManager.toggledRecordingURL else {
+                ProgressHUD.failed("Unable to send this recording, make another one the try again")
+                print("Unable to construct file URL for this recording")
+                return
+            }
             switch DestinationManager.SELECTED_DESTINATION {
             case Destination.dropbox:
                 print("Sending to Dropbox")
