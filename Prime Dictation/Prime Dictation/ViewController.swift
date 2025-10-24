@@ -292,9 +292,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     @IBAction func TranscribeButton(_ sender: Any) {
+        ProgressHUD.animate("Transcribing...", .activityIndicator)
         // Hop into an async context
         Task { @MainActor in
-            let transcribedText: String? = await transcriptionManager.transcribeAudioFile()
+            await transcriptionManager.transcribeAudioFile()
+            ProgressHUD.dismiss()
         }
     }
     
