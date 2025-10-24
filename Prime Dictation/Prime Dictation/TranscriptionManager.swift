@@ -32,6 +32,7 @@ class TranscriptionManager {
             return nil
         }
         
+        // Upload .m4a audio file to GC bucket, must have signedURL to get to this step
         do {
             try await uploadRecordingToCGBucket(to: signedURL, from: recordingURL)
         } catch {
@@ -39,7 +40,7 @@ class TranscriptionManager {
             return nil
         }
         
-        
+
         
         return ""
     }
@@ -80,7 +81,7 @@ class TranscriptionManager {
             print("Unable to fetch FirebaseAuth token")
             return nil
         }
-        let bucketPath = "m4a-files/\(recordingManager.toggledRecordingName).\(recordingManager.audioRecordingExtension)"
+        let bucketPath = "\(recordingManager.toggledRecordingName).\(recordingManager.audioRecordingExtension)"
         let contentType = "audio/mp4"
         var comps = URLComponents(string: "\(SignedUrlGCFunction!)/signed-put")!
         comps.queryItems = [
