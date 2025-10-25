@@ -151,16 +151,22 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     @IBAction func PreviousRecordingButton(_ sender: Any) {
         recordingManager.CheckToggledRecordingsIndex(goingToPreviousRecording: true)
-        recordingManager.toggledAudioTranscriptionObject.fileName = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex].fileName
+        recordingManager.toggledAudioTranscriptionObject = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex]
         recordingManager.setToggledRecordingURL()
+        
         FileNameLabel.setTitle(recordingManager.toggledAudioTranscriptionObject.fileName, for: .normal)
+        if (recordingManager.toggledAudioTranscriptionObject.hasTranscription) {DisableTranscriptionUI()}
+        else {EnableTranscriptionUI()}
     }
     
     @IBAction func NextRecordingButton(_ sender: Any) {
         recordingManager.CheckToggledRecordingsIndex(goingToPreviousRecording: false)
-        recordingManager.toggledAudioTranscriptionObject.fileName = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex].fileName
+        recordingManager.toggledAudioTranscriptionObject = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex]
         recordingManager.setToggledRecordingURL()
+        
         FileNameLabel.setTitle(recordingManager.toggledAudioTranscriptionObject.fileName, for: .normal)
+        if (recordingManager.toggledAudioTranscriptionObject.hasTranscription) {DisableTranscriptionUI()}
+        else {EnableTranscriptionUI()}
     }
     
     @IBAction func RenameFileButton(_ sender: Any) {
@@ -297,7 +303,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         Task { @MainActor in
             await transcriptionManager.transcribeAudioFile()
             recordingManager.SetToggledAudioTranscriptObjectAfterTranscription()
-            ProgressHUD.dismiss()
             ProgressHUD.succeed("Transcription Complete")
         }
     }
@@ -419,6 +424,16 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         EnableDestinationAndSendButtons()
     }
     
+    func EnableTranscriptionUI() {
+        TranscribeLabel.isEnabled = true
+        TranscribeLabel.setTitleColor(UIColor.systemPurple, for: .normal)
+    }
+    
+    func DisableTranscriptionUI() {
+        TranscribeLabel.isEnabled = false
+        TranscribeLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+    }
+    
     func DisableUI() {
         DisableDestinationAndSendButtons()
         RecordLabel.isEnabled = false
@@ -430,8 +445,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PreviousRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
         NextRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
         RenameFileLabel.isEnabled = false
-        TranscribeLabel.isEnabled = false
-        TranscribeLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+        DisableTranscriptionUI()
     }
     
     func EnableUI() {
@@ -445,8 +459,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PreviousRecordingLabel.setTitleColor(UIColor.black, for: .normal)
         NextRecordingLabel.setTitleColor(UIColor.black, for: .normal)
         RenameFileLabel.isEnabled = true
-        TranscribeLabel.isEnabled = true
-        TranscribeLabel.setTitleColor(UIColor.systemPurple, for: .normal)
+        if (!recordingManager.toggledAudioTranscriptionObject.hasTranscription) {
+            EnableTranscriptionUI()
+        }
     }
     
     func NoRecordingsUI() {
