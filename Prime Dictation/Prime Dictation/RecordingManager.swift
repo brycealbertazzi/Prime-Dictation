@@ -22,16 +22,16 @@ class RecordingManager {
     
     let audioRecordingExtension: String = "m4a"
     let transcriptionRecordingExtension: String = "txt"
-    var recordingName: String = String() // The name of the most recent recording the user made
+    var mostRecentRecordingName: String = String() // The name of the most recent recording the user made
     
     var savedAudioTranscriptionObjectsKey: String = "savedAudioTranscriptionObjectsKey"
     var savedAudioTranscriptionObjects: [AudioTranscriptionObject] = []
     let maxNumSavedRecordings = 10
     
     //Stores the current recording in queue the user wants to listen to
-    var toggledRecordingName: String = String()
     var toggledRecordingsIndex: Int = Int()
     var toggledRecordingURL: URL? = nil
+    var toggledAudioTranscriptionObject: AudioTranscriptionObject = AudioTranscriptionObject(fileName: "", hasTranscription: false)
     
     var numberOfRecordings: Int = 0
     
@@ -55,7 +55,7 @@ class RecordingManager {
     func UpdateSavedRecordings() {
         let recordingCount = savedAudioTranscriptionObjects.count
         if recordingCount < maxNumSavedRecordings {
-            savedAudioTranscriptionObjects.append(AudioTranscriptionObject(fileName: recordingName, hasTranscription: false))
+            savedAudioTranscriptionObjects.append(AudioTranscriptionObject(fileName: mostRecentRecordingName, hasTranscription: false))
         } else {
             //Delete the oldest recording and add the next one
             let oldestRecording = savedAudioTranscriptionObjects.removeFirst()
@@ -66,7 +66,7 @@ class RecordingManager {
             } catch {
                 print("UNABLE TO DETETE THE FILE OF AN OLDEST RECORDING IN QUEUE!!!!")
             }
-            savedAudioTranscriptionObjects.append(AudioTranscriptionObject(fileName: recordingName, hasTranscription: false))
+            savedAudioTranscriptionObjects.append(AudioTranscriptionObject(fileName: mostRecentRecordingName, hasTranscription: false))
         }
         do {
             print("SAVING NEW SAVED RECORDINGS TO USERDEFAULTS \(savedAudioTranscriptionObjects)")
@@ -77,21 +77,26 @@ class RecordingManager {
         SelectMostRecentRecording()
     }
     
+    func SetToggledAudioTranscriptObjectAfterTranscription() {
+        savedAudioTranscriptionObjects[toggledRecordingsIndex].hasTranscription = true
+        toggledAudioTranscriptionObject = savedAudioTranscriptionObjects[toggledRecordingsIndex]
+    }
+    
     func setToggledRecordingURL() {
-        toggledRecordingURL = GetDirectory().appendingPathComponent(toggledRecordingName).appendingPathExtension(audioRecordingExtension)
+        toggledRecordingURL = GetDirectory().appendingPathComponent(toggledAudioTranscriptionObject.fileName).appendingPathExtension(audioRecordingExtension)
     }
     
     func SelectMostRecentRecording() {
         let recordingCount = savedAudioTranscriptionObjects.count
         toggledRecordingsIndex = recordingCount - 1
-        toggledRecordingName = savedAudioTranscriptionObjects[toggledRecordingsIndex].fileName
+        toggledAudioTranscriptionObject = savedAudioTranscriptionObjects[toggledRecordingsIndex]
         setToggledRecordingURL()
         viewController.FileNameLabel.setTitle(savedAudioTranscriptionObjects[toggledRecordingsIndex].fileName, for: .normal)
         viewController.HasRecordingsUI(numberOfRecordings: recordingCount)
     }
     
     func RenameFile(newName: String) {
-        let oldName = self.toggledRecordingName
+        let oldName = self.toggledAudioTranscriptionObject.fileName
         if (oldName == newName) {
             return
         }
@@ -100,7 +105,7 @@ class RecordingManager {
         do {
             try FileManager.default.moveItem(at: GetDirectory().appendingPathComponent(oldName).appendingPathExtension(audioRecordingExtension), to: GetDirectory().appendingPathComponent(newNameWithSuffix).appendingPathExtension(audioRecordingExtension))
             self.savedAudioTranscriptionObjects[self.toggledRecordingsIndex].fileName = newNameWithSuffix
-            self.toggledRecordingName = newNameWithSuffix
+            self.toggledAudioTranscriptionObject = self.savedAudioTranscriptionObjects[self.toggledRecordingsIndex]
             self.setToggledRecordingURL()
             viewController.FileNameLabel.setTitle(newNameWithSuffix, for: .normal)
             do {

@@ -127,7 +127,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     //MARK: Listen to Playback
     @IBAction func ListenButton(_ sender: Any) {
         //Store the path to the recording in this "path" variable
-        let previousRecordingPath = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledRecordingName).appendingPathExtension(recordingManager.audioRecordingExtension)
+        let previousRecordingPath = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName).appendingPathExtension(recordingManager.audioRecordingExtension)
         
         //Play the previously recorded recording
         do {
@@ -151,16 +151,16 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     @IBAction func PreviousRecordingButton(_ sender: Any) {
         recordingManager.CheckToggledRecordingsIndex(goingToPreviousRecording: true)
-        recordingManager.toggledRecordingName = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex].fileName
+        recordingManager.toggledAudioTranscriptionObject.fileName = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex].fileName
         recordingManager.setToggledRecordingURL()
-        FileNameLabel.setTitle(recordingManager.toggledRecordingName, for: .normal)
+        FileNameLabel.setTitle(recordingManager.toggledAudioTranscriptionObject.fileName, for: .normal)
     }
     
     @IBAction func NextRecordingButton(_ sender: Any) {
         recordingManager.CheckToggledRecordingsIndex(goingToPreviousRecording: false)
-        recordingManager.toggledRecordingName = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex].fileName
+        recordingManager.toggledAudioTranscriptionObject.fileName = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex].fileName
         recordingManager.setToggledRecordingURL()
-        FileNameLabel.setTitle(recordingManager.toggledRecordingName, for: .normal)
+        FileNameLabel.setTitle(recordingManager.toggledAudioTranscriptionObject.fileName, for: .normal)
     }
     
     @IBAction func RenameFileButton(_ sender: Any) {
@@ -168,7 +168,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         
         alert.addTextField { textField in
             textField.placeholder = "Enter file name..."
-            textField.text = self.recordingManager.toggledRecordingName
+            textField.text = self.recordingManager.toggledAudioTranscriptionObject.fileName
             textField.keyboardType = .default
             textField.autocapitalizationType = .none
             textField.clearButtonMode = .whileEditing
@@ -192,8 +192,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         if audioRecorder == nil {
             //If we are not already recording audio, start the recording
             recordingManager.numberOfRecordings += 1
-            recordingManager.recordingName = recordingManager.RecordingTimeForName()
-            let fileName = recordingManager.GetDirectory().appendingPathComponent(recordingManager.recordingName).appendingPathExtension(recordingManager.audioRecordingExtension)
+            recordingManager.mostRecentRecordingName = recordingManager.RecordingTimeForName()
+            let fileName = recordingManager.GetDirectory().appendingPathComponent(recordingManager.mostRecentRecordingName).appendingPathExtension(recordingManager.audioRecordingExtension)
             
             let settings: [String: Any] = [
                 AVFormatIDKey: kAudioFormatMPEG4AAC,
@@ -292,11 +292,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     @IBAction func TranscribeButton(_ sender: Any) {
-        ProgressHUD.animate("Transcribing...", .activityIndicator)
+        ProgressHUD.animate("Transcribing...", .triangleDotShift)
         // Hop into an async context
         Task { @MainActor in
             await transcriptionManager.transcribeAudioFile()
+            recordingManager.SetToggledAudioTranscriptObjectAfterTranscription()
             ProgressHUD.dismiss()
+            ProgressHUD.succeed("Transcription Complete")
         }
     }
     
@@ -333,16 +335,17 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 print("Unable to construct file URL for this recording")
                 return
             }
+            let toggledHasTranscription: Bool = recordingManager.toggledAudioTranscriptionObject.hasTranscription
             switch DestinationManager.SELECTED_DESTINATION {
             case Destination.dropbox:
                 print("Sending to Dropbox")
-                dropboxManager.SendToDropbox(url: recordingUrl)
+                dropboxManager.SendToDropbox(hasTranscription: toggledHasTranscription)
             case Destination.onedrive:
                 print("Sending to OneDrive")
-                oneDriveManager.SendToOneDrive(url: recordingUrl)
+                oneDriveManager.SendToOneDrive(url: recordingUrl, hasTranscription: toggledHasTranscription)
             case Destination.googledrive:
                 print("Sending to Google Drive")
-                googleDriveManager.SendToGoogleDrive(url: recordingUrl)
+                googleDriveManager.SendToGoogleDrive(url: recordingUrl, hasTranscription: toggledHasTranscription)
             case Destination.email:
                 print("Sending to Email")
                 do {

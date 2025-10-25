@@ -16,6 +16,8 @@ class TranscriptionManager {
     let SignedTxtURLGCFunction = Bundle.main.object(forInfoDictionaryKey: "SIGNED_TXT_URL_GC_FUNCTION") as? String
     let GCBucketURL = Bundle.main.object(forInfoDictionaryKey: "GC_BUCKET_URL") as? String
     
+    var toggledTranscriptText: String? = nil
+    
     init () {}
     
     func attach(viewController: ViewController, recordingMananger: RecordingManager) {
@@ -24,28 +26,29 @@ class TranscriptionManager {
     }
     
     /// Call this to upload, wait (max 20m), and get the signed URL to the transcript.
-    func transcribeAudioFile() async -> String? {
+    func transcribeAudioFile() async {
         guard let _ = SignedAudioUrlGCFunction else {
-            print("SignedUrlGCFunction not set"); return nil
+            print("SignedUrlGCFunction not set"); return
         }
         guard let txtSignerBase = SignedTxtURLGCFunction else {
-            print("TxtifyPDTranscriptionFunction not set"); return nil
+            print("TxtifyPDTranscriptionFunction not set"); return
         }
         guard let signedPUT = try? await mintSignedURL() else {
-            print("Unable to obtain signed PUT URL"); return nil
+            print("Unable to obtain signed PUT URL"); return
         }
         guard let recordingURL = recordingManager.toggledRecordingURL else {
-            print("Unable to find recording URL"); return nil
+            print("Unable to find recording URL"); return
         }
 
         do {
+            print("recordingBaseURL: \(recordingURL)")
             try await uploadRecordingToCGBucket(to: signedPUT, from: recordingURL)
         } catch {
-            print("Upload failed: \(error)"); return nil
+            print("Upload failed: \(error)"); return
         }
 
         // Root of bucket, no prefix
-        let transcriptFilename = "\(recordingManager.toggledRecordingName).\(recordingManager.transcriptionRecordingExtension)"
+        let transcriptFilename = "\(recordingManager.toggledAudioTranscriptionObject.fileName).\(recordingManager.transcriptionRecordingExtension)"
         print("Waiting for transcript: \(transcriptFilename)")
 
         do {
@@ -55,18 +58,17 @@ class TranscriptionManager {
                 hardCapSeconds: 20 * 60,      // 20 minutes
                 backoffCapSeconds: 60        // 1 minute
             )
-            let path = recordingManager.GetDirectory().appendingPathComponent(transcriptFilename).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
+            let path = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
+            print("path: \(path)")
             do {
                 let transcribedText = try await downloadSignedFileAndReadText(from: signedTxtURL, to: path)
                 print("Transcribed text: \(transcribedText)")
-                return transcribedText
+                toggledTranscriptText = transcribedText
             } catch {
                 print("Unable to download and sign transcript via signed URL")
             }
-            return ""
         } catch {
             print("Transcript not ready/failed: \(error.localizedDescription)")
-            return nil
         }
     }
 
@@ -275,7 +277,7 @@ class TranscriptionManager {
             print("Unable to fetch FirebaseAuth token")
             return nil
         }
-        let bucketPath = "\(recordingManager.toggledRecordingName).\(recordingManager.audioRecordingExtension)"
+        let bucketPath = "\(recordingManager.toggledAudioTranscriptionObject.fileName).\(recordingManager.audioRecordingExtension)"
         let contentType = "audio/mp4"
         var comps = URLComponents(string: "\(SignedAudioUrlGCFunction!)/signed-put")!
         comps.queryItems = [

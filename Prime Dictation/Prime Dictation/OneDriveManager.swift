@@ -302,7 +302,7 @@ final class OneDriveManager {
     }
 
     // MARK: - Public: upload entry point (uses selected folder or default)
-    func SendToOneDrive(url: URL, preferredFileName: String? = nil, progress: ((Double) -> Void)? = nil) {
+    func SendToOneDrive(url: URL, hasTranscription: Bool, preferredFileName: String? = nil, progress: ((Double) -> Void)? = nil) {
         Task { [weak self] in
             guard let self = self else { return }
             guard let viewController = viewController else { return }

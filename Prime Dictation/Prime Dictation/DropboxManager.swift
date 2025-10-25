@@ -221,38 +221,28 @@ final class DropboxManager {
 
     // MARK: - Upload (no async/await)
 
-    func SendToDropbox(url: URL) {
+    func SendToDropbox(hasTranscription: Bool) {
         guard let viewController, let recordingManager else { return }
 
-        func doUpload(_ client: DropboxClient, folderPath: String) {
-            ProgressHUD.animate("Sending...", .triangleDotShift)
-            viewController.DisableUI()
+        // Build local file URLs once
+        let baseName = recordingManager.toggledAudioTranscriptionObject.fileName
+        let dir = recordingManager.GetDirectory()
+        let audioURL = dir.appendingPathComponent(baseName).appendingPathExtension(recordingManager.audioRecordingExtension)
+        let transcriptURL = dir.appendingPathComponent(baseName).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
 
-            let recordingName = recordingManager.toggledRecordingName + "." + recordingManager.audioRecordingExtension
-            let normalized = folderPath.isEmpty ? "/" : folderPath
-            let finalPath = (normalized == "/") ? "/\(recordingName)" : "\(normalized)/\(recordingName)"
-
-            client.files.upload(path: finalPath, input: url)
-                .response { response, _ in
-                    DispatchQueue.main.async {
-                        if response != nil {
-                            ProgressHUD.succeed("Recording was sent to Dropbox")
-                        } else {
-                            ProgressHUD.dismiss()
-                            viewController.displayAlert(
-                                title: "Recording send failed",
-                                message: "Check your internet connection and try again.",
-                                handler: {
-                                    ProgressHUD.failed("Failed to send recording to Dropbox")
-                                }
-                            )
-                        }
-                        viewController.EnableUI()
-                    }
-                }
+        // Helper to upload one file
+        func upload(_ client: DropboxClient, local: URL, to remotePath: String, completion: @escaping (Bool) -> Void) {
+            client.files.upload(path: remotePath, mode: .add, autorename: true, mute: true, input: local)
+                .response { resp, _ in completion(resp != nil) }
         }
 
+        // UI
+        ProgressHUD.animate("Sending...", .triangleDotShift)
+        viewController.DisableUI()
+
+        // Ensure we have a client (auth if needed)
         guard let client = DropboxClientsManager.authorizedClient else {
+            ProgressHUD.dismiss()
             OpenAuthorizationFlow { [weak self] result in
                 switch result {
                 case .success, .alreadyAuthenticated:
@@ -260,31 +250,88 @@ final class DropboxManager {
                     self?.settingsViewController?.UpdateSelectedDestinationUI(destination: .dropbox)
                 case .cancel:
                     ProgressHUD.failed("Canceled Dropbox Login")
-                case .error(_, _), .none:
+                case .error, .none:
                     ProgressHUD.failed("Unable to log into Dropbox")
                 }
+                viewController.EnableUI()
             }
             return
         }
 
-        // Resolve destination and upload
-        resolveSelectionOrDefault(client: client) { [weak self] result in
-            guard let self else { return }
-            switch result {
+        // Resolve destination folder path then upload(s)
+        resolveSelectionOrDefault(client: client) { [weak self] selResult in
+            guard let self = self else { return }
+            switch selResult {
             case .failure:
-                ProgressHUD.failed("Dropbox upload unavailable")
+                DispatchQueue.main.async {
+                    ProgressHUD.failed("Dropbox upload unavailable")
+                    viewController.EnableUI()
+                }
             case .success(let sel):
                 self.resolveCurrentPath(client: client, selection: sel) { pathResult in
                     switch pathResult {
                     case .failure:
-                        ProgressHUD.failed("Dropbox upload unavailable")
+                        DispatchQueue.main.async {
+                            ProgressHUD.failed("Dropbox upload unavailable")
+                            viewController.EnableUI()
+                        }
                     case .success(let folderPath):
-                        doUpload(client, folderPath: folderPath)
+                        let normalized = folderPath.isEmpty ? "/" : folderPath
+                        let remoteAudio = (normalized == "/") ? "/\(baseName).\(recordingManager.audioRecordingExtension)"
+                                                               : "\(normalized)/\(baseName).\(recordingManager.audioRecordingExtension)"
+                        let remoteTxt   = (normalized == "/") ? "/\(baseName).\(recordingManager.transcriptionRecordingExtension)"
+                                                               : "\(normalized)/\(baseName).\(recordingManager.transcriptionRecordingExtension)"
+
+                        // 1) Upload audio
+                        upload(client, local: audioURL, to: remoteAudio) { ok in
+                            guard ok else {
+                                DispatchQueue.main.async {
+                                    ProgressHUD.dismiss()
+                                    viewController.displayAlert(
+                                        title: "Send failed",
+                                        message: "Couldn't upload the recording. Check your connection and try again.",
+                                        handler: { ProgressHUD.failed("Failed to send to Dropbox") }
+                                    )
+                                    viewController.EnableUI()
+                                }
+                                return
+                            }
+
+                            // 2) Optionally upload transcript
+                            let shouldSendTranscript = recordingManager.toggledAudioTranscriptionObject.hasTranscription
+                                && FileManager.default.fileExists(atPath: transcriptURL.path)
+
+                            guard shouldSendTranscript else {
+                                DispatchQueue.main.async {
+                                    ProgressHUD.succeed("Recording sent to Dropbox")
+                                    viewController.EnableUI()
+                                }
+                                return
+                            }
+
+                            upload(client, local: transcriptURL, to: remoteTxt) { ok2 in
+                                DispatchQueue.main.async {
+                                    if ok2 {
+                                        ProgressHUD.succeed("Recording & transcript sent to Dropbox")
+                                    } else {
+                                        // Audio was sent; transcript failed — still inform user
+                                        ProgressHUD.dismiss()
+                                        viewController.displayAlert(
+                                            title: "Transcript upload failed",
+                                            message: "The recording was sent, but the transcript could not be uploaded.",
+                                            handler: { ProgressHUD.failed("Transcript failed") }
+                                        )
+                                    }
+                                    viewController.EnableUI()
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     }
+
 
     // MARK: - Selection persistence (durable)
 

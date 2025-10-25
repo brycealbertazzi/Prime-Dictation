@@ -1012,7 +1012,7 @@ final class GoogleDriveManager: NSObject {
     }
 
     // MARK: - Upload
-    func SendToGoogleDrive(url: URL) {
+    func SendToGoogleDrive(url: URL, hasTranscription: Bool) {
         guard let viewController else { return }
         guard driveService != nil else {
             viewController.displayAlert(title: "Google Drive not signed in", message: "Please sign in and select a folder in Settings.")
@@ -1040,7 +1040,7 @@ final class GoogleDriveManager: NSObject {
                 viewController.EnableUI()
                 return
             }
-            let fileName = recordingManager.toggledRecordingName + "." + recordingManager.audioRecordingExtension
+            let fileName = recordingManager.toggledAudioTranscriptionObject.fileName + "." + recordingManager.audioRecordingExtension
             let mimeType: String = {
                 if let ext = url.pathExtension.isEmpty ? nil : url.pathExtension,
                    let ut = UTType(filenameExtension: ext),
@@ -1090,7 +1090,7 @@ final class GoogleDriveManager: NSObject {
             return
         }
 
-        let recordingName = recordingManager.toggledRecordingName + "." + recordingManager.audioRecordingExtension
+        let recordingName = recordingManager.toggledAudioTranscriptionObject.fileName + "." + recordingManager.audioRecordingExtension
 
         let mimeType: String
         if let ext = fileURL.pathExtension.isEmpty ? nil : fileURL.pathExtension,
