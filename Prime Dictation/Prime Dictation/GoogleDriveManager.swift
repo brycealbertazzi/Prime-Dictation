@@ -1012,8 +1012,12 @@ final class GoogleDriveManager: NSObject {
     }
 
     // MARK: - Upload
-    func SendToGoogleDrive(url: URL, hasTranscription: Bool) {
-        guard let viewController else { return }
+    func SendToGoogleDrive(hasTranscription: Bool) {
+        guard let viewController = self.viewController else { return }
+        guard let recordingManager = self.recordingManager else {
+            viewController.displayAlert(title: "No recording to send", message: "Please record first.")
+            return
+        }
         guard driveService != nil else {
             viewController.displayAlert(title: "Google Drive not signed in", message: "Please sign in and select a folder in Settings.")
             return
@@ -1021,9 +1025,30 @@ final class GoogleDriveManager: NSObject {
 
         let destFolderId = persistedSelection?.folderId ?? GoogleDriveManager.googleDriveRootId
 
+        // Build local file URLs & names
+        let baseName   = recordingManager.toggledAudioTranscriptionObject.fileName
+        let dir        = recordingManager.GetDirectory()
+        let audioURL   = dir.appendingPathComponent(baseName).appendingPathExtension(recordingManager.audioRecordingExtension)
+        let transcriptURL = dir.appendingPathComponent(baseName).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
+
+        let audioFileName = "\(baseName).\(recordingManager.audioRecordingExtension)"
+        let txtFileName   = "\(baseName).\(recordingManager.transcriptionRecordingExtension)"
+
+        // Simple MIME helpers
+        func mimeType(for url: URL, fallback: String) -> String {
+            if let ut = UTType(filenameExtension: url.pathExtension),
+               let preferred = ut.preferredMIMEType {
+                return preferred
+            }
+            return fallback
+        }
+        let audioMime = mimeType(for: audioURL, fallback: "application/octet-stream")
+        let txtMime   = "text/plain"
+
         viewController.DisableUI()
         ProgressHUD.animate("Sending...", .triangleDotShift)
 
+        // 0) Ensure destination folder still exists
         httpCheckFolderExists(folderId: destFolderId) { [weak self] exists in
             guard let self = self, let viewController = self.viewController else { return }
 
@@ -1035,33 +1060,57 @@ final class GoogleDriveManager: NSObject {
                 return
             }
 
-            guard let recordingManager = self.recordingManager else {
-                ProgressHUD.failed("No recording to send")
-                viewController.EnableUI()
-                return
-            }
-            let fileName = recordingManager.toggledAudioTranscriptionObject.fileName + "." + recordingManager.audioRecordingExtension
-            let mimeType: String = {
-                if let ext = url.pathExtension.isEmpty ? nil : url.pathExtension,
-                   let ut = UTType(filenameExtension: ext),
-                   let preferred = ut.preferredMIMEType { return preferred }
-                return "application/octet-stream"
-            }()
-
-            self.httpResumableUpload(fileURL: url,
+            // 1) Upload audio first
+            self.httpResumableUpload(fileURL: audioURL,
                                      destFolderId: destFolderId,
-                                     mimeType: mimeType,
-                                     fileName: fileName) { result in
+                                     mimeType: audioMime,
+                                     fileName: audioFileName) { result in
                 switch result {
-                case .success: ProgressHUD.succeed("Sent to Google Drive!")
-                case .failure(let error): ProgressHUD.failed("Upload failed: \(error.localizedDescription)")
+                case .failure(let error):
+                    DispatchQueue.main.async {
+                        ProgressHUD.failed("Upload failed: \(error.localizedDescription)")
+                        viewController.EnableUI()
+                    }
+
+                case .success:
+                    // 2) Optionally upload transcript
+                    let shouldSendTranscript =
+                        recordingManager.toggledAudioTranscriptionObject.hasTranscription &&
+                        hasTranscription &&
+                        FileManager.default.fileExists(atPath: transcriptURL.path)
+
+                    guard shouldSendTranscript else {
+                        DispatchQueue.main.async {
+                            ProgressHUD.succeed("Sent to Google Drive!")
+                            viewController.EnableUI()
+                        }
+                        return
+                    }
+
+                    self.httpResumableUpload(fileURL: transcriptURL,
+                                             destFolderId: destFolderId,
+                                             mimeType: txtMime,
+                                             fileName: txtFileName) { result2 in
+                        DispatchQueue.main.async {
+                            switch result2 {
+                            case .success:
+                                ProgressHUD.succeed("Recording & transcript sent to Google Drive!")
+                            case .failure(let e):
+                                // Audio is already uploaded; inform transcript failure lightly
+                                ProgressHUD.dismiss()
+                                viewController.displayAlert(
+                                    title: "Transcript upload failed",
+                                    message: e.localizedDescription,
+                                    handler: { ProgressHUD.failed("Transcript failed") }
+                                )
+                            }
+                            viewController.EnableUI()
+                        }
+                    }
                 }
-                viewController.EnableUI()
             }
         }
     }
-
-
 
     private func checkFolderExists(folderId: String, service: GTLRDriveService, completion: @escaping (Bool) -> Void) {
         if folderId == GoogleDriveManager.googleDriveRootId {

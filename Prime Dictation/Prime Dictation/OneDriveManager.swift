@@ -302,36 +302,78 @@ final class OneDriveManager {
     }
 
     // MARK: - Public: upload entry point (uses selected folder or default)
-    func SendToOneDrive(url: URL, hasTranscription: Bool, preferredFileName: String? = nil, progress: ((Double) -> Void)? = nil) {
+    func SendToOneDrive(hasTranscription: Bool,
+                        preferredFileName: String? = nil,
+                        progress: ((Double) -> Void)? = nil) {
         Task { [weak self] in
             guard let self = self else { return }
-            guard let viewController = viewController else { return }
+            guard let viewController = self.viewController,
+                  let recordingManager = self.recordingManager else { return }
 
             await ProgressHUD.animate("Sending...", .triangleDotShift)
             await viewController.DisableUI()
             defer { Task { @MainActor in viewController.EnableUI() } }
 
+            // Build local file URLs
+            let baseName = recordingManager.toggledAudioTranscriptionObject.fileName
+            let dir      = recordingManager.GetDirectory()
+            let audioURL = dir.appendingPathComponent(baseName)
+                              .appendingPathExtension(recordingManager.audioRecordingExtension)
+            let txtURL   = dir.appendingPathComponent(baseName)
+                              .appendingPathExtension(recordingManager.transcriptionRecordingExtension)
+
+            // Remote names (sanitize for OneDrive)
+            let audioFileName = self.sanitizeForOneDriveFileName("\(baseName).\(recordingManager.audioRecordingExtension)")
+            let txtFileName   = self.sanitizeForOneDriveFileName("\(baseName).\(recordingManager.transcriptionRecordingExtension)")
+
             do {
-                let token = try await self.getAccessTokenSilently()
-                let target = try await self.resolveSelectionOrDefault(token: token) // user choice or "/Prime Dictation"
-                let fileName = preferredFileName ?? url.lastPathComponent
-                let sanitizedFileName = self.sanitizeForOneDriveFileName(fileName)
-                
-                print("sanitizedFileName: \(sanitizedFileName)")
-                _ = try await self.uploadRecording(accessToken: token,
-                                                   fileURL: url,
-                                                   fileName: sanitizedFileName,
-                                                   to: target,
-                                                   progress: progress)
-                await MainActor.run {
-                    ProgressHUD.succeed("Recording was sent to OneDrive")
+                // 1) Token + destination
+                let token  = try await self.getAccessTokenSilently()
+                let target = try await self.resolveSelectionOrDefault(token: token) // user-picked or default
+
+                // 2) Upload audio
+                _ = try await self.uploadRecording(
+                    accessToken: token,
+                    fileURL: audioURL,
+                    fileName: audioFileName,
+                    to: target,
+                    progress: progress
+                )
+
+                // 3) Optionally upload transcript (respect the toggle + param + file existence)
+                let shouldSendTranscript =
+                    recordingManager.toggledAudioTranscriptionObject.hasTranscription &&
+                    hasTranscription &&
+                    FileManager.default.fileExists(atPath: txtURL.path)
+
+                if shouldSendTranscript {
+                    _ = try await self.uploadRecording(
+                        accessToken: token,
+                        fileURL: txtURL,
+                        fileName: txtFileName,
+                        to: target,
+                        progress: nil // keep progress tied to the main audio if you want
+                    )
+                    await MainActor.run {
+                        ProgressHUD.succeed("Recording & transcript sent to OneDrive")
+                    }
+                } else {
+                    await MainActor.run {
+                        ProgressHUD.succeed("Recording was sent to OneDrive")
+                    }
                 }
+
             } catch {
+                // If audio failed (or transcript failed after audio), show a concise message
                 await MainActor.run {
                     ProgressHUD.dismiss()
-                    viewController.displayAlert(title: "Recording send failed", message: "Please select a OneDrive folder.", handler: {
-                        ProgressHUD.failed("Failed to send recording to OneDrive")
-                    })
+                    viewController.displayAlert(
+                        title: "Send failed",
+                        message: "We couldn't upload one or more files to OneDrive. Please check your connection and folder selection.",
+                        handler: {
+                            ProgressHUD.failed("Failed to send to OneDrive")
+                        }
+                    )
                 }
             }
         }

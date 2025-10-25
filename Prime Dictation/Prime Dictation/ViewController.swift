@@ -342,10 +342,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 dropboxManager.SendToDropbox(hasTranscription: toggledHasTranscription)
             case Destination.onedrive:
                 print("Sending to OneDrive")
-                oneDriveManager.SendToOneDrive(url: recordingUrl, hasTranscription: toggledHasTranscription)
+                oneDriveManager.SendToOneDrive(hasTranscription: toggledHasTranscription)
             case Destination.googledrive:
                 print("Sending to Google Drive")
-                googleDriveManager.SendToGoogleDrive(url: recordingUrl, hasTranscription: toggledHasTranscription)
+                googleDriveManager.SendToGoogleDrive(hasTranscription: toggledHasTranscription)
             case Destination.email:
                 print("Sending to Email")
                 do {
