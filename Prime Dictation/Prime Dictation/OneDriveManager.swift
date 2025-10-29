@@ -359,7 +359,7 @@ final class OneDriveManager {
                     }
                 } else {
                     await MainActor.run {
-                        ProgressHUD.succeed("Recording was sent to OneDrive")
+                        ProgressHUD.succeed("Recording sent to OneDrive")
                     }
                 }
 

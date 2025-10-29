@@ -1081,7 +1081,7 @@ final class GoogleDriveManager: NSObject {
 
                     guard shouldSendTranscript else {
                         DispatchQueue.main.async {
-                            ProgressHUD.succeed("Sent to Google Drive!")
+                            ProgressHUD.succeed("Recording sent to Google Drive")
                             viewController.EnableUI()
                         }
                         return
@@ -1094,7 +1094,7 @@ final class GoogleDriveManager: NSObject {
                         DispatchQueue.main.async {
                             switch result2 {
                             case .success:
-                                ProgressHUD.succeed("Recording & transcript sent to Google Drive!")
+                                ProgressHUD.succeed("Recording & transcript sent to Google Drive")
                             case .failure(let e):
                                 // Audio is already uploaded; inform transcript failure lightly
                                 ProgressHUD.dismiss()

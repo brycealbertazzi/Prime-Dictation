@@ -177,10 +177,12 @@ class EmailManager: NSObject {
                 transcriptionKey: txKey
             )
 
-            // Success UI here
-            ProgressHUD.succeed("Email sent!")
+            if (hasTranscription) {
+                ProgressHUD.succeed("Recording & transcript sent to Email")
+            } else {
+                ProgressHUD.succeed("Recording sent to Email")
+            }
         } catch {
-            // Error UI here
             ProgressHUD.failed("Email send failed, try again later")
         }
     }
