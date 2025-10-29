@@ -27,24 +27,35 @@ class TranscriptionManager {
     
     /// Call this to upload, wait (max 20m), and get the signed URL to the transcript.
     func transcribeAudioFile() async {
+        await viewController?.DisableUI()
         guard let _ = SignedAudioUrlGCFunction else {
-            print("SignedUrlGCFunction not set"); return
+            print("SignedUrlGCFunction not set")
+            await viewController?.EnableUI()
+            return
         }
         guard let txtSignerBase = SignedTxtURLGCFunction else {
-            print("TxtifyPDTranscriptionFunction not set"); return
+            print("TxtifyPDTranscriptionFunction not set")
+            await viewController?.EnableUI()
+            return
         }
         guard let signedPUT = try? await mintSignedURL() else {
-            print("Unable to obtain signed PUT URL"); return
+            print("Unable to obtain signed PUT URL")
+            await viewController?.EnableUI()
+            return
         }
         guard let recordingURL = recordingManager.toggledRecordingURL else {
-            print("Unable to find recording URL"); return
+            print("Unable to find recording URL")
+            await viewController?.EnableUI()
+            return
         }
 
         do {
             print("recordingBaseURL: \(recordingURL)")
             try await uploadRecordingToCGBucket(to: signedPUT, from: recordingURL)
         } catch {
-            print("Upload failed: \(error)"); return
+            print("Upload failed: \(error)")
+            await viewController?.EnableUI()
+            return
         }
 
         // Root of bucket, no prefix
@@ -59,7 +70,6 @@ class TranscriptionManager {
                 backoffCapSeconds: 60        // 1 minute
             )
             let path = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
-            print("path: \(path)")
             do {
                 let transcribedText = try await downloadSignedFileAndReadText(from: signedTxtURL, to: path)
                 print("Transcribed text: \(transcribedText)")
@@ -70,6 +80,7 @@ class TranscriptionManager {
         } catch {
             print("Transcript not ready/failed: \(error.localizedDescription)")
         }
+        await viewController?.EnableUI()
     }
 
     // MARK: - Polling with exponential backoff (cap: 2 minutes; hard cap: 20 minutes)

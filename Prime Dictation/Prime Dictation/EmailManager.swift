@@ -103,15 +103,18 @@ class EmailManager: NSObject {
         hasTranscription: Bool,
     ) async {
         ProgressHUD.animate("Sending...", .triangleDotShift)
+        viewController?.DisableUI()
         do {
             guard let signer =  PresignedUploadAWSLambdaFunctionURL else {
                 print("PresignedUploadAWSLambdaFunctionURL not set")
                 ProgressHUD.failed("Failed to send email, try again later")
+                viewController?.EnableUI()
                 return
             }
             guard let EmailSenderAWSLambdaFunctionURL else {
                 print("EmailSenderAWSLambdaFunctionURL not set")
                 ProgressHUD.failed("Failed to send email, try again later")
+                viewController?.EnableUI()
                 return
             }
             let signerURL = URL(string: signer)!
@@ -120,18 +123,21 @@ class EmailManager: NSObject {
             guard let toEmail = emailAddress else {
                 print("Email not set")
                 ProgressHUD.failed("You have not set your email address")
+                viewController?.EnableUI()
                 return
             }
             
             guard let recordingFileURL = recordingManager?.toggledRecordingURL else {
                 print("No recording to send")
                 ProgressHUD.failed("No recording to send")
+                viewController?.EnableUI()
                 return
             }
             
             guard let recordingName = recordingManager?.toggledAudioTranscriptionObject.fileName else {
                 print("No recording to send")
                 ProgressHUD.failed("No recording to send")
+                viewController?.EnableUI()
                 return
             }
             
@@ -182,8 +188,10 @@ class EmailManager: NSObject {
             } else {
                 ProgressHUD.succeed("Recording sent to Email")
             }
+            viewController?.EnableUI()
         } catch {
             ProgressHUD.failed("Email send failed, try again later")
+            viewController?.EnableUI()
         }
     }
     
