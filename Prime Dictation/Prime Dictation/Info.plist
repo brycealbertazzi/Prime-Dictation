@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>EMAIL_SENDER_AWS_LAMBDA_FUNCTION</key>
+	<string>https://hfhjmo2tb2ahndf7npbc4lo7da0gcoup.lambda-url.us-west-2.on.aws/</string>
+	<key>PRESIGNED_UPLOAD_AWS_LAMBDA_FUNCTION</key>
+	<string>https://r7wdxwtohycq5xp4f3a7gvhvxa0hnxya.lambda-url.us-west-2.on.aws</string>
 	<key>SIGNED_TXT_URL_GC_FUNCTION</key>
 	<string>https://txtify-pd-sign-486981472809.us-central1.run.app</string>
 	<key>SIGNED_URL_GC_FUNCTION</key>

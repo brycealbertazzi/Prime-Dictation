@@ -353,14 +353,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 googleDriveManager.SendToGoogleDrive(hasTranscription: toggledHasTranscription)
             case Destination.email:
                 print("Sending to Email")
-                do {
-                    let fileData = try Data(contentsOf: recordingUrl)
-                    let fileName = recordingUrl.lastPathComponent
-                    emailManager.SendToEmail(fileData: fileData, fileName: fileName)
-                } catch {
-                    // 5. Handle any errors, such as the file not being found or read.
-                    ProgressHUD.failed("Could not find or read the recording file. Error: \(error.localizedDescription)")
-                }
+                Task { await emailManager.SendToEmail(hasTranscription: toggledHasTranscription) }
             default:
                 print("No destination selected")
                 showSettingsPopover(anchorView: DestinationLabel, barButtonItem: nil)

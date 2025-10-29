@@ -12,6 +12,17 @@ struct EmailSelection: Codable {
         EmailSelection(emailAddress: "", accountId: nil)
     }
 }
+struct EmailResponse: Decodable { let messageId: String? }
+
+struct PresignResponse: Decodable {
+    let url: String
+    let method: String
+    let headers: [String:String]
+    let key: String
+    let bucket: String
+    let region: String
+    let expiresIn: Int
+}
 
 class EmailManager: NSObject {
     
@@ -27,6 +38,9 @@ class EmailManager: NSObject {
     weak var viewController: ViewController?
     private var recordingManager: RecordingManager?
     
+    let PresignedUploadAWSLambdaFunctionURL = Bundle.main.object(forInfoDictionaryKey: "PRESIGNED_UPLOAD_AWS_LAMBDA_FUNCTION") as? String
+    let EmailSenderAWSLambdaFunctionURL = Bundle.main.object(forInfoDictionaryKey: "EMAIL_SENDER_AWS_LAMBDA_FUNCTION") as? String
+    
     override init() {
         super.init()
         self.emailAddress = UserDefaults.standard.string(forKey: emailStorageKey)
@@ -40,6 +54,8 @@ class EmailManager: NSObject {
         self.viewController = viewController
         self.recordingManager = recordingManager
     }
+    
+    
     
     func handleEmailButtonTap(from presentingVC: SettingsViewController) {
         self.settingsViewController = presentingVC
@@ -82,36 +98,160 @@ class EmailManager: NSObject {
         ProgressHUD.succeed("Email saved")
     }
     
-    func SendToEmail(fileData: Data, fileName: String) {
-        guard let email = emailAddress, !email.isEmpty else {
-            ProgressHUD.failed("Please enter your email address first.")
-            if let vc = settingsViewController {
-                showEmailInputModal(from: vc, with: nil)
+    @MainActor
+    func SendToEmail(
+        hasTranscription: Bool,
+    ) async {
+        ProgressHUD.animate("Sending...", .triangleDotShift)
+        do {
+            guard let signer =  PresignedUploadAWSLambdaFunctionURL else {
+                print("PresignedUploadAWSLambdaFunctionURL not set")
+                ProgressHUD.failed("Failed to send email, try again later")
+                return
             }
-            return
-        }
-        
-        if MFMailComposeViewController.canSendMail() {
-            print("email \(email)")
-            let mailComposer = MFMailComposeViewController()
-            mailComposer.mailComposeDelegate = self
-            mailComposer.setToRecipients([email])
-            mailComposer.setSubject("Your Recording from Prime Dictation")
-            mailComposer.setMessageBody("Hello,\n\nHere is your requested recording.", isHTML: false)
-            mailComposer.addAttachmentData(fileData, mimeType: "audio/m4a", fileName: fileName)
+            guard let EmailSenderAWSLambdaFunctionURL else {
+                print("EmailSenderAWSLambdaFunctionURL not set")
+                ProgressHUD.failed("Failed to send email, try again later")
+                return
+            }
+            let signerURL = URL(string: signer)!
+            let emailURL = URL(string: EmailSenderAWSLambdaFunctionURL)!
             
-            // Present the mail composer from the appropriate view controller
-            if let vc = settingsViewController {
-                vc.present(mailComposer, animated: true)
-            } else {
-                // Fallback if settingsViewController is nil
-                UIApplication.shared.findKeyWindow()?.rootViewController?.present(mailComposer, animated: true)
+            guard let toEmail = emailAddress else {
+                print("Email not set")
+                ProgressHUD.failed("You have not set your email address")
+                return
             }
             
-        } else {
-            ProgressHUD.failed("Email not configured on this device.")
+            guard let recordingFileURL = recordingManager?.toggledRecordingURL else {
+                print("No recording to send")
+                ProgressHUD.failed("No recording to send")
+                return
+            }
+            
+            guard let recordingName = recordingManager?.toggledAudioTranscriptionObject.fileName else {
+                print("No recording to send")
+                ProgressHUD.failed("No recording to send")
+                return
+            }
+            
+            let urlWithoutExtension = recordingFileURL.deletingPathExtension()
+            
+            var transcriptionFileURL: URL? = nil
+            if (hasTranscription) {
+                transcriptionFileURL = urlWithoutExtension.appendingPathExtension(recordingManager?.transcriptionRecordingExtension ?? "txt")
+            }
+            
+            // Prepare keys & data
+            let recData = try Data(contentsOf: recordingFileURL, options: .mappedIfSafe)
+            let recKey = "recordings/\(recordingName).\(recordingManager?.audioRecordingExtension ?? "m4a")"
+
+            // 1) Presign + upload recording
+            let recPresign = try await mintPresignedPUT(
+                functionURL: signerURL,
+                key: recKey,
+                contentType: "audio/mp4",
+                contentLength: recData.count
+            )
+            try await uploadToS3(presigned: recPresign, fileData: recData)
+
+            // 2) Presign + upload transcription (optional)
+            var txKey: String? = nil
+            if let tURL = transcriptionFileURL {
+                let txData = try Data(contentsOf: tURL, options: .mappedIfSafe)
+                let tKey = "transcriptions/\(recordingName).\(recordingManager?.transcriptionRecordingExtension ?? "txt")"
+                let txPresign = try await mintPresignedPUT(
+                    functionURL: signerURL,
+                    key: tKey,
+                    contentType: "text/plain",
+                    contentLength: txData.count
+                )
+                try await uploadToS3(presigned: txPresign, fileData: txData)
+                txKey = tKey
+            }
+            // 3) Email (Lambda will attach if small else include links)
+            _ = try await sendEmail(
+                endpoint: emailURL,
+                toEmail: toEmail,
+                recordingKey: recKey,
+                transcriptionKey: txKey
+            )
+
+            // Success UI here
+            ProgressHUD.succeed("Email sent!")
+        } catch {
+            // Error UI here
+            ProgressHUD.failed("Email send failed, try again later")
         }
     }
+    
+    func sendEmail(
+        endpoint: URL,
+        toEmail: String,
+        recordingKey: String?,
+        transcriptionKey: String?,
+        secretHeader: (name: String, value: String)? = nil
+    ) async throws -> EmailResponse {
+        var body: [String: Any] = [
+            "toEmail": toEmail,
+        ]
+        if let r = recordingKey { body["recordingKey"] = r }
+        if let t = transcriptionKey { body["transcriptionKey"] = t }
+
+        var req = URLRequest(url: endpoint)
+        req.httpMethod = "POST"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        if let s = secretHeader { req.setValue(s.value, forHTTPHeaderField: s.name) } // optional
+        req.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, resp) = try await URLSession.shared.data(for: req)
+        guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            throw NSError(domain: "pd-email-sender", code: (resp as? HTTPURLResponse)?.statusCode ?? -1,
+                          userInfo: ["body": String(data: data, encoding: .utf8) ?? ""])
+        }
+        return try JSONDecoder().decode(EmailResponse.self, from: data)
+    }
+    
+    func mintPresignedPUT(
+        functionURL: URL,
+        key: String,
+        contentType: String,
+        contentLength: Int,
+        secretHeader: (name: String, value: String)? = nil
+    ) async throws -> PresignResponse {
+        var req = URLRequest(url: functionURL)
+        req.httpMethod = "POST"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        if let s = secretHeader { req.setValue(s.value, forHTTPHeaderField: s.name) } // optional
+        let body: [String: Any] = [
+            "key": key,
+            "contentType": contentType,
+            "contentLength": contentLength
+        ]
+        req.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, resp) = try await URLSession.shared.data(for: req)
+        guard let http = resp as? HTTPURLResponse, http.statusCode == 200 else {
+            throw NSError(domain: "presign", code: (resp as? HTTPURLResponse)?.statusCode ?? -1,
+                          userInfo: ["body": String(data: data, encoding: .utf8) ?? ""])
+        }
+        return try JSONDecoder().decode(PresignResponse.self, from: data)
+    }
+    
+    func uploadToS3(presigned: PresignResponse, fileData: Data) async throws {
+        guard let putURL = URL(string: presigned.url) else { throw URLError(.badURL) }
+        var putReq = URLRequest(url: putURL)
+        putReq.httpMethod = "PUT"
+        // Must match exactly the headers returned by your signer
+        for (k, v) in presigned.headers {
+            putReq.setValue(v, forHTTPHeaderField: k)
+        }
+        let (_, resp) = try await URLSession.shared.upload(for: putReq, from: fileData)
+        guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            throw NSError(domain: "s3put", code: (resp as? HTTPURLResponse)?.statusCode ?? -1)
+        }
+    }
+    
 }
 
 // MARK: - MFMailComposeViewControllerDelegate
