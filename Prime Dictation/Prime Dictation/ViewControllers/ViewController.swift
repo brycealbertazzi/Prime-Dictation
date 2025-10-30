@@ -304,14 +304,33 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     @IBAction func TranscribeButton(_ sender: Any) {
-        ProgressHUD.animate("Transcribing...", .triangleDotShift)
-        // Hop into an async context
-        Task { @MainActor in
-            await transcriptionManager.transcribeAudioFile()
-            recordingManager.SetToggledAudioTranscriptObjectAfterTranscription()
-            ProgressHUD.succeed("Transcription Complete")
+        if (recordingManager.toggledAudioTranscriptionObject.hasTranscription) {
+            showTranscriptionScreen()
+        } else {
+            ProgressHUD.animate("Transcribing...", .triangleDotShift)
+            // Hop into an async context
+            Task { @MainActor in
+                await transcriptionManager.transcribeAudioFile()
+                recordingManager.SetToggledAudioTranscriptObjectAfterTranscription()
+                ProgressHUD.succeed("Transcription Complete")
+            }
         }
     }
+    
+    private func showTranscriptionScreen() {
+        // 1) instantiate
+        let vc = storyboard!.instantiateViewController(
+            withIdentifier: "TranscriptionViewController"
+        ) as! TranscriptionViewController
+
+        // 2) pass the transcript, if you want
+        vc.transcriptText = recordingManager.toggledAudioTranscriptionObject.transcriptionText
+
+        print("navigationController nil")
+        vc.modalPresentationStyle = .fullScreen   // or .pageSheet, whatever
+        present(vc, animated: true)
+    }
+
     
     private func showSettingsPopover(anchorView: UIView?, barButtonItem: UIBarButtonItem?) {
         let vc = storyboard!.instantiateViewController(withIdentifier: "SettingsViewController") as! SettingsViewController
@@ -453,7 +472,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         NextRecordingLabel.setTitleColor(UIColor.black, for: .normal)
         RenameFileLabel.isEnabled = true
         TranscribeLabel.isEnabled = true
-        TranscribeLabel.setTitleColor(UIColor.black, for: .normal)
+        TranscribeLabel.setTitleColor(UIColor.systemPurple, for: .normal)
     }
     
     func NoRecordingsUI() {

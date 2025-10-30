@@ -362,7 +362,7 @@
                                     <constraint firstAttribute="height" constant="20" id="73w-IY-Jtn"/>
                                     <constraint firstAttribute="width" constant="30" id="awK-YQ-3Xr"/>
                                 </constraints>
-                                <color key="tintColor" red="0.48818057345360821" green="0.48818057345360821" blue="0.48818057345360821" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="tintColor" red="0.48755651709999998" green="0.48755651709999998" blue="0.48755657670000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain">
                                     <backgroundConfiguration key="background" image="chevron.down" catalog="system"/>
@@ -392,27 +392,67 @@
             </objects>
             <point key="canvasLocation" x="-2009" y="-551"/>
         </scene>
-        <!--Transcription View Controller Scene-->
+        <!--Transcription View Controller-->
         <scene sceneID="LWY-Og-j0b">
             <objects>
-                <viewController storyboardIdentifier="TranscriptionViewController" title="Transcription View Controller Scene" id="2Wm-Bx-ZZk" customClass="ViewController" customModule="Prime_Dictation" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="TranscriptionViewController" title="Transcription View Controller Scene" id="2Wm-Bx-ZZk" userLabel="Transcription View Controller" customClass="TranscriptionViewController" customModule="Prime_Dictation" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="qpC-Nw-kmF">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="BG" translatesAutoresizingMaskIntoConstraints="NO" id="b7o-lc-ePW">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="BG" translatesAutoresizingMaskIntoConstraints="NO" id="b7o-lc-ePW">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="414" id="SgM-iM-py8"/>
+                                    <constraint firstAttribute="height" constant="736" id="giR-4Y-RLt"/>
+                                </constraints>
                             </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9VC-N4-gWh" userLabel="BackButton">
+                                <rect key="frame" x="192" y="696" width="30" height="20"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="30" id="Sre-S6-miY"/>
+                                    <constraint firstAttribute="height" constant="20" id="jae-4V-hQe"/>
+                                </constraints>
+                                <color key="tintColor" red="0.48755651709999998" green="0.48755651709999998" blue="0.48755657670000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain">
+                                    <backgroundConfiguration key="background" image="chevron.down" catalog="system"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="BackButton:" destination="2Wm-Bx-ZZk" eventType="touchUpInside" id="vxS-sI-bOC"/>
+                                </connections>
+                            </button>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hMz-sM-hdh">
+                                <rect key="frame" x="8" y="38" width="398" height="643"/>
+                                <color key="textColor" systemColor="labelColor"/>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="3KK-z6-XcD"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="b7o-lc-ePW" firstAttribute="trailing" secondItem="qpC-Nw-kmF" secondAttribute="trailing" id="3Zw-aZ-ovD"/>
+                            <constraint firstItem="hMz-sM-hdh" firstAttribute="centerX" secondItem="qpC-Nw-kmF" secondAttribute="centerX" id="3cR-gk-MkI"/>
+                            <constraint firstItem="b7o-lc-ePW" firstAttribute="bottom" secondItem="qpC-Nw-kmF" secondAttribute="bottom" id="5Eh-2v-u2O"/>
+                            <constraint firstItem="3KK-z6-XcD" firstAttribute="bottom" secondItem="9VC-N4-gWh" secondAttribute="bottom" constant="20" id="5kN-6Z-c1y"/>
+                            <constraint firstItem="9VC-N4-gWh" firstAttribute="centerX" secondItem="qpC-Nw-kmF" secondAttribute="centerX" id="Eb5-fq-EI6"/>
+                            <constraint firstItem="b7o-lc-ePW" firstAttribute="leading" secondItem="qpC-Nw-kmF" secondAttribute="leading" id="QwV-SV-H5c"/>
+                            <constraint firstItem="b7o-lc-ePW" firstAttribute="top" secondItem="qpC-Nw-kmF" secondAttribute="top" id="TOF-5m-EDo"/>
+                            <constraint firstItem="hMz-sM-hdh" firstAttribute="leading" secondItem="3KK-z6-XcD" secondAttribute="leading" constant="8" id="cgb-o7-nPT"/>
+                            <constraint firstItem="9VC-N4-gWh" firstAttribute="top" secondItem="hMz-sM-hdh" secondAttribute="bottom" constant="15" id="d9x-aT-4OX"/>
+                            <constraint firstItem="hMz-sM-hdh" firstAttribute="trailing" secondItem="3KK-z6-XcD" secondAttribute="trailing" constant="-8" id="hw3-z8-gh1"/>
+                            <constraint firstItem="hMz-sM-hdh" firstAttribute="top" secondItem="3KK-z6-XcD" secondAttribute="top" constant="18" id="rHN-Sh-A6L"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="4vT-Nd-lSw"/>
+                    <connections>
+                        <outlet property="TranscriptionTextBox" destination="hMz-sM-hdh" id="oKU-fS-SK7"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="EOY-bw-Z4e" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1290" y="-551"/>
+            <point key="canvasLocation" x="-1317.3913043478262" y="-551.08695652173913"/>
         </scene>
     </scenes>
     <resources>
