@@ -73,7 +73,7 @@ class RecordingManager {
         }
         saveAudioTranscriptionObjectsToUserDefaults()
         Task { try await SelectMostRecentRecording() }
-        viewController.EnableTranscriptionUI()
+        viewController.NoTranscriptionUI()
     }
     
     func saveAudioTranscriptionObjectsToUserDefaults() {
@@ -96,7 +96,7 @@ class RecordingManager {
         // Temporarily set the transcripionText of the toggledAudioTranscription object to the transcribedText
         // We don't want to persist this to UserDefaults because it is a very long string and could get corrupted in storage
         toggledAudioTranscriptionObject.transcriptionText = transcriptionManager.toggledTranscriptText
-        viewController.DisableTranscriptionUI()
+        viewController.HasTranscriptionUI()
     }
     
     func setToggledRecordingURL() {
@@ -108,7 +108,7 @@ class RecordingManager {
         toggledRecordingsIndex = recordingCount - 1
         toggledAudioTranscriptionObject = savedAudioTranscriptionObjects[toggledRecordingsIndex]
         if (toggledAudioTranscriptionObject.hasTranscription) {
-            await viewController.DisableTranscriptionUI()
+            await viewController.HasTranscriptionUI()
             Task { try await transcriptionManager.readToggledTextFileAndSetInAudioTranscriptObject() }
         }
         setToggledRecordingURL()

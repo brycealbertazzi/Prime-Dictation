@@ -151,9 +151,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     func checkHasTranscription() {
         if (recordingManager.toggledAudioTranscriptionObject.hasTranscription) {
-            DisableTranscriptionUI()
+            HasTranscriptionUI()
             Task {try await transcriptionManager.readToggledTextFileAndSetInAudioTranscriptObject() }
-        } else {EnableTranscriptionUI()}
+        } else {NoTranscriptionUI()}
     }
     
     @IBAction func PreviousRecordingButton(_ sender: Any) {
@@ -418,14 +418,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         EnableDestinationAndSendButtons()
     }
     
-    func EnableTranscriptionUI() {
-        TranscribeLabel.isEnabled = true
-        TranscribeLabel.setTitleColor(UIColor.systemPurple, for: .normal)
+    func NoTranscriptionUI() {
+        TranscribeLabel.setTitle("Transcribe", for: .normal)
     }
     
-    func DisableTranscriptionUI() {
-        TranscribeLabel.isEnabled = false
-        TranscribeLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+    func HasTranscriptionUI() {
+        TranscribeLabel.setTitle("See Transcription", for: .normal)
     }
     
     func DisableUI() {
@@ -439,7 +437,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PreviousRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
         NextRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
         RenameFileLabel.isEnabled = false
-        DisableTranscriptionUI()
+        TranscribeLabel.isEnabled = false
+        TranscribeLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
     }
     
     func EnableUI() {
@@ -453,9 +452,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PreviousRecordingLabel.setTitleColor(UIColor.black, for: .normal)
         NextRecordingLabel.setTitleColor(UIColor.black, for: .normal)
         RenameFileLabel.isEnabled = true
-        if (!recordingManager.toggledAudioTranscriptionObject.hasTranscription) {
-            EnableTranscriptionUI()
-        }
+        TranscribeLabel.isEnabled = true
+        TranscribeLabel.setTitleColor(UIColor.black, for: .normal)
     }
     
     func NoRecordingsUI() {

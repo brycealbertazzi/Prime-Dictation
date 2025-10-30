@@ -277,7 +277,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2710.144927536232" y="-554.34782608695662"/>
+            <point key="canvasLocation" x="-2680" y="-551"/>
         </scene>
         <!--Settings View Controller-->
         <scene sceneID="6jj-Z0-h8q">
@@ -390,7 +390,29 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="VTs-7P-DE6" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1913.0434782608697" y="-554.34782608695662"/>
+            <point key="canvasLocation" x="-2009" y="-551"/>
+        </scene>
+        <!--Transcription View Controller Scene-->
+        <scene sceneID="LWY-Og-j0b">
+            <objects>
+                <viewController storyboardIdentifier="TranscriptionViewController" title="Transcription View Controller Scene" id="2Wm-Bx-ZZk" customClass="ViewController" customModule="Prime_Dictation" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="qpC-Nw-kmF">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="BG" translatesAutoresizingMaskIntoConstraints="NO" id="b7o-lc-ePW">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="3KK-z6-XcD"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="4vT-Nd-lSw"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="EOY-bw-Z4e" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1290" y="-551"/>
         </scene>
     </scenes>
     <resources>
@@ -405,6 +427,9 @@
         <image name="pencil.and.list.clipboard" catalog="system" width="114" height="128"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
     </resources>
 </document>
