@@ -13,11 +13,13 @@ import ProgressHUD
 struct AudioTranscriptionObject : Codable {
     var fileName: String
     var hasTranscription: Bool
+    var transcriptionText: String?
 }
 
 class RecordingManager {
     
     var viewController: ViewController!
+    var transcriptionManager: TranscriptionManager!
     var sampleRate = 16000
     
     let audioRecordingExtension: String = "m4a"
@@ -37,8 +39,9 @@ class RecordingManager {
     
     init () {}
     
-    func attach(viewController: ViewController) {
+    func attach(viewController: ViewController, transcriptionManager: TranscriptionManager) {
         self.viewController = viewController
+        self.transcriptionManager = transcriptionManager
     }
     
     func SetSavedRecordingsOnLoad()
@@ -46,7 +49,7 @@ class RecordingManager {
         savedAudioTranscriptionObjects = UserDefaults.standard.loadCodable([AudioTranscriptionObject].self, forKey: savedAudioTranscriptionObjectsKey) ?? [AudioTranscriptionObject]()
         let recordingCount = savedAudioTranscriptionObjects.count
         if (recordingCount > 0) {
-            SelectMostRecentRecording()
+            Task { try await SelectMostRecentRecording() }
         } else {
             viewController.NoRecordingsUI()
         }
@@ -55,7 +58,7 @@ class RecordingManager {
     func UpdateSavedRecordings() {
         let recordingCount = savedAudioTranscriptionObjects.count
         if recordingCount < maxNumSavedRecordings {
-            savedAudioTranscriptionObjects.append(AudioTranscriptionObject(fileName: mostRecentRecordingName, hasTranscription: false))
+            savedAudioTranscriptionObjects.append(AudioTranscriptionObject(fileName: mostRecentRecordingName, hasTranscription: false, transcriptionText: nil))
         } else {
             //Delete the oldest recording and add the next one
             let oldestRecording = savedAudioTranscriptionObjects.removeFirst()
@@ -66,43 +69,51 @@ class RecordingManager {
             } catch {
                 print("UNABLE TO DETETE THE FILE OF AN OLDEST RECORDING IN QUEUE!!!!")
             }
-            savedAudioTranscriptionObjects.append(AudioTranscriptionObject(fileName: mostRecentRecordingName, hasTranscription: false))
+            savedAudioTranscriptionObjects.append(AudioTranscriptionObject(fileName: mostRecentRecordingName, hasTranscription: false, transcriptionText: nil))
         }
-        do {
-            print("SAVING NEW SAVED RECORDINGS TO USERDEFAULTS \(savedAudioTranscriptionObjects)")
-            try UserDefaults.standard.setCodable(savedAudioTranscriptionObjects, forKey: savedAudioTranscriptionObjectsKey)
-        } catch {
-            print("Unable to save audio transcription objects to UserDefaults (AFTER RECORDING)")
-        }
-        SelectMostRecentRecording()
+        saveAudioTranscriptionObjectsToUserDefaults()
+        Task { try await SelectMostRecentRecording() }
         viewController.EnableTranscriptionUI()
+    }
+    
+    func saveAudioTranscriptionObjectsToUserDefaults() {
+        let sanitizedAudioTranscriptionObjects: [AudioTranscriptionObject] = savedAudioTranscriptionObjects.map { object in
+            return AudioTranscriptionObject(fileName: object.fileName, hasTranscription: object.hasTranscription, transcriptionText: nil)
+        }
+        print("sanitized object for UserDefaults: \(sanitizedAudioTranscriptionObjects)")
+        do {
+            try UserDefaults.standard.setCodable(sanitizedAudioTranscriptionObjects, forKey: savedAudioTranscriptionObjectsKey)
+        } catch {
+            print("Unable to save audio transcription objects to UserDefaults")
+        }
     }
     
     func SetToggledAudioTranscriptObjectAfterTranscription() {
         savedAudioTranscriptionObjects[toggledRecordingsIndex].hasTranscription = true
         toggledAudioTranscriptionObject = savedAudioTranscriptionObjects[toggledRecordingsIndex]
-        do {
-            try UserDefaults.standard.setCodable(savedAudioTranscriptionObjects, forKey: savedAudioTranscriptionObjectsKey)
-            viewController.DisableTranscriptionUI()
-        } catch {
-            print("Unable to save audio transcription objects to UserDefaults (AFTER TRANSCRIPTION)")
-        }
+        
+        saveAudioTranscriptionObjectsToUserDefaults()
+        // Temporarily set the transcripionText of the toggledAudioTranscription object to the transcribedText
+        // We don't want to persist this to UserDefaults because it is a very long string and could get corrupted in storage
+        toggledAudioTranscriptionObject.transcriptionText = transcriptionManager.toggledTranscriptText
+        viewController.DisableTranscriptionUI()
     }
     
     func setToggledRecordingURL() {
         toggledRecordingURL = GetDirectory().appendingPathComponent(toggledAudioTranscriptionObject.fileName).appendingPathExtension(audioRecordingExtension)
     }
     
-    func SelectMostRecentRecording() {
+    func SelectMostRecentRecording() async throws {
         let recordingCount = savedAudioTranscriptionObjects.count
         toggledRecordingsIndex = recordingCount - 1
         toggledAudioTranscriptionObject = savedAudioTranscriptionObjects[toggledRecordingsIndex]
         if (toggledAudioTranscriptionObject.hasTranscription) {
-            viewController.DisableTranscriptionUI()
+            await viewController.DisableTranscriptionUI()
+            Task { try await transcriptionManager.readToggledTextFileAndSetInAudioTranscriptObject() }
         }
         setToggledRecordingURL()
-        viewController.FileNameLabel.setTitle(savedAudioTranscriptionObjects[toggledRecordingsIndex].fileName, for: .normal)
-        viewController.HasRecordingsUI(numberOfRecordings: recordingCount)
+        await viewController.FileNameLabel.setTitle(savedAudioTranscriptionObjects[toggledRecordingsIndex].fileName, for: .normal)
+        await viewController.HasRecordingsUI(numberOfRecordings: recordingCount)
     }
     
     func RenameFile(newName: String) {
@@ -118,12 +129,7 @@ class RecordingManager {
             self.toggledAudioTranscriptionObject = self.savedAudioTranscriptionObjects[self.toggledRecordingsIndex]
             self.setToggledRecordingURL()
             viewController.FileNameLabel.setTitle(newNameWithSuffix, for: .normal)
-            do {
-                print("SAVING NEW SAVED RECORDINGS TO USERDEFAULTS \(savedAudioTranscriptionObjects)")
-                try UserDefaults.standard.setCodable(savedAudioTranscriptionObjects, forKey: savedAudioTranscriptionObjectsKey)
-            } catch {
-                print("Unable to save audio transcription objects to UserDefaults when renaming file")
-            }
+            saveAudioTranscriptionObjectsToUserDefaults()
         } catch {
             ProgressHUD.failed("Failed to rename file")
         }

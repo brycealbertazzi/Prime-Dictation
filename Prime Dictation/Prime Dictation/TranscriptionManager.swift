@@ -72,8 +72,8 @@ class TranscriptionManager {
             let path = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
             do {
                 let transcribedText = try await downloadSignedFileAndReadText(from: signedTxtURL, to: path)
-                print("Transcribed text: \(transcribedText)")
                 toggledTranscriptText = transcribedText
+                
             } catch {
                 print("Unable to download and sign transcript via signed URL")
             }
@@ -81,6 +81,22 @@ class TranscriptionManager {
             print("Transcript not ready/failed: \(error.localizedDescription)")
         }
         await viewController?.EnableUI()
+    }
+    
+    @MainActor
+    func readToggledTextFileAndSetInAudioTranscriptObject() async throws {
+        if (recordingManager.toggledAudioTranscriptionObject.transcriptionText != nil) {
+            print("already set toggled text \(recordingManager.toggledAudioTranscriptionObject.transcriptionText ?? "text")")
+            return
+        }
+        let toggledTranscriptFilePath = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
+        if (!FileManager.default.fileExists(atPath: toggledTranscriptFilePath.path)) { return }
+        
+        let toggledText = try String(contentsOf: toggledTranscriptFilePath)
+        print("toggledText: \(toggledText)")
+        
+        recordingManager.toggledAudioTranscriptionObject.transcriptionText = toggledText
+        recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex] = recordingManager.toggledAudioTranscriptionObject
     }
 
     // MARK: - Polling with exponential backoff (cap: 2 minutes; hard cap: 20 minutes)

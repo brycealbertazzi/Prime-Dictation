@@ -58,7 +58,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         destinationManager = services.destinationManager
         emailManager = services.emailManager
         
-        recordingManager.attach(viewController: self)
+        recordingManager.attach(viewController: self, transcriptionManager: transcriptionManager)
         transcriptionManager.attach(viewController: self, recordingMananger: recordingManager)
         dropboxManager.attach(viewController: self, recordingManager: recordingManager)
         oneDriveManager.attach(viewController: self, recordingManager: recordingManager)
@@ -149,14 +149,21 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
     
+    func checkHasTranscription() {
+        if (recordingManager.toggledAudioTranscriptionObject.hasTranscription) {
+            DisableTranscriptionUI()
+            Task {try await transcriptionManager.readToggledTextFileAndSetInAudioTranscriptObject() }
+        } else {EnableTranscriptionUI()}
+    }
+    
     @IBAction func PreviousRecordingButton(_ sender: Any) {
         recordingManager.CheckToggledRecordingsIndex(goingToPreviousRecording: true)
         recordingManager.toggledAudioTranscriptionObject = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex]
         recordingManager.setToggledRecordingURL()
         
         FileNameLabel.setTitle(recordingManager.toggledAudioTranscriptionObject.fileName, for: .normal)
-        if (recordingManager.toggledAudioTranscriptionObject.hasTranscription) {DisableTranscriptionUI()}
-        else {EnableTranscriptionUI()}
+        checkHasTranscription()
+        
     }
     
     @IBAction func NextRecordingButton(_ sender: Any) {
@@ -165,8 +172,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         recordingManager.setToggledRecordingURL()
         
         FileNameLabel.setTitle(recordingManager.toggledAudioTranscriptionObject.fileName, for: .normal)
-        if (recordingManager.toggledAudioTranscriptionObject.hasTranscription) {DisableTranscriptionUI()}
-        else {EnableTranscriptionUI()}
+        checkHasTranscription()
     }
     
     @IBAction func RenameFileButton(_ sender: Any) {
@@ -335,11 +341,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
     @IBAction func SendButton(_ sender: Any) {
         if recordingManager.savedAudioTranscriptionObjects.count > 0 {
-            guard let recordingUrl = recordingManager.toggledRecordingURL else {
-                ProgressHUD.failed("Unable to send this recording, make another one the try again")
-                print("Unable to construct file URL for this recording")
-                return
-            }
             let toggledHasTranscription: Bool = recordingManager.toggledAudioTranscriptionObject.hasTranscription
             switch DestinationManager.SELECTED_DESTINATION {
             case Destination.dropbox:
