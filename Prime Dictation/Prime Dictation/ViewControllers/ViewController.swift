@@ -29,7 +29,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var PausePlaybackLabel: UIButton!
     @IBOutlet weak var EndPlaybackLabel: UIButton!
     @IBOutlet weak var StopWatchLabel: UILabel!
-    @IBOutlet weak var TranscribeLabel: UIButton!
+    @IBOutlet weak var TranscribeLabel: RoundedButton!
     
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
     var audioRecorder: AVAudioRecorder! //Responsible for recording our audio
@@ -150,7 +150,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     func checkHasTranscription() {
         if (recordingManager.toggledAudioTranscriptionObject.hasTranscription) {
-            HasTranscriptionUI()
+            DispatchQueue.main.async {
+                self.HasTranscriptionUI()
+            }
             Task {try await transcriptionManager.readToggledTextFileAndSetInAudioTranscriptObject() }
         } else {NoTranscriptionUI()}
     }

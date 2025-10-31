@@ -29,21 +29,19 @@ class RoundedButton: UIButton {
         didSet { updateAppearance() }
     }
 
-    // highlight
     override var isHighlighted: Bool {
-        didSet {
-            updateHighlightState()
-        }
+        didSet { updateHighlightState() }
     }
 
+    override var isEnabled: Bool {
+        didSet { updateEnabledState() }
+    }
+
+    // if you want to make sure even IB-created buttons drop configs:
     override func awakeFromNib() {
         super.awakeFromNib()
-
-        // make sure no config is interfering
-        if #available(iOS 15.0, *) {
-            self.configuration = nil
-        }
-
+        // always be a classic UIButton
+        self.configuration = nil
         updateAppearance()
     }
 
@@ -52,14 +50,28 @@ class RoundedButton: UIButton {
         updateAppearance()
     }
 
+    // 👇 key part: make setTitle always win
+    override func setTitle(_ title: String?, for state: UIControl.State) {
+        // drop any config that might override titles
+        self.configuration = nil
+        super.setTitle(title, for: state)
+        updateAppearance()
+    }
+
     private func updateAppearance() {
         // outline
         layer.cornerRadius = cornerRadius
         layer.borderWidth = borderWidth
-        layer.borderColor = borderColor.cgColor
         layer.masksToBounds = true
 
-        // text colors – lock them
+        // border respects enabled
+        if isEnabled {
+            layer.borderColor = borderColor.cgColor
+        } else {
+            layer.borderColor = borderColor.withAlphaComponent(0.4).cgColor
+        }
+
+        // text colors
         setTitleColor(borderColor, for: .normal)
         setTitleColor(borderColor, for: .highlighted)
         setTitleColor(borderColor, for: .selected)
@@ -73,22 +85,19 @@ class RoundedButton: UIButton {
             right: paddingRight
         )
 
-        // background when not pressed
+        // background
         if !isHighlighted {
             backgroundColor = .clear
         }
 
-        // 🔒 make sure title is fully visible
+        // keep fully opaque
         titleLabel?.alpha = 1.0
         alpha = 1.0
     }
 
     private func updateHighlightState() {
         if isHighlighted {
-            // show pressed bg
-            backgroundColor = borderColor.withAlphaComponent(0.12)
-
-            // 🔒 UIKit likes to dim the label here — undo it
+            backgroundColor = borderColor.withAlphaComponent(0.2)
             titleLabel?.alpha = 1.0
             alpha = 1.0
         } else {
@@ -96,5 +105,9 @@ class RoundedButton: UIButton {
             titleLabel?.alpha = 1.0
             alpha = 1.0
         }
+    }
+
+    private func updateEnabledState() {
+        updateAppearance()
     }
 }

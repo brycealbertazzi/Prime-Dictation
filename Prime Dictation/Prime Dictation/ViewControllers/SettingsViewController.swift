@@ -146,13 +146,14 @@ class SettingsViewController: UIViewController {
     
     func UpdateSelectedDestinationUI(destination: Destination? = Destination.none) {
         let selectedColor: UIColor = .systemBlue
+        let graphite = UIColor(red: 0.173, green: 0.173, blue: 0.180, alpha: 1.0)
         SelectFolderIcon.isEnabled = true
         SelectFolderIcon.alpha = 1.0
 
-        DropboxLabel.setTitleColor(.black, for: .normal)
-        OneDriveLabel.setTitleColor(.black, for: .normal)
-        GoogleDriveLabel.setTitleColor(.black, for: .normal)
-        EmailLabel.setTitleColor(.black, for: .normal)
+        DropboxLabel.setTitleColor(graphite, for: .normal)
+        OneDriveLabel.setTitleColor(graphite, for: .normal)
+        GoogleDriveLabel.setTitleColor(graphite, for: .normal)
+        EmailLabel.setTitleColor(graphite, for: .normal)
 
         switch destination {
         case .dropbox:
@@ -164,10 +165,10 @@ class SettingsViewController: UIViewController {
         case .email: // No need for the nested if check
             EmailLabel.setTitleColor(selectedColor, for: .normal)
             SelectFolderIcon.isEnabled = false
-            SelectFolderIcon.alpha = 0.36
+            SelectFolderIcon.alpha = 0.4
         case .none?: // Handles the nil case directly
             SelectFolderIcon.isEnabled = false
-            SelectFolderIcon.alpha = 0.36
+            SelectFolderIcon.alpha = 0.4
         default:
             break
         }
