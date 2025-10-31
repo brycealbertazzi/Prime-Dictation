@@ -15,7 +15,6 @@ class RoundedButton: UIButton {
         didSet { updateAppearance() }
     }
 
-    // padding
     @IBInspectable var paddingTop: CGFloat = 6 {
         didSet { updateAppearance() }
     }
@@ -37,25 +36,35 @@ class RoundedButton: UIButton {
         didSet { updateEnabledState() }
     }
 
-    // if you want to make sure even IB-created buttons drop configs:
     override func awakeFromNib() {
         super.awakeFromNib()
-        // always be a classic UIButton
+        // always behave like an old-school UIButton
         self.configuration = nil
+        // also clear any attributed title IB may have snuck in
+        super.setAttributedTitle(nil, for: .normal)
         updateAppearance()
     }
 
     override func layoutSubviews() {
+        // kill config every layout so IB / system can’t reapply it
+        self.configuration = nil
         super.layoutSubviews()
         updateAppearance()
     }
 
-    // 👇 key part: make setTitle always win
+    // 👇 this is the important part
     override func setTitle(_ title: String?, for state: UIControl.State) {
-        // drop any config that might override titles
+        // 1) no configs
         self.configuration = nil
+        // 2) no attributed title
+        super.setAttributedTitle(nil, for: state)
+        // 3) normal UIButton behavior
         super.setTitle(title, for: state)
-        updateAppearance()
+        // 4) force the actual label to match (bypasses UIButton cleverness)
+        self.titleLabel?.text = title
+        // 5) relayout
+        setNeedsLayout()
+        layoutIfNeeded()
     }
 
     private func updateAppearance() {
@@ -90,7 +99,6 @@ class RoundedButton: UIButton {
             backgroundColor = .clear
         }
 
-        // keep fully opaque
         titleLabel?.alpha = 1.0
         alpha = 1.0
     }
@@ -99,11 +107,9 @@ class RoundedButton: UIButton {
         if isHighlighted {
             backgroundColor = borderColor.withAlphaComponent(0.2)
             titleLabel?.alpha = 1.0
-            alpha = 1.0
         } else {
             backgroundColor = .clear
             titleLabel?.alpha = 1.0
-            alpha = 1.0
         }
     }
 
