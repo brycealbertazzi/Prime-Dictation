@@ -33,6 +33,7 @@ class RecordingManager {
     //Stores the current recording in queue the user wants to listen to
     var toggledRecordingsIndex: Int = Int()
     var toggledRecordingURL: URL? = nil
+    var toggledTranscriptURL: URL? = nil
     var toggledAudioTranscriptionObject: AudioTranscriptionObject = AudioTranscriptionObject(fileName: "", hasTranscription: false)
     
     var numberOfRecordings: Int = 0
@@ -93,10 +94,30 @@ class RecordingManager {
         toggledAudioTranscriptionObject = savedAudioTranscriptionObjects[toggledRecordingsIndex]
         
         saveAudioTranscriptionObjectsToUserDefaults()
-        // Temporarily set the transcripionText of the toggledAudioTranscription object to the transcribedText
+        // Temporarily set the transcripionText of the toggledAudioTranscription object to the transcribedText (cache)
         // We don't want to persist this to UserDefaults because it is a very long string and could get corrupted in storage
         toggledAudioTranscriptionObject.transcriptionText = transcriptionManager.toggledTranscriptText
         viewController.HasTranscriptionUI()
+    }
+    
+    func UpdateToggledTranscriptionText(newText: String) {
+        // 1) update in-memory cache
+        transcriptionManager.toggledTranscriptText = newText
+        toggledAudioTranscriptionObject.transcriptionText = newText
+        savedAudioTranscriptionObjects[toggledRecordingsIndex] = toggledAudioTranscriptionObject
+        
+
+        // 2) persist to disk
+        // assuming your object has something like `fileURL: URL?` or `transcriptFileURL: URL?`
+        if let fileURL = toggledRecordingURL?.deletingPathExtension().appendingPathExtension(transcriptionRecordingExtension) {
+            do {
+                try newText.write(to: fileURL, atomically: true, encoding: .utf8)
+            } catch {
+                print("⚠️ Failed to write updated transcript to disk: \(error)")
+            }
+        } else {
+            print("⚠️ No transcript file URL on toggledAudioTranscriptionObject")
+        }
     }
     
     func setToggledRecordingURL() {

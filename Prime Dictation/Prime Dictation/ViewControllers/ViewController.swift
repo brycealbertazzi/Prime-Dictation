@@ -64,7 +64,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         oneDriveManager.attach(viewController: self, recordingManager: recordingManager)
         googleDriveManager.attach(viewController: self, recordingManager: recordingManager)
         emailManager.attach(viewController: self, recordingManager: recordingManager)
-        
 
         watch = Stopwatch(viewController: self)
         
