@@ -86,14 +86,12 @@ class TranscriptionManager {
     @MainActor
     func readToggledTextFileAndSetInAudioTranscriptObject() async throws {
         if (recordingManager.toggledAudioTranscriptionObject.transcriptionText != nil) {
-            print("already set toggled text \(recordingManager.toggledAudioTranscriptionObject.transcriptionText ?? "text")")
             return
         }
         let toggledTranscriptFilePath = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
         if (!FileManager.default.fileExists(atPath: toggledTranscriptFilePath.path)) { return }
         
         let toggledText = try String(contentsOf: toggledTranscriptFilePath)
-        print("toggledText: \(toggledText)")
         
         recordingManager.toggledAudioTranscriptionObject.transcriptionText = toggledText
         recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex] = recordingManager.toggledAudioTranscriptionObject
@@ -150,7 +148,6 @@ class TranscriptionManager {
         comps.queryItems = [ URLQueryItem(name: "name", value: filename) ]  // e.g. "Fri Oct 24 2025 at 12:08pm.txt"
 
         let url = comps.url!
-        print("url: \(url)")
         var req = URLRequest(url: url)
         req.httpMethod = "GET"
 
@@ -174,7 +171,6 @@ class TranscriptionManager {
             var r = URLRequest(url: signedURL)
             r.httpMethod = "HEAD"
             let (_, resp) = try await URLSession.shared.data(for: r)
-            print("r: \(String(describing: resp))")
             if let http = resp as? HTTPURLResponse {
                 if (200...299).contains(http.statusCode) { return true }
                 if http.statusCode == 404 { return false }
@@ -187,7 +183,6 @@ class TranscriptionManager {
             r.httpMethod = "GET"
             r.setValue("bytes=0-0", forHTTPHeaderField: "Range")
             let (_, resp) = try await URLSession.shared.data(for: r)
-            print("r: \(String(describing: resp))")
             if let http = resp as? HTTPURLResponse {
                 if http.statusCode == 206 || http.statusCode == 200 { return true }
                 if http.statusCode == 404 { return false }
@@ -282,12 +277,9 @@ class TranscriptionManager {
             guard let http = resp as? HTTPURLResponse else {
                 print("❌ Not a HTTPURLResponse"); return
             }
-            print("⬅️ PUT status:", http.statusCode)
-            print("⬅️ Headers:", http.allHeaderFields)
 
             if http.statusCode != 200 {
                 let bodyText = String(data: respData, encoding: .utf8) ?? "<non-utf8 \(respData.count) bytes>"
-                print("⬅️ Body:", bodyText)   // GCS returns XML error text — this is the key!
                 return
             }
             print("✅ Upload OK (\(data.count) bytes)")

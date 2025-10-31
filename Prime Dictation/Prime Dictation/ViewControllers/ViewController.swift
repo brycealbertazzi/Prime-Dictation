@@ -325,7 +325,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         // 2) pass the transcript, if you want
         vc.transcriptText = recordingManager.toggledAudioTranscriptionObject.transcriptionText
 
-        print("navigationController nil")
         vc.modalPresentationStyle = .fullScreen   // or .pageSheet, whatever
         present(vc, animated: true)
     }

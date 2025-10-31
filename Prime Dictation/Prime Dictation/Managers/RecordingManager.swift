@@ -81,7 +81,6 @@ class RecordingManager {
         let sanitizedAudioTranscriptionObjects: [AudioTranscriptionObject] = savedAudioTranscriptionObjects.map { object in
             return AudioTranscriptionObject(fileName: object.fileName, hasTranscription: object.hasTranscription, transcriptionText: nil)
         }
-        print("sanitized object for UserDefaults: \(sanitizedAudioTranscriptionObjects)")
         do {
             try UserDefaults.standard.setCodable(sanitizedAudioTranscriptionObjects, forKey: savedAudioTranscriptionObjectsKey)
         } catch {
