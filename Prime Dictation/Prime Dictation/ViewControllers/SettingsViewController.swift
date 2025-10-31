@@ -17,11 +17,11 @@ class SettingsViewController: UIViewController {
     var destinationManager: DestinationManager!
     var emailManager: EmailManager!
     
-    @IBOutlet weak var DropboxLabel: UIButton!
-    @IBOutlet weak var OneDriveLabel: UIButton!
-    @IBOutlet weak var GoogleDriveLabel: UIButton!
-    @IBOutlet weak var SelectFolderIcon: UIButton!
-    @IBOutlet weak var EmailLabel: UIButton!
+    @IBOutlet weak var DropboxLabel: RoundedButton!
+    @IBOutlet weak var OneDriveLabel: RoundedButton!
+    @IBOutlet weak var GoogleDriveLabel: RoundedButton!
+    @IBOutlet weak var SelectFolderIcon: RoundedButton!
+    @IBOutlet weak var EmailLabel: RoundedButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -150,20 +150,20 @@ class SettingsViewController: UIViewController {
         SelectFolderIcon.isEnabled = true
         SelectFolderIcon.alpha = 1.0
 
-        DropboxLabel.setTitleColor(graphite, for: .normal)
-        OneDriveLabel.setTitleColor(graphite, for: .normal)
-        GoogleDriveLabel.setTitleColor(graphite, for: .normal)
-        EmailLabel.setTitleColor(graphite, for: .normal)
+        DropboxLabel.borderColor = graphite
+        OneDriveLabel.borderColor = graphite
+        GoogleDriveLabel.borderColor = graphite
+        EmailLabel.borderColor = graphite
 
         switch destination {
         case .dropbox:
-            DropboxLabel.setTitleColor(selectedColor, for: .normal)
+            DropboxLabel.borderColor = selectedColor
         case .onedrive:
-            OneDriveLabel.setTitleColor(selectedColor, for: .normal)
+            OneDriveLabel.borderColor = selectedColor
         case .googledrive:
-            GoogleDriveLabel.setTitleColor(selectedColor, for: .normal)
+            GoogleDriveLabel.borderColor = selectedColor
         case .email: // No need for the nested if check
-            EmailLabel.setTitleColor(selectedColor, for: .normal)
+            EmailLabel.borderColor = selectedColor
             SelectFolderIcon.isEnabled = false
             SelectFolderIcon.alpha = 0.4
         case .none?: // Handles the nil case directly

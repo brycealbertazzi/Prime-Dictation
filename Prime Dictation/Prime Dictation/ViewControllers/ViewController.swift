@@ -16,10 +16,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
     //MARK: - IBOutlets
     @IBOutlet weak var TitleOfAppLabel: UILabel!
-    @IBOutlet weak var ListenLabel: UIButton!
+    @IBOutlet weak var ListenLabel: RoundedButton!
     @IBOutlet weak var RecordLabel: UIButton!
-    @IBOutlet weak var SendLabel: UIButton!
-    @IBOutlet weak var DestinationLabel: UIButton!
+    @IBOutlet weak var SendLabel: RoundedButton!
+    @IBOutlet weak var DestinationLabel: RoundedButton!
     @IBOutlet weak var FileNameLabel: UIButton!
     @IBOutlet weak var RenameFileLabel: UIButton!
     @IBOutlet weak var PreviousRecordingLabel: UIButton!
