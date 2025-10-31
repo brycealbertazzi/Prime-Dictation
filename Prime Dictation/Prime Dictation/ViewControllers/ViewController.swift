@@ -389,32 +389,62 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         present(alert, animated: true, completion: nil)
     }
     
+    let disabledAlpha: CGFloat = 0.4
+    let enabledAlpha: CGFloat = 1.0
     func DisableDestinationAndSendButtons() {
         SendLabel.isEnabled = false
-        SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+        SendLabel.alpha = disabledAlpha
         DestinationLabel.isEnabled = false
-        DestinationLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+        DestinationLabel.alpha = disabledAlpha
     }
     
     func EnableDestinationAndSendButtons() {
         SendLabel.isEnabled = true
-        SendLabel.setTitleColor(UIColor.black, for: .normal)
+        SendLabel.alpha = enabledAlpha
         DestinationLabel.isEnabled = true
-        DestinationLabel.setTitleColor(UIColor.black, for: .normal)
+        DestinationLabel.alpha = enabledAlpha
+    }
+    
+    func ShowRecordingOrListeningUI() {
+        TranscribeLabel.isEnabled = false
+        TranscribeLabel.alpha = disabledAlpha
+        PreviousRecordingLabel.isEnabled = false
+        NextRecordingLabel.isEnabled = false
+        RenameFileLabel.isEnabled = false
+        PreviousRecordingLabel.alpha = disabledAlpha
+        NextRecordingLabel.alpha = disabledAlpha
+        RenameFileLabel.alpha = disabledAlpha
+        
+        DisableDestinationAndSendButtons()
+    }
+    
+    func HideRecordingOrListeningUI() {
+        TranscribeLabel.isEnabled = true
+        TranscribeLabel.alpha = enabledAlpha
+        PreviousRecordingLabel.isEnabled = true
+        NextRecordingLabel.isEnabled = true
+        RenameFileLabel.isEnabled = true
+        PreviousRecordingLabel.alpha = enabledAlpha
+        NextRecordingLabel.alpha = enabledAlpha
+        RenameFileLabel.alpha = enabledAlpha
+        
+        EnableDestinationAndSendButtons()
     }
     
     func ShowRecordingInProgressUI() {
         RecordLabel.isHidden = true
         StopButtonLabel.isHidden = false
         PausePlayButtonLabel.isHidden = false
-        DisableDestinationAndSendButtons()
+        FileNameLabel.alpha = disabledAlpha
+        ShowRecordingOrListeningUI()
     }
     
     func HideRecordingInProgressUI() {
         RecordLabel.isHidden = false
         StopButtonLabel.isHidden = true
         PausePlayButtonLabel.isHidden = true
-        EnableDestinationAndSendButtons()
+        FileNameLabel.alpha = enabledAlpha
+        HideRecordingOrListeningUI()
     }
     
     func ShowListeningUI() {
@@ -423,7 +453,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PausePlaybackLabel.isHidden = false
         EndPlaybackLabel.isHidden = false
         RecordLabel.isEnabled = false
-        DisableDestinationAndSendButtons()
+        ShowRecordingOrListeningUI()
     }
     
     func HideListeningUI() {
@@ -432,7 +462,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PausePlaybackLabel.isHidden = true
         EndPlaybackLabel.isHidden = true
         RecordLabel.isEnabled = true
-        EnableDestinationAndSendButtons()
+        HideRecordingOrListeningUI()
     }
     
     func NoTranscriptionUI() {
@@ -444,40 +474,30 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     func DisableUI() {
-        DisableDestinationAndSendButtons()
         RecordLabel.isEnabled = false
+        RecordLabel.alpha = disabledAlpha
         ListenLabel.isEnabled = false
-        FileNameLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
-        TitleOfAppLabel.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.3)
-        PreviousRecordingLabel.isEnabled = false
-        NextRecordingLabel.isEnabled = false
-        PreviousRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
-        NextRecordingLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
-        RenameFileLabel.isEnabled = false
-        TranscribeLabel.isEnabled = false
-        TranscribeLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+        ListenLabel.alpha = disabledAlpha
+        TitleOfAppLabel.alpha = disabledAlpha
+        FileNameLabel.alpha = disabledAlpha
+        ShowRecordingOrListeningUI()
     }
     
     func EnableUI() {
-        EnableDestinationAndSendButtons()
         RecordLabel.isEnabled = true
+        RecordLabel.alpha = enabledAlpha
         ListenLabel.isEnabled = true
-        FileNameLabel.setTitleColor(UIColor.black, for: .normal)
-        TitleOfAppLabel.textColor = UIColor.black
-        PreviousRecordingLabel.isEnabled = true
-        NextRecordingLabel.isEnabled = true
-        PreviousRecordingLabel.setTitleColor(UIColor.black, for: .normal)
-        NextRecordingLabel.setTitleColor(UIColor.black, for: .normal)
-        RenameFileLabel.isEnabled = true
-        TranscribeLabel.isEnabled = true
-        TranscribeLabel.setTitleColor(UIColor.systemPurple, for: .normal)
+        ListenLabel.alpha = enabledAlpha
+        TitleOfAppLabel.alpha = enabledAlpha
+        FileNameLabel.alpha = enabledAlpha
+        HideRecordingOrListeningUI()
     }
     
     func NoRecordingsUI() {
         ListenLabel.isHidden = true
         FileNameLabel.isHidden = true
         SendLabel.isEnabled = false
-        SendLabel.setTitleColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.3), for: .normal)
+        SendLabel.alpha = disabledAlpha
         PreviousRecordingLabel.isHidden = true
         NextRecordingLabel.isHidden = true
         TranscribeLabel.isHidden = true
@@ -488,7 +508,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         ListenLabel.isHidden = false
         FileNameLabel.isHidden = false
         SendLabel.isEnabled = true
-        SendLabel.setTitleColor(UIColor.black, for: .normal)
+        SendLabel.alpha = enabledAlpha
         PreviousRecordingLabel.isHidden = numberOfRecordings <= 1 // Show back arrow of there are 2 or more recordings
         NextRecordingLabel.isHidden = true
         TranscribeLabel.isHidden = false
