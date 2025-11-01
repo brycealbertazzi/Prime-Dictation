@@ -145,8 +145,8 @@ class SettingsViewController: UIViewController {
     }
     
     func UpdateSelectedDestinationUI(destination: Destination? = Destination.none) {
-        let selectedColor: UIColor = .systemBlue
-        let graphite = UIColor(red: 0.173, green: 0.173, blue: 0.180, alpha: 1.0)
+        let selectedColor: UIColor = PDColors.blue
+        let graphite: UIColor = PDColors.black
         SelectFolderIcon.isEnabled = true
         SelectFolderIcon.alpha = 1.0
 
