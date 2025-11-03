@@ -250,12 +250,21 @@ final class OneDriveManager {
                 let token = try await getAccessTokenSilently()
                 let driveId = try await getDefaultDriveId(token: token)
                 let startCtx = DriveContext(driveId: driveId, itemId: "root", name: "OneDrive")
-                let map = await buildSelectedBranchMap(token: token, driveId: driveId)
 
-                let vc = FolderPickerViewController(manager: self, accessToken: token, start: startCtx, branchMap: map) { [weak self] sel in
-                    self?.saveSelection(sel)
-                    onPicked?(sel)
-                }
+                // Load last saved selection to show in the header only
+                let lastSel = self.loadSelection()
+
+                let vc = FolderPickerViewController(
+                    manager: self,
+                    accessToken: token,
+                    start: startCtx,
+                    lastSavedSelection: lastSel,
+                    currentFolderId: "root",            // parent == current folder for this level
+                    onPicked: { [weak self] sel in
+                        self?.saveSelection(sel)
+                        onPicked?(sel)
+                    }
+                )
                 let nav = UINavigationController(rootViewController: vc)
                 nav.modalPresentationStyle = .formSheet
                 settingsVC.present(nav, animated: true)
@@ -264,7 +273,7 @@ final class OneDriveManager {
             }
         }
     }
-    
+
     func sanitizeForOneDriveFileName(_ name: String, fallback: String = "Recording") -> String {
         // Illegal in OneDrive/Windows:  \ / : * ? " < > |  and control chars
         let invalid = CharacterSet(charactersIn: "\\/:*?\"<>|").union(.controlCharacters)
@@ -781,7 +790,7 @@ final class OneDriveManager {
         return key
     }
 
-    // MARK: - UIKit Folder Picker (with ✓ + Done + leaf cache)
+    // MARK: - Simplified UIKit Folder Picker (✓ + Done + black chevrons + header)
     private final class FolderPickerViewController: UITableViewController {
         private weak var manager: OneDriveManager?
         private let token: String
@@ -789,122 +798,56 @@ final class OneDriveManager {
         private var items: [PickerDriveItem] = []
         private var nextPage: URL?
         private let onPicked: (OneDriveSelection) -> Void
-        /// Base set of itemIds that are on the saved/active destination path (ancestors + leaf).
-        private let basePathSet: Set<String>
-        /// Effective path also includes the in-flight selection at this level (so chevrons update immediately).
-        private var effectivePathSet: Set<String> {
-            var s = basePathSet
-            if let w = workingSelectedChildId { s.insert(w) }
-            return s
-        }
-        private var selectedLeafId: String?
-        /// Override of { parentKey -> selected childId } at THIS level (supersedes branchMap)
-        private var pathChildOverride: [String:String] = [:]
 
-        /// Parent key for the current table (root gets a special key)
-        private var currentParentKey: String {
-            return (ctx.itemId == "root") ? OneDriveManager.rootKey : ctx.itemId
-        }
-        /// Map of { parentId (or RootKey) -> childId } along the saved/active destination path.
-        private var branchMap: [String:String]
+        // Header shows last saved selection (read-only label)
+        private let lastSavedSelection: OneDriveSelection?
 
-        /// Working selection at THIS level (used for Done button semantics)
-        private var workingSelectedChildId: String? {
-            get { branchMap[currentParentKey] }
-            set { branchMap[currentParentKey] = newValue }
-        }
+        // The "parent/current folder" for this screen; Done uses this if no leaf picked
+        private let currentFolderId: String
 
+        // Only leaves get ✓ (no initial ✓)
+        private var selectedId: String?
 
-        /// Track previously-checked row so we can reload it when selection changes
-        private var selectedIndexPath: IndexPath?
-
-        /// Leaf cache to avoid async in cellForRow + reduce flicker
-        private var leafCache: [String: Bool] = [:] // key: canonical item id → true if NO subfolders
-
-        /// Initial selected child for this level from branchMap (if any)
-        private func initialSelectedChildId() -> String? {
-            let parentKey = (ctx.itemId == "root") ? OneDriveManager.rootKey : ctx.itemId
-            return branchMap[parentKey]
-        }
-
-        // Footer button (Clear Selection)
+        // UI
+        private let rowHeight: CGFloat = 56.0
         private let footerHeight: CGFloat = 68.0
-        private lazy var footerViewContainer: UIView = {
-            let v = UIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: footerHeight))
-            v.backgroundColor = .clear
-            return v
-        }()
-        private lazy var clearButton: UIButton = {
-            let b = UIButton(type: .system)
-            b.setTitle("Clear Selection", for: .normal)
-            b.addTarget(self, action: #selector(clearSelectionTapped), for: .touchUpInside)
-            b.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-            b.sizeToFit()
-            b.center = CGPoint(x: footerViewContainer.bounds.midX, y: footerViewContainer.bounds.midY)
-            b.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleTopMargin, .flexibleBottomMargin]
-            return b
-        }()
 
         init(manager: OneDriveManager,
              accessToken: String,
              start: DriveContext,
-             branchMap: [String:String],
-             onPicked: @escaping (OneDriveSelection) -> Void)
-        {
+             lastSavedSelection: OneDriveSelection?,
+             currentFolderId: String,
+             onPicked: @escaping (OneDriveSelection) -> Void) {
             self.manager = manager
             self.token = accessToken
             self.ctx = start
+            self.lastSavedSelection = lastSavedSelection
+            self.currentFolderId = currentFolderId
             self.onPicked = onPicked
-            self.branchMap = branchMap
-            self.basePathSet = Set(branchMap.values)
-            // Derive the final leaf in the chain: a value that never appears as a key.
-            let childSet = Set(branchMap.values)
-            let parentSet = Set(branchMap.keys.filter { $0 != OneDriveManager.rootKey })
-            self.selectedLeafId = childSet.subtracting(parentSet).first
             super.init(style: .insetGrouped)
-            self.title = "OneDrive"
-            self.workingSelectedChildId = initialSelectedChildId()
+            self.title = start.itemId == "root" ? "OneDrive" : (start.name ?? "OneDrive")
         }
 
         required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
         override func viewDidLoad() {
             super.viewDidLoad()
+
+            // Done is enabled initially → represents current folder selection by default
             navigationItem.rightBarButtonItem = UIBarButtonItem(
-                systemItem: .done,
-                primaryAction: UIAction { [weak self] _ in
-                    guard let self else { return }
-                    // Determine chosen selection (child or current folder)
-                    let chosen = workingSelectedChildId
-                        .flatMap { OneDriveSelection(driveId: self.ctx.driveId, itemId: $0) }
-                        ?? OneDriveSelection(driveId: ctx.driveId, itemId: ctx.itemId)
-
-                    // Compute display name for HUD
-                    let displayName: String = {
-                        if let w = self.workingSelectedChildId,
-                           let item = self.items.first(where: { ($0.remoteItem?.id ?? $0.id) == w }) {
-                            return item.name
-                        }
-                        // current folder
-                        if self.ctx.itemId == "root" { return "Root" }
-                        return self.ctx.name ?? "OneDrive"
-                    }()
-
-                    onPicked(chosen)
-                    self.dismiss(animated: true)
-                    ProgressHUD.succeed("\(displayName) selected")
-                }
+                title: "Done",
+                style: .done,
+                target: self,
+                action: #selector(confirmSelectionAndDismiss)
             )
+
             navigationItem.leftBarButtonItem = UIBarButtonItem(
                 primaryAction: UIAction(title: "Sign Out") { [weak self] _ in
                     guard let self = self, let manager = self.manager else { return }
                     ProgressHUD.animate("Signing out…")
                     manager.SignOutAppOnly { success in
                         Task { @MainActor in
-                            guard let settingsVC = manager.settingsViewController else {
-                                print("Unable to find settings view controller on OneDrive signout")
-                                return
-                            }
+                            guard let settingsVC = manager.settingsViewController else { return }
                             if success {
                                 settingsVC.UpdateSelectedDestinationUserDefaults(destination: Destination.none)
                                 settingsVC.UpdateSelectedDestinationUI(destination: Destination.none)
@@ -918,38 +861,80 @@ final class OneDriveManager {
                 }
             )
 
-            // Footer with Clear button
-            footerViewContainer.addSubview(clearButton)
-            tableView.tableFooterView = footerViewContainer
+            // Header: "Last selected: …"
+            tableView.tableHeaderView = buildLastSelectedHeader()
 
+            // Row visuals
             tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+            tableView.rowHeight = rowHeight
+            tableView.estimatedRowHeight = rowHeight
+
             Task { await loadPage(reset: true) }
             ProgressHUD.dismiss()
         }
 
         override func viewDidLayoutSubviews() {
             super.viewDidLayoutSubviews()
-            // Ensure footer width matches table width (tableFooterView doesn't auto-layout)
-            guard let footer = tableView.tableFooterView, footer === footerViewContainer else { return }
-            let targetWidth = tableView.bounds.width
-            if abs(footer.frame.width - targetWidth) > 0.5 {
-                footer.frame.size.width = targetWidth
-                tableView.tableFooterView = footer // reassign to apply new size
+            // Keep header/footer widths in sync
+            if let header = tableView.tableHeaderView {
+                let targetWidth = tableView.bounds.width
+                if abs(header.frame.width - targetWidth) > 0.5 {
+                    header.frame.size.width = targetWidth
+                    tableView.tableHeaderView = header
+                }
+            }
+            if let footer = tableView.tableFooterView {
+                let targetWidth = tableView.bounds.width
+                if abs(footer.frame.width - targetWidth) > 0.5 {
+                    footer.frame.size.width = targetWidth
+                    tableView.tableFooterView = footer
+                }
             }
         }
 
-        private func setTitleFor(ctx: DriveContext) {
-            if ctx.itemId == "root" { self.title = "OneDrive" }
-            else { self.title = ctx.name ?? "OneDrive Folder" }
-        }
+        private func buildLastSelectedHeader() -> UIView {
+            let v = UIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 44))
+            v.backgroundColor = .clear
 
-        // Clear Selection footer action (mirrors Dropbox behavior)
-        @objc private func clearSelectionTapped() {
-            // Clear selection at THIS level so the current folder (parent) is effectively selected
-            selectedLeafId = nil
-            workingSelectedChildId = nil
-            pathChildOverride[currentParentKey] = nil
-            tableView.reloadData()
+            let label = UILabel()
+            label.font = .systemFont(ofSize: 14)
+            label.textColor = .secondaryLabel
+            label.translatesAutoresizingMaskIntoConstraints = false
+            v.addSubview(label)
+
+            NSLayoutConstraint.activate([
+                label.leadingAnchor.constraint(equalTo: v.leadingAnchor, constant: 20),
+                label.trailingAnchor.constraint(lessThanOrEqualTo: v.trailingAnchor, constant: -20),
+                label.topAnchor.constraint(equalTo: v.topAnchor, constant: 12),
+                label.bottomAnchor.constraint(equalTo: v.bottomAnchor, constant: -8),
+            ])
+
+            // Default text, then try to resolve a friendly name asynchronously
+            label.text = "Last selected: " + {
+                guard let sel = lastSavedSelection else { return "None" }
+                return sel.itemId == "root" ? "Root" : "Loading…"
+            }()
+
+            if let sel = lastSavedSelection, sel.itemId != "root" {
+                Task { [weak self] in
+                    guard let self = self, let manager = self.manager else { return }
+                    do {
+                        // Fetch the item to show its name
+                        let url = URL(string: "https://graph.microsoft.com/v1.0/drives/\(sel.driveId)/items/\(sel.itemId)?$select=id,name")!
+                        let (data, resp) = try await URLSession.shared.data(for: manager.authorizedRequest(url: url, token: self.token))
+                        if let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode),
+                           let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                           let name = obj["name"] as? String {
+                            await MainActor.run { label.text = "Last selected: \(name)" }
+                        } else {
+                            await MainActor.run { label.text = "Last selected: Unknown" }
+                        }
+                    } catch {
+                        await MainActor.run { label.text = "Last selected: Unknown" }
+                    }
+                }
+            }
+            return v
         }
 
         @MainActor
@@ -960,84 +945,18 @@ final class OneDriveManager {
             }
             do {
                 let (newItems, next) = try await manager.listChildren(token: token, ctx: ctx, next: nextPage)
-                // Only folder-like items
+                // Keep only folder-like items (real folders or shortcut to folder)
                 self.items.append(contentsOf: newItems.filter { $0.folder != nil || $0.remoteItem?.folder != nil })
                 self.nextPage = next
                 self.tableView.reloadData()
-                setTitleFor(ctx: ctx)
-
-                // If our initial selection exists in this page, mark its indexPath
-                if let selId = selectedLeafId,
-                   let idx = items.firstIndex(where: { ($0.remoteItem?.id ?? $0.id) == selId }) {
-                    selectedIndexPath = IndexPath(row: idx, section: 0)
-                }
+                self.title = (ctx.itemId == "root") ? "OneDrive" : (ctx.name ?? "OneDrive Folder")
             } catch {
                 ProgressHUD.failed("Unable to list OneDrive folders")
             }
         }
-        
-        // MARK: - Leaf detection cache/probe
 
-        private func canonicalId(for item: PickerDriveItem) -> String {
-            // For shortcuts, cache by the target id so leaf-ness follows the real folder
-            return item.remoteItem?.id ?? item.id
-        }
+        // MARK: - Table datasource
 
-        private func cachedIsLeaf(_ item: PickerDriveItem) -> Bool? {
-            leafCache[canonicalId(for: item)]
-        }
-
-        private func probeLeafAndUpdateCell(for item: PickerDriveItem, at indexPath: IndexPath) {
-            // Avoid duplicate probes
-            if leafCache[canonicalId(for: item)] != nil { return }
-
-            Task { [weak self] in
-                guard let self = self, let manager = self.manager else { return }
-                do {
-                    let targetCtx = DriveContext(driveId: ctx.driveId, itemId: item.id, name: item.name)
-                    let (children, _) = try await manager.listChildren(token: token, ctx: targetCtx, next: nil)
-                    let hasSubfolders = children.contains { $0.folder != nil || $0.remoteItem?.folder != nil }
-                    let isLeaf = !hasSubfolders
-                    let canon = self.canonicalId(for: item)
-                    self.leafCache[canon] = isLeaf
-
-                    await MainActor.run {
-                        guard let cell = self.tableView.cellForRow(at: indexPath) else { return }
-
-                        // If THIS row is the selected folder → ALWAYS show ✓ (leaf or non-leaf)
-                        let rowId = item.remoteItem?.id ?? item.id
-                        if rowId == self.selectedLeafId {
-                            cell.accessoryType = .checkmark
-                            cell.accessoryView = nil
-                            return
-                        }
-
-                        // Not selected: set chevron tint by path-child membership (ancestor = blue chevron)
-                        cell.accessoryType = .none
-                        cell.accessoryView = nil
-                        if !isLeaf {
-                            let pathChildId = self.pathChildOverride[self.currentParentKey] ?? self.branchMap[self.currentParentKey]
-                            let isPathChildHere = (rowId == pathChildId)
-
-                            let iv = UIImageView(image: UIImage(systemName: "chevron.right"))
-                            iv.tintColor = isPathChildHere ? .systemBlue : .label
-                            cell.accessoryView = iv
-                        }
-                    }
-                } catch {
-                    // Leave as is on error
-                }
-            }
-        }
-
-        private func indexPathForItemId(_ id: String) -> IndexPath? {
-            if let idx = items.firstIndex(where: { ($0.remoteItem?.id ?? $0.id) == id }) {
-                return IndexPath(row: idx, section: 0)
-            }
-            return nil
-        }
-
-        // MARK: - Table
         override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
             items.count + (nextPage != nil ? 1 : 0)
         }
@@ -1048,49 +967,45 @@ final class OneDriveManager {
                 cell.textLabel?.text = "Load more…"
                 cell.accessoryType = .none
                 cell.accessoryView = nil
+                cell.imageView?.image = nil
                 return cell
             }
 
             let item = items[indexPath.row]
             let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-            cell.textLabel?.text = item.name
 
-            // Always clear reused accessories up front
+            // Left folder icon
+            let symConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
+            cell.imageView?.preferredSymbolConfiguration = symConfig
+            cell.imageView?.image = UIImage(systemName: "folder")
+            cell.imageView?.tintColor = .label
+
+            // Title
+            cell.textLabel?.text = item.name
+            cell.textLabel?.font = .systemFont(ofSize: 16)
+
+            // Clear reused accessories
             cell.accessoryType = .none
             cell.accessoryView = nil
 
             let rowId = item.remoteItem?.id ?? item.id
-
-            // If THIS row is the selected folder (leaf or non-leaf) → ALWAYS checkmark
-            if rowId == selectedLeafId {
+            if selectedId != currentFolderId, rowId == selectedId {
                 cell.accessoryType = .checkmark
                 return cell
             }
 
-            // Which child is considered the "path child" for this parent → blue chevron (ancestor)
-            let pathChildId = pathChildOverride[currentParentKey] ?? branchMap[currentParentKey]
-            let isPathChildHere = (rowId == pathChildId)
-
-            // Helper to set a chevron with the right tint
-            func setChevron(on c: UITableViewCell, blue: Bool) {
+            // Black chevron for non-leaf folders
+            let childCount = item.folder?.childCount ?? item.remoteItem?.folder?.childCount
+            let hasSubfolders = (childCount ?? 0) > 0 || (childCount == nil) // if unknown, assume expandable
+            if hasSubfolders {
                 let iv = UIImageView(image: UIImage(systemName: "chevron.right"))
-                iv.tintColor = blue ? .systemBlue : .label
-                c.accessoryView = iv
+                iv.tintColor = .label
+                cell.accessoryView = iv
             }
-
-            // If we already know it's a leaf/non-leaf, configure deterministically
-            if let isLeaf = cachedIsLeaf(item) {
-                if !isLeaf {
-                    setChevron(on: cell, blue: isPathChildHere)
-                }
-                return cell
-            }
-
-            // Unknown: show a chevron optimistically (tinted correctly), then probe and fix
-            setChevron(on: cell, blue: isPathChildHere)
-            probeLeafAndUpdateCell(for: item, at: indexPath)
             return cell
         }
+
+        // MARK: - Table delegate
 
         override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
             tableView.deselectRow(at: indexPath, animated: true)
@@ -1103,109 +1018,82 @@ final class OneDriveManager {
 
             guard let manager else { return }
             let item = items[indexPath.row]
-            guard let next = manager.nextContext(from: ctx, tapped: item) else { return }
-
             let tappedId = item.remoteItem?.id ?? item.id
-            let wasSelected = (tappedId == selectedLeafId)
 
-            // Previous blue chevron (path child) at THIS level → we will flip it to black
-            let prevPathChildId = pathChildOverride[currentParentKey] ?? branchMap[currentParentKey]
-            let prevPathIndex = prevPathChildId.flatMap { indexPathForItemId($0) }
+            // Decide leaf/non-leaf using childCount if available; if unknown, treat as non-leaf and navigate.
+            let childCount = item.folder?.childCount ?? item.remoteItem?.folder?.childCount
+            let isLeaf = (childCount == 0)
 
-            // Selecting a sibling should flip blue → black on the old path child.
-            // Make the tapped one the new path child (works for leaf & non-leaf).
-            pathChildOverride[currentParentKey] = tappedId
-
-            // Helper to reload both tapped & previous path rows for tint/✓ updates
-            func reloadRows(_ current: IndexPath, _ previous: IndexPath?) {
-                var rows = [current]
-                if let p = previous, p != current { rows.append(p) }
-                tableView.reloadRows(at: rows, with: .none)
-            }
-
-            // If we already know leaf-ness, decide instantly
-            if let isLeaf = leafCache[tappedId] {
-                if isLeaf {
-                    // Leaf: toggle ✓ on/off
-                    if wasSelected {
-                        // Turn off selection; also clear override so prior branch (if any) becomes active again
-                        selectedLeafId = nil
-                        workingSelectedChildId = nil
-                        pathChildOverride[currentParentKey] = nil
-                    } else {
-                        selectedLeafId = tappedId
-                        workingSelectedChildId = tappedId
-                    }
-                    reloadRows(indexPath, prevPathIndex)
-                    return
+            if isLeaf {
+                // Toggle ✓; Done stays enabled (represents current folder if cleared)
+                let previousSelectedId = selectedId
+                if selectedId == tappedId {
+                    selectedId = currentFolderId
+                } else {
+                    selectedId = tappedId
                 }
 
-                // Non-leaf: mark as the selected folder (✓) before navigation
-                selectedLeafId = tappedId
-                workingSelectedChildId = tappedId
-                reloadRows(indexPath, prevPathIndex)
+                var rowsToReload = [indexPath]
+                if let prevId = previousSelectedId,
+                   prevId != tappedId,
+                   prevId != currentFolderId, // ← guard
+                   let prevIdx = items.firstIndex(where: { ($0.remoteItem?.id ?? $0.id) == prevId }) {
+                    rowsToReload.append(IndexPath(row: prevIdx, section: 0))
+                }
+                tableView.reloadRows(at: rowsToReload, with: .none)
+                return
+            }
 
+            // Non-leaf: navigate deeper. (No ✓ here.)
+            if let next = manager.nextContext(from: ctx, tapped: item) {
                 let vc = FolderPickerViewController(
                     manager: manager,
                     accessToken: token,
                     start: next,
-                    branchMap: branchMap,
+                    lastSavedSelection: lastSavedSelection,
+                    currentFolderId: tappedId,   // parent for next level
                     onPicked: onPicked
                 )
-                self.navigationController?.pushViewController(vc, animated: true)
+                navigationController?.pushViewController(vc, animated: true)
+            }
+        }
+
+        // MARK: - Done
+
+        @objc private func confirmSelectionAndDismiss() {
+            guard let manager = self.manager else { return }
+
+            let idToUse = selectedId ?? currentFolderId
+
+            // Root special-case
+            if idToUse == "root" {
+                let sel = OneDriveSelection(driveId: ctx.driveId, itemId: "root")
+                manager.saveSelection(sel)
+                onPicked(sel)
+                dismiss(animated: true)
+                ProgressHUD.succeed("Root selected")
                 return
             }
 
-            // Unknown leaf-ness → probe, update cache, then act
-            Task { [weak self] in
-                guard let self = self, let manager = self.manager else { return }
-                do {
-                    let (children, _) = try await manager.listChildren(token: self.token, ctx: next, next: nil)
-                    let hasSubfolders = children.contains { $0.folder != nil || $0.remoteItem?.folder != nil }
-                    let isLeaf = !hasSubfolders
-                    self.leafCache[tappedId] = isLeaf
+            // Save selection
+            let sel = OneDriveSelection(driveId: ctx.driveId, itemId: idToUse)
+            manager.saveSelection(sel)
+            onPicked(sel)
+            dismiss(animated: true)
 
-                    await MainActor.run {
-                        if isLeaf {
-                            if wasSelected {
-                                self.selectedLeafId = nil
-                                self.workingSelectedChildId = nil
-                                self.pathChildOverride[self.currentParentKey] = nil
-                            } else {
-                                self.selectedLeafId = tappedId
-                                self.workingSelectedChildId = tappedId
-                            }
-                            reloadRows(indexPath, prevPathIndex)
-                        } else {
-                            self.selectedLeafId = tappedId
-                            self.workingSelectedChildId = tappedId
-                            reloadRows(indexPath, prevPathIndex)
-
-                            let vc = FolderPickerViewController(
-                                manager: manager,
-                                accessToken: self.token,
-                                start: next,
-                                branchMap: self.branchMap,
-                                onPicked: self.onPicked
-                            )
-                            self.navigationController?.pushViewController(vc, animated: true)
-                        }
-                    }
-                } catch {
-                    // On error: treat like leaf (stay) and toggle selection
-                    await MainActor.run {
-                        if wasSelected {
-                            self.selectedLeafId = nil
-                            self.workingSelectedChildId = nil
-                            self.pathChildOverride[self.currentParentKey] = nil
-                        } else {
-                            self.selectedLeafId = tappedId
-                            self.workingSelectedChildId = tappedId
-                        }
-                        reloadRows(indexPath, prevPathIndex)
-                    }
-                }
+            // Pick a friendly name for the HUD
+            if idToUse == currentFolderId {
+                // Selected the parent/current folder
+                let display = (currentFolderId == "root")
+                    ? "Root"
+                    : (ctx.name ?? "OneDrive Folder")
+                ProgressHUD.succeed("\(display) selected")
+            } else if let found = items.first(where: { ($0.remoteItem?.id ?? $0.id) == idToUse })?.name {
+                ProgressHUD.succeed("\(found) selected")
+            } else {
+                ProgressHUD.succeed("Folder selected")
             }
         }
     }
+
 }

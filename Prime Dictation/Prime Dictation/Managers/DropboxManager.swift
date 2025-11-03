@@ -164,43 +164,28 @@ final class DropboxManager {
         }
 
         func presentNow(_ client: DropboxClient) {
-            // 🔑 Always start with a clean view of the world for this session
+            // reset any cached subfolder info each time we enter the picker
             self.resetSubfolderCache()
 
             let start = PathContext(pathLower: "", name: "") // root
-            buildSelectedMap(client: client) { [weak self] result in
-                guard let self = self else { return }
-                DispatchQueue.main.async {
-                    switch result {
-                    case .failure:
-                        ProgressHUD.failed("Unable to load Dropbox folders")
-                    case .success(let map):
-                        // Determine the initially selected id from persisted selection (if not root)
-                        let initialSelectedId: String? = {
-                            if let saved = self.loadSelection(),
-                               saved.folderId != Self.rootSelectionId {
-                                return saved.folderId
-                            }
-                            return nil
-                        }()
 
-                        let vc = FolderPickerViewController(
-                            manager: self,
-                            client: client,
-                            start: start,
-                            branchMap: map,
-                            initialSelectedId: initialSelectedId,
-                            onPicked: { sel in
-                                self.saveSelection(sel)
-                                onPicked?(sel)
-                            }
-                        )
-                        let nav = UINavigationController(rootViewController: vc)
-                        nav.modalPresentationStyle = .formSheet
-                        self.settingsViewController?.present(nav, animated: true)
-                    }
+            // We still load the previously saved selection ONLY to display the header text.
+            let lastSel = self.loadSelection()
+
+            let vc = FolderPickerViewController(
+                manager: self,
+                client: client,
+                start: start,
+                lastSavedSelection: lastSel,     // ← just for header label
+                currentFolderId: DropboxManager.rootSelectionId,
+                onPicked: { sel in
+                    self.saveSelection(sel)
+                    onPicked?(sel)
                 }
-            }
+            )
+            let nav = UINavigationController(rootViewController: vc)
+            nav.modalPresentationStyle = .formSheet
+            self.settingsViewController?.present(nav, animated: true)
         }
 
         if let client = DropboxClientsManager.authorizedClient {
@@ -554,54 +539,30 @@ final class DropboxManager {
         private var cursor: String?
         private let onPicked: (DBSelection) -> Void
 
-        /// Map { parentKey → selectedChildId } (prebuilt for the saved selection path).
-        private var branchMap: [String:String]
-
-        /// Per-level parent key (root uses special key).
-        private var parentKey: String { ctx.pathLower.isEmpty ? DropboxManager.rootKey : ctx.pathLower }
-
-        /// The currently selected folder (global) → shows a ✓ (leaf or non-leaf).
+        private var currentFolderId: String? // The parent
+        // We no longer preselect or show ✓ initially.
         private var selectedId: String?
 
-        /// At this level, override which child is considered the path child (blue chevron).
-        private var pathChildOverride: [String:String] = [:]
+        // Header shows last saved selection (read-only)
+        private let lastSavedSelection: DBSelection?
+        
 
-        /// For Done semantics: which child is “picked” at this level (used to resolve if user taps Done here).
-        private var workingSelectedChildId: String? {
-            get { branchMap[parentKey] }
-            set { branchMap[parentKey] = newValue }
-        }
-
-        // Footer button (Clear Selection)
+        // UI constants
+        private let rowHeight: CGFloat = 56.0
         private let footerHeight: CGFloat = 68.0
-        private lazy var footerViewContainer: UIView = {
-            let v = UIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: footerHeight))
-            v.backgroundColor = .clear
-            return v
-        }()
-        private lazy var clearButton: UIButton = {
-            let b = UIButton(type: .system)
-            b.setTitle("Clear Selection", for: .normal)
-            b.addTarget(self, action: #selector(clearSelectionTapped), for: .touchUpInside)
-            b.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-            b.sizeToFit()
-            b.center = CGPoint(x: footerViewContainer.bounds.midX, y: footerViewContainer.bounds.midY)
-            b.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleTopMargin, .flexibleBottomMargin]
-            return b
-        }()
 
         init(manager: DropboxManager,
              client: DropboxClient,
              start: PathContext,
-             branchMap: [String:String],
-             initialSelectedId: String?,
+             lastSavedSelection: DBSelection?,
+             currentFolderId: String,
              onPicked: @escaping (DBSelection) -> Void) {
             self.manager = manager
             self.client = client
             self.ctx = start
-            self.branchMap = branchMap
+            self.currentFolderId = currentFolderId
+            self.lastSavedSelection = lastSavedSelection
             self.onPicked = onPicked
-            self.selectedId = initialSelectedId
             super.init(style: .insetGrouped)
 
             self.title = ctx.name.isEmpty ? "Dropbox" :
@@ -613,23 +574,21 @@ final class DropboxManager {
         override func viewDidLoad() {
             super.viewDidLoad()
 
-            // Done: pick working selection at this level (or the current folder)
+            // Done is enabled only when a leaf is selected
             navigationItem.rightBarButtonItem = UIBarButtonItem(
                 title: "Done",
                 style: .done,
                 target: self,
                 action: #selector(confirmSelectionAndDismiss)
             )
+
             navigationItem.leftBarButtonItem = UIBarButtonItem(
                 primaryAction: UIAction(title: "Sign Out") { [weak self] _ in
                     guard let self = self, let manager = self.manager else { return }
                     ProgressHUD.animate("Signing out…")
                     manager.SignOutAndRevoke { success in
                         Task { @MainActor in
-                            guard let settingsVC = manager.settingsViewController else {
-                                print("Unable to find settings view controller on Dropbox signout")
-                                return
-                            }
+                            guard let settingsVC = manager.settingsViewController else { return }
                             if success {
                                 settingsVC.UpdateSelectedDestinationUserDefaults(destination: Destination.none)
                                 settingsVC.UpdateSelectedDestinationUI(destination: Destination.none)
@@ -643,77 +602,93 @@ final class DropboxManager {
                 }
             )
 
-            // Footer with Clear button
-            footerViewContainer.addSubview(clearButton)
-            tableView.tableFooterView = footerViewContainer
+            // Header: "Last selected: …"
+            tableView.tableHeaderView = buildLastSelectedHeader()
 
+            // Row visuals
             tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+            tableView.rowHeight = rowHeight
+            tableView.estimatedRowHeight = rowHeight
+
             load(reset: true)
             ProgressHUD.dismiss()
         }
 
         override func viewDidLayoutSubviews() {
             super.viewDidLayoutSubviews()
-            // Ensure footer width matches table width (tableFooterView doesn't auto-layout)
-            guard let footer = tableView.tableFooterView, footer === footerViewContainer else { return }
-            let targetWidth = tableView.bounds.width
-            if abs(footer.frame.width - targetWidth) > 0.5 {
-                footer.frame.size.width = targetWidth
-                tableView.tableFooterView = footer // reassign to apply new size
+            // Keep header/footer widths in sync with table
+            if let header = tableView.tableHeaderView {
+                let targetWidth = tableView.bounds.width
+                if abs(header.frame.width - targetWidth) > 0.5 {
+                    header.frame.size.width = targetWidth
+                    tableView.tableHeaderView = header
+                }
+            }
+            if let footer = tableView.tableFooterView {
+                let targetWidth = tableView.bounds.width
+                if abs(footer.frame.width - targetWidth) > 0.5 {
+                    footer.frame.size.width = targetWidth
+                    tableView.tableFooterView = footer
+                }
             }
         }
 
-        // Confirm selection: if a child at this level is “picked”, use it; else use current folder
+        private func buildLastSelectedHeader() -> UIView {
+            let v = UIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 44))
+            v.backgroundColor = .clear
+
+            let label = UILabel()
+            label.font = .systemFont(ofSize: 14, weight: .regular)
+            label.textColor = .secondaryLabel
+            let nameText: String = {
+                guard let sel = lastSavedSelection else { return "None" }
+                if sel.folderId == DropboxManager.rootSelectionId { return "Root" }
+                return sel.name ?? "Unknown"
+            }()
+            label.text = "Last selected: \(nameText)"
+            label.translatesAutoresizingMaskIntoConstraints = false
+            v.addSubview(label)
+
+            NSLayoutConstraint.activate([
+                label.leadingAnchor.constraint(equalTo: v.leadingAnchor, constant: 20),
+                label.trailingAnchor.constraint(lessThanOrEqualTo: v.trailingAnchor, constant: -20),
+                label.topAnchor.constraint(equalTo: v.topAnchor, constant: 12),
+                label.bottomAnchor.constraint(equalTo: v.bottomAnchor, constant: -8),
+            ])
+            return v
+        }
+
         @objc private func confirmSelectionAndDismiss() {
-            guard let manager = self.manager else { return }
+          guard let manager = self.manager else { return }
 
-            let finish: (DBSelection) -> Void = { [weak self] sel in
-                guard let self = self else { return }
-                manager.saveSelection(sel)
-                self.onPicked(sel)
-                self.dismiss(animated: true)
-                let folderDislayName = sel.name ?? "Dropbox"
-                ProgressHUD.succeed("\(folderDislayName) selected")
-            }
+          // Prefer a tapped leaf; otherwise use the parent (current folder on this level)
+          guard let idToUse = selectedId ?? currentFolderId else { return }
 
-            if let selectedChild = workingSelectedChildId {
-                manager.getFolderMetadata(client: client, idOrPath: selectedChild) { res in
-                    switch res {
-                    case .failure:
-                        ProgressHUD.failed("Unable to pick this folder")
-                    case .success(let meta):
-                        let name = meta.name ?? meta.pathLower?.split(separator: "/").last.map(String.init) ?? "Dropbox"
-                        finish(DBSelection(folderId: meta.id, pathLower: meta.pathLower, name: name))
-                    }
-                }
-            } else {
-                // current context (root-safe)
-                if ctx.pathLower.isEmpty {
-                    finish(DBSelection(folderId: DropboxManager.rootSelectionId, pathLower: "/", name: "Root"))
-                } else {
-                    manager.getFolderMetadata(client: client, idOrPath: ctx.pathLower) { res in
-                        switch res {
-                        case .failure:
-                            ProgressHUD.failed("Unable to pick this folder")
-                        case .success(let meta):
-                            let name = meta.name ?? meta.pathLower?.split(separator: "/").last.map(String.init) ?? "Dropbox"
-                            finish(DBSelection(folderId: meta.id, pathLower: meta.pathLower, name: name))
-                        }
-                    }
-                }
+          // Root special-case
+          if idToUse == DropboxManager.rootSelectionId {
+            let sel = DBSelection(folderId: DropboxManager.rootSelectionId, pathLower: "/", name: "Root")
+            manager.saveSelection(sel)
+            onPicked(sel)
+            dismiss(animated: true)
+            ProgressHUD.succeed("Root selected")
+            return
+          }
+
+          manager.getFolderMetadata(client: client, idOrPath: idToUse) { res in
+            switch res {
+            case .failure:
+              ProgressHUD.failed("Unable to pick this folder")
+            case .success(let meta):
+              let name = meta.name ?? meta.pathLower?.split(separator: "/").last.map(String.init) ?? "Dropbox"
+              let sel = DBSelection(folderId: meta.id, pathLower: meta.pathLower, name: name)
+              manager.saveSelection(sel)
+              self.onPicked(sel)
+              self.dismiss(animated: true)
+              ProgressHUD.succeed("\(name) selected")
             }
+          }
         }
 
-        // Footer action
-        @objc private func clearSelectionTapped() {
-            // Clear selection at THIS level so the selected folder becomes the current folder (parent)
-            selectedId = nil
-            workingSelectedChildId = nil
-            pathChildOverride[parentKey] = nil
-
-            // Refresh all visible rows to remove ✓ and flip any blue chevrons back to black
-            tableView.reloadData()
-        }
 
         private func load(reset: Bool) {
             guard let manager else { return }
@@ -737,23 +712,10 @@ final class DropboxManager {
             }
         }
 
-        // MARK: - Accessory helpers
-
-        private func setChevron(on cell: UITableViewCell, blue: Bool) {
-            let iv = UIImageView(image: UIImage(systemName: "chevron.right"))
-            iv.tintColor = blue ? .systemBlue : .label
-            cell.accessoryView = iv
-            cell.accessoryType = .none
-        }
-
-        private func currentPathChildId() -> String? {
-            pathChildOverride[parentKey] ?? branchMap[parentKey]
-        }
-
         // MARK: - Table datasource
 
         override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-            items.count + ((cursor != nil) ? 1 : 0) // "Load more…" row
+            items.count + ((cursor != nil) ? 1 : 0) // "Load more…"
         }
 
         override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -762,57 +724,61 @@ final class DropboxManager {
                 cell.textLabel?.text = "Load more…"
                 cell.accessoryType = .none
                 cell.accessoryView = nil
+                cell.imageView?.image = nil
                 return cell
             }
 
             let item = items[indexPath.row]
             let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+
+            // Left icon
+            let symConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
+            cell.imageView?.preferredSymbolConfiguration = symConfig
+            cell.imageView?.image = UIImage(systemName: "folder")
+            cell.imageView?.tintColor = .label
+
+            // Title
             cell.textLabel?.text = item.name
+            cell.textLabel?.font = .systemFont(ofSize: 16)
 
-            // Always clear accessories first (reuse-safe)
-            cell.accessoryType = .none
-            cell.accessoryView = nil
-
-            // ✓ only for the globally selected folder (leaf or non-leaf)
+            // Accessory: ✓ if this row is the (new) selected leaf in THIS session only
             if let sel = selectedId, sel == item.id {
                 cell.accessoryType = .checkmark
+                cell.accessoryView = nil
                 return cell
             }
 
-            // If we know leaf/non-leaf, color chevrons appropriately; else optimistic + probe
+            // Otherwise: show a black chevron ONLY if non-leaf; else no accessory
+            cell.accessoryType = .none
+            cell.accessoryView = nil
             if let has = manager?.cachedHasSubfolders(for: item.pathLower) {
-                if has {
-                    let isAncestorHere = (item.id == currentPathChildId())
-                    setChevron(on: cell, blue: isAncestorHere)
-                } // else leaf → none
+                if has { setBlackChevron(on: cell) }
             } else {
-                // Optimistic: show chevron with current tint decision, then probe to correct
-                let isAncestorHere = (item.id == currentPathChildId())
-                setChevron(on: cell, blue: isAncestorHere)
-
-                manager?.probeHasSubfoldersCached(client: client, pathLower: item.pathLower) { [weak self, weak tableView] has in
+                // Optimistic: show chevron, then fix after probe
+                setBlackChevron(on: cell)
+                manager?.probeHasSubfoldersCached(client: client, pathLower: item.pathLower) { [weak tableView] has in
                     DispatchQueue.main.async {
-                        guard let self = self,
-                              let tv = tableView,
-                              let currentCell = tv.cellForRow(at: indexPath) else { return }
-
-                        // Don't override ✓ rows
+                        guard let tv = tableView,
+                              let current = tv.cellForRow(at: indexPath) else { return }
+                        // Don’t override ✓ rows
                         if let sel = self.selectedId, sel == item.id { return }
-
-                        currentCell.accessoryType = .none
-                        currentCell.accessoryView = nil
-                        if has {
-                            let isAncestorNow = (item.id == self.currentPathChildId())
-                            self.setChevron(on: currentCell, blue: isAncestorNow)
-                        } // else leave none
+                        current.accessoryType = .none
+                        current.accessoryView = nil
+                        if has { self.setBlackChevron(on: current) }
                     }
                 }
             }
             return cell
         }
 
-        // MARK: - Table delegate
+        private func setBlackChevron(on cell: UITableViewCell) {
+            let iv = UIImageView(image: UIImage(systemName: "chevron.right"))
+            iv.tintColor = .label
+            cell.accessoryView = iv
+            cell.accessoryType = .none
+        }
 
+        // MARK: - Table delegate
         override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
             tableView.deselectRow(at: indexPath, animated: true)
 
@@ -823,57 +789,34 @@ final class DropboxManager {
 
             guard let manager = self.manager else { return }
             let item = items[indexPath.row]
-            let tappedId = item.id
-            let wasSelected = (tappedId == selectedId)
 
-            // previous blue chevron at this level (to flip to black if we choose a sibling)
-            let prevPathChildId = currentPathChildId()
-            let prevPathIndex: IndexPath? = {
-                if let pid = prevPathChildId, let idx = items.firstIndex(where: { $0.id == pid }) {
-                    return IndexPath(row: idx, section: 0)
-                }
-                return nil
-            }()
-
-            func reload(_ a: IndexPath, _ b: IndexPath?) {
-                var arr = [a]
-                if let b, b != a { arr.append(b) }
-                tableView.reloadRows(at: arr, with: .none)
-            }
-
+            // Ask if it has subfolders
             let handleTap: (Bool) -> Void = { [weak self] hasSub in
                 guard let self = self else { return }
-
-                // Update path child override so chevron on old path flips blue→black
-                self.pathChildOverride[self.parentKey] = tappedId
-
+                
                 if hasSub {
-                    // Non-leaf: DO NOT mark as selected; just update working branch and navigate.
-                    self.workingSelectedChildId = tappedId
-                    reload(indexPath, prevPathIndex)
-
+                    // Navigate deeper; no selection here
                     let next = PathContext(pathLower: item.pathLower, name: item.name)
                     let vc = FolderPickerViewController(
                         manager: manager,
                         client: self.client,
                         start: next,
-                        branchMap: self.branchMap,
-                        initialSelectedId: self.selectedId, // keep the true selection as we navigate
+                        lastSavedSelection: self.lastSavedSelection,
+                        currentFolderId: item.id,
                         onPicked: self.onPicked
                     )
                     self.navigationController?.pushViewController(vc, animated: true)
                 } else {
-                    // Leaf: toggle ✓ on/off
-                    if wasSelected {
-                        // Deselect → parent becomes effective again; clear override so ancestor chevrons restore
-                        self.selectedId = nil
-                        self.workingSelectedChildId = nil
-                        self.pathChildOverride[self.parentKey] = nil
-                    } else {
-                        self.selectedId = tappedId
-                        self.workingSelectedChildId = tappedId
+                    // If tapped on the selected row, unselect it and revert to the parent
+                    if (item.id == self.selectedId) {
+                        self.selectedId = self.currentFolderId
+                        tableView.reloadSections(IndexSet(integer: 0), with: .none)
+                        return
                     }
-                    reload(indexPath, prevPathIndex)
+                    // Leaf: THIS becomes the selection (✓ appears)
+                    self.selectedId = item.id
+                    tableView.reloadSections(IndexSet(integer: 0), with: .none)
+                    print("Did select row at \(indexPath)")
                 }
             }
 
@@ -886,6 +829,7 @@ final class DropboxManager {
             }
         }
     }
+
 
     // MARK: - Dropbox API helpers (callback wrappers)
 
