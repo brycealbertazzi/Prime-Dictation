@@ -72,8 +72,11 @@ class TranscriptionManager {
             let path = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
             do {
                 let transcribedText = try await downloadSignedFileAndReadText(from: signedTxtURL, to: path)
-                toggledTranscriptText = transcribedText
-                
+                if (transcribedText.trimmingCharacters(in: .whitespacesAndNewlines).count > 0) {
+                    toggledTranscriptText = transcribedText
+                } else {
+                    toggledTranscriptText = "[Empty Transcript]"
+                }
             } catch {
                 print("Unable to download and sign transcript via signed URL")
             }
@@ -92,8 +95,11 @@ class TranscriptionManager {
         if (!FileManager.default.fileExists(atPath: toggledTranscriptFilePath.path)) { return }
         
         let toggledText = try String(contentsOf: toggledTranscriptFilePath)
-        
-        recordingManager.toggledAudioTranscriptionObject.transcriptionText = toggledText
+        if (toggledText.trimmingCharacters(in: .whitespacesAndNewlines).count > 0) {
+            recordingManager.toggledAudioTranscriptionObject.transcriptionText = toggledText
+        } else {
+            recordingManager.toggledAudioTranscriptionObject.transcriptionText = "[Empty Transcript]"
+        }
         recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex] = recordingManager.toggledAudioTranscriptionObject
     }
 
