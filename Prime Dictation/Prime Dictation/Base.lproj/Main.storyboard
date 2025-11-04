@@ -499,12 +499,12 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="coM-Cj-5Ge" userLabel="Close Pop Up Button">
-                                <rect key="frame" x="192" y="20" width="30" height="20"/>
+                                <rect key="frame" x="184.66666666666666" y="20" width="45" height="25"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="20" id="73w-IY-Jtn"/>
-                                    <constraint firstAttribute="width" constant="30" id="awK-YQ-3Xr"/>
+                                    <constraint firstAttribute="height" constant="25" id="73w-IY-Jtn"/>
+                                    <constraint firstAttribute="width" constant="45" id="awK-YQ-3Xr"/>
                                 </constraints>
-                                <color key="tintColor" red="0.48755651709999998" green="0.48755651709999998" blue="0.48755657670000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain">
                                     <backgroundConfiguration key="background" image="chevron.down" catalog="system"/>
@@ -584,12 +584,12 @@
                                 </constraints>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9VC-N4-gWh" userLabel="BackButton">
-                                <rect key="frame" x="192" y="696" width="30" height="20"/>
+                                <rect key="frame" x="184.66666666666666" y="691" width="45" height="25"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="30" id="Sre-S6-miY"/>
-                                    <constraint firstAttribute="height" constant="20" id="jae-4V-hQe"/>
+                                    <constraint firstAttribute="width" constant="45" id="Sre-S6-miY"/>
+                                    <constraint firstAttribute="height" constant="25" id="jae-4V-hQe"/>
                                 </constraints>
-                                <color key="tintColor" red="0.48755651709999998" green="0.48755651709999998" blue="0.48755657670000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain">
                                     <backgroundConfiguration key="background" image="chevron.down" catalog="system"/>
@@ -616,7 +616,7 @@
                             <constraint firstItem="b7o-lc-ePW" firstAttribute="leading" secondItem="qpC-Nw-kmF" secondAttribute="leading" id="QwV-SV-H5c"/>
                             <constraint firstItem="b7o-lc-ePW" firstAttribute="top" secondItem="qpC-Nw-kmF" secondAttribute="top" id="TOF-5m-EDo"/>
                             <constraint firstItem="hMz-sM-hdh" firstAttribute="leading" secondItem="3KK-z6-XcD" secondAttribute="leading" constant="8" id="cgb-o7-nPT"/>
-                            <constraint firstItem="9VC-N4-gWh" firstAttribute="top" secondItem="hMz-sM-hdh" secondAttribute="bottom" constant="15" id="d9x-aT-4OX"/>
+                            <constraint firstItem="9VC-N4-gWh" firstAttribute="top" secondItem="hMz-sM-hdh" secondAttribute="bottom" constant="10" id="d9x-aT-4OX"/>
                             <constraint firstItem="hMz-sM-hdh" firstAttribute="trailing" secondItem="3KK-z6-XcD" secondAttribute="trailing" constant="-8" id="hw3-z8-gh1"/>
                             <constraint firstItem="hMz-sM-hdh" firstAttribute="top" secondItem="3KK-z6-XcD" secondAttribute="top" constant="18" id="rHN-Sh-A6L"/>
                         </constraints>
