@@ -30,6 +30,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var EndPlaybackLabel: UIButton!
     @IBOutlet weak var StopWatchLabel: UILabel!
     @IBOutlet weak var TranscribeLabel: RoundedButton!
+    @IBOutlet weak var PoorConnectionLabel: UILabel!
+    
     
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
     var audioRecorder: AVAudioRecorder! //Responsible for recording our audio
@@ -78,6 +80,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         //Initialize recording session
         recordingSession = AVAudioSession.sharedInstance()
         RecordLabel.setImage(UIImage(named: "RecordButton"), for: .normal)
+        PoorConnectionLabel.isHidden = true
         //Request permission
         if #available(iOS 17.0, *) {
             AVAudioApplication.requestRecordPermission { granted in
@@ -303,38 +306,41 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     private var transcriptionProgressTimer: Timer?
-    private var transcriptionProgressStage: Int = 0
+    private var transcriptionProgressStage = 0
+
+    private var poorConnectionStartTimer: Timer?
     
     @IBAction func TranscribeButton(_ sender: Any) {
         if recordingManager.toggledAudioTranscriptionObject.hasTranscription {
             showTranscriptionScreen()
             return
         }
-
         guard let url = recordingManager.toggledRecordingURL else {
             ProgressHUD.failed("No recording found")
             return
         }
 
-        let estimate = estimatedTranscriptionSeconds(for: url)
-        print("estimate: \(estimate)")
-        transcriptionInProgressUI(totalSeconds: estimate)
+        transcriptionInProgressUI(totalSeconds: estimatedTranscriptionSeconds(for: url))
 
-        Task { // your actual transcription work can still use Task
+        Task {
+            // FINALLY: always run
+            defer {
+                self.transcriptionProgressTimer?.invalidate()
+                self.poorConnectionStartTimer?.invalidate()
+                self.transcriptionProgressTimer = nil
+                self.poorConnectionStartTimer = nil
+
+                // Stop the alpha animation and reset the label
+                self.PoorConnectionLabel.layer.removeAllAnimations()
+                self.PoorConnectionLabel.alpha = 1.0
+                self.PoorConnectionLabel.isHidden = true
+            }
+
             do {
                 try await transcriptionManager.transcribeAudioFile()
-
-                // CANCEL staged updates immediately
-                transcriptionProgressTimer?.invalidate()
-                transcriptionProgressTimer = nil
-
                 recordingManager.SetToggledAudioTranscriptObjectAfterTranscription()
                 await MainActor.run { ProgressHUD.succeed("Transcription Complete") }
             } catch {
-                // CANCEL staged updates immediately
-                transcriptionProgressTimer?.invalidate()
-                transcriptionProgressTimer = nil
-
                 await MainActor.run {
                     ProgressHUD.failed("Unable to transcribe audio, try again on another recording.")
                     self.displayAlert(title: "Transcription Failed", message: error.localizedDescription)
@@ -351,18 +357,25 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     private func transcriptionInProgressUI(totalSeconds: TimeInterval) {
-        // Cancel any prior timer (defensive)
+        // Cancel any prior timers
         transcriptionProgressTimer?.invalidate()
-        transcriptionProgressTimer = nil
-        transcriptionProgressStage = 0
+        poorConnectionStartTimer?.invalidate()
 
-        let total = max(totalSeconds, 6.0)        // avoid flicker for tiny clips
+        transcriptionProgressTimer = nil
+        poorConnectionStartTimer = nil
+
+        // Reset label
+        PoorConnectionLabel.isHidden = true
+        PoorConnectionLabel.alpha = 1.0
+
+        transcriptionProgressStage = 0
+        let total = max(totalSeconds, 6.0)     // avoid flicker for tiny clips
         let seg = total / 3.0
 
         // Stage 1 immediately
         ProgressHUD.animate("Sending audio to servers", .triangleDotShift)
 
-        // Schedule stage 2 and 3 via a repeating timer
+        // Stage 2 & 3
         transcriptionProgressTimer = Timer.scheduledTimer(withTimeInterval: seg, repeats: true) { [weak self] t in
             guard let self = self else { return }
             self.transcriptionProgressStage += 1
@@ -372,12 +385,33 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             case 2:
                 ProgressHUD.animate("Finalizing transcription", .triangleDotShift)
             default:
-                // Done staging; leave HUD as-is. Success/fail will replace it.
                 t.invalidate()
                 self.transcriptionProgressTimer = nil
             }
         }
         RunLoop.main.add(transcriptionProgressTimer!, forMode: .common)
+
+        // Poor connection hint at 130% of estimate
+        let threshold = total * 1.3
+        poorConnectionStartTimer = Timer.scheduledTimer(withTimeInterval: threshold, repeats: false) { [weak self] _ in
+            guard let self = self else { return }
+            self.PoorConnectionLabel.isHidden = false
+            self.PoorConnectionLabel.alpha = 1.0
+
+            // Fade 1.0 -> 0.0 -> 1.0 ... forever (until you cancel)
+            UIView.animate(withDuration: 1.0,
+                           delay: 0,
+                           options: [.autoreverse, .repeat, .allowUserInteraction, .curveEaseInOut],
+                           animations: { [weak self] in
+                               self?.PoorConnectionLabel.alpha = 0.0
+                           },
+                           completion: nil)
+        }
+        RunLoop.main.add(poorConnectionStartTimer!, forMode: .common)
+    }
+    
+    private func showPoorConnectionUI() {
+        PoorConnectionLabel.isHidden = false
     }
     
     private func showTranscriptionScreen() {
