@@ -287,7 +287,7 @@
                                 <rect key="frame" x="100" y="278" width="42" height="45"/>
                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
                                 <state key="normal" title="End">
-                                    <color key="titleColor" red="0.69019607843137254" green="0.22745098039215686" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    <color key="titleColor" red="0.5725490196078431" green="0.16862745098039217" blue="0.12941176470588234" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
                                 <connections>
                                     <action selector="EndPlaybackButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="aR7-mz-CaT"/>
