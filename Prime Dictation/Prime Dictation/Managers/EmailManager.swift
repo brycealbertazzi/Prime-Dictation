@@ -190,6 +190,7 @@ class EmailManager: NSObject {
             }
             viewController?.EnableUI()
         } catch {
+            ProgressHUD.dismiss()
             viewController?.displayAlert(title: "Email not sent", message: "Failed to send email, try again later")
             viewController?.EnableUI()
         }

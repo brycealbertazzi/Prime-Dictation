@@ -976,11 +976,12 @@ final class GoogleDriveManager: NSObject {
     func SendToGoogleDrive(hasTranscription: Bool) {
         guard let viewController = self.viewController else { return }
         guard let recordingManager = self.recordingManager else {
-            viewController.displayAlert(title: "No recording to send", message: "Please record first.")
+            ProgressHUD.failed("No recording to send, please record first")
             return
         }
         guard driveService != nil else {
-            viewController.displayAlert(title: "Google Drive not signed in", message: "Please sign in and select a folder in Settings.")
+            ProgressHUD.failed("Unable to send to Google Drive, try again later.")
+            print("driveService is nil")
             return
         }
 
@@ -1014,6 +1015,7 @@ final class GoogleDriveManager: NSObject {
             guard let self = self, let viewController = self.viewController else { return }
 
             guard exists else {
+                ProgressHUD.dismiss()
                 viewController.displayAlert(title: "Recording send failed", message: "Your selected folder may have been deleted, select another folder and try again.")
                 viewController.EnableUI()
                 self.persistedSelection = nil
@@ -1028,6 +1030,7 @@ final class GoogleDriveManager: NSObject {
                 switch result {
                 case .failure(let error):
                     DispatchQueue.main.async {
+                        ProgressHUD.dismiss()
                         viewController.displayAlert(
                             title: "Recording upload failed",
                             message: "Unable to upload the recording to Google Drive. Check your connection and try again.",

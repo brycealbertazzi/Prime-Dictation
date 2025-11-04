@@ -432,6 +432,7 @@ final class DropboxManager {
 
     // Optional legacy error path (no longer used by resolver)
     func DisplayNoFolderSelectedError() {
+        ProgressHUD.dismiss()
         viewController?.displayAlert(title: "Recording send failed", message: "Your selected folder may have been deleted, select another folder and try again.")
     }
 

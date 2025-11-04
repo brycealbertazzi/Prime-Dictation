@@ -144,7 +144,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTimeListen(timer:))
             watch.start()
         } catch {
-            displayAlert(title: "Error!", message: "Could not play recording, no recording exists or you have bad connection")
+            ProgressHUD.failed("Unable to play recording, make another recording and try again")
         }
     }
     
@@ -192,6 +192,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         alert.addAction(UIAlertAction(title: "Save", style: .default) { _ in
             if let newName = alert.textFields?.first?.text, !newName.isEmpty {
                 self.recordingManager.RenameFile(newName: newName)
+                print("toggledAudioTranscriptionObject: \(self.recordingManager.toggledAudioTranscriptionObject)")
             } else {
                 ProgressHUD.failed("Name cannot be empty.")
             }
@@ -232,7 +233,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 watch.start()
                 StopWatchLabel.isHidden = false
             } catch {
-                displayAlert(title: "Error!", message: "Could not play recording, check your connection")
+                ProgressHUD.failed("Unable to start recording, try again later.")
             }
         }
     }
