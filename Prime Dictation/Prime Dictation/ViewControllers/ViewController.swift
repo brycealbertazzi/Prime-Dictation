@@ -246,7 +246,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         ListenLabel.isHidden = false
         ListenLabel.setTitle("Listen", for: .normal)
         HideRecordingInProgressUI()
-        PausePlayButtonLabel.setImage(UIImage(named: "PauseButton-2"), for: .normal)
+        PausePlayButtonLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
         
         //Save the number of recordings
         UserDefaults.standard.set(recordingManager.numberOfRecordings, forKey: "myNumber")
@@ -261,12 +261,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     var isRecordingPaused: Bool = false
     @IBAction func PausePlayRecordingButton(_ sender: Any) {
         if audioRecorder.isRecording {
-            PausePlayButtonLabel.setImage(UIImage(named: "PlayButton-2"), for: .normal)
+            PausePlayButtonLabel.setImage(UIImage(named: "PlayButton"), for: .normal)
             audioRecorder.pause()
             isRecordingPaused = true
             watch.pause()
         } else {
-            PausePlayButtonLabel.setImage(UIImage(named: "PauseButton-2"), for: .normal)
+            PausePlayButtonLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
             audioRecorder.record()
             isRecordingPaused = false
             watch.resume()

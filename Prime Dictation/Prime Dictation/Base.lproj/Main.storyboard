@@ -222,16 +222,14 @@
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aq9-EU-DW7" userLabel="Record">
                                                 <rect key="frame" x="125" y="36" width="100" height="100"/>
-                                                <state key="normal" image="RecordButton">
-                                                    <color key="titleColor" red="0.95523184539999995" green="0.25774388710000001" blue="0.200147456" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                                </state>
+                                                <state key="normal" image="RecordButton"/>
                                                 <connections>
                                                     <action selector="RecordButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ny2-1D-Ccm"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HCQ-U9-aU8" userLabel="Pause">
                                                 <rect key="frame" x="240" y="36" width="100" height="100"/>
-                                                <state key="normal" image="PauseButton-2"/>
+                                                <state key="normal" image="PauseButton"/>
                                                 <connections>
                                                     <action selector="PausePlayRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="HAA-jW-asP"/>
                                                 </connections>
@@ -289,7 +287,7 @@
                                 <rect key="frame" x="100" y="278" width="42" height="45"/>
                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
                                 <state key="normal" title="End">
-                                    <color key="titleColor" red="0.58072251080000004" green="0.066734083" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    <color key="titleColor" red="0.69019607843137254" green="0.22745098039215686" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
                                 <connections>
                                     <action selector="EndPlaybackButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="aR7-mz-CaT"/>
@@ -628,7 +626,7 @@
         <image name="BG" width="1000" height="1000"/>
         <image name="EndButton" width="100" height="100"/>
         <image name="NextArrow" width="100" height="100"/>
-        <image name="PauseButton-2" width="100" height="100"/>
+        <image name="PauseButton" width="100" height="100"/>
         <image name="PreviousArrow" width="100" height="100"/>
         <image name="RecordButton" width="100" height="100"/>
         <image name="chevron.down" catalog="system" width="128" height="70"/>
