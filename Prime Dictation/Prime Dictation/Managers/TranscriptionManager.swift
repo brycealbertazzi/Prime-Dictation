@@ -25,61 +25,67 @@ class TranscriptionManager {
         self.recordingManager = recordingMananger
     }
     
-    /// Call this to upload, wait (max 20m), and get the signed URL to the transcript.
-    func transcribeAudioFile() async {
-        await viewController?.DisableUI()
-        guard let _ = SignedAudioUrlGCFunction else {
-            print("SignedUrlGCFunction not set")
-            await viewController?.EnableUI()
-            return
+    enum TranscriptionError: LocalizedError {
+        case error(String, underlying: Error? = nil)
+
+        var errorDescription: String? {
+            switch self {
+            case .error(let msg, let underlying):
+                if let underlying { return "\(msg) – \(underlying.localizedDescription)" }
+                return msg
+            }
         }
+    }
+    
+    /// Call this to upload, wait (max 20m), and get the signed URL to the transcript.
+    func transcribeAudioFile() async throws {
+        await MainActor.run { viewController?.DisableUI() }
+        defer { Task { await MainActor.run { self.viewController?.EnableUI() } } }
+
         guard let txtSignerBase = SignedTxtURLGCFunction else {
-            print("TxtifyPDTranscriptionFunction not set")
-            await viewController?.EnableUI()
-            return
+            throw TranscriptionError.error("Transcription service not configured (text signer)")
+        }
+        guard SignedAudioUrlGCFunction != nil else {
+            throw TranscriptionError.error("Transcription service not configured (audio signer)")
         }
         guard let signedPUT = try? await mintSignedURL() else {
-            print("Unable to obtain signed PUT URL")
-            await viewController?.EnableUI()
-            return
+            throw TranscriptionError.error("Unable to obtain an upload URL")
         }
         guard let recordingURL = recordingManager.toggledRecordingURL else {
-            print("Unable to find recording URL")
-            await viewController?.EnableUI()
-            return
+            throw TranscriptionError.error("No recording found to transcribe")
         }
 
         do {
-            print("recordingBaseURL: \(recordingURL)")
             try await uploadRecordingToCGBucket(to: signedPUT, from: recordingURL)
         } catch {
-            print("Upload failed: \(error)")
-            await viewController?.EnableUI()
-            return
+            throw TranscriptionError.error("Upload failed", underlying: error)
         }
 
-        // Root of bucket, no prefix
         let transcriptFilename = "\(recordingManager.toggledAudioTranscriptionObject.fileName).\(recordingManager.transcriptionRecordingExtension)"
-        print("Waiting for transcript: \(transcriptFilename)")
 
+        let signedTxtURL: URL
         do {
-            let signedTxtURL = try await waitForTranscriptReady(
+            signedTxtURL = try await waitForTranscriptReady(
                 txtSignerBase: txtSignerBase + "/sign",
                 filename: transcriptFilename,
-                hardCapSeconds: 20 * 60,      // 20 minutes
-                backoffCapSeconds: 60        // 1 minute
+                hardCapSeconds: 20 * 60,
+                backoffCapSeconds: 60
             )
-            let path = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
-            do {
-                toggledTranscriptText = try await downloadSignedFileAndReadText(from: signedTxtURL, to: path)
-            } catch {
-                print("Unable to download and sign transcript via signed URL")
-            }
         } catch {
-            print("Transcript not ready/failed: \(error.localizedDescription)")
+            throw TranscriptionError.error("Transcription didn’t complete", underlying: error)
         }
-        await viewController?.EnableUI()
+
+        let localPath = recordingManager.GetDirectory()
+            .appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName)
+            .appendingPathExtension(recordingManager.transcriptionRecordingExtension)
+
+        do {
+            toggledTranscriptText = try await downloadSignedFileAndReadText(from: signedTxtURL, to: localPath)
+        } catch {
+            throw TranscriptionError.error("Couldn’t download the transcript", underlying: error)
+        }
     }
+
     
     @MainActor
     func readToggledTextFileAndSetInAudioTranscriptObject() async throws {

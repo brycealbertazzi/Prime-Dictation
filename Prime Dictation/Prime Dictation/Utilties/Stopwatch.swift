@@ -60,7 +60,6 @@ class Stopwatch {
     }
     
     func UpdateElapsedTimeListen(timer: Timer) {
-        print(self.isRunning, !viewController.isRecordingPaused, elapsedTime)
         if (overRecordingLength()) {
             stop()
             viewController.HideListeningUI()

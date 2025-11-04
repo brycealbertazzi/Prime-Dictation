@@ -48,7 +48,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     //MARK: View did load
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         let services = AppServices.shared
         recordingManager = services.recordingManager
         transcriptionManager = services.transcriptionManager
@@ -68,7 +67,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         watch = Stopwatch(viewController: self)
         
         destinationManager.getDestination()
-        
         // Do any additional setup after loading the view.
         ListenLabel.setTitle("Listen", for: .normal)
         HideRecordingInProgressUI()
@@ -304,18 +302,82 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
     
+    private var transcriptionProgressTimer: Timer?
+    private var transcriptionProgressStage: Int = 0
+    
     @IBAction func TranscribeButton(_ sender: Any) {
-        if (recordingManager.toggledAudioTranscriptionObject.hasTranscription) {
+        if recordingManager.toggledAudioTranscriptionObject.hasTranscription {
             showTranscriptionScreen()
-        } else {
-            ProgressHUD.animate("Transcribing...", .triangleDotShift)
-            // Hop into an async context
-            Task { @MainActor in
-                await transcriptionManager.transcribeAudioFile()
+            return
+        }
+
+        guard let url = recordingManager.toggledRecordingURL else {
+            ProgressHUD.failed("No recording found")
+            return
+        }
+
+        let estimate = estimatedTranscriptionSeconds(for: url)
+        print("estimate: \(estimate)")
+        transcriptionInProgressUI(totalSeconds: estimate)
+
+        Task { // your actual transcription work can still use Task
+            do {
+                try await transcriptionManager.transcribeAudioFile()
+
+                // CANCEL staged updates immediately
+                transcriptionProgressTimer?.invalidate()
+                transcriptionProgressTimer = nil
+
                 recordingManager.SetToggledAudioTranscriptObjectAfterTranscription()
-                ProgressHUD.succeed("Transcription Complete")
+                await MainActor.run { ProgressHUD.succeed("Transcription Complete") }
+            } catch {
+                // CANCEL staged updates immediately
+                transcriptionProgressTimer?.invalidate()
+                transcriptionProgressTimer = nil
+
+                await MainActor.run {
+                    ProgressHUD.failed("Unable to transcribe audio, try again on another recording.")
+                    self.displayAlert(title: "Transcription Failed", message: error.localizedDescription)
+                }
             }
         }
+    }
+    
+    private func estimatedTranscriptionSeconds(for url: URL) -> TimeInterval {
+        let asset = AVURLAsset(url: url)
+        let seconds = CMTimeGetSeconds(asset.duration)
+        guard seconds.isFinite, seconds > 0 else { return 7 }
+        return (seconds / 2.0) + 5.0
+    }
+    
+    private func transcriptionInProgressUI(totalSeconds: TimeInterval) {
+        // Cancel any prior timer (defensive)
+        transcriptionProgressTimer?.invalidate()
+        transcriptionProgressTimer = nil
+        transcriptionProgressStage = 0
+
+        let total = max(totalSeconds, 6.0)        // avoid flicker for tiny clips
+        let seg = total / 3.0
+
+        // Stage 1 immediately
+        ProgressHUD.animate("Sending audio to servers", .triangleDotShift)
+
+        // Schedule stage 2 and 3 via a repeating timer
+        transcriptionProgressTimer = Timer.scheduledTimer(withTimeInterval: seg, repeats: true) { [weak self] t in
+            guard let self = self else { return }
+            self.transcriptionProgressStage += 1
+            switch self.transcriptionProgressStage {
+            case 1:
+                ProgressHUD.animate("Transcribing audio file", .triangleDotShift)
+            case 2:
+                ProgressHUD.animate("Finalizing transcription", .triangleDotShift)
+            default:
+                // Done staging; leave HUD as-is. Success/fail will replace it.
+                t.invalidate()
+                self.transcriptionProgressTimer = nil
+            }
+        }
+        RunLoop.main.add(transcriptionProgressTimer!, forMode: .common)
     }
     
     private func showTranscriptionScreen() {

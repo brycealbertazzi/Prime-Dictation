@@ -138,19 +138,47 @@ class RecordingManager {
         await viewController.HasRecordingsUI(numberOfRecordings: recordingCount)
     }
     
+    func sanitizedBaseName(_ raw: String) -> String {
+        // Drop any user-typed extension
+        var s = (raw as NSString).deletingPathExtension
+            .precomposedStringWithCanonicalMapping
+
+        // Replace slashes/backslashes with hyphens
+        s = s.replacingOccurrences(of: "/", with: "-")
+             .replacingOccurrences(of: "\\", with: "-")
+
+        // Remove control characters
+        s.unicodeScalars.removeAll { CharacterSet.controlCharacters.contains($0) }
+
+        // Normalize spaces (turn NBSP/ZWSP into normal spaces, collapse multiples)
+        s = s.replacingOccurrences(of: "\u{00A0}", with: " ")
+             .replacingOccurrences(of: "\u{200B}", with: " ")
+        while s.contains("  ") { s = s.replacingOccurrences(of: "  ", with: " ") }
+
+        // Trim spaces and trailing dots
+        s = s.trimmingCharacters(in: .whitespacesAndNewlines)
+        while s.hasSuffix(".") { s.removeLast() }
+
+        // Avoid leading dot (hidden files)
+        if s.hasPrefix(".") { s = String(s.drop(while: { $0 == "." })) }
+
+        return s.isEmpty ? "Untitled" : s
+    }
+    
     func RenameFile(newName rawNewName: String) {
         // Normalize: trim and drop any extension the user typed
         let baseNewName = (rawNewName as NSString).deletingPathExtension.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !baseNewName.isEmpty else { return }
+        let santizedBaseName = sanitizedBaseName(baseNewName)
 
         let dir = GetDirectory()
 
         let oldBase = self.toggledAudioTranscriptionObject.fileName
-        if oldBase == baseNewName { return }
+        if oldBase == santizedBaseName { return }
 
         // Compute final new base with your duplicate-per-minute suffix
-        let n = DuplicateRecordingsThisMinute(fileName: baseNewName)
-        let newBase = n > 0 ? "\(baseNewName)(\(n))" : baseNewName
+        let n = DuplicateRecordingsThisMinute(fileName: santizedBaseName)
+        let newBase = n > 0 ? "\(santizedBaseName)(\(n))" : santizedBaseName
 
         // Build URLs
         let oldAudioURL = dir.appendingPathComponent(oldBase).appendingPathExtension(audioRecordingExtension)
@@ -198,7 +226,8 @@ class RecordingManager {
 
         let base = f.string(from: now)
         let n = DuplicateRecordingsThisMinute(fileName: base)
-        return n > 0 ? "\(base)(\(n))" : base
+        let sanitized = sanitizedBaseName(base)
+        return n > 0 ? "\(sanitized)(\(n))" : sanitized
     }
 
     /// Finds the next numeric suffix for files that share the same minute stamp.
