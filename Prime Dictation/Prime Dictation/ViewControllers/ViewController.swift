@@ -192,7 +192,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         alert.addAction(UIAlertAction(title: "Save", style: .default) { _ in
             if let newName = alert.textFields?.first?.text, !newName.isEmpty {
                 self.recordingManager.RenameFile(newName: newName)
-                print("toggledAudioTranscriptionObject: \(self.recordingManager.toggledAudioTranscriptionObject)")
             } else {
                 ProgressHUD.failed("Name cannot be empty.")
             }

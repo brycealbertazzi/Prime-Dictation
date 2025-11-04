@@ -71,12 +71,7 @@ class TranscriptionManager {
             )
             let path = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
             do {
-                let transcribedText = try await downloadSignedFileAndReadText(from: signedTxtURL, to: path)
-                if (transcribedText.trimmingCharacters(in: .whitespacesAndNewlines).count > 0) {
-                    toggledTranscriptText = transcribedText
-                } else {
-                    toggledTranscriptText = "[Empty Transcript]"
-                }
+                toggledTranscriptText = try await downloadSignedFileAndReadText(from: signedTxtURL, to: path)
             } catch {
                 print("Unable to download and sign transcript via signed URL")
             }
@@ -95,11 +90,7 @@ class TranscriptionManager {
         if (!FileManager.default.fileExists(atPath: toggledTranscriptFilePath.path)) { return }
         
         let toggledText = try String(contentsOf: toggledTranscriptFilePath)
-        if (toggledText.trimmingCharacters(in: .whitespacesAndNewlines).count > 0) {
-            recordingManager.toggledAudioTranscriptionObject.transcriptionText = toggledText
-        } else {
-            recordingManager.toggledAudioTranscriptionObject.transcriptionText = "[Empty Transcript]"
-        }
+        recordingManager.toggledAudioTranscriptionObject.transcriptionText = toggledText
         recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex] = recordingManager.toggledAudioTranscriptionObject
     }
 
@@ -286,6 +277,7 @@ class TranscriptionManager {
 
             if http.statusCode != 200 {
                 let bodyText = String(data: respData, encoding: .utf8) ?? "<non-utf8 \(respData.count) bytes>"
+                print(bodyText)
                 return
             }
             print("✅ Upload OK (\(data.count) bytes)")

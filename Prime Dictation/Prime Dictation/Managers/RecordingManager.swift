@@ -51,6 +51,7 @@ class RecordingManager {
         let recordingCount = savedAudioTranscriptionObjects.count
         if (recordingCount > 0) {
             Task { try await SelectMostRecentRecording() }
+            
         } else {
             viewController.NoRecordingsUI()
         }
@@ -96,6 +97,7 @@ class RecordingManager {
         // Temporarily set the transcripionText of the toggledAudioTranscription object to the transcribedText (cache)
         // We don't want to persist this to UserDefaults because it is a very long string and could get corrupted in storage
         toggledAudioTranscriptionObject.transcriptionText = transcriptionManager.toggledTranscriptText
+        savedAudioTranscriptionObjects[toggledRecordingsIndex] = toggledAudioTranscriptionObject
         viewController.HasTranscriptionUI()
     }
     
@@ -136,24 +138,55 @@ class RecordingManager {
         await viewController.HasRecordingsUI(numberOfRecordings: recordingCount)
     }
     
-    func RenameFile(newName: String) {
-        let oldName = self.toggledAudioTranscriptionObject.fileName
-        if (oldName == newName) {
-            return
-        }
-        let n = DuplicateRecordingsThisMinute(fileName: newName)
-        let newNameWithSuffix = n > 0 ? "\(newName)(\(n))" : newName
+    func RenameFile(newName rawNewName: String) {
+        // Normalize: trim and drop any extension the user typed
+        let baseNewName = (rawNewName as NSString).deletingPathExtension.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !baseNewName.isEmpty else { return }
+
+        let dir = GetDirectory()
+
+        let oldBase = self.toggledAudioTranscriptionObject.fileName
+        if oldBase == baseNewName { return }
+
+        // Compute final new base with your duplicate-per-minute suffix
+        let n = DuplicateRecordingsThisMinute(fileName: baseNewName)
+        let newBase = n > 0 ? "\(baseNewName)(\(n))" : baseNewName
+
+        // Build URLs
+        let oldAudioURL = dir.appendingPathComponent(oldBase).appendingPathExtension(audioRecordingExtension)
+        let newAudioURL = dir.appendingPathComponent(newBase).appendingPathExtension(audioRecordingExtension)
+
+        let oldTranscriptURL = dir.appendingPathComponent(oldBase).appendingPathExtension(transcriptionRecordingExtension)
+        let newTranscriptURL = dir.appendingPathComponent(newBase).appendingPathExtension(transcriptionRecordingExtension)
+
         do {
-            try FileManager.default.moveItem(at: GetDirectory().appendingPathComponent(oldName).appendingPathExtension(audioRecordingExtension), to: GetDirectory().appendingPathComponent(newNameWithSuffix).appendingPathExtension(audioRecordingExtension))
-            self.savedAudioTranscriptionObjects[self.toggledRecordingsIndex].fileName = newNameWithSuffix
+            // 1) Rename audio first
+            try FileManager.default.moveItem(at: oldAudioURL, to: newAudioURL)
+
+            // 2) If there is a transcript, rename it too
+            if FileManager.default.fileExists(atPath: oldTranscriptURL.path) {
+                do {
+                    try FileManager.default.moveItem(at: oldTranscriptURL, to: newTranscriptURL)
+                } catch {
+                    // Roll back audio rename if transcript rename fails
+                    try? FileManager.default.moveItem(at: newAudioURL, to: oldAudioURL)
+                    throw error
+                }
+            }
+
+            // 3) Update in-memory model + UI
+            self.savedAudioTranscriptionObjects[self.toggledRecordingsIndex].fileName = newBase
             self.toggledAudioTranscriptionObject = self.savedAudioTranscriptionObjects[self.toggledRecordingsIndex]
-            self.setToggledRecordingURL()
-            viewController.FileNameLabel.setTitle(newNameWithSuffix, for: .normal)
+            self.setToggledRecordingURL() // Make sure this recalculates from fileName
+            viewController.FileNameLabel.setTitle(newBase, for: .normal)
             saveAudioTranscriptionObjectsToUserDefaults()
+
         } catch {
             ProgressHUD.failed("Failed to rename file")
+            print("Failed to rename file: \(error.localizedDescription)")
         }
     }
+
     
     func RecordingTimeForName(now: Date = Date()) -> String {
         let f = DateFormatter()
