@@ -146,7 +146,7 @@ final class OneDriveManager {
                     self.presentInteractive(completion: completion)
                 } else {
                     DispatchQueue.main.async {
-                        ProgressHUD.failed("OneDrive sign-in error")
+                        ProgressHUD.failed("Unable to sign into OneDrive, try again later.")
                         completion(.error(error))
                     }
                 }
@@ -242,7 +242,8 @@ final class OneDriveManager {
     @MainActor
     func PresentOneDriveFolderPicker(onPicked: ((OneDriveSelection) -> Void)? = nil) {
         guard let settingsVC = settingsViewController else {
-            ProgressHUD.failed("Open Settings first")
+            ProgressHUD.failed("Unable to open folder picker, try again later")
+            print("Settings view controller is nil")
             return
         }
         Task {
@@ -269,7 +270,7 @@ final class OneDriveManager {
                 nav.modalPresentationStyle = .formSheet
                 settingsVC.present(nav, animated: true)
             } catch {
-                ProgressHUD.failed("Sign in to OneDrive first")
+                ProgressHUD.failed("Unable to open folder picker, sign into OneDrive and try again")
             }
         }
     }
@@ -378,10 +379,7 @@ final class OneDriveManager {
                     ProgressHUD.dismiss()
                     viewController.displayAlert(
                         title: "Send failed",
-                        message: "We couldn't upload one or more files to OneDrive. Please check your connection and folder selection.",
-                        handler: {
-                            ProgressHUD.failed("Failed to send to OneDrive")
-                        }
+                        message: "Unable to send recording and/or transcript to OneDrive. Make sure you have a folder selected, check your connection and try again.",
                     )
                 }
             }
@@ -951,7 +949,8 @@ final class OneDriveManager {
                 self.tableView.reloadData()
                 self.title = (ctx.itemId == "root") ? "OneDrive" : (ctx.name ?? "OneDrive Folder")
             } catch {
-                ProgressHUD.failed("Unable to list OneDrive folders")
+                ProgressHUD.failed("Unable to load OneDrive folders, try again later.")
+                print("Unable to list OneDrive folders")
             }
         }
 

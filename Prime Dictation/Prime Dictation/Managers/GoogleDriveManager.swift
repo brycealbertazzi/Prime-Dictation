@@ -216,7 +216,8 @@ class GDFolderPickerViewController: UITableViewController {
             guard let self = self else { return }
             switch result {
             case .failure(let error):
-                ProgressHUD.failed("Failed to load folders: \(error.localizedDescription)")
+                ProgressHUD.failed("Unable to open folder picker, try again later")
+                print("Failed to load folders: \(error.localizedDescription)")
                 self.dismiss(animated: true)
 
             case .success(let rows):
@@ -949,11 +950,16 @@ final class GoogleDriveManager: NSObject {
         let proceed: () -> Void = { [weak self] in
             guard let self = self, let service = self.driveService else {
                 self?.sanitizeAuthorizerParameters()
-                ProgressHUD.failed("Google Drive client unavailable"); return
+                ProgressHUD.failed("Unable to open folder picker, try again later")
+                print("driveService or self is nil")
+                return
             }
             self.preflightAuthAndDrive { ok in
                 if ok { presentPicker(service) }
-                else { ProgressHUD.failed("Google Drive auth failed. Please try again.") }
+                else {
+                    ProgressHUD.failed("Unable to open folder picker, try again later")
+                    print("failed preflightAuthAndDrive")
+                }
             }
         }
 
@@ -1008,9 +1014,8 @@ final class GoogleDriveManager: NSObject {
             guard let self = self, let viewController = self.viewController else { return }
 
             guard exists else {
-                ProgressHUD.failed("Destination folder not found")
+                viewController.displayAlert(title: "Recording send failed", message: "Your selected folder may have been deleted, select another folder and try again.")
                 viewController.EnableUI()
-                viewController.displayAlert(title: "Folder Not Found", message: "Please select a new destination in Settings.")
                 self.persistedSelection = nil
                 return
             }
@@ -1023,7 +1028,10 @@ final class GoogleDriveManager: NSObject {
                 switch result {
                 case .failure(let error):
                     DispatchQueue.main.async {
-                        ProgressHUD.failed("Upload failed: \(error.localizedDescription)")
+                        viewController.displayAlert(
+                            title: "Recording upload failed",
+                            message: "Unable to upload the recording to Google Drive. Check your connection and try again.",
+                        )
                         viewController.EnableUI()
                     }
 
@@ -1055,8 +1063,7 @@ final class GoogleDriveManager: NSObject {
                                 ProgressHUD.dismiss()
                                 viewController.displayAlert(
                                     title: "Transcript upload failed",
-                                    message: e.localizedDescription,
-                                    handler: { ProgressHUD.failed("Transcript failed") }
+                                    message: "The recording was sent to Google Drive, but the transcript could not be uploaded.",
                                 )
                             }
                             viewController.EnableUI()

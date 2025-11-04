@@ -190,7 +190,7 @@ class EmailManager: NSObject {
             }
             viewController?.EnableUI()
         } catch {
-            ProgressHUD.failed("Email send failed, try again later")
+            viewController?.displayAlert(title: "Email not sent", message: "Failed to send email, try again later")
             viewController?.EnableUI()
         }
     }
@@ -262,24 +262,4 @@ class EmailManager: NSObject {
         }
     }
     
-}
-
-// MARK: - MFMailComposeViewControllerDelegate
-extension EmailManager: MFMailComposeViewControllerDelegate {
-    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-        controller.dismiss(animated: true)
-        
-        switch result {
-        case .sent:
-            ProgressHUD.succeed("Email sent!")
-        case .cancelled:
-            ProgressHUD.succeed("Email cancelled.")
-        case .saved:
-            ProgressHUD.succeed("Email saved as a draft.")
-        case .failed:
-            ProgressHUD.failed("Failed to send email.")
-        @unknown default:
-            break
-        }
-    }
 }
