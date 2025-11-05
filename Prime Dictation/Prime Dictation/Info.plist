@@ -36,7 +36,7 @@
 	<key>DROPBOX_APP_KEY</key>
 	<string>ddjsydnk1llkb8j</string>
 	<key>EMAIL_SENDER_AWS_LAMBDA_FUNCTION</key>
-	<string>https://hfhjmo2tb2ahndf7npbc4lo7da0gcoup.lambda-url.us-west-2.on.aws/</string>
+	<string>https://hfhjmo2tb2ahndf7npbc4lo7da0gcoup.lambda-url.us-west-2.on.aws</string>
 	<key>GC_BUCKET_URL</key>
 	<string>prime-dictation-audio-files</string>
 	<key>GIDClientID</key>

@@ -6,6 +6,7 @@
 //  Copyright © 2025 Bryce Albertazzi. All rights reserved.
 //
 import Foundation
+import FirebaseAuth
 
 final class AppServices {
     static let shared = AppServices()
@@ -22,4 +23,18 @@ final class AppServices {
     
 
     private init() {}
+    
+    func ensureSignedIn() async throws -> User {
+        if let u = Auth.auth().currentUser {
+            return u
+        }
+        let result = try await Auth.auth().signInAnonymously()
+        return result.user
+    }
+
+    func getFreshIDToken() async throws -> String {
+        let user = try await ensureSignedIn()
+        let token = try await user.getIDTokenResult(forcingRefresh: true).token
+        return token
+    }
 }

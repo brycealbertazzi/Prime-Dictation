@@ -295,7 +295,7 @@ class TranscriptionManager {
     func mintSignedURL() async throws -> URL?  {
         var bearer: String = ""
         do {
-            bearer = try await getFreshIDToken()
+            bearer = try await AppServices.shared.getFreshIDToken()
         } catch {
             print("Unable to fetch FirebaseAuth token")
             return nil
@@ -317,21 +317,6 @@ class TranscriptionManager {
         }
         return try JSONDecoder().decode(SignedURLResponse.self, from: data).url
     }
-    
-    func ensureSignedIn() async throws -> User {
-        if let u = Auth.auth().currentUser {
-            return u
-        }
-        let result = try await Auth.auth().signInAnonymously()
-        return result.user
-    }
-
-    func getFreshIDToken() async throws -> String {
-        let user = try await ensureSignedIn()
-        let token = try await user.getIDTokenResult(forcingRefresh: true).token
-        return token
-    }
-    
 }
 
 private extension String.Encoding {

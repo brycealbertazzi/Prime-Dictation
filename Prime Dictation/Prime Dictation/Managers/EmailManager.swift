@@ -2,16 +2,18 @@ import Foundation
 import UIKit
 import MessageUI
 import ProgressHUD
+import FirebaseAuth
 
 // Mirroring the GDSelection for consistency, but with email-specific fields
 struct EmailSelection: Codable {
     let emailAddress: String
-    let accountId: String? // For potential future expansion, e.g., if supporting multiple email accounts
+    let accountId: String? // For potential future expansion
 
     static var none: EmailSelection {
         EmailSelection(emailAddress: "", accountId: nil)
     }
 }
+
 struct EmailResponse: Decodable { let messageId: String? }
 
 struct PresignResponse: Decodable {
@@ -24,28 +26,32 @@ struct PresignResponse: Decodable {
     let expiresIn: Int
 }
 
-class EmailManager: NSObject {
-    
-    // Shared instance for easy access throughout the app
+final class EmailManager: NSObject {
+
     static let shared = EmailManager()
-    
-    // Key for storing the email address in UserDefaults
+
     private let emailStorageKey = "EmailSelectionEmailAddress"
     private var emailAddress: String?
-    
-    // Delegate to be used for MFMailComposeViewController
-    weak var settingsViewController: SettingsViewController? // Your Settings View Controller
+
+    weak var settingsViewController: SettingsViewController?
     weak var viewController: ViewController?
     private var recordingManager: RecordingManager?
-    
-    let PresignedUploadAWSLambdaFunctionURL = Bundle.main.object(forInfoDictionaryKey: "PRESIGNED_UPLOAD_AWS_LAMBDA_FUNCTION") as? String
-    let EmailSenderAWSLambdaFunctionURL = Bundle.main.object(forInfoDictionaryKey: "EMAIL_SENDER_AWS_LAMBDA_FUNCTION") as? String
-    
+
+    // Trim whitespace to avoid malformed URLs
+    private var presignURLString: String? {
+        (Bundle.main.object(forInfoDictionaryKey: "PRESIGNED_UPLOAD_AWS_LAMBDA_FUNCTION") as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    private var emailURLString: String? {
+        (Bundle.main.object(forInfoDictionaryKey: "EMAIL_SENDER_AWS_LAMBDA_FUNCTION") as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     override init() {
         super.init()
         self.emailAddress = UserDefaults.standard.string(forKey: emailStorageKey)
     }
-    
+
     func attach(settingsViewController: SettingsViewController) {
         self.settingsViewController = settingsViewController
     }
@@ -54,33 +60,27 @@ class EmailManager: NSObject {
         self.viewController = viewController
         self.recordingManager = recordingManager
     }
-    
-    
-    
+
+    // MARK: - UI Flow
+
     func handleEmailButtonTap(from presentingVC: SettingsViewController) {
         self.settingsViewController = presentingVC
-        
         if let email = emailAddress, !email.isEmpty {
-            // If email is stored, show modal for re-entry
             showEmailInputModal(from: presentingVC, with: email)
         } else {
-            // If no email is stored, show modal for first-time entry
             showEmailInputModal(from: presentingVC, with: nil)
         }
     }
-    
+
     private func showEmailInputModal(from presentingVC: UIViewController, with prefilledEmail: String?) {
         let alert = UIAlertController(title: "Enter Email Address", message: nil, preferredStyle: .alert)
-        
-        alert.addTextField { textField in
-            textField.placeholder = "Your email"
-            textField.text = prefilledEmail
-            textField.keyboardType = .emailAddress
-            textField.autocapitalizationType = .none
+        alert.addTextField { tf in
+            tf.placeholder = "Your email"
+            tf.text = prefilledEmail
+            tf.keyboardType = .emailAddress
+            tf.autocapitalizationType = .none
         }
-        
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        
         alert.addAction(UIAlertAction(title: "Save", style: .default) { _ in
             if let email = alert.textFields?.first?.text, !email.isEmpty {
                 self.saveEmailAddress(email)
@@ -88,102 +88,121 @@ class EmailManager: NSObject {
                 ProgressHUD.failed("Email cannot be empty.")
             }
         })
-        
         presentingVC.present(alert, animated: true)
     }
-    
+
     private func saveEmailAddress(_ email: String) {
         UserDefaults.standard.set(email, forKey: emailStorageKey)
         self.emailAddress = email
         ProgressHUD.succeed("Email saved")
     }
-    
+
+    // MARK: - Main action
+
     @MainActor
-    func SendToEmail(
-        hasTranscription: Bool,
-    ) async {
+    func SendToEmail(hasTranscription: Bool) async {
         ProgressHUD.animate("Sending...", .triangleDotShift)
         viewController?.DisableUI()
+
         do {
-            guard let signer =  PresignedUploadAWSLambdaFunctionURL else {
-                print("PresignedUploadAWSLambdaFunctionURL not set")
-                ProgressHUD.failed("Failed to send email, try again later")
+            guard let presignStr = presignURLString, let signerURL = URL(string: presignStr), signerURL.scheme == "https" else {
+                print("❌ PRESIGNED_UPLOAD_AWS_LAMBDA_FUNCTION missing/invalid or not https: \(presignURLString ?? "<nil>")")
+                ProgressHUD.failed("Email service not configured (presign)")
                 viewController?.EnableUI()
                 return
             }
-            guard let EmailSenderAWSLambdaFunctionURL else {
-                print("EmailSenderAWSLambdaFunctionURL not set")
-                ProgressHUD.failed("Failed to send email, try again later")
+            guard let emailStr = emailURLString, let emailURL = URL(string: emailStr), emailURL.scheme == "https" else {
+                print("❌ EMAIL_SENDER_AWS_LAMBDA_FUNCTION missing/invalid or not https: \(emailURLString ?? "<nil>")")
+                ProgressHUD.failed("Email service not configured (sender)")
                 viewController?.EnableUI()
                 return
             }
-            let signerURL = URL(string: signer)!
-            let emailURL = URL(string: EmailSenderAWSLambdaFunctionURL)!
-            
-            guard let toEmail = emailAddress else {
-                print("Email not set")
+            print("ℹ️ presign endpoint: \(signerURL.absoluteString)")
+            print("ℹ️ email endpoint:   \(emailURL.absoluteString)")
+
+            guard let toEmail = emailAddress, !toEmail.isEmpty else {
+                print("❌ Email not set")
                 ProgressHUD.failed("You have not set your email address")
                 viewController?.EnableUI()
                 return
             }
-            
             guard let recordingFileURL = recordingManager?.toggledRecordingURL else {
-                print("No recording to send")
+                print("❌ No recording to send")
                 ProgressHUD.failed("No recording to send")
                 viewController?.EnableUI()
                 return
             }
-            
             guard let recordingName = recordingManager?.toggledAudioTranscriptionObject.fileName else {
-                print("No recording to send")
+                print("❌ No recording name")
                 ProgressHUD.failed("No recording to send")
                 viewController?.EnableUI()
                 return
             }
-            
+
             let urlWithoutExtension = recordingFileURL.deletingPathExtension()
-            
+
             var transcriptionFileURL: URL? = nil
-            if (hasTranscription) {
+            if hasTranscription {
                 transcriptionFileURL = urlWithoutExtension.appendingPathExtension(recordingManager?.transcriptionRecordingExtension ?? "txt")
             }
-            
-            // Prepare keys & data
-            let recData = try Data(contentsOf: recordingFileURL, options: .mappedIfSafe)
+
+            // Heavy I/O off main actor
+            let recData: Data = try await withCheckedThrowingContinuation { cont in
+                DispatchQueue.global(qos: .userInitiated).async {
+                    do { cont.resume(returning: try Data(contentsOf: recordingFileURL, options: .mappedIfSafe)) }
+                    catch { cont.resume(throwing: error) }
+                }
+            }
+
             let recKey = "recordings/\(recordingName).\(recordingManager?.audioRecordingExtension ?? "m4a")"
+
+            var bearer = try await AppServices.shared.getFreshIDToken()
+            print("ℹ️ token len: \(bearer.count)")
 
             // 1) Presign + upload recording
             let recPresign = try await mintPresignedPUT(
                 functionURL: signerURL,
                 key: recKey,
                 contentType: "audio/mp4",
-                contentLength: recData.count
+                contentLength: recData.count,
+                bearer: bearer
             )
             try await uploadToS3(presigned: recPresign, fileData: recData)
 
             // 2) Presign + upload transcription (optional)
             var txKey: String? = nil
             if let tURL = transcriptionFileURL {
-                let txData = try Data(contentsOf: tURL, options: .mappedIfSafe)
+                let txData: Data = try await withCheckedThrowingContinuation { cont in
+                    DispatchQueue.global(qos: .userInitiated).async {
+                        do { cont.resume(returning: try Data(contentsOf: tURL, options: .mappedIfSafe)) }
+                        catch { cont.resume(throwing: error) }
+                    }
+                }
                 let tKey = "transcriptions/\(recordingName).\(recordingManager?.transcriptionRecordingExtension ?? "txt")"
+
                 let txPresign = try await mintPresignedPUT(
                     functionURL: signerURL,
                     key: tKey,
                     contentType: "text/plain",
-                    contentLength: txData.count
+                    contentLength: txData.count,
+                    bearer: bearer
                 )
                 try await uploadToS3(presigned: txPresign, fileData: txData)
                 txKey = tKey
             }
-            // 3) Email (Lambda will attach if small else include links)
+
+            // 3) Email
+            print("➡️ calling email lambda…")
             _ = try await sendEmail(
                 endpoint: emailURL,
                 toEmail: toEmail,
                 recordingKey: recKey,
-                transcriptionKey: txKey
+                transcriptionKey: txKey,
+                bearer: bearer
             )
+            print("✅ email lambda returned 2xx")
 
-            if (hasTranscription) {
+            if hasTranscription {
                 ProgressHUD.succeed("Recording & transcript sent to Email")
             } else {
                 ProgressHUD.succeed("Recording sent to Email")
@@ -191,76 +210,99 @@ class EmailManager: NSObject {
             viewController?.EnableUI()
         } catch {
             ProgressHUD.dismiss()
+            print("❌ SendToEmail error: \(error)")
             viewController?.displayAlert(title: "Email not sent", message: "Failed to send email, try again later")
             viewController?.EnableUI()
         }
     }
-    
+
+    // MARK: - Network calls
+
     func sendEmail(
         endpoint: URL,
         toEmail: String,
         recordingKey: String?,
         transcriptionKey: String?,
-        secretHeader: (name: String, value: String)? = nil
+        bearer: String
     ) async throws -> EmailResponse {
-        var body: [String: Any] = [
+        let body: [String: Any] = [
             "toEmail": toEmail,
-        ]
-        if let r = recordingKey { body["recordingKey"] = r }
-        if let t = transcriptionKey { body["transcriptionKey"] = t }
+            "recordingKey": recordingKey as Any,
+            "transcriptionKey": transcriptionKey as Any
+        ].compactMapValues { $0 }
 
-        var req = URLRequest(url: endpoint)
-        req.httpMethod = "POST"
-        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        if let s = secretHeader { req.setValue(s.value, forHTTPHeaderField: s.name) } // optional
-        req.httpBody = try JSONSerialization.data(withJSONObject: body)
+        var (data, http) = try await authorizedJSONPost(url: endpoint, body: body, token: bearer)
 
-        let (data, resp) = try await URLSession.shared.data(for: req)
-        guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-            throw NSError(domain: "pd-email-sender", code: (resp as? HTTPURLResponse)?.statusCode ?? -1,
-                          userInfo: ["body": String(data: data, encoding: .utf8) ?? ""])
+        if http.statusCode == 401 {
+            print("⚠️ email 401, refreshing token and retrying")
+            let fresh = try await AppServices.shared.getFreshIDToken()
+            (data, http) = try await authorizedJSONPost(url: endpoint, body: body, token: fresh)
+        }
+
+        guard (200...299).contains(http.statusCode) else {
+            let bodyText = String(data: data, encoding: .utf8) ?? "<non-utf8 \(data.count) bytes>"
+            print("❌ email non-2xx: \(http.statusCode) | \(bodyText)")
+            throw NSError(domain: "pd-email-sender", code: http.statusCode,
+                          userInfo: ["body": bodyText])
         }
         return try JSONDecoder().decode(EmailResponse.self, from: data)
     }
-    
+
     func mintPresignedPUT(
         functionURL: URL,
         key: String,
         contentType: String,
         contentLength: Int,
-        secretHeader: (name: String, value: String)? = nil
+        bearer: String
     ) async throws -> PresignResponse {
-        var req = URLRequest(url: functionURL)
-        req.httpMethod = "POST"
-        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        if let s = secretHeader { req.setValue(s.value, forHTTPHeaderField: s.name) } // optional
         let body: [String: Any] = [
             "key": key,
             "contentType": contentType,
             "contentLength": contentLength
         ]
-        req.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        let (data, resp) = try await URLSession.shared.data(for: req)
-        guard let http = resp as? HTTPURLResponse, http.statusCode == 200 else {
-            throw NSError(domain: "presign", code: (resp as? HTTPURLResponse)?.statusCode ?? -1,
-                          userInfo: ["body": String(data: data, encoding: .utf8) ?? ""])
+        var (data, http) = try await authorizedJSONPost(url: functionURL, body: body, token: bearer)
+
+        if http.statusCode == 401 {
+            print("⚠️ presign 401, refreshing token and retrying")
+            let fresh = try await AppServices.shared.getFreshIDToken()
+            (data, http) = try await authorizedJSONPost(url: functionURL, body: body, token: fresh)
+        }
+
+        guard http.statusCode == 200 else {
+            let bodyText = String(data: data, encoding: .utf8) ?? "<non-utf8 \(data.count) bytes>"
+            print("❌ presign non-200: \(http.statusCode) | \(bodyText)")
+            throw NSError(domain: "presign", code: http.statusCode,
+                          userInfo: ["body": bodyText])
         }
         return try JSONDecoder().decode(PresignResponse.self, from: data)
     }
-    
+
     func uploadToS3(presigned: PresignResponse, fileData: Data) async throws {
         guard let putURL = URL(string: presigned.url) else { throw URLError(.badURL) }
         var putReq = URLRequest(url: putURL)
         putReq.httpMethod = "PUT"
-        // Must match exactly the headers returned by your signer
+        putReq.timeoutInterval = 120
         for (k, v) in presigned.headers {
             putReq.setValue(v, forHTTPHeaderField: k)
         }
         let (_, resp) = try await URLSession.shared.upload(for: putReq, from: fileData)
         guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            print("❌ s3 put failed: \((resp as? HTTPURLResponse)?.statusCode ?? -1)")
             throw NSError(domain: "s3put", code: (resp as? HTTPURLResponse)?.statusCode ?? -1)
         }
     }
-    
+
+    // MARK: - Helpers
+
+    private func authorizedJSONPost(url: URL, body: [String: Any], token: String) async throws -> (Data, HTTPURLResponse) {
+        var req = URLRequest(url: url)
+        req.httpMethod = "POST"
+        req.timeoutInterval = 60
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        req.httpBody = try JSONSerialization.data(withJSONObject: body)
+        let (data, resp) = try await URLSession.shared.data(for: req)
+        return (data, resp as! HTTPURLResponse)
+    }
 }
