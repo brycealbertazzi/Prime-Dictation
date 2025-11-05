@@ -138,34 +138,37 @@ class RecordingManager {
         await viewController.HasRecordingsUI(numberOfRecordings: recordingCount)
     }
     
-    func sanitizedBaseName(_ raw: String) -> String {
-        // Drop any user-typed extension
-        var s = (raw as NSString).deletingPathExtension
-            .precomposedStringWithCanonicalMapping
+    func sanitizedBaseName(_ name: String, replacement: String = "-") -> String {
+        // Characters that can break paths (keep `:` illegal)
+        let illegal = CharacterSet(charactersIn: "/:\\?%*|\"<>")
 
-        // Replace slashes/backslashes with hyphens
-        s = s.replacingOccurrences(of: "/", with: "-")
-             .replacingOccurrences(of: "\\", with: "-")
+        // Replace illegal chars with a replacement token
+        var s = name.components(separatedBy: illegal).joined(separator: replacement)
 
-        // Remove control characters
-        s.unicodeScalars.removeAll { CharacterSet.controlCharacters.contains($0) }
-
-        // Normalize spaces (turn NBSP/ZWSP into normal spaces, collapse multiples)
-        s = s.replacingOccurrences(of: "\u{00A0}", with: " ")
-             .replacingOccurrences(of: "\u{200B}", with: " ")
-        while s.contains("  ") { s = s.replacingOccurrences(of: "  ", with: " ") }
-
-        // Trim spaces and trailing dots
+        // Collapse repeated spaces/dashes and trim edges
+        s = s.replacingOccurrences(of: "\\s{2,}", with: " ", options: .regularExpression)
+        s = s.replacingOccurrences(of: "-{2,}", with: "-", options: .regularExpression)
         s = s.trimmingCharacters(in: .whitespacesAndNewlines)
-        while s.hasSuffix(".") { s.removeLast() }
 
-        // Avoid leading dot (hidden files)
-        if s.hasPrefix(".") { s = String(s.drop(while: { $0 == "." })) }
+        // Remove any leading dots (avoid hidden files)
+        while s.hasPrefix(".") { s.removeFirst() }
 
-        return s.isEmpty ? "Untitled" : s
+        // Remove trailing dots/spaces (friendlier to Windows/cloud sync)
+        while s.hasSuffix(".") || s.hasSuffix(" ") { s.removeLast() }
+
+        // Ensure non-empty result
+        if s.isEmpty { s = "untitled" }
+
+        return s
     }
     
     func RenameFile(newName rawNewName: String) {
+        if rawNewName.contains("/") || rawNewName.contains("(") || rawNewName.contains(")") {
+            print("Rename contains illegal characters")
+            ProgressHUD.failed("No slashes or parenthesis allowed in file name")
+            return
+        }
+        
         // Normalize: trim and drop any extension the user typed
         let baseNewName = (rawNewName as NSString).deletingPathExtension.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !baseNewName.isEmpty else { return }
@@ -177,8 +180,10 @@ class RecordingManager {
         if oldBase == santizedBaseName { return }
 
         // Compute final new base with your duplicate-per-minute suffix
-        let n = DuplicateRecordingsThisMinute(fileName: santizedBaseName)
+        let n = GetRenameIndex(newFileName: santizedBaseName)
         let newBase = n > 0 ? "\(santizedBaseName)(\(n))" : santizedBaseName
+        
+        if (oldBase == newBase) { return }
 
         // Build URLs
         let oldAudioURL = dir.appendingPathComponent(oldBase).appendingPathExtension(audioRecordingExtension)
@@ -222,38 +227,66 @@ class RecordingManager {
         f.timeZone = .current
         f.amSymbol = "am"
         f.pmSymbol = "pm"
-        f.dateFormat = "EEE MMM d yyyy 'at' h:mma"
+        // safer: no "/" or ":" in the raw name
+        f.dateFormat = "EEE MMM d yyyy 'at' h.mm a"   // e.g., "Tue Nov 4 2025 at 10.01 pm"
 
+        // 1) Build base
         let base = f.string(from: now)
-        let n = DuplicateRecordingsThisMinute(fileName: base)
+
+        // 2) Sanitize first
         let sanitized = sanitizedBaseName(base)
+
+        // 3) Now compute the rename index using the sanitized name
+        let n = GetRenameIndex(newFileName: sanitized)
+
+        // 4) Return final
         return n > 0 ? "\(sanitized)(\(n))" : sanitized
     }
 
+    func extractDigits(from filename: String) -> Int {
+        let pattern = #"\((\d+)\)"#
+        if let regex = try? NSRegularExpression(pattern: pattern) {
+            let range = NSRange(filename.startIndex..., in: filename)
+            if let match = regex.firstMatch(in: filename, options: [], range: range),
+               let digitsRange = Range(match.range(at: 1), in: filename) {
+                return Int(filename[digitsRange]) ?? 0
+            }
+        }
+        return 0
+    }
+    
     /// Finds the next numeric suffix for files that share the same minute stamp.
     /// Matches exactly `fileName` or `fileName(<number>)` and returns the next number to use.
-    func DuplicateRecordingsThisMinute(fileName: String) -> Int {
-        var maxSuffix = -1 // -1 means no existing files; 0 means base name exists
-
+    func GetRenameIndex(newFileName: String) -> Int {
+        var duplicateIndexes: [Int] = []
+        var lowestAvailableIndex : Int = 0
+        let toggledFileNameBase = toggledAudioTranscriptionObject.fileName.split(separator: "(")[0]
+        let toggledFileNameIndex : Int = extractDigits(from: toggledAudioTranscriptionObject.fileName)
+        print("DuplicateRecordingsThisMinute: \(savedAudioTranscriptionObjects)")
         for object in savedAudioTranscriptionObjects {
             let name = object.fileName
-            if name == fileName {
-                maxSuffix = max(maxSuffix, 0)
-            } else if name.hasPrefix(fileName + "("), name.hasSuffix(")") {
-                // Extract the digits between the parentheses
-                let start = name.index(name.startIndex, offsetBy: fileName.count + 1)
-                let end = name.index(before: name.endIndex)
-                if start <= end {
-                    let digits = name[start..<end]
-                    if let n = Int(digits) {
-                        maxSuffix = max(maxSuffix, n)
+            let split = name.split(separator: "(")
+            let base = String(split[0])
+            let index = extractDigits(from: name)
+            if (base == newFileName) {
+                if (toggledFileNameBase == base) {
+                    if (toggledFileNameIndex != index) {
+                        duplicateIndexes.append(index)
                     }
+                } else {
+                    duplicateIndexes.append(index)
                 }
             }
         }
+        if (duplicateIndexes.isEmpty) {
+            return 0
+        } else {
+            while(duplicateIndexes.contains(lowestAvailableIndex)) {
+                lowestAvailableIndex += 1
+            }
+        }
 
-        // Next available suffix (handles 10+, 100+, etc.)
-        return maxSuffix + 1
+        return lowestAvailableIndex
     }
     
     func CheckToggledRecordingsIndex(goingToPreviousRecording: Bool) {

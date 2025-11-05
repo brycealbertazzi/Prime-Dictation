@@ -182,7 +182,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         
         alert.addTextField { textField in
             textField.placeholder = "Enter file name..."
-            textField.text = self.recordingManager.toggledAudioTranscriptionObject.fileName
+            textField.text = String(self.recordingManager.toggledAudioTranscriptionObject.fileName.split(separator: "(")[0])
             textField.keyboardType = .default
             textField.autocapitalizationType = .none
             textField.clearButtonMode = .whileEditing
