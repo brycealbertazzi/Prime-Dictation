@@ -189,7 +189,7 @@ class RecordingManager {
         if oldBase == santizedBaseName { return }
 
         // Compute final new base with your duplicate-per-minute suffix
-        let n = GetRenameIndex(newFileName: santizedBaseName)
+        let n = GetDuplicateIndex(newFileName: santizedBaseName, isNewFile: false)
         let newBase = n > 0 ? "\(santizedBaseName)(\(n))" : santizedBaseName
         
         if (oldBase == newBase) { return }
@@ -246,7 +246,7 @@ class RecordingManager {
         let sanitized = sanitizedBaseName(base)
 
         // 3) Now compute the rename index using the sanitized name
-        let n = GetRenameIndex(newFileName: sanitized)
+        let n = GetDuplicateIndex(newFileName: sanitized, isNewFile: true)
 
         // 4) Return final
         return n > 0 ? "\(sanitized)(\(n))" : sanitized
@@ -266,7 +266,7 @@ class RecordingManager {
     
     /// Finds the next numeric suffix for files that share the same minute stamp.
     /// Matches exactly `fileName` or `fileName(<number>)` and returns the next number to use.
-    func GetRenameIndex(newFileName: String) -> Int {
+    func GetDuplicateIndex(newFileName: String, isNewFile: Bool) -> Int {
         var duplicateIndexes: [Int] = []
         var lowestAvailableIndex : Int = 0
         let toggledFileNameBase = toggledAudioTranscriptionObject.fileName.split(separator: "(")[0]
@@ -278,7 +278,7 @@ class RecordingManager {
             let base = String(split[0])
             let index = extractDigits(from: name)
             if (base == newFileName) {
-                if (toggledFileNameBase == base) {
+                if (toggledFileNameBase == base && !isNewFile) {
                     if (toggledFileNameIndex != index) {
                         duplicateIndexes.append(index)
                     }
@@ -295,7 +295,7 @@ class RecordingManager {
                 lowestAvailableIndex += 1
             }
         }
-
+        print("lowest available index: \(lowestAvailableIndex)")
         return lowestAvailableIndex
     }
     
