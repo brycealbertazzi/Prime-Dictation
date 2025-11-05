@@ -64,7 +64,7 @@ class RecordingManager {
         } else {
             //Delete the oldest recording and add the next one
             let oldestRecording = savedAudioTranscriptionObjects.removeFirst()
-
+            
             do {
                 let m4aUrl = GetDirectory().appendingPathComponent(oldestRecording.fileName).appendingPathExtension(audioRecordingExtension)
                 if (FileManager.default.fileExists(atPath: m4aUrl.path)) {try FileManager.default.removeItem(at: m4aUrl)} else {print("M4A FILES DOES NOT EXIST!!!!")}
@@ -107,7 +107,7 @@ class RecordingManager {
         toggledAudioTranscriptionObject.transcriptionText = newText
         savedAudioTranscriptionObjects[toggledRecordingsIndex] = toggledAudioTranscriptionObject
         
-
+        
         // 2) persist to disk
         // assuming your object has something like `fileURL: URL?` or `transcriptFileURL: URL?`
         if let fileURL = toggledRecordingURL?.deletingPathExtension().appendingPathExtension(transcriptionRecordingExtension) {
@@ -141,31 +141,40 @@ class RecordingManager {
     func sanitizedBaseName(_ name: String, replacement: String = "-") -> String {
         // Characters that can break paths (keep `:` illegal)
         let illegal = CharacterSet(charactersIn: "/:\\?%*|\"<>")
-
+        
         // Replace illegal chars with a replacement token
         var s = name.components(separatedBy: illegal).joined(separator: replacement)
-
+        
         // Collapse repeated spaces/dashes and trim edges
         s = s.replacingOccurrences(of: "\\s{2,}", with: " ", options: .regularExpression)
         s = s.replacingOccurrences(of: "-{2,}", with: "-", options: .regularExpression)
         s = s.trimmingCharacters(in: .whitespacesAndNewlines)
-
+        
         // Remove any leading dots (avoid hidden files)
         while s.hasPrefix(".") { s.removeFirst() }
-
+        
         // Remove trailing dots/spaces (friendlier to Windows/cloud sync)
         while s.hasSuffix(".") || s.hasSuffix(" ") { s.removeLast() }
-
+        
         // Ensure non-empty result
         if s.isEmpty { s = "untitled" }
-
+        
         return s
     }
     
     func RenameFile(newName rawNewName: String) {
-        if rawNewName.contains("/") || rawNewName.contains("(") || rawNewName.contains(")") {
-            print("Rename contains illegal characters")
-            ProgressHUD.failed("No slashes or parenthesis allowed in file name")
+        // Handle illegal characters
+        let illegalSet = CharacterSet(charactersIn: "/:\\?%*|\"<>\\()").union(.controlCharacters)
+        
+        if rawNewName.rangeOfCharacter(from: illegalSet) != nil {
+            viewController.displayAlert(title: "Invalid File Name", message: """
+                Invalid file name. Disallowed: / : ? % * | " < > \\ ( )
+            """)
+            return
+        }
+        
+        if rawNewName.hasPrefix(".") || rawNewName.hasSuffix(".") || rawNewName.hasPrefix(" ") || rawNewName.hasSuffix(" ") {
+            viewController.displayAlert(title: "Invalid FileName", message: "Leading or trailing dots and whitespaces are not allowed.")
             return
         }
         
@@ -262,7 +271,7 @@ class RecordingManager {
         var lowestAvailableIndex : Int = 0
         let toggledFileNameBase = toggledAudioTranscriptionObject.fileName.split(separator: "(")[0]
         let toggledFileNameIndex : Int = extractDigits(from: toggledAudioTranscriptionObject.fileName)
-        print("DuplicateRecordingsThisMinute: \(savedAudioTranscriptionObjects)")
+        
         for object in savedAudioTranscriptionObjects {
             let name = object.fileName
             let split = name.split(separator: "(")
@@ -278,6 +287,7 @@ class RecordingManager {
                 }
             }
         }
+        
         if (duplicateIndexes.isEmpty) {
             return 0
         } else {
