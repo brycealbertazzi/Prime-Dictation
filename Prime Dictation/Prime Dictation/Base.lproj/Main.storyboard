@@ -550,8 +550,8 @@
                         <viewLayoutGuide key="safeArea" id="91F-Bu-qrb"/>
                         <color key="backgroundColor" systemColor="labelColor"/>
                         <constraints>
+                            <constraint firstItem="1pg-lu-8Ka" firstAttribute="top" secondItem="91F-Bu-qrb" secondAttribute="top" constant="85" id="RLr-M1-TqR"/>
                             <constraint firstItem="coM-Cj-5Ge" firstAttribute="centerX" secondItem="91F-Bu-qrb" secondAttribute="centerX" id="c6G-3T-Lbj"/>
-                            <constraint firstItem="1pg-lu-8Ka" firstAttribute="top" secondItem="coM-Cj-5Ge" secondAttribute="bottom" constant="40" id="d8D-d8-qig"/>
                             <constraint firstItem="coM-Cj-5Ge" firstAttribute="top" secondItem="91F-Bu-qrb" secondAttribute="top" constant="20" id="gNn-1u-pcP"/>
                             <constraint firstItem="1pg-lu-8Ka" firstAttribute="centerX" secondItem="Nw9-qh-Ju0" secondAttribute="centerX" id="q96-kf-c89"/>
                         </constraints>
@@ -563,6 +563,8 @@
                         <outlet property="GoogleDriveLabel" destination="SGc-lp-6ij" id="6E1-VU-e6u"/>
                         <outlet property="OneDriveLabel" destination="9qh-lx-pQg" id="w1N-IF-UIc"/>
                         <outlet property="SelectFolderIcon" destination="AWb-dR-20j" id="Hsz-IJ-I79"/>
+                        <outlet property="arrowTopConstraint" destination="gNn-1u-pcP" id="bzK-ws-2UI"/>
+                        <outlet property="titleTopConstraint" destination="RLr-M1-TqR" id="yPd-CK-CxU"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="VTs-7P-DE6" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

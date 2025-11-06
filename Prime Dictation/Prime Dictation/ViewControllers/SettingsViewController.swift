@@ -23,6 +23,12 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var SelectFolderIcon: RoundedButton!
     @IBOutlet weak var EmailLabel: RoundedButton!
     
+    @IBOutlet weak var arrowTopConstraint: NSLayoutConstraint!
+    @IBOutlet weak var titleTopConstraint: NSLayoutConstraint!
+    
+    private let desiredArrowTop: CGFloat = 20
+    private let desiredTitleTop: CGFloat = 85
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -40,10 +46,44 @@ class SettingsViewController: UIViewController {
         emailManager.attach(settingsViewController: self)
         
         UpdateSelectedDestinationUI(destination: DestinationManager.SELECTED_DESTINATION)
+        
+        if let sheet = sheetPresentationController {
+            sheet.detents = [.medium(), .large()]     // optional
+            sheet.prefersGrabberVisible = true        // toggle to taste
+        }
+    }
+    
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
+        adjustHeaderTop()
+    }
+
+    private var didAdjustOnce = false
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        print("viewDidLayoutSubviews: didAdjustOnce: \(didAdjustOnce)")
+        if !didAdjustOnce { adjustHeaderTop() }
+    }
+
+    private func adjustHeaderTop() {
+        didAdjustOnce = true
+        print("Adjusting header top")
+        // We only compensate when it's an adapted sheet (not a popover),
+        // and only if there's NO navigation bar (safe area already accounts for it).
+        let isSheet = (sheetPresentationController != nil) && (popoverPresentationController == nil)
+        let hasNavBar = (navigationController != nil) && !(navigationController?.navigationBar.isHidden ?? false)
+
+        let extraInset = (isSheet && !hasNavBar) ? view.safeAreaInsets.top : 0
+
+        titleTopConstraint.constant = desiredTitleTop - extraInset
+        arrowTopConstraint.constant = desiredArrowTop - extraInset
+        // Clamp so we never go negative offscreen
+        titleTopConstraint.constant = max(titleTopConstraint.constant, 0)
+        arrowTopConstraint.constant = max(arrowTopConstraint.constant, 0)
+        view.layoutIfNeeded()
     }
     
     @IBAction func EmailButton(_ sender: Any) {
-        emailManager.handleEmailButtonTap(from: self)
         emailManager.handleEmailButtonTap(from: self)
         UpdateSelectedDestinationUserDefaults(destination: .email)
         UpdateSelectedDestinationUI(destination: .email)

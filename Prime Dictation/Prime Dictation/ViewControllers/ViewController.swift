@@ -427,7 +427,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         present(vc, animated: true)
     }
 
-    
     private func showSettingsPopover(anchorView: UIView?, barButtonItem: UIBarButtonItem?) {
         let vc = storyboard!.instantiateViewController(withIdentifier: "SettingsViewController") as! SettingsViewController
         vc.modalPresentationStyle = .popover
@@ -437,19 +436,15 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 pop.barButtonItem = item
             } else if let view = anchorView {
                 pop.sourceView = view
-                pop.sourceRect = view.bounds           // correct coordinate space
+                pop.sourceRect = view.bounds
                 pop.permittedArrowDirections = [.up, .down]
             } else {
-                // Fallback center (avoid if you want identical positioning)
                 pop.sourceView = self.view
-                pop.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 1, height: 1)
+                pop.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 1, height: 1)
                 pop.permittedArrowDirections = []
             }
             pop.delegate = self
         }
-
-        // Allow swipe-down to dismiss when it adapts (don’t lock it)
-        vc.isModalInPresentation = false
 
         present(vc, animated: true)
     }
@@ -622,11 +617,10 @@ extension ViewController: UIPopoverPresentationControllerDelegate {
         return traitCollection.horizontalSizeClass == .compact ? .pageSheet : .none
     }
 
-    // Optional: wrap in a nav controller when it becomes a sheet to show a title/close button
     func presentationController(_ controller: UIPresentationController,
-                                viewControllerForAdaptivePresentationStyle style: UIModalPresentationStyle) -> UIViewController? {
-        guard style != .none else { return nil }
-        return UINavigationController(rootViewController: controller.presentedViewController)
+                                viewControllerForAdaptivePresentationStyle style: UIModalPresentationStyle)
+    -> UIViewController? {
+        return nil  // no UINavigationController wrapper
     }
 }
 

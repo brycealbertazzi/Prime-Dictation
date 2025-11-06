@@ -71,6 +71,7 @@ class RecordingManager {
                 print("UNABLE TO DETETE THE FILE OF AN OLDEST RECORDING IN QUEUE!!!!")
             }
             savedAudioTranscriptionObjects.append(AudioTranscriptionObject(fileName: mostRecentRecordingName, hasTranscription: false, transcriptionText: nil))
+            transcriptionManager.toggledTranscriptText = nil
         }
         saveAudioTranscriptionObjectsToUserDefaults()
         Task { try await SelectMostRecentRecording() }
@@ -221,6 +222,32 @@ class RecordingManager {
             self.setToggledRecordingURL() // Make sure this recalculates from fileName
             viewController.FileNameLabel.setTitle(newBase, for: .normal)
             saveAudioTranscriptionObjectsToUserDefaults()
+            
+            // 4) Refresh cached transcript URL and in-memory transcript text
+            self.toggledTranscriptURL = self.toggledRecordingURL?
+                .deletingPathExtension()
+                .appendingPathExtension(self.transcriptionRecordingExtension)
+
+            // If a transcript file exists for the renamed recording, reload it into cache
+            if let transcriptURL = self.toggledTranscriptURL,
+               FileManager.default.fileExists(atPath: transcriptURL.path) {
+                do {
+                    let text = try String(contentsOf: transcriptURL, encoding: .utf8)
+                    self.toggledAudioTranscriptionObject.transcriptionText = text
+                    self.savedAudioTranscriptionObjects[self.toggledRecordingsIndex] = self.toggledAudioTranscriptionObject
+                    self.transcriptionManager.toggledTranscriptText = text
+                    // Optionally update UI to reflect that a transcript is available and current
+                    self.viewController.HasTranscriptionUI()
+                } catch {
+                    print("⚠️ Failed to reload transcript after rename: \(error)")
+                }
+            } else {
+                // No transcript file — clear cached text to avoid stale data
+                self.toggledAudioTranscriptionObject.transcriptionText = nil
+                self.savedAudioTranscriptionObjects[self.toggledRecordingsIndex] = self.toggledAudioTranscriptionObject
+                self.transcriptionManager.toggledTranscriptText = nil
+                self.viewController.NoTranscriptionUI()
+            }
 
         } catch {
             ProgressHUD.failed("Failed to rename file")
