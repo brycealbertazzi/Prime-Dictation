@@ -51,7 +51,6 @@ class RecordingManager {
         let recordingCount = savedAudioTranscriptionObjects.count
         if (recordingCount > 0) {
             Task { try await SelectMostRecentRecording() }
-            
         } else {
             viewController.NoRecordingsUI()
         }
@@ -239,17 +238,14 @@ class RecordingManager {
         // safer: no "/" or ":" in the raw name
         f.dateFormat = "EEE MMM d yyyy 'at' h.mm a"   // e.g., "Tue Nov 4 2025 at 10.01 pm"
 
-        // 1) Build base
         let base = f.string(from: now)
-
-        // 2) Sanitize first
         let sanitized = sanitizedBaseName(base)
-
-        // 3) Now compute the rename index using the sanitized name
-        let n = GetDuplicateIndex(newFileName: sanitized, isNewFile: true)
-
-        // 4) Return final
-        return n > 0 ? "\(sanitized)(\(n))" : sanitized
+        if (savedAudioTranscriptionObjects.count > 0) {
+            let n = GetDuplicateIndex(newFileName: sanitized, isNewFile: true)
+            return n > 0 ? "\(sanitized)(\(n))" : sanitized
+        } else {
+            return sanitized
+        }
     }
 
     func extractDigits(from filename: String) -> Int {
@@ -295,7 +291,7 @@ class RecordingManager {
                 lowestAvailableIndex += 1
             }
         }
-        print("lowest available index: \(lowestAvailableIndex)")
+
         return lowestAvailableIndex
     }
     
