@@ -79,6 +79,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         /*****/
         //Initialize recording session
         recordingSession = AVAudioSession.sharedInstance()
+        try? recordingSession.setCategory(.playAndRecord, options: [.defaultToSpeaker, .allowBluetoothHFP])
+        try? recordingSession.setActive(true)
         RecordLabel.setImage(UIImage(named: "RecordButton"), for: .normal)
         PoorConnectionLabel.isHidden = true
         //Request permission
@@ -137,7 +139,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         
         //Play the previously recorded recording
         do {
-            try recordingSession.setCategory(.playback)
+            try recordingSession.setMode(.default)
             audioPlayer = try AVAudioPlayer(contentsOf: previousRecordingPath)
             audioPlayer?.delegate = self
             audioPlayer.prepareToPlay()
@@ -227,7 +229,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
         recordingManager.numberOfRecordings += 1
         recordingManager.mostRecentRecordingName = recordingManager.RecordingTimeForName()
-        let fileName = recordingManager.GetDirectory()
+        let fileName = recordingManager
+            .GetDirectory()
             .appendingPathComponent(recordingManager.mostRecentRecordingName)
             .appendingPathExtension(recordingManager.audioRecordingExtension)
 
@@ -240,7 +243,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         ]
 
         do {
-            try recordingSession.setCategory(.record)
+            try recordingSession.setMode(.measurement)
             audioRecorder = try AVAudioRecorder(url: fileName, settings: settings)
             audioRecorder.delegate = self
             audioRecorder.prepareToRecord()
@@ -280,18 +283,18 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     var isRecordingPaused: Bool = false
     @IBAction func PausePlayRecordingButton(_ sender: Any) {
-        Haptic.tap(intensity: 1.0)
-        if audioRecorder.isRecording {
-            PausePlayButtonLabel.setImage(UIImage(named: "PlayButton"), for: .normal)
-            audioRecorder.pause()
-            isRecordingPaused = true
-            watch.pause()
+        Haptic.tap()
+        if self.audioRecorder.isRecording {
+            self.PausePlayButtonLabel.setImage(UIImage(named: "PlayButton"), for: .normal)
+            self.audioRecorder.pause()
+            self.isRecordingPaused = true
+            self.watch.pause()
         } else {
-            PausePlayButtonLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
-            audioRecorder.record()
-            isRecordingPaused = false
-            watch.resume()
-            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTime(timer:))
+            self.PausePlayButtonLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
+            self.audioRecorder.record()
+            self.isRecordingPaused = false
+            self.watch.resume()
+            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: self.watch.UpdateElapsedTime(timer:))
         }
     }
     

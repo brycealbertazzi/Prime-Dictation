@@ -90,6 +90,7 @@ class TranscriptionViewController: UIViewController {
     }
     
     @IBAction func BackButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         dismiss(animated: true, completion: nil)
     }
 }

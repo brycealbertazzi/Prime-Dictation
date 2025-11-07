@@ -84,12 +84,14 @@ class SettingsViewController: UIViewController {
     }
     
     @IBAction func EmailButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         emailManager.handleEmailButtonTap(from: self)
         UpdateSelectedDestinationUserDefaults(destination: .email)
         UpdateSelectedDestinationUI(destination: .email)
     }
     
     @IBAction func DropboxButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         dropboxManager.OpenAuthorizationFlow { result in
             switch result {
             case .success:
@@ -112,6 +114,7 @@ class SettingsViewController: UIViewController {
     }
     
     @IBAction func OneDriveButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         oneDriveManager.SignInIfNeeded { result in
             switch result {
             case .success:
@@ -132,6 +135,7 @@ class SettingsViewController: UIViewController {
     }
     
     @IBAction func GoogleDriveButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         googleDriveManager.openAuthorizationFlow { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -155,6 +159,7 @@ class SettingsViewController: UIViewController {
     }
     
     @IBAction func SelectFolderButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         let currentDestination = DestinationManager.SELECTED_DESTINATION
         
         switch currentDestination {
@@ -177,6 +182,7 @@ class SettingsViewController: UIViewController {
     }
     
     @IBAction func DismissPopover(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         dismiss(animated: true)
     }
     
