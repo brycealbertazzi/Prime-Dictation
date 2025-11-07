@@ -76,10 +76,10 @@ class TranscriptionManager {
 
             signedTxtURL = try await waitForTranscriptReady(
                 txtSignerBase: txtSignerBase + "/sign",
-                filename: transcriptFilename,          // still "<filename>.txt"
+                filename: transcriptFilename,
                 hardCapSeconds: 20 * 60,
                 backoffCapSeconds: 60,
-                notBefore: uploadStart                  // 👈 tell the poller what “fresh” means
+                notBefore: uploadStart
             )
         } catch {
             throw TranscriptionError.error("Transcription didn’t complete", underlying: error)

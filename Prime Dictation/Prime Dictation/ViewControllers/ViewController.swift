@@ -103,6 +103,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         recordingManager.SetSavedRecordingsOnLoad()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        Haptic.prepare()
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "ShowSettingsPopover",
            let vc = segue.destination as? SettingsViewController,
@@ -126,6 +131,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     //MARK: Listen to Playback
     @IBAction func ListenButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         //Store the path to the recording in this "path" variable
         let previousRecordingPath = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName).appendingPathExtension(recordingManager.audioRecordingExtension)
         
@@ -159,6 +165,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     @IBAction func PreviousRecordingButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         recordingManager.CheckToggledRecordingsIndex(goingToPreviousRecording: true)
         recordingManager.toggledAudioTranscriptionObject = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex]
         recordingManager.setToggledRecordingURL()
@@ -169,6 +176,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     @IBAction func NextRecordingButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         recordingManager.CheckToggledRecordingsIndex(goingToPreviousRecording: false)
         recordingManager.toggledAudioTranscriptionObject = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex]
         recordingManager.setToggledRecordingURL()
@@ -178,6 +186,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     @IBAction func RenameFileButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         let alert = UIAlertController(title: "Rename File", message: nil, preferredStyle: .alert)
         
         alert.addTextField { textField in
@@ -202,44 +211,54 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
 
     @IBAction func RecordButton(_ sender: Any) {
-        //Check if we have an active recorder
-        if audioRecorder == nil {
-            //If we are not already recording audio, start the recording
-            recordingManager.numberOfRecordings += 1
-            recordingManager.mostRecentRecordingName = recordingManager.RecordingTimeForName()
-            let fileName = recordingManager.GetDirectory().appendingPathComponent(recordingManager.mostRecentRecordingName).appendingPathExtension(recordingManager.audioRecordingExtension)
-            
-            let settings: [String: Any] = [
-                AVFormatIDKey: kAudioFormatMPEG4AAC,
-                AVSampleRateKey: 44100,
-                AVNumberOfChannelsKey: 1,
-                AVEncoderBitRateKey: 48000,                  
-                AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
-            ]
+        guard audioRecorder == nil else { return }
 
-            //Start the recording
-            do {
-                try recordingSession.setCategory(.record)
-                audioRecorder = try AVAudioRecorder(url: fileName, settings: settings)
-                audioRecorder.delegate = self
-                audioRecorder.prepareToRecord()
-                audioRecorder.isMeteringEnabled = false
-                audioRecorder.record()
-                ListenLabel.isHidden = true
-                ShowRecordingInProgressUI()
-                
-                //Start Timer
-                Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTime(timer:))
-                watch.start()
-                StopWatchLabel.isHidden = false
-            } catch {
-                ProgressHUD.failed("Unable to start recording, try again later.")
-            }
+        // 1) Haptic immediately (same run loop)
+        Haptic.tap(intensity: 1.0)
+
+        // 2) Small delay to let the engine complete before session changes
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) {
+            self.startRecording()
+        }
+    }
+    
+    private func startRecording() {
+        guard audioRecorder == nil else { return }
+
+        recordingManager.numberOfRecordings += 1
+        recordingManager.mostRecentRecordingName = recordingManager.RecordingTimeForName()
+        let fileName = recordingManager.GetDirectory()
+            .appendingPathComponent(recordingManager.mostRecentRecordingName)
+            .appendingPathExtension(recordingManager.audioRecordingExtension)
+
+        let settings: [String: Any] = [
+            AVFormatIDKey: kAudioFormatMPEG4AAC,
+            AVSampleRateKey: 44100,
+            AVNumberOfChannelsKey: 1,
+            AVEncoderBitRateKey: 48000,
+            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+        ]
+
+        do {
+            try recordingSession.setCategory(.record)
+            audioRecorder = try AVAudioRecorder(url: fileName, settings: settings)
+            audioRecorder.delegate = self
+            audioRecorder.prepareToRecord()
+            audioRecorder.isMeteringEnabled = false
+            audioRecorder.record()
+            ListenLabel.isHidden = true
+            ShowRecordingInProgressUI()
+            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTime(timer:))
+            watch.start()
+            StopWatchLabel.isHidden = false
+        } catch {
+            ProgressHUD.failed("Unable to start recording, try again later.")
         }
     }
     
     //MARK: Pause-Resume-End Recordings and Playbacks:
     @IBAction func StopRecordingButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         //If we are already recording audio, stop the recording
         audioRecorder.stop()
         isRecordingPaused = false
@@ -261,6 +280,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     var isRecordingPaused: Bool = false
     @IBAction func PausePlayRecordingButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         if audioRecorder.isRecording {
             PausePlayButtonLabel.setImage(UIImage(named: "PlayButton"), for: .normal)
             audioRecorder.pause()
@@ -276,6 +296,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     @IBAction func EndPlaybackButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         ListenLabel.setTitle("Listen", for: .normal)
         PausePlaybackLabel.setTitle("Pause", for: .normal)
         isRecordingPaused = false
@@ -286,6 +307,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     
     @IBAction func PausePlaybackButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         if audioPlayer.isPlaying {
             //Pause Recording
             audioPlayer.pause()
@@ -311,6 +333,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     private var poorConnectionStartTimer: Timer?
     
     @IBAction func TranscribeButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         if recordingManager.toggledAudioTranscriptionObject.hasTranscription {
             showTranscriptionScreen()
             return
@@ -450,6 +473,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
 
     @IBAction func SendButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         if recordingManager.savedAudioTranscriptionObjects.count > 0 {
             let toggledHasTranscription: Bool = recordingManager.toggledAudioTranscriptionObject.hasTranscription
             switch DestinationManager.SELECTED_DESTINATION {
