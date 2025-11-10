@@ -267,10 +267,17 @@
                                     <constraint firstAttribute="bottom" secondItem="TEJ-KL-gv0" secondAttribute="bottom" constant="50" id="u4g-J3-kaI"/>
                                 </constraints>
                             </view>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAV-Xq-Ydt" customClass="RoundedButton" customModule="Prime_Dictation">
-                                <rect key="frame" x="169.66666666666666" y="278" width="75" height="45"/>
-                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAV-Xq-Ydt">
+                                <rect key="frame" x="182" y="278" width="50" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="50" id="eOL-3b-DhG"/>
+                                    <constraint firstAttribute="height" constant="50" id="icE-xY-k8T"/>
+                                </constraints>
+                                <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <state key="normal" title="Listen"/>
+                                <buttonConfiguration key="configuration" style="plain">
+                                    <backgroundConfiguration key="background" image="headphones" catalog="system"/>
+                                </buttonConfiguration>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
                                         <real key="value" value="8"/>
@@ -648,6 +655,7 @@
         <image name="RecordButton" width="100" height="100"/>
         <image name="chevron.down" catalog="system" width="128" height="70"/>
         <image name="folder.fill.badge.gearshape" catalog="system" width="128" height="93"/>
+        <image name="headphones" catalog="system" width="128" height="121"/>
         <image name="paperplane.circle.fill" catalog="system" width="128" height="123"/>
         <image name="paperplane.fill" catalog="system" width="128" height="119"/>
         <image name="pencil.and.list.clipboard" catalog="system" width="114" height="128"/>

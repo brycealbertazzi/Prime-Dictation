@@ -16,10 +16,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
     //MARK: - IBOutlets
     @IBOutlet weak var TitleOfAppLabel: UILabel!
-    @IBOutlet weak var ListenLabel: RoundedButton!
+    @IBOutlet weak var ListenLabel: UIButton!
     @IBOutlet weak var RecordLabel: UIButton!
     @IBOutlet weak var SendLabel: RoundedButton!
-    @IBOutlet weak var DestinationLabel: RoundedButton!
+    @IBOutlet weak var DestinationLabel: UIButton!
     @IBOutlet weak var FileNameLabel: UIButton!
     @IBOutlet weak var RenameFileLabel: UIButton!
     @IBOutlet weak var PreviousRecordingLabel: UIButton!
@@ -70,7 +70,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         
         destinationManager.getDestination()
         // Do any additional setup after loading the view.
-        ListenLabel.setTitle("Listen", for: .normal)
         HideRecordingInProgressUI()
         HideListeningUI()
         
@@ -267,7 +266,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         isRecordingPaused = false
         audioRecorder = nil
         ListenLabel.isHidden = false
-        ListenLabel.setTitle("Listen", for: .normal)
         HideRecordingInProgressUI()
         PausePlayButtonLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
         
@@ -300,7 +298,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     @IBAction func EndPlaybackButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
-        ListenLabel.setTitle("Listen", for: .normal)
         PausePlaybackLabel.setTitle("Pause", for: .normal)
         isRecordingPaused = false
         audioPlayer.stop()
