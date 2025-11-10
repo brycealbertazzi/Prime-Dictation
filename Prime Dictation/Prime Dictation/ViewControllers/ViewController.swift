@@ -626,6 +626,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PreviousRecordingLabel.isHidden = true
         NextRecordingLabel.isHidden = true
         TranscribeLabel.isHidden = true
+        SeeTranscriptionLabel.isHidden = true
         RenameFileLabel.isHidden = true
     }
     
@@ -636,7 +637,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         SendLabel.alpha = enabledAlpha
         PreviousRecordingLabel.isHidden = numberOfRecordings <= 1 // Show back arrow of there are 2 or more recordings
         NextRecordingLabel.isHidden = true
-        TranscribeLabel.isHidden = false
+        HasTranscriptionUI()
         RenameFileLabel.isHidden = false
     }
 }
