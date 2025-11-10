@@ -104,7 +104,7 @@
                                                     <constraint firstAttribute="height" constant="40" id="LTr-HL-0OD"/>
                                                     <constraint firstAttribute="width" constant="35" id="uRp-Yb-bOg"/>
                                                 </constraints>
-                                                <color key="tintColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.17254901960784313" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <state key="normal" title="Button"/>
                                                 <buttonConfiguration key="configuration" style="plain">
                                                     <backgroundConfiguration key="background" image="pencil.and.list.clipboard" catalog="system"/>
@@ -220,7 +220,7 @@
                                             <constraint firstAttribute="width" constant="50" id="F0L-aH-3Jh"/>
                                             <constraint firstAttribute="height" constant="50" id="NQi-eD-b2n"/>
                                         </constraints>
-                                        <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.17254901960784313" alpha="1" colorSpace="calibratedRGB"/>
+                                        <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="calibratedRGB"/>
                                         <state key="normal" image="paperplane.circle.fill" catalog="system"/>
                                         <buttonConfiguration key="configuration" style="plain">
                                             <backgroundConfiguration key="background" image="paperplane.fill" catalog="system"/>
@@ -423,7 +423,7 @@
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AWb-dR-20j" userLabel="Select Folder">
                                 <rect key="frame" x="56" y="556" width="70" height="53"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.17254901960784313" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain">
                                     <backgroundConfiguration key="background" image="folder.fill.badge.gearshape" catalog="system"/>
