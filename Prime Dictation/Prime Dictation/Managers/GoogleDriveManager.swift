@@ -1028,7 +1028,7 @@ final class GoogleDriveManager: NSObject {
                                      mimeType: audioMime,
                                      fileName: audioFileName) { result in
                 switch result {
-                case .failure(let error):
+                case .failure(_):
                     DispatchQueue.main.async {
                         ProgressHUD.dismiss()
                         viewController.displayAlert(
@@ -1050,6 +1050,7 @@ final class GoogleDriveManager: NSObject {
                             ProgressHUD.succeed("Recording sent to Google Drive")
                             viewController.EnableUI()
                         }
+                        AudioFeedback.shared.playWhoosh()
                         return
                     }
 
@@ -1061,7 +1062,8 @@ final class GoogleDriveManager: NSObject {
                             switch result2 {
                             case .success:
                                 ProgressHUD.succeed("Recording & transcript sent to Google Drive")
-                            case .failure(let e):
+                                AudioFeedback.shared.playWhoosh()
+                            case .failure(_):
                                 // Audio is already uploaded; inform transcript failure lightly
                                 ProgressHUD.dismiss()
                                 viewController.displayAlert(

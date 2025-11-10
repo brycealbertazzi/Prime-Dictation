@@ -295,6 +295,7 @@ final class DropboxManager {
                                 DispatchQueue.main.async {
                                     ProgressHUD.succeed("Recording sent to Dropbox")
                                     viewController.EnableUI()
+                                    AudioFeedback.shared.playWhoosh()
                                 }
                                 return
                             }
@@ -311,6 +312,7 @@ final class DropboxManager {
                                             message: "The recording was sent to Dropbox, but the transcript could not be uploaded.",
                                         )
                                     }
+                                    AudioFeedback.shared.playWhoosh()
                                     viewController.EnableUI()
                                 }
                             }

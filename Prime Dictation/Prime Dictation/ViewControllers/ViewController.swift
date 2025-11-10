@@ -358,11 +358,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             do {
                 try await transcriptionManager.transcribeAudioFile()
                 recordingManager.SetToggledAudioTranscriptObjectAfterTranscription()
-                await MainActor.run { ProgressHUD.succeed("Transcription Complete") }
+                await MainActor.run {
+                    ProgressHUD.succeed("Transcription Complete")
+                    AudioFeedback.shared.playDing()
+                }
             } catch {
                 await MainActor.run {
-                    ProgressHUD.failed("Unable to transcribe audio, try again on another recording.")
-                    self.displayAlert(title: "Transcription Failed", message: error.localizedDescription)
+                    self.displayAlert(title: "Transcription Failed", message: "We were unable to transcribe your recording. Try again later.")
                 }
             }
         }

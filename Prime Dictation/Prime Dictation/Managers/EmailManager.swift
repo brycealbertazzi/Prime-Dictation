@@ -156,7 +156,7 @@ final class EmailManager: NSObject {
 
             let recKey = "recordings/\(recordingName).\(recordingManager?.audioRecordingExtension ?? "m4a")"
 
-            var bearer = try await AppServices.shared.getFreshIDToken()
+            let bearer = try await AppServices.shared.getFreshIDToken()
             print("ℹ️ token len: \(bearer.count)")
 
             // 1) Presign + upload recording
@@ -170,7 +170,6 @@ final class EmailManager: NSObject {
             try await uploadToS3(presigned: recPresign, fileData: recData)
 
             // 2) Presign + upload transcription (optional)
-            var txKey: String? = nil
             if let tURL = transcriptionFileURL {
                 let txData: Data = try await withCheckedThrowingContinuation { cont in
                     DispatchQueue.global(qos: .userInitiated).async {
@@ -188,18 +187,7 @@ final class EmailManager: NSObject {
                     bearer: bearer
                 )
                 try await uploadToS3(presigned: txPresign, fileData: txData)
-                txKey = tKey
             }
-
-            // 3) Email
-            print("➡️ calling email lambda…")
-            _ = try await sendEmail(
-                endpoint: emailURL,
-                toEmail: toEmail,
-                recordingKey: recKey,
-                transcriptionKey: txKey,
-                bearer: bearer
-            )
             print("✅ email lambda returned 2xx")
 
             if hasTranscription {
@@ -208,6 +196,7 @@ final class EmailManager: NSObject {
                 ProgressHUD.succeed("Recording sent to Email")
             }
             viewController?.EnableUI()
+            AudioFeedback.shared.playWhoosh()
         } catch {
             ProgressHUD.dismiss()
             print("❌ SendToEmail error: \(error)")
