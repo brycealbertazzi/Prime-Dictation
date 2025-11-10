@@ -132,6 +132,8 @@ class RecordingManager {
         if (toggledAudioTranscriptionObject.hasTranscription) {
             await viewController.HasTranscriptionUI()
             Task { try await transcriptionManager.readToggledTextFileAndSetInAudioTranscriptObject() }
+        } else {
+            await viewController.NoTranscriptionUI()
         }
         setToggledRecordingURL()
         await viewController.FileNameLabel.setTitle(savedAudioTranscriptionObjects[toggledRecordingsIndex].fileName, for: .normal)

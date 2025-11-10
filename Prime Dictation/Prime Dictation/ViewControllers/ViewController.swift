@@ -29,7 +29,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var PausePlaybackLabel: UIButton!
     @IBOutlet weak var EndPlaybackLabel: UIButton!
     @IBOutlet weak var StopWatchLabel: UILabel!
-    @IBOutlet weak var TranscribeLabel: RoundedButton!
+    @IBOutlet weak var TranscribeLabel: UIButton!
+    @IBOutlet weak var SeeTranscriptionLabel: UIButton!
     @IBOutlet weak var PoorConnectionLabel: UILabel!
     
     
@@ -333,11 +334,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     private var poorConnectionStartTimer: Timer?
     
     @IBAction func TranscribeButton(_ sender: Any) {
-        Haptic.tap(intensity: 1.0)
-        if recordingManager.toggledAudioTranscriptionObject.hasTranscription {
-            showTranscriptionScreen()
-            return
-        }
         guard let url = recordingManager.toggledRecordingURL else {
             ProgressHUD.failed("No recording found")
             return
@@ -372,11 +368,16 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
     
+    @IBAction func SeeTranscriptionButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
+        showTranscriptionScreen()
+    }
+    
     private func estimatedTranscriptionSeconds(for url: URL) -> TimeInterval {
         let asset = AVURLAsset(url: url)
         let seconds = CMTimeGetSeconds(asset.duration)
         guard seconds.isFinite, seconds > 0 else { return 7 }
-        return (seconds / 2.0) + 5.0
+        return (seconds / 2.0) + 15.0
     }
     
     private func transcriptionInProgressUI(totalSeconds: TimeInterval) {
@@ -581,13 +582,20 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         RecordLabel.isEnabled = true
         HideRecordingOrListeningUI()
     }
-    
-    func NoTranscriptionUI() {
-        TranscribeLabel.setTitle("Transcribe", for: .normal)
+
+    private func paddedSymbol(_ name: String, pad: CGFloat = 2) -> UIImage? {
+        UIImage(systemName: name)?
+            .withAlignmentRectInsets(UIEdgeInsets(top: -pad, left: -pad, bottom: -pad, right: -pad))
     }
-    
+
+    func NoTranscriptionUI() {
+        TranscribeLabel.isHidden = false
+        SeeTranscriptionLabel.isHidden = true
+    }
+
     func HasTranscriptionUI() {
-        TranscribeLabel.setTitle("See Transcription", for: .normal)
+        TranscribeLabel.isHidden = true
+        SeeTranscriptionLabel.isHidden = false
     }
     
     func DisableUI() {
