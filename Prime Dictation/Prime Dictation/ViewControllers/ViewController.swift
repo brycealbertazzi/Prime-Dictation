@@ -140,6 +140,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         //Play the previously recorded recording
         do {
             try recordingSession.setMode(.default)
+            try recordingSession.setActive(true)                       // ✅ ensure active
+            try recordingSession.overrideOutputAudioPort(.speaker)
             audioPlayer = try AVAudioPlayer(contentsOf: previousRecordingPath)
             audioPlayer?.delegate = self
             audioPlayer.prepareToPlay()
@@ -360,7 +362,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 recordingManager.SetToggledAudioTranscriptObjectAfterTranscription()
                 await MainActor.run {
                     ProgressHUD.succeed("Transcription Complete")
-                    AudioFeedback.shared.playDing()
+                    AudioFeedback.shared.playDing(intensity: 0.6)
                 }
             } catch {
                 await MainActor.run {

@@ -372,7 +372,7 @@ final class OneDriveManager {
                         ProgressHUD.succeed("Recording sent to OneDrive")
                     }
                 }
-                AudioFeedback.shared.playWhoosh()
+                AudioFeedback.shared.playWhoosh(intensity: 0.6)
 
             } catch {
                 // If audio failed (or transcript failed after audio), show a concise message

@@ -1050,7 +1050,7 @@ final class GoogleDriveManager: NSObject {
                             ProgressHUD.succeed("Recording sent to Google Drive")
                             viewController.EnableUI()
                         }
-                        AudioFeedback.shared.playWhoosh()
+                        AudioFeedback.shared.playWhoosh(intensity: 0.6)
                         return
                     }
 
@@ -1062,7 +1062,7 @@ final class GoogleDriveManager: NSObject {
                             switch result2 {
                             case .success:
                                 ProgressHUD.succeed("Recording & transcript sent to Google Drive")
-                                AudioFeedback.shared.playWhoosh()
+                                AudioFeedback.shared.playWhoosh(intensity: 0.6)
                             case .failure(_):
                                 // Audio is already uploaded; inform transcript failure lightly
                                 ProgressHUD.dismiss()

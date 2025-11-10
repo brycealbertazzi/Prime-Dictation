@@ -196,7 +196,7 @@ final class EmailManager: NSObject {
                 ProgressHUD.succeed("Recording sent to Email")
             }
             viewController?.EnableUI()
-            AudioFeedback.shared.playWhoosh()
+            AudioFeedback.shared.playWhoosh(intensity: 0.6)
         } catch {
             ProgressHUD.dismiss()
             print("❌ SendToEmail error: \(error)")
