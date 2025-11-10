@@ -500,6 +500,7 @@ final class OneDriveManager {
 
     private func saveSelection(_ sel: OneDriveSelection) {
         let data = try! JSONEncoder().encode(sel)
+        print("Saving to user defaults: \(String(decoding: data, as: UTF8.self))")
         UserDefaults.standard.set(data, forKey: "OneDriveFolderSelection")
     }
 
@@ -508,38 +509,12 @@ final class OneDriveManager {
         return try? JSONDecoder().decode(OneDriveSelection.self, from: data)
     }
 
-    /// If user picked a folder, use it; otherwise ensure/create "Prime Dictation" and return its IDs
+    /// If user picked a folder, use it; otherwise send to the root
     private func resolveSelectionOrDefault(token: String) async throws -> OneDriveSelection {
         if let sel = loadSelection() { return sel }
         let driveId = try await getDefaultDriveId(token: token)
 
-        // Try create (idempotent via 'replace'); if it existed, fetch by path
-        struct CreateFolderBody: Encodable {
-            let name: String
-            let folder: [String:String] = [:]
-            let conflictBehavior: String
-        }
-        let createURL = URL(string: "https://graph.microsoft.com/v1.0/drives/\(driveId)/root/children")!
-        let body = CreateFolderBody(name: "Prime Dictation", conflictBehavior: "replace")
-        let (cData, cResp) = try await URLSession.shared.data(for: authorizedRequest(
-            url: createURL, token: token, method: "POST",
-            headers: ["Content-Type":"application/json"], body: try JSONEncoder().encode(body)
-        ))
-        if let http = cResp as? HTTPURLResponse, (200...299).contains(http.statusCode) {
-            let item = try decode(DriveItemWithParent.self, from: cData)
-            return OneDriveSelection(driveId: item.parentReference?.driveId ?? driveId, itemId: item.id)
-        }
-
-        // Get by path (if already there)
-        let path = percentPathComponent("Prime Dictation")
-        let getURL = URL(string: "https://graph.microsoft.com/v1.0/drives/\(driveId)/root:/\(path)")!
-        let (gData, gResp) = try await URLSession.shared.data(for: authorizedRequest(url: getURL, token: token))
-        guard let gHttp = gResp as? HTTPURLResponse, (200...299).contains(gHttp.statusCode) else {
-            throw ODRError.badResponse(status: (gResp as? HTTPURLResponse)?.statusCode ?? -1,
-                                       body: String(data: gData, encoding: .utf8) ?? "")
-        }
-        let item = try decode(DriveItemWithParent.self, from: gData)
-        return OneDriveSelection(driveId: item.parentReference?.driveId ?? driveId, itemId: item.id)
+        return OneDriveSelection(driveId: driveId, itemId: "root")
     }
 
     // MARK: - Folder Picker plumbing (Graph)
@@ -1063,11 +1038,12 @@ final class OneDriveManager {
             guard let manager = self.manager else { return }
 
             let idToUse = selectedId ?? currentFolderId
-
+            
             // Root special-case
             if idToUse == "root" {
                 let sel = OneDriveSelection(driveId: ctx.driveId, itemId: "root")
                 manager.saveSelection(sel)
+                print("root: \(sel)")
                 onPicked(sel)
                 dismiss(animated: true)
                 ProgressHUD.succeed("Root selected")
@@ -1078,6 +1054,7 @@ final class OneDriveManager {
             let sel = OneDriveSelection(driveId: ctx.driveId, itemId: idToUse)
             manager.saveSelection(sel)
             onPicked(sel)
+            print("non-root: \(sel)")
             dismiss(animated: true)
 
             // Pick a friendly name for the HUD

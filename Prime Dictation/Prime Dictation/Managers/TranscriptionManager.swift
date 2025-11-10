@@ -61,14 +61,15 @@ class TranscriptionManager {
         guard let recordingURL = recordingManager.toggledRecordingURL else {
             throw TranscriptionError.error("No recording found to transcribe")
         }
-
         do {
             try await uploadRecordingToCGBucket(to: signedPUT, from: recordingURL)
+            print("Uploaded recording to GC bucket")
         } catch {
             throw TranscriptionError.error("Upload failed", underlying: error)
         }
 
         let transcriptFilename = "\(recordingManager.toggledAudioTranscriptionObject.fileName).\(recordingManager.transcriptionRecordingExtension)"
+        print("TranscriptFilename: \(transcriptFilename)")
 
         let signedTxtURL: URL
         do {
