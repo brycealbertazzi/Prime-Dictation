@@ -190,26 +190,31 @@ class SettingsViewController: UIViewController {
         destinationManager.setSelectedDestination(destination)
     }
     
+    func UpdateButton(button: RoundedButton, color: UIColor) {
+        button.textColor = color
+        button.borderColor = color
+    }
+    
     func UpdateSelectedDestinationUI(destination: Destination? = Destination.none) {
         let selectedColor: UIColor = PDColors.blue
         let graphite: UIColor = PDColors.black
         SelectFolderIcon.isEnabled = true
         SelectFolderIcon.alpha = 1.0
 
-        DropboxLabel.borderColor = graphite
-        OneDriveLabel.borderColor = graphite
-        GoogleDriveLabel.borderColor = graphite
-        EmailLabel.borderColor = graphite
+        UpdateButton(button: DropboxLabel, color: graphite)
+        UpdateButton(button: OneDriveLabel, color: graphite)
+        UpdateButton(button: GoogleDriveLabel, color: graphite)
+        UpdateButton(button: EmailLabel, color: graphite)
 
         switch destination {
         case .dropbox:
-            DropboxLabel.borderColor = selectedColor
+            UpdateButton(button: DropboxLabel, color: selectedColor)
         case .onedrive:
-            OneDriveLabel.borderColor = selectedColor
+            UpdateButton(button: OneDriveLabel, color: selectedColor)
         case .googledrive:
-            GoogleDriveLabel.borderColor = selectedColor
+            UpdateButton(button: GoogleDriveLabel, color: selectedColor)
         case .email: // No need for the nested if check
-            EmailLabel.borderColor = selectedColor
+            UpdateButton(button: EmailLabel, color: selectedColor)
             SelectFolderIcon.isEnabled = false
             SelectFolderIcon.alpha = 0.4
         case .none?: // Handles the nil case directly

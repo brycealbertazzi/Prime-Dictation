@@ -14,6 +14,10 @@ class RoundedButton: UIButton {
     @IBInspectable var borderColor: UIColor = .systemBlue {
         didSet { updateAppearance() }
     }
+    
+    @IBInspectable var textColor: UIColor = .systemBlue {
+        didSet { updateAppearance() }
+    }
 
     @IBInspectable var paddingTop: CGFloat = 6 {
         didSet { updateAppearance() }
@@ -81,10 +85,10 @@ class RoundedButton: UIButton {
         }
 
         // text colors
-        setTitleColor(borderColor, for: .normal)
-        setTitleColor(borderColor, for: .highlighted)
-        setTitleColor(borderColor, for: .selected)
-        setTitleColor(borderColor.withAlphaComponent(0.4), for: .disabled)
+        setTitleColor(textColor, for: .normal)
+        setTitleColor(textColor, for: .highlighted)
+        setTitleColor(textColor, for: .selected)
+        setTitleColor(textColor.withAlphaComponent(0.4), for: .disabled)
 
         // padding
         contentEdgeInsets = UIEdgeInsets(
@@ -105,7 +109,7 @@ class RoundedButton: UIButton {
 
     private func updateHighlightState() {
         if isHighlighted {
-            backgroundColor = borderColor.withAlphaComponent(0.2)
+            backgroundColor = textColor.withAlphaComponent(0.2)
             titleLabel?.alpha = 1.0
         } else {
             backgroundColor = .clear
