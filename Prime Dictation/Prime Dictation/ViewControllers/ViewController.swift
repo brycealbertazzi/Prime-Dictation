@@ -335,13 +335,24 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
     private var poorConnectionStartTimer: Timer?
     
-    @IBAction func TranscribeButton(_ sender: Any) {
-        guard let url = recordingManager.toggledRecordingURL else {
-            ProgressHUD.failed("No recording found")
-            return
+    func transcriptionLengthWarning(seconds: CGFloat, estimated: CGFloat) {
+        let estimatedMinutesRoundedUp = Int(ceil(estimated / 60))
+        
+        if (seconds >= 600) {
+            // Red warning
+            let title = "Recording length SEVERE warning"
+            let msg = "Your file is over 10 minutes long. We don't recommend transcribing recordings of this length. Transcription accuracy will be significantly affected. Please consider breaking it up into multiple recordings and transcribing each one separately. It will take a long time to transcribe your file, you must keep the app open during the process otherwise the transcription will not complete. Are you sure you would like to proceed? Estimated time: \(estimatedMinutesRoundedUp) minutes"
+            displayAlertLongRecording(title: title, message: msg, estimated: estimated)
+        } else {
+            // Yellow warning
+            let title = "Recording length warning"
+            let msg = "Your file is over 5 minutes long. Transcription accuracy may be affected. Please consider breaking it up into multiple recordings and transcribing each one separately. It will take some time to transcribe your file, you must keep the app open during the process otherwise the transcription will not complete. Are you sure you would like to proceed? Estimated time: \(estimatedMinutesRoundedUp) minutes"
+            displayAlertLongRecording(title: title, message: msg, estimated: estimated)
         }
-
-        transcriptionInProgressUI(totalSeconds: estimatedTranscriptionSeconds(for: url))
+    }
+    
+    func executeTranscription(estimated: CGFloat) {
+        transcriptionInProgressUI(time: estimated)
 
         Task {
             // FINALLY: always run
@@ -372,19 +383,34 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
     
+    @IBAction func TranscribeButton(_ sender: Any) {
+        guard let url = recordingManager.toggledRecordingURL else {
+            ProgressHUD.failed("No recording found")
+            return
+        }
+        let seconds = recordingDuration(for: url)
+        let estimatedTranscriptionSeconds = (seconds / 2) + 15
+        
+        if (seconds >= 300) {
+            transcriptionLengthWarning(seconds: seconds, estimated: estimatedTranscriptionSeconds)
+        } else {
+            executeTranscription(estimated: estimatedTranscriptionSeconds)
+        }
+    }
+    
     @IBAction func SeeTranscriptionButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
         showTranscriptionScreen()
     }
     
-    private func estimatedTranscriptionSeconds(for url: URL) -> TimeInterval {
+    private func recordingDuration(for url: URL) -> TimeInterval {
         let asset = AVURLAsset(url: url)
         let seconds = CMTimeGetSeconds(asset.duration)
-        guard seconds.isFinite, seconds > 0 else { return 7 }
-        return (seconds / 2.0) + 15.0
+        guard seconds.isFinite, seconds > 0 else { return 0 }
+        return seconds
     }
     
-    private func transcriptionInProgressUI(totalSeconds: TimeInterval) {
+    private func transcriptionInProgressUI(time: TimeInterval) {
         // Cancel any prior timers
         transcriptionProgressTimer?.invalidate()
         poorConnectionStartTimer?.invalidate()
@@ -397,7 +423,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PoorConnectionLabel.alpha = 1.0
 
         transcriptionProgressStage = 0
-        let total = max(totalSeconds, 6.0)     // avoid flicker for tiny clips
+        let total = max(time, 6.0)     // avoid flicker for tiny clips
         let seg = total / 3.0
 
         // Stage 1 immediately
@@ -508,6 +534,19 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: {_ in
             handler?()
         }))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func displayAlertLongRecording(title: String, message: String, estimated: CGFloat) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))  // just dismiss
+
+        alert.addAction(UIAlertAction(title: "Proceed", style: .default) { [weak self] _ in
+            guard let self = self else { return }
+            self.executeTranscription(estimated: estimated)
+        })
+
         present(alert, animated: true, completion: nil)
     }
     
