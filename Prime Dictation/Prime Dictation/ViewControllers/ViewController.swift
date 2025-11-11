@@ -340,13 +340,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         
         if (seconds >= 600) {
             // Red warning
-            let title = "Recording length SEVERE warning"
-            let msg = "Your file is over 10 minutes long. We don't recommend transcribing recordings of this length. Transcription accuracy will be significantly affected. Please consider breaking it up into multiple recordings and transcribing each one separately. It will take a long time to transcribe your file, you must keep the app open during the process otherwise the transcription will not complete. Are you sure you would like to proceed? Estimated time: \(estimatedMinutesRoundedUp) minutes"
+            let title = "Transcription length DANGER"
+            let msg = "Your recording is over 10 minutes long. We don't recommend transcribing recordings of this length. Transcription accuracy will be significantly affected. Please consider breaking it up into multiple recordings and transcribing each one separately. It will take a long time to transcribe your file, you must keep the app open during the process otherwise the transcription will not complete. Are you sure you would like to proceed? Estimated time: \(estimatedMinutesRoundedUp) minutes"
             displayAlertLongRecording(title: title, message: msg, estimated: estimated)
         } else {
             // Yellow warning
-            let title = "Recording length warning"
-            let msg = "Your file is over 5 minutes long. Transcription accuracy may be affected. Please consider breaking it up into multiple recordings and transcribing each one separately. It will take some time to transcribe your file, you must keep the app open during the process otherwise the transcription will not complete. Are you sure you would like to proceed? Estimated time: \(estimatedMinutesRoundedUp) minutes"
+            let title = "Transcription length warning"
+            let msg = "Your recording is over 5 minutes long. Transcription accuracy may be affected. Please consider breaking it up into multiple recordings and transcribing each one separately. It will take some time to transcribe your file, you must keep the app open during the process otherwise the transcription will not complete. Are you sure you would like to proceed? Estimated time: \(estimatedMinutesRoundedUp) minutes"
             displayAlertLongRecording(title: title, message: msg, estimated: estimated)
         }
     }
