@@ -50,6 +50,7 @@ final class EmailManager: NSObject {
     override init() {
         super.init()
         self.emailAddress = UserDefaults.standard.string(forKey: emailStorageKey)
+        print("email address: \(self.emailAddress ?? "")")
     }
 
     func attach(settingsViewController: SettingsViewController) {
@@ -117,8 +118,6 @@ final class EmailManager: NSObject {
                 viewController?.EnableUI()
                 return
             }
-            print("ℹ️ presign endpoint: \(signerURL.absoluteString)")
-            print("ℹ️ email endpoint:   \(emailURL.absoluteString)")
 
             guard let toEmail = emailAddress, !toEmail.isEmpty else {
                 print("❌ Email not set")
@@ -157,7 +156,6 @@ final class EmailManager: NSObject {
             let recKey = "recordings/\(recordingName).\(recordingManager?.audioRecordingExtension ?? "m4a")"
 
             let bearer = try await AppServices.shared.getFreshIDToken()
-            print("ℹ️ token len: \(bearer.count)")
 
             // 1) Presign + upload recording
             let recPresign = try await mintPresignedPUT(
@@ -170,6 +168,7 @@ final class EmailManager: NSObject {
             try await uploadToS3(presigned: recPresign, fileData: recData)
 
             // 2) Presign + upload transcription (optional)
+            var transcriptionKey: String? = nil
             if let tURL = transcriptionFileURL {
                 let txData: Data = try await withCheckedThrowingContinuation { cont in
                     DispatchQueue.global(qos: .userInitiated).async {
@@ -186,17 +185,24 @@ final class EmailManager: NSObject {
                     contentLength: txData.count,
                     bearer: bearer
                 )
+                transcriptionKey = tKey
                 try await uploadToS3(presigned: txPresign, fileData: txData)
             }
-            print("✅ email lambda returned 2xx")
-
-            if hasTranscription {
-                ProgressHUD.succeed("Recording & transcript sent to Email")
-            } else {
-                ProgressHUD.succeed("Recording sent to Email")
+            
+            // 3) Send Email to user's email address
+            do {
+                _ = try await sendEmail(endpoint: emailURL, toEmail: toEmail, recordingKey: recKey, transcriptionKey: transcriptionKey, bearer: bearer)
+                if hasTranscription {
+                    ProgressHUD.succeed("Recording & transcript sent to Email")
+                } else {
+                    ProgressHUD.succeed("Recording sent to Email")
+                }
+                AudioFeedback.shared.playWhoosh(intensity: 0.6)
+                print("✅ email lambda returned 2xx")
+            } catch {
+                print("❌ email lambda failed: \(error)")
             }
             viewController?.EnableUI()
-            AudioFeedback.shared.playWhoosh(intensity: 0.6)
         } catch {
             ProgressHUD.dismiss()
             print("❌ SendToEmail error: \(error)")
@@ -206,7 +212,6 @@ final class EmailManager: NSObject {
     }
 
     // MARK: - Network calls
-
     func sendEmail(
         endpoint: URL,
         toEmail: String,

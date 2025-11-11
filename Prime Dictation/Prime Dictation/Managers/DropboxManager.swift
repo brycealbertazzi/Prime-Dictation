@@ -646,7 +646,7 @@ final class DropboxManager {
             label.font = .systemFont(ofSize: 14, weight: .regular)
             label.textColor = .secondaryLabel
             let nameText: String = {
-                guard let sel = lastSavedSelection else { return "None" }
+                guard let sel = lastSavedSelection else { return "Root" }
                 if sel.folderId == DropboxManager.rootSelectionId { return "Root" }
                 return sel.name ?? "Unknown"
             }()

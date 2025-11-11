@@ -885,7 +885,7 @@ final class OneDriveManager {
 
             // Default text, then try to resolve a friendly name asynchronously
             label.text = "Last selected: " + {
-                guard let sel = lastSavedSelection else { return "None" }
+                guard let sel = lastSavedSelection else { return "Root" }
                 return sel.itemId == "root" ? "Root" : "Loading…"
             }()
 
