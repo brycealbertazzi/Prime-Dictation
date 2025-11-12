@@ -61,13 +61,11 @@ class SettingsViewController: UIViewController {
     private var didAdjustOnce = false
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        print("viewDidLayoutSubviews: didAdjustOnce: \(didAdjustOnce)")
         if !didAdjustOnce { adjustHeaderTop() }
     }
 
     private func adjustHeaderTop() {
         didAdjustOnce = true
-        print("Adjusting header top")
         // We only compensate when it's an adapted sheet (not a popover),
         // and only if there's NO navigation bar (safe area already accounts for it).
         let isSheet = (sheetPresentationController != nil) && (popoverPresentationController == nil)

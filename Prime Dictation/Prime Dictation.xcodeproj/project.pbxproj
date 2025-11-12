@@ -15,6 +15,7 @@
 		0341830522EE36B300670DD1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0341830422EE36B300670DD1 /* Assets.xcassets */; };
 		0341830822EE36B300670DD1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0341830622EE36B300670DD1 /* LaunchScreen.storyboard */; };
 		037D80972E78BABB000D5231 /* SwiftyDropbox in Frameworks */ = {isa = PBXBuildFile; productRef = 037D80962E78BABB000D5231 /* SwiftyDropbox */; };
+		03A6F8692EC41A4F00BD411D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03A6F8682EC41A4F00BD411D /* GoogleService-Info.plist */; };
 		03BE287A2E94243300392139 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 03BE28792E94243300392139 /* GoogleSignIn */; };
 		03BE287C2E94243300392139 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 03BE287B2E94243300392139 /* GoogleSignInSwift */; };
 		03BE28812E94433A00392139 /* GoogleAPIClientForRESTCore in Frameworks */ = {isa = PBXBuildFile; productRef = 03BE28802E94433A00392139 /* GoogleAPIClientForRESTCore */; };
@@ -57,7 +58,6 @@
 		03BE28CB2E9443D500392139 /* GoogleAPIClientForREST_Drive in Frameworks */ = {isa = PBXBuildFile; productRef = 03BE28CA2E9443D500392139 /* GoogleAPIClientForREST_Drive */; };
 		03BE28D02EA822C300392139 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 03BE28CF2EA822C300392139 /* FirebaseAuth */; };
 		03BE28D22EA822C300392139 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 03BE28D12EA822C300392139 /* FirebaseCore */; };
-		03BE28D42EA829BB00392139 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03BE28D32EA829BB00392139 /* GoogleService-Info.plist */; };
 		03E719412E8764D0003B6BF1 /* AppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E719402E8764CE003B6BF1 /* AppServices.swift */; };
 		03E719432E87AFE2003B6BF1 /* SwiftyDropbox in Frameworks */ = {isa = PBXBuildFile; productRef = 03E719422E87AFE2003B6BF1 /* SwiftyDropbox */; };
 		03E719452E87B012003B6BF1 /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = 03E719442E87B012003B6BF1 /* ProgressHUD */; };
@@ -72,7 +72,7 @@
 		0341830722EE36B300670DD1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0341830922EE36B300670DD1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		03A58EE52E7C7FB100B4EE58 /* Prime Dictation.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Prime Dictation.entitlements"; sourceTree = "<group>"; };
-		03BE28D32EA829BB00392139 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		03A6F8682EC41A4F00BD411D /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		03E719402E8764CE003B6BF1 /* AppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServices.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -165,13 +165,13 @@
 				039EE3362EB3BB18009E9231 /* Managers */,
 				039EE3352EB3BB0C009E9231 /* ViewControllers */,
 				03E719402E8764CE003B6BF1 /* AppServices.swift */,
-				03A58EE52E7C7FB100B4EE58 /* Prime Dictation.entitlements */,
 				034182FD22EE36B300670DD1 /* AppDelegate.swift */,
 				0341830122EE36B300670DD1 /* Main.storyboard */,
 				0341830422EE36B300670DD1 /* Assets.xcassets */,
+				03A6F8682EC41A4F00BD411D /* GoogleService-Info.plist */,
 				0341830622EE36B300670DD1 /* LaunchScreen.storyboard */,
-				03BE28D32EA829BB00392139 /* GoogleService-Info.plist */,
 				0341830922EE36B300670DD1 /* Info.plist */,
+				03A58EE52E7C7FB100B4EE58 /* Prime Dictation.entitlements */,
 			);
 			path = "Prime Dictation";
 			sourceTree = "<group>";
@@ -207,8 +207,9 @@
 		034182F222EE36B300670DD1 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1030;
-				LastUpgradeCheck = 1030;
+				LastUpgradeCheck = 2610;
 				ORGANIZATIONNAME = "Bryce Albertazzi";
 				TargetAttributes = {
 					034182F922EE36B300670DD1 = {
@@ -248,7 +249,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0341830822EE36B300670DD1 /* LaunchScreen.storyboard in Resources */,
-				03BE28D42EA829BB00392139 /* GoogleService-Info.plist in Resources */,
+				03A6F8692EC41A4F00BD411D /* GoogleService-Info.plist in Resources */,
 				0341830522EE36B300670DD1 /* Assets.xcassets in Resources */,
 				0341830322EE36B300670DD1 /* Main.storyboard in Resources */,
 			);
@@ -314,6 +315,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -323,8 +325,10 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 7JG2927ZK8;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -344,6 +348,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -375,6 +380,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -384,8 +390,10 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 7JG2927ZK8;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -398,6 +406,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				VALIDATE_PRODUCT = YES;
@@ -413,7 +422,6 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7JG2927ZK8;
 				INFOPLIST_FILE = "Prime Dictation/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Prime Dictation";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
@@ -444,7 +452,6 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7JG2927ZK8;
 				INFOPLIST_FILE = "Prime Dictation/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Prime Dictation";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";

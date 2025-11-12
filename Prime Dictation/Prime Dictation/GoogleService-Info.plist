@@ -2,18 +2,22 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CLIENT_ID</key>
+	<string>486981472809-i916v6338dkilll9q2hvv6chaifc8u2t.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.486981472809-i916v6338dkilll9q2hvv6chaifc8u2t</string>
 	<key>API_KEY</key>
-	<string>AIzaSyATDDTn8E6rSLn3lHKKyumGUQ13Tjx1Y6Q</string>
+	<string>AIzaSyCCx_4pDgTxItQICi6BIif-LmGJI3PdnB4</string>
 	<key>GCM_SENDER_ID</key>
-	<string>42191224343</string>
+	<string>486981472809</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.BryceAlbertazzi.PrimeDictation</string>
 	<key>PROJECT_ID</key>
-	<string>prime-dictation</string>
+	<string>prime-dictation-474316</string>
 	<key>STORAGE_BUCKET</key>
-	<string>prime-dictation.firebasestorage.app</string>
+	<string>prime-dictation-474316.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,8 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:42191224343:ios:1128d5a8f449cd61912652</string>
-	<key>DATABASE_URL</key>
-	<string>https://prime-dictation.firebaseio.com</string>
+	<string>1:486981472809:ios:001b928d8df80ddb608238</string>
 </dict>
 </plist>

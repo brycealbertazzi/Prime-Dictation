@@ -18,7 +18,7 @@ import FirebaseAuth
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         let dropboxAppKey = loadDropboxAppKey()
@@ -28,6 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         GIDSignIn.sharedInstance.configuration = GIDConfiguration.init(clientID: GDClientID)
         
         FirebaseApp.configure()
+        Task { await AppServices.shared.rebindAuthToNewProjectOnce() }
         
         return true
     }
@@ -90,9 +91,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         let scheme = (url.scheme ?? "").lowercased()
-        print("scheme \(scheme)")
         if scheme.hasPrefix("com.googleusercontent.apps") {
-            print("handling GD sign in")
             return GIDSignIn.sharedInstance.handle(url)
         }
         

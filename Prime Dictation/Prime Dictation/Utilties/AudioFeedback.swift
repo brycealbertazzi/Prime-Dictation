@@ -82,7 +82,7 @@ final class AudioFeedback {
             players[name] = player
             return player
         } catch {
-            print("⚠️ AudioFeedback: failed to create player for '\(name)': \(error)")
+            print("⚠️ AudioFeedback: failed to create player for \(name)")
             return nil
         }
     }

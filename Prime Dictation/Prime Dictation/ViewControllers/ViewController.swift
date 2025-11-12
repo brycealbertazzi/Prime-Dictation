@@ -33,7 +33,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var SeeTranscriptionLabel: UIButton!
     @IBOutlet weak var PoorConnectionLabel: UILabel!
     
-    
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
     var audioRecorder: AVAudioRecorder! //Responsible for recording our audio
     var audioPlayer: AVAudioPlayer!
@@ -366,8 +365,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 self.PoorConnectionLabel.layer.removeAllAnimations()
                 self.PoorConnectionLabel.alpha = 1.0
                 self.PoorConnectionLabel.isHidden = true
+                
             }
-
+            
             do {
                 try await transcriptionManager.transcribeAudioFile()
                 recordingManager.SetToggledAudioTranscriptObjectAfterTranscription()
@@ -378,6 +378,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             } catch {
                 await MainActor.run {
                     self.displayAlert(title: "Transcription Failed", message: "We were unable to transcribe your recording. Try again later.")
+                    ProgressHUD.dismiss()
                 }
             }
         }

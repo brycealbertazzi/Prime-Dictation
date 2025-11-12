@@ -114,7 +114,7 @@ class RecordingManager {
             do {
                 try newText.write(to: fileURL, atomically: true, encoding: .utf8)
             } catch {
-                print("⚠️ Failed to write updated transcript to disk: \(error)")
+                print("⚠️ Failed to write updated transcript to disk")
             }
         } else {
             print("⚠️ No transcript file URL on toggledAudioTranscriptionObject")
@@ -241,7 +241,7 @@ class RecordingManager {
                     // Optionally update UI to reflect that a transcript is available and current
                     self.viewController.HasTranscriptionUI()
                 } catch {
-                    print("⚠️ Failed to reload transcript after rename: \(error)")
+                    print("⚠️ Failed to reload transcript after rename")
                 }
             } else {
                 // No transcript file — clear cached text to avoid stale data
@@ -253,7 +253,7 @@ class RecordingManager {
 
         } catch {
             ProgressHUD.failed("Failed to rename file")
-            print("Failed to rename file: \(error.localizedDescription)")
+            print("Failed to rename file")
         }
     }
 
@@ -379,8 +379,6 @@ extension UserDefaults {
         guard let data = data(forKey: key) else { return nil }
         do { return try JSONDecoder().decode(T.self, from: data) }
         catch {
-            // Optional: log once
-            print("UserDefaults decode error for \(key):", error)
             return nil
         }
     }

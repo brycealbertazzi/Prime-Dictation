@@ -69,7 +69,6 @@ class TranscriptionManager {
         }
 
         let transcriptFilename = "\(recordingManager.toggledAudioTranscriptionObject.fileName).\(recordingManager.transcriptionRecordingExtension)"
-        print("TranscriptFilename: \(transcriptFilename)")
 
         let signedTxtURL: URL
         do {
@@ -158,13 +157,18 @@ class TranscriptionManager {
 
     // MARK: - /sign call
     private func fetchSignedTxtURL(base: String, filename: String) async throws -> URL {
+        let token = try await AppServices.shared.getFreshIDToken()
+
+        // Use base service URL; pass name via query (your handler reads req.query)
         var comps = URLComponents(string: base)!
         comps.queryItems = [
-            URLQueryItem(name: "name", value: filename),
-            URLQueryItem(name: "ts", value: String(Date().timeIntervalSince1970)) // harmless on your /sign endpoint
+            .init(name: "name", value: filename),
+            .init(name: "ts", value: String(Date().timeIntervalSince1970))
         ]
+
         var req = URLRequest(url: comps.url!, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 30)
         req.httpMethod = "GET"
+        req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
         let (data, resp) = try await URLSession.shared.data(for: req)
         guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
@@ -175,7 +179,6 @@ class TranscriptionManager {
         guard let signed = URL(string: payload.url) else { throw URLError(.badURL) }
         return signed
     }
-
 
     // MARK: - Existence probe (HEAD, fallback 1-byte Range GET)
     /// Returns true only if the object exists **and** its Last-Modified >= notBefore (if provided).
@@ -344,49 +347,61 @@ class TranscriptionManager {
 
         var req = URLRequest(url: signedURL)
         req.httpMethod = "PUT"
-        req.setValue("audio/mp4", forHTTPHeaderField: "Content-Type") // must match signing
+        req.setValue("audio/mp4", forHTTPHeaderField: "Content-Type")
+        // ❌ Do NOT add Authorization on a GCS signed URL
         req.httpBody = data
 
         do {
-            let (respData, resp) = try await URLSession.shared.data(for: req)
+            let (_, resp) = try await URLSession.shared.data(for: req)
             guard let http = resp as? HTTPURLResponse else {
                 print("❌ Not a HTTPURLResponse"); return
             }
-
             if http.statusCode != 200 {
-                let bodyText = String(data: respData, encoding: .utf8) ?? "<non-utf8 \(respData.count) bytes>"
-                print(bodyText)
+                print("❌ Non-200 status code when uploading to GC bucket: \(http.statusCode)")
                 return
             }
-            print("✅ Upload OK (\(data.count) bytes)")
+            print("✅ Upload OK")
         } catch {
-            print("❌ URLSession error:", error)
+            print("❌ URLSession error")
         }
     }
 
-    func mintSignedURL() async throws -> URL?  {
-        var bearer: String = ""
+
+    func mintSignedURL() async throws -> URL? {
+        // 1) Firebase ID token
+        let token: String
         do {
-            bearer = try await AppServices.shared.getFreshIDToken()
+            token = try await AppServices.shared.getFreshIDToken()
         } catch {
             print("Unable to fetch FirebaseAuth token")
             return nil
         }
+
+        // 2) Target base URL of the Cloud Run service for signedPut
+        guard let signedPutBase = SignedAudioUrlGCFunction,
+              let url = URL(string: signedPutBase) else { return nil }
+
+        // 3) JSON body expected by your Node handler (req.body)
         let bucketPath = "\(recordingManager.toggledAudioTranscriptionObject.fileName).\(recordingManager.audioRecordingExtension)"
-        let contentType = "audio/mp4"
-        var comps = URLComponents(string: "\(SignedAudioUrlGCFunction!)/signed-put")!
-        comps.queryItems = [
-            .init(name: "bucketPath", value: bucketPath),
-            .init(name: "contentType", value: contentType)
+        let body: [String: Any] = [
+            "bucketPath": bucketPath,
+            "contentType": "audio/mp4"
         ]
-        var req = URLRequest(url: comps.url!)
-        req.httpMethod = "GET"
-        req.setValue("Bearer \(bearer)", forHTTPHeaderField: "Authorization") // must match API_BEARER on server
+
+        var req = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 30)
+        req.httpMethod = "POST"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        req.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
 
         let (data, resp) = try await URLSession.shared.data(for: req)
         guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            if let http = resp as? HTTPURLResponse {
+                print("signedPut non-2xx")
+            }
             return nil
         }
+
         return try JSONDecoder().decode(SignedURLResponse.self, from: data).url
     }
 }

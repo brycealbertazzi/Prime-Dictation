@@ -90,14 +90,6 @@ class RoundedButton: UIButton {
         setTitleColor(textColor, for: .selected)
         setTitleColor(textColor.withAlphaComponent(0.4), for: .disabled)
 
-        // padding
-        contentEdgeInsets = UIEdgeInsets(
-            top: paddingTop,
-            left: paddingLeft,
-            bottom: paddingBottom,
-            right: paddingRight
-        )
-
         // background
         if !isHighlighted {
             backgroundColor = .clear

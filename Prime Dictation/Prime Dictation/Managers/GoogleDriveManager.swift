@@ -215,9 +215,9 @@ class GDFolderPickerViewController: UITableViewController {
         manager.httpListFolders(parentId: parentFolderId) { [weak self] result in
             guard let self = self else { return }
             switch result {
-            case .failure(let error):
+            case .failure(_):
                 ProgressHUD.failed("Unable to open folder picker, try again later")
-                print("Failed to load folders: \(error.localizedDescription)")
+                print("Failed to load folders")
                 self.dismiss(animated: true)
 
             case .success(let rows):
@@ -240,8 +240,8 @@ class GDFolderPickerViewController: UITableViewController {
         manager.httpParentsHavingChildFolders(parentIDs: parentFolderIds) { [weak self] res in
             guard let self = self else { return }
             switch res {
-            case .failure(let e):
-                print("Children check error: \(e.localizedDescription)")
+            case .failure(_):
+                print("Children check error")
             case .success(let parentsWithKids):
                 var reload = false
                 for i in 0..<self.items.count {
@@ -400,8 +400,8 @@ final class GoogleDriveManager: NSObject {
         // 1) Refresh tokens OUTSIDE any UI lifecycle
         GIDSignIn.sharedInstance.currentUser?.refreshTokensIfNeeded { [weak self] _, refreshErr in
             guard let self = self else { return }
-            if let refreshErr {
-                print("Preflight refresh failed: \(refreshErr.localizedDescription)")
+            if refreshErr != nil {
+                print("Preflight refresh failed")
                 DispatchQueue.main.async { completion(false) }
                 return
             }
@@ -421,8 +421,8 @@ final class GoogleDriveManager: NSObject {
             }
 
             URLSession.shared.dataTask(with: req) { _, resp, err in
-                if let err {
-                    print("Preflight HTTP ping failed: \(err.localizedDescription)")
+                if err != nil {
+                    print("Preflight HTTP ping failed")
                     DispatchQueue.main.async { completion(false) }
                     return
                 }
@@ -451,7 +451,6 @@ final class GoogleDriveManager: NSObject {
 
 
     // MARK: - Auth
-    // ✅ Your minimal, user-friendly scopes (no download permission):
     // - drive.file: create/manage only files your app creates/opens
     // - drive.metadata.readonly: list folders & file metadata without downloading content
     private let driveScopes = [
@@ -539,13 +538,6 @@ final class GoogleDriveManager: NSObject {
             let paramsAny = authObj.value(forKey: key) as Any?
             guard let dict = paramsAny as? [AnyHashable: Any] else { continue }
 
-            // Debug: log any non-String values
-            for (k, v) in dict {
-                if !(v is String) {
-                    print("⚠️ Non-string refresh param for \(key): \(k) = \(type(of: v)) -> \(v)")
-                }
-            }
-
             // Coerce to [String:String]
             var coerced = [String: String]()
             for (k, v) in dict {
@@ -599,7 +591,7 @@ final class GoogleDriveManager: NSObject {
             guard let self = self else { return }
             if let error = error {
                 if (error as NSError).code == GIDSignInError.Code.canceled.rawValue { completion(.cancel) }
-                else { completion(.error(error, "Google Sign-In failed: \(error.localizedDescription)")) }
+                else { completion(.error(error, "Google Sign-In failed")) }
                 return
             }
             guard let signInResult = signInResult else { completion(.cancel); return }
@@ -707,7 +699,7 @@ final class GoogleDriveManager: NSObject {
                         let code = (resp as? HTTPURLResponse)?.statusCode ?? -1
                         return DispatchQueue.main.async {
                             completion(.failure(NSError(domain: "PrimeDictation", code: code,
-                                                        userInfo: [NSLocalizedDescriptionKey: "Parents fetch failed (\(code))"])))
+                                                        userInfo: [NSLocalizedDescriptionKey: "Parents fetch failed"])))
                         }
                     }
                     struct ParentsDTO: Decodable { let parents: [String]? }
@@ -747,7 +739,7 @@ final class GoogleDriveManager: NSObject {
                         let code = (resp as? HTTPURLResponse)?.statusCode ?? -1
                         return DispatchQueue.main.async {
                             completion(.failure(NSError(domain: "PrimeDictation", code: code,
-                                                        userInfo: [NSLocalizedDescriptionKey: "Name fetch failed (\(code))"])))
+                                                        userInfo: [NSLocalizedDescriptionKey: "Name fetch failed"])))
                         }
                     }
                     struct NameDTO: Decodable { let name: String? }
@@ -788,7 +780,7 @@ final class GoogleDriveManager: NSObject {
                         let code = (resp as? HTTPURLResponse)?.statusCode ?? -1
                         return DispatchQueue.main.async {
                             completion(.failure(NSError(domain: "PrimeDictation", code: code,
-                                                        userInfo: [NSLocalizedDescriptionKey: "Drive list failed (\(code))"])))
+                                                        userInfo: [NSLocalizedDescriptionKey: "Drive list failed"])))
                         }
                     }
                     do {
@@ -835,7 +827,7 @@ final class GoogleDriveManager: NSObject {
                         let code = (resp as? HTTPURLResponse)?.statusCode ?? -1
                         return DispatchQueue.main.async {
                             completion(.failure(NSError(domain: "PrimeDictation", code: code,
-                                                        userInfo: [NSLocalizedDescriptionKey: "Drive children probe failed (\(code))"])))
+                                                        userInfo: [NSLocalizedDescriptionKey: "Drive children probe failed"])))
                         }
                     }
                     do {
@@ -883,7 +875,7 @@ final class GoogleDriveManager: NSObject {
                     let code = (resp as? HTTPURLResponse)?.statusCode ?? -1
                     return DispatchQueue.main.async {
                         completion(.failure(NSError(domain: "PrimeDictation", code: code,
-                                                    userInfo: [NSLocalizedDescriptionKey: "Failed to start upload session (\(code))"])))
+                                                    userInfo: [NSLocalizedDescriptionKey: "Failed to start upload session"])))
                     }
                 }
 
@@ -911,7 +903,7 @@ final class GoogleDriveManager: NSObject {
                         let code = (resp2 as? HTTPURLResponse)?.statusCode ?? -1
                         return DispatchQueue.main.async {
                             completion(.failure(NSError(domain: "PrimeDictation", code: code,
-                                                        userInfo: [NSLocalizedDescriptionKey: "Upload failed (\(code))"])))
+                                                        userInfo: [NSLocalizedDescriptionKey: "Upload failed"])))
                         }
                     }
                     if let data, let dto = try? JSONDecoder().decode(DriveUploadResultDTO.self, from: data),

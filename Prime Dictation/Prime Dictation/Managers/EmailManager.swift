@@ -50,7 +50,6 @@ final class EmailManager: NSObject {
     override init() {
         super.init()
         self.emailAddress = UserDefaults.standard.string(forKey: emailStorageKey)
-        print("email address: \(self.emailAddress ?? "")")
     }
 
     func attach(settingsViewController: SettingsViewController) {
@@ -107,13 +106,13 @@ final class EmailManager: NSObject {
 
         do {
             guard let presignStr = presignURLString, let signerURL = URL(string: presignStr), signerURL.scheme == "https" else {
-                print("❌ PRESIGNED_UPLOAD_AWS_LAMBDA_FUNCTION missing/invalid or not https: \(presignURLString ?? "<nil>")")
+                print("❌ PRESIGNED_UPLOAD_AWS_LAMBDA_FUNCTION missing/invalid or not https")
                 ProgressHUD.failed("Email service not configured (presign)")
                 viewController?.EnableUI()
                 return
             }
             guard let emailStr = emailURLString, let emailURL = URL(string: emailStr), emailURL.scheme == "https" else {
-                print("❌ EMAIL_SENDER_AWS_LAMBDA_FUNCTION missing/invalid or not https: \(emailURLString ?? "<nil>")")
+                print("❌ EMAIL_SENDER_AWS_LAMBDA_FUNCTION missing/invalid or not https")
                 ProgressHUD.failed("Email service not configured (sender)")
                 viewController?.EnableUI()
                 return
@@ -200,12 +199,12 @@ final class EmailManager: NSObject {
                 AudioFeedback.shared.playWhoosh(intensity: 0.6)
                 print("✅ email lambda returned 2xx")
             } catch {
-                print("❌ email lambda failed: \(error)")
+                print("❌ email lambda failed")
             }
             viewController?.EnableUI()
         } catch {
             ProgressHUD.dismiss()
-            print("❌ SendToEmail error: \(error)")
+            print("❌ SendToEmail error")
             viewController?.displayAlert(title: "Email not sent", message: "Failed to send email, try again later")
             viewController?.EnableUI()
         }
@@ -235,7 +234,6 @@ final class EmailManager: NSObject {
 
         guard (200...299).contains(http.statusCode) else {
             let bodyText = String(data: data, encoding: .utf8) ?? "<non-utf8 \(data.count) bytes>"
-            print("❌ email non-2xx: \(http.statusCode) | \(bodyText)")
             throw NSError(domain: "pd-email-sender", code: http.statusCode,
                           userInfo: ["body": bodyText])
         }
@@ -265,7 +263,7 @@ final class EmailManager: NSObject {
 
         guard http.statusCode == 200 else {
             let bodyText = String(data: data, encoding: .utf8) ?? "<non-utf8 \(data.count) bytes>"
-            print("❌ presign non-200: \(http.statusCode) | \(bodyText)")
+            print("❌ presign non-200")
             throw NSError(domain: "presign", code: http.statusCode,
                           userInfo: ["body": bodyText])
         }
@@ -282,7 +280,7 @@ final class EmailManager: NSObject {
         }
         let (_, resp) = try await URLSession.shared.upload(for: putReq, from: fileData)
         guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-            print("❌ s3 put failed: \((resp as? HTTPURLResponse)?.statusCode ?? -1)")
+            print("❌ s3 put failed")
             throw NSError(domain: "s3put", code: (resp as? HTTPURLResponse)?.statusCode ?? -1)
         }
     }

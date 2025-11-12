@@ -97,7 +97,7 @@ final class DropboxManager {
         if let userClient = DropboxClientsManager.authorizedClient {
             group.enter()
             userClient.auth.tokenRevoke().response { _, err in
-                if let err { print("Dropbox token revoke (user) failed: \(err)"); success = false }
+                if let err { print("Dropbox token revoke (user) failed"); success = false }
                 group.leave()
             }
         }
@@ -821,7 +821,6 @@ final class DropboxManager {
                     // Leaf: THIS becomes the selection (✓ appears)
                     self.selectedId = item.id
                     tableView.reloadSections(IndexSet(integer: 0), with: .none)
-                    print("Did select row at \(indexPath)")
                 }
             }
 

@@ -75,14 +75,13 @@ final class OneDriveManager {
             if let accounts = try? self.msalApp?.allAccounts(),
                let first = accounts.first {
                 self.signedInAccount = first
-                print("MSAL: restored cached account → \(first.username ?? "(no username)")")
             } else {
                 print("MSAL: no cached account")
             }
 
             print("MSAL configured ✅")
         } catch {
-            print("MSAL init failed ❌ \(error)")
+            print("MSAL init failed")
         }
     }
 
@@ -501,7 +500,7 @@ final class OneDriveManager {
 
     private func saveSelection(_ sel: OneDriveSelection) {
         let data = try! JSONEncoder().encode(sel)
-        print("Saving to user defaults: \(String(decoding: data, as: UTF8.self))")
+        print("Saving to user defaults")
         UserDefaults.standard.set(data, forKey: "OneDriveFolderSelection")
     }
 
@@ -1044,7 +1043,6 @@ final class OneDriveManager {
             if idToUse == "root" {
                 let sel = OneDriveSelection(driveId: ctx.driveId, itemId: "root")
                 manager.saveSelection(sel)
-                print("root: \(sel)")
                 onPicked(sel)
                 dismiss(animated: true)
                 ProgressHUD.succeed("Root selected")
@@ -1055,7 +1053,6 @@ final class OneDriveManager {
             let sel = OneDriveSelection(driveId: ctx.driveId, itemId: idToUse)
             manager.saveSelection(sel)
             onPicked(sel)
-            print("non-root: \(sel)")
             dismiss(animated: true)
 
             // Pick a friendly name for the HUD
