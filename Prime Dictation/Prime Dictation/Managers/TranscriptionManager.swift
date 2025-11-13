@@ -96,7 +96,7 @@ class TranscriptionManager {
                 overwrite: true
             )
             await MainActor.run {
-                recordingManager.UpdateToggledTranscriptionText(newText: toggledTranscriptText ?? "")
+                recordingManager.UpdateToggledTranscriptionText(newText: toggledTranscriptText ?? "", editing: false)
                 recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex].hasTranscription = true
                 recordingManager.toggledAudioTranscriptionObject = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex]
                 viewController.HasTranscriptionUI()

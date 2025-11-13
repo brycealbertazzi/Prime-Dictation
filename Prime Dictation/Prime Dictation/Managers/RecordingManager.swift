@@ -101,18 +101,23 @@ class RecordingManager {
         viewController.HasTranscriptionUI()
     }
     
-    func UpdateToggledTranscriptionText(newText: String) {
+    func UpdateToggledTranscriptionText(newText: String, editing: Bool = false) {
         // 1) update in-memory cache
-        transcriptionManager.toggledTranscriptText = newText
-        toggledAudioTranscriptionObject.transcriptionText = newText
+        var finalText: String
+        if (editing) {
+            finalText = newText
+        } else {
+            finalText = normalizeTranscript(newText)
+        }
+        transcriptionManager.toggledTranscriptText = finalText
+        toggledAudioTranscriptionObject.transcriptionText = finalText
         savedAudioTranscriptionObjects[toggledRecordingsIndex] = toggledAudioTranscriptionObject
-        
         
         // 2) persist to disk
         // assuming your object has something like `fileURL: URL?` or `transcriptFileURL: URL?`
         if let fileURL = toggledRecordingURL?.deletingPathExtension().appendingPathExtension(transcriptionRecordingExtension) {
             do {
-                try newText.write(to: fileURL, atomically: true, encoding: .utf8)
+                try finalText.write(to: fileURL, atomically: true, encoding: .utf8)
             } catch {
                 print("⚠️ Failed to write updated transcript to disk")
             }
@@ -120,6 +125,97 @@ class RecordingManager {
             print("⚠️ No transcript file URL on toggledAudioTranscriptionObject")
         }
     }
+    
+    func normalizeTranscript(_ input: String) -> String {
+        var text = input.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // 1) Collapse newlines -> spaces
+        text = text
+            .replacingOccurrences(of: #"\s*(?:\r\n|\r|\n|\u2028|\u2029)+\s*"#,
+                                  with: " ",
+                                  options: .regularExpression)
+            .replacingOccurrences(of: #"\s{2,}"#, with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // 2) Spoken punctuation -> symbols (with "literal" escape)
+        let tokens = text.split(whereSeparator: { $0.isWhitespace }).map { String($0) }
+        var out: [String] = []
+
+        func lower(_ s: String) -> String { s.lowercased() }
+        func peek(_ i: Int) -> String? { (i < tokens.count) ? tokens[i] : nil }
+        func attach(_ symbol: String) {
+            if let last = out.last {
+                if !last.hasSuffix(symbol) { out[out.count - 1] = last + symbol }
+            } else { out.append(symbol) }
+        }
+        func dropLiteralAndKeep(_ word: String) { if !out.isEmpty { out.removeLast() }; out.append(word) }
+
+        var i = 0
+        while i < tokens.count {
+            let cur = tokens[i]
+            let curL = lower(cur)
+            let prevWord = out.last ?? ""
+            let prevIsLiteral = lower(prevWord) == "literal"
+            let next = peek(i + 1)
+            let nextL = lower(next ?? "")
+
+            if curL == "question", nextL == "mark" {
+                if prevIsLiteral { dropLiteralAndKeep(cur); i += 1; if let n = next { out.append(n) } }
+                else { attach("?"); i += 1 }
+                i += 1; continue
+            }
+            if curL == "exclamation", (nextL == "mark" || nextL == "point") {
+                if prevIsLiteral { dropLiteralAndKeep(cur); i += 1; if let n = next { out.append(n) } }
+                else { attach("!"); i += 1 }
+                i += 1; continue
+            }
+            if ["period","comma","colon","semicolon"].contains(curL) {
+                if prevIsLiteral { dropLiteralAndKeep(cur) }
+                else { attach(["period":".","comma":",","colon":":","semicolon":" ;"][curL] ?? "") }
+                i += 1; continue
+            }
+            out.append(cur)
+            i += 1
+        }
+
+        // 3) Tidy spacing around punctuation
+        var normalized = out.joined(separator: " ")
+        normalized = normalized.replacingOccurrences(of: #"\s+([\.,!?\;:])"#,
+                                                     with: "$1",
+                                                     options: .regularExpression)
+        normalized = normalized.replacingOccurrences(of: #"([\.,!?\;:])([^\s"'\)\]\}])"#,
+                                                     with: "$1 $2",
+                                                     options: .regularExpression)
+        normalized = normalized.replacingOccurrences(of: #"\s{2,}"#,
+                                                     with: " ",
+                                                     options: .regularExpression)
+                               .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // 4) Capitalize the start of sentences (after ., !, ?)
+        normalized = sentenceCase(normalized)
+
+        return normalized.isEmpty ? "[Empty transcript]" : normalized
+    }
+
+    /// Capitalizes the first alphabetic character of the string and any
+    /// alphabetic character that follows `.`, `!`, or `?` (skipping spaces/quotes/brackets).
+    private func sentenceCase(_ s: String) -> String {
+        var result = ""
+        var capitalizeNext = true
+        for ch in s {
+            if capitalizeNext, ch.isLetter {
+                result.append(String(ch).uppercased())
+                capitalizeNext = false
+            } else {
+                result.append(ch)
+            }
+            if ".!?".contains(ch) { capitalizeNext = true }
+            // If you keep newlines anywhere, uncomment:
+            // if ch == "\n" { capitalizeNext = true }
+        }
+        return result
+    }
+
     
     func setToggledRecordingURL() {
         toggledRecordingURL = GetDirectory().appendingPathComponent(toggledAudioTranscriptionObject.fileName).appendingPathExtension(audioRecordingExtension)

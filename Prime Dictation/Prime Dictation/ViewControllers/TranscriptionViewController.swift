@@ -58,7 +58,7 @@ class TranscriptionViewController: UIViewController {
             ProgressHUD.failed("Failed to update transcription")
             return
         }
-        recordingManager.UpdateToggledTranscriptionText(newText: newText)
+        recordingManager.UpdateToggledTranscriptionText(newText: newText, editing: true)
     }
     
     // MARK: - Keyboard handling
