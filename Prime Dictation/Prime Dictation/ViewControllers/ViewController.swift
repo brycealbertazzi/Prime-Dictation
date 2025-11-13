@@ -570,6 +570,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func ShowRecordingOrListeningUI() {
         TranscribeLabel.isEnabled = false
         TranscribeLabel.alpha = disabledAlpha
+        SeeTranscriptionLabel.isEnabled = false
+        SeeTranscriptionLabel.alpha = disabledAlpha
         PreviousRecordingLabel.isEnabled = false
         NextRecordingLabel.isEnabled = false
         RenameFileLabel.isEnabled = false
@@ -583,6 +585,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func HideRecordingOrListeningUI() {
         TranscribeLabel.isEnabled = true
         TranscribeLabel.alpha = enabledAlpha
+        SeeTranscriptionLabel.isEnabled = true
+        SeeTranscriptionLabel.alpha = enabledAlpha
         PreviousRecordingLabel.isEnabled = true
         NextRecordingLabel.isEnabled = true
         RenameFileLabel.isEnabled = true
