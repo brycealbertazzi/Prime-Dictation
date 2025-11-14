@@ -721,6 +721,22 @@
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="BG" translatesAutoresizingMaskIntoConstraints="NO" id="b7o-lc-ePW">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                             </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vTU-gD-Dox" userLabel="FontType">
+                                <rect key="frame" x="30" y="681" width="60" height="35"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="60" id="GCp-X2-vCr"/>
+                                    <constraint firstAttribute="height" constant="35" id="mcv-mQ-tid"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="Georgia-Bold" family="Georgia" pointSize="55"/>
+                                <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="calibratedRGB"/>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="F">
+                                    <color key="titleColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="calibratedRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="chooseFontButtonTapped:" destination="2Wm-Bx-ZZk" eventType="touchUpInside" id="fea-7E-vPY"/>
+                                </connections>
+                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9VC-N4-gWh" userLabel="BackButton">
                                 <rect key="frame" x="184.66666666666666" y="691" width="45" height="25"/>
                                 <constraints>
@@ -733,37 +749,68 @@
                                     <backgroundConfiguration key="background" image="chevron.down" catalog="system"/>
                                 </buttonConfiguration>
                                 <connections>
-                                    <action selector="BackButton:" destination="2Wm-Bx-ZZk" eventType="touchUpInside" id="vxS-sI-bOC"/>
+                                    <action selector="BackButton:" destination="2Wm-Bx-ZZk" eventType="touchUpInside" id="lD4-w5-6ZI"/>
                                 </connections>
                             </button>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hMz-sM-hdh">
-                                <rect key="frame" x="8" y="38" width="398" height="643"/>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hMz-sM-hdh">
+                                <rect key="frame" x="8" y="38" width="398" height="629"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <fontDescription key="fontDescription" name="PingFangMO-Semibold" family="PingFang MO" pointSize="20"/>
+                                <fontDescription key="fontDescription" name="PingFangMO-Semibold" family="PingFang MO" pointSize="18"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="4r1-sm-wBs">
+                                <rect key="frame" x="69.666666666666686" y="348" width="275" height="40"/>
+                                <color key="tintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="275" id="jNv-m5-6Uk"/>
+                                    <constraint firstAttribute="height" constant="40" id="tYn-9K-yyh"/>
+                                </constraints>
+                                <color key="minimumTrackTintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="maximumTrackTintColor" red="0.1058823529" green="0.45882352939999999" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </slider>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ylt-yz-5Ym" userLabel="FontSize">
+                                <rect key="frame" x="306" y="681" width="88" height="34"/>
+                                <fontDescription key="fontDescription" name="Georgia-Bold" family="Georgia" pointSize="45"/>
+                                <color key="tintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="calibratedRGB"/>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="+/-">
+                                    <color key="titleColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="calibratedRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="fontSizeButtonTapped:" destination="2Wm-Bx-ZZk" eventType="touchUpInside" id="Lw2-D2-FuE"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="3KK-z6-XcD"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="vTU-gD-Dox" firstAttribute="leading" secondItem="3KK-z6-XcD" secondAttribute="leading" constant="30" id="0U1-Jk-Tbu"/>
                             <constraint firstItem="b7o-lc-ePW" firstAttribute="trailing" secondItem="qpC-Nw-kmF" secondAttribute="trailing" id="3Zw-aZ-ovD"/>
                             <constraint firstItem="hMz-sM-hdh" firstAttribute="centerX" secondItem="qpC-Nw-kmF" secondAttribute="centerX" id="3cR-gk-MkI"/>
                             <constraint firstItem="b7o-lc-ePW" firstAttribute="bottom" secondItem="qpC-Nw-kmF" secondAttribute="bottom" id="5Eh-2v-u2O"/>
                             <constraint firstItem="3KK-z6-XcD" firstAttribute="bottom" secondItem="9VC-N4-gWh" secondAttribute="bottom" constant="20" id="5kN-6Z-c1y"/>
+                            <constraint firstItem="3KK-z6-XcD" firstAttribute="trailing" secondItem="Ylt-yz-5Ym" secondAttribute="trailing" constant="30" id="7Q9-gN-MqX"/>
+                            <constraint firstItem="Ylt-yz-5Ym" firstAttribute="centerY" secondItem="vTU-gD-Dox" secondAttribute="centerY" id="EWc-vH-per"/>
                             <constraint firstItem="9VC-N4-gWh" firstAttribute="centerX" secondItem="qpC-Nw-kmF" secondAttribute="centerX" id="Eb5-fq-EI6"/>
+                            <constraint firstItem="4r1-sm-wBs" firstAttribute="centerY" secondItem="qpC-Nw-kmF" secondAttribute="centerY" id="LbG-aK-e3E"/>
+                            <constraint firstItem="4r1-sm-wBs" firstAttribute="centerX" secondItem="qpC-Nw-kmF" secondAttribute="centerX" id="N8Z-8d-Q3K"/>
                             <constraint firstItem="b7o-lc-ePW" firstAttribute="leading" secondItem="qpC-Nw-kmF" secondAttribute="leading" id="QwV-SV-H5c"/>
                             <constraint firstItem="b7o-lc-ePW" firstAttribute="top" secondItem="qpC-Nw-kmF" secondAttribute="top" id="TOF-5m-EDo"/>
                             <constraint firstItem="b7o-lc-ePW" firstAttribute="centerX" secondItem="qpC-Nw-kmF" secondAttribute="centerX" id="VNh-nz-8IG"/>
                             <constraint firstItem="hMz-sM-hdh" firstAttribute="leading" secondItem="3KK-z6-XcD" secondAttribute="leading" constant="8" id="cgb-o7-nPT"/>
-                            <constraint firstItem="9VC-N4-gWh" firstAttribute="top" secondItem="hMz-sM-hdh" secondAttribute="bottom" constant="10" id="d9x-aT-4OX"/>
+                            <constraint firstItem="9VC-N4-gWh" firstAttribute="top" secondItem="hMz-sM-hdh" secondAttribute="bottom" constant="20" id="d9x-aT-4OX"/>
                             <constraint firstItem="hMz-sM-hdh" firstAttribute="trailing" secondItem="3KK-z6-XcD" secondAttribute="trailing" constant="-8" id="hw3-z8-gh1"/>
                             <constraint firstItem="b7o-lc-ePW" firstAttribute="centerY" secondItem="qpC-Nw-kmF" secondAttribute="centerY" id="mOg-1E-ikl"/>
                             <constraint firstItem="hMz-sM-hdh" firstAttribute="top" secondItem="3KK-z6-XcD" secondAttribute="top" constant="18" id="rHN-Sh-A6L"/>
+                            <constraint firstItem="3KK-z6-XcD" firstAttribute="bottom" secondItem="vTU-gD-Dox" secondAttribute="bottom" constant="20" id="tbw-eg-dhG"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="4vT-Nd-lSw"/>
                     <connections>
-                        <outlet property="TranscriptionTextBox" destination="hMz-sM-hdh" id="oKU-fS-SK7"/>
+                        <outlet property="TranscriptionTextBox" destination="hMz-sM-hdh" id="kqY-cG-3ip"/>
+                        <outlet property="chooseFontButton" destination="vTU-gD-Dox" id="dfi-sw-axF"/>
+                        <outlet property="fontSizeButton" destination="Ylt-yz-5Ym" id="KEs-oa-rNj"/>
+                        <outlet property="fontSizeSlider" destination="4r1-sm-wBs" id="lof-nj-cxa"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="EOY-bw-Z4e" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
