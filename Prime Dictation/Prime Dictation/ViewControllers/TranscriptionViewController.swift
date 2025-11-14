@@ -43,12 +43,13 @@ class TranscriptionViewController: UIViewController {
         FontSelection(title: "Chalkboard SE",    fontName: "ChalkboardSE-Regular")
     ]
     private var selectedFontChoice = FontSelection(title: "PingFang MO", fontName: "PingFangHK-Regular")
-    private var selectedFontSize: CGFloat = 18.0
+    static let DEFAULT_TEXT_SIZE: CGFloat = 20.0
+    private var selectedFontSize: CGFloat = DEFAULT_TEXT_SIZE
 
     // Backing settings object for persistence
     private var fontSettings = FontSettings(
         choice: FontSelection(title: "PingFang MO", fontName: "PingFangHK-Regular"),
-        size: 18.0
+        size: DEFAULT_TEXT_SIZE
     )
     
     override func viewDidLoad() {
@@ -93,11 +94,11 @@ class TranscriptionViewController: UIViewController {
             // First launch / nothing saved yet
             fontSettings = FontSettings(
                 choice: fontChoices[0],  // PingFang MO
-                size: 18.0
+                size: TranscriptionViewController.DEFAULT_TEXT_SIZE
             )
             selectedFontChoice = fontSettings.choice
             selectedFontSize = CGFloat(fontSettings.size)
-            print("No saved font settings, using defaults: \(selectedFontChoice.title), 18.0")
+            print("No saved font settings, using defaults: \(selectedFontChoice.title), \(TranscriptionViewController.DEFAULT_TEXT_SIZE)")
         }
     }
     
@@ -130,20 +131,40 @@ class TranscriptionViewController: UIViewController {
     }
     
     private func makeSemibold(_ fontName: String?, size: CGFloat) -> UIFont {
-        // If user selected a specific font name, try to load that first
-        if let name = fontName, let baseFont = UIFont(name: name, size: size) {
-            // Apply semibold traits to this font
-            let descriptor = baseFont.fontDescriptor.addingAttributes([
-                UIFontDescriptor.AttributeName.traits: [
-                    UIFontDescriptor.TraitKey.weight: UIFont.Weight.semibold
-                ]
-            ])
-            return UIFont(descriptor: descriptor, size: size)
+        // 1. If we have a specific font name
+        if let name = fontName {
+            // Special case: PingFang HK
+            if name.contains("PingFangHK") {
+                if let semi = UIFont(name: "PingFangHK-Semibold", size: size) {
+                    return semi
+                }
+            }
+            
+            // Try a "-Semibold" variant
+            if name.hasSuffix("-Regular") {
+                let semiName = name.replacingOccurrences(of: "-Regular", with: "-Semibold")
+                if let semi = UIFont(name: semiName, size: size) {
+                    return semi
+                }
+                
+                // Fallback: try "-Bold"
+                let boldName = name.replacingOccurrences(of: "-Regular", with: "-Bold")
+                if let bold = UIFont(name: boldName, size: size) {
+                    return bold
+                }
+            }
+            
+            // Try bold traits on the base font
+            if let baseFont = UIFont(name: name, size: size),
+               let boldDescriptor = baseFont.fontDescriptor.withSymbolicTraits(.traitBold) {
+                return UIFont(descriptor: boldDescriptor, size: size)
+            }
         }
         
-        // Otherwise return system semibold
+        // 2. No specific font or everything above failed → system semibold
         return UIFont.systemFont(ofSize: size, weight: .semibold)
     }
+
     
     private func persistFontSettings() {
         fontSettings.choice = selectedFontChoice
