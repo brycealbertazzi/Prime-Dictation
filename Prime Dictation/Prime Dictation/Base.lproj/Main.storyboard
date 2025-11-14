@@ -265,9 +265,7 @@
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                         <connections>
-                                            <segue destination="UhA-a9-Y15" kind="popoverPresentation" popoverAnchorView="TEJ-KL-gv0" id="utx-rm-hkU">
-                                                <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
-                                            </segue>
+                                            <action selector="DestinationButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="UTw-oh-SWs"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="svK-SA-aO1" customClass="RoundedButton" customModule="Prime_Dictation" customModuleProvider="target">
@@ -436,204 +434,267 @@
             <objects>
                 <viewController storyboardIdentifier="SettingsViewController" id="UhA-a9-Y15" customClass="SettingsViewController" customModule="Prime_Dictation" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Nw9-qh-Ju0">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="726"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="BG" translatesAutoresizingMaskIntoConstraints="NO" id="7vL-zX-FOy">
-                                <rect key="frame" x="20" y="0.0" width="374" height="716"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="BG" translatesAutoresizingMaskIntoConstraints="NO" id="7vL-zX-FOy">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="756"/>
                             </imageView>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9qh-lx-pQg" customClass="RoundedButton" customModule="Prime_Dictation" customModuleProvider="target">
-                                <rect key="frame" x="142" y="371" width="130" height="45"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
-                                <state key="normal" title="OneDrive">
-                                    <color key="titleColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                        <real key="value" value="8"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
-                                        <real key="value" value="1"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingTop">
-                                        <real key="value" value="5"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingLeft">
-                                        <real key="value" value="10"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingBottom">
-                                        <real key="value" value="5"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingRight">
-                                        <real key="value" value="10"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
-                                        <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="color" keyPath="textColor">
-                                        <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                                <connections>
-                                    <action selector="OneDriveButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="E7Z-Pa-O4l"/>
-                                </connections>
-                            </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Select Destination" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1pg-lu-8Ka">
-                                <rect key="frame" x="74" y="85" width="266" height="39"/>
-                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="35"/>
-                                <color key="textColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AWb-dR-20j" userLabel="Select Folder">
-                                <rect key="frame" x="56" y="556" width="70" height="53"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain">
-                                    <backgroundConfiguration key="background" image="folder.fill.badge.gearshape" catalog="system"/>
-                                </buttonConfiguration>
-                                <connections>
-                                    <action selector="SelectFolderButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="dM4-aU-6w1"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="B5c-FE-vo9" customClass="RoundedButton" customModule="Prime_Dictation" customModuleProvider="target">
-                                <rect key="frame" x="164" y="191" width="90" height="47"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
-                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                <state key="normal" title="Email">
-                                    <color key="titleColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                        <real key="value" value="8"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
-                                        <real key="value" value="1"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingTop">
-                                        <real key="value" value="5"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingLeft">
-                                        <real key="value" value="10"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingBottom">
-                                        <real key="value" value="5"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
-                                        <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingRight">
-                                        <real key="value" value="10"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="color" keyPath="textColor">
-                                        <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                                <connections>
-                                    <action selector="EmailButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="yZf-MK-zyn"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SGc-lp-6ij" userLabel="Google Drive Label" customClass="RoundedButton" customModule="Prime_Dictation" customModuleProvider="target">
-                                <rect key="frame" x="120" y="280" width="176" height="47"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
-                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                <state key="normal" title="Google Drive">
-                                    <color key="titleColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                        <real key="value" value="8"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
-                                        <real key="value" value="1"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingTop">
-                                        <real key="value" value="5"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingLeft">
-                                        <real key="value" value="10"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingBottom">
-                                        <real key="value" value="5"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingRight">
-                                        <real key="value" value="10"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
-                                        <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="color" keyPath="textColor">
-                                        <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                                <connections>
-                                    <action selector="GoogleDriveButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="6Hw-c0-Otc"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="coM-Cj-5Ge" userLabel="Close Pop Up Button">
-                                <rect key="frame" x="184.66666666666666" y="20" width="45" height="25"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="c4s-rH-0Gs" userLabel="Top View">
+                                <rect key="frame" x="0.0" y="20" width="414" height="150"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Select Destination" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1pg-lu-8Ka">
+                                        <rect key="frame" x="74" y="68" width="266" height="39"/>
+                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="35"/>
+                                        <color key="textColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="coM-Cj-5Ge" userLabel="Close Pop Up Button">
+                                        <rect key="frame" x="184.66666666666666" y="18" width="45" height="25"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="25" id="73w-IY-Jtn"/>
+                                            <constraint firstAttribute="width" constant="45" id="awK-YQ-3Xr"/>
+                                        </constraints>
+                                        <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain">
+                                            <backgroundConfiguration key="background" image="chevron.down" catalog="system"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="DismissPopover:" destination="UhA-a9-Y15" eventType="touchUpInside" id="T2x-j3-Qb5"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="25" id="73w-IY-Jtn"/>
-                                    <constraint firstAttribute="width" constant="45" id="awK-YQ-3Xr"/>
+                                    <constraint firstAttribute="height" constant="150" id="O6s-b3-hyq"/>
+                                    <constraint firstItem="coM-Cj-5Ge" firstAttribute="centerX" secondItem="c4s-rH-0Gs" secondAttribute="centerX" id="SEe-MM-MnQ"/>
+                                    <constraint firstItem="1pg-lu-8Ka" firstAttribute="centerX" secondItem="c4s-rH-0Gs" secondAttribute="centerX" id="V6K-7P-zSk"/>
+                                    <constraint firstItem="coM-Cj-5Ge" firstAttribute="top" secondItem="c4s-rH-0Gs" secondAttribute="topMargin" constant="10" id="fYs-xR-VnU"/>
+                                    <constraint firstItem="1pg-lu-8Ka" firstAttribute="top" secondItem="c4s-rH-0Gs" secondAttribute="topMargin" constant="60" id="u5a-4L-wHq"/>
                                 </constraints>
-                                <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain">
-                                    <backgroundConfiguration key="background" image="chevron.down" catalog="system"/>
-                                </buttonConfiguration>
-                                <connections>
-                                    <action selector="DismissPopover:" destination="UhA-a9-Y15" eventType="touchUpInside" id="T2x-j3-Qb5"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r8D-RY-2sR" customClass="RoundedButton" customModule="Prime_Dictation" customModuleProvider="target">
-                                <rect key="frame" x="144" y="457" width="130" height="45"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
-                                <state key="normal" title="Dropbox">
-                                    <color key="titleColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                        <real key="value" value="8"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
-                                        <real key="value" value="1"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingTop">
-                                        <real key="value" value="5"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingLeft">
-                                        <real key="value" value="10"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingBottom">
-                                        <real key="value" value="5"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingRight">
-                                        <real key="value" value="10"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
-                                        <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="color" keyPath="textColor">
-                                        <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                                <connections>
-                                    <action selector="DropboxButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="byn-85-OuG"/>
-                                </connections>
-                            </button>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NVe-Cp-tjn" userLabel="Middle View">
+                                <rect key="frame" x="0.0" y="170" width="414" height="401"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="B5c-FE-vo9" customClass="RoundedButton" customModule="Prime_Dictation" customModuleProvider="target">
+                                        <rect key="frame" x="167" y="40.666666666666657" width="80" height="50"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="80" id="LX6-1M-Dm4"/>
+                                            <constraint firstAttribute="height" constant="50" id="v3W-XT-nMb"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
+                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                        <state key="normal" title="Email">
+                                            <color key="titleColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                                <real key="value" value="8"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                                <real key="value" value="1"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingTop">
+                                                <real key="value" value="5"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingLeft">
+                                                <real key="value" value="10"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingBottom">
+                                                <real key="value" value="5"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                                <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingRight">
+                                                <real key="value" value="10"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="textColor">
+                                                <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
+                                        <connections>
+                                            <action selector="EmailButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="rIe-zR-iX2"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9qh-lx-pQg" customClass="RoundedButton" customModule="Prime_Dictation" customModuleProvider="target">
+                                        <rect key="frame" x="147" y="220.66666666666669" width="120" height="50"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="DFC-sm-8Xa"/>
+                                            <constraint firstAttribute="width" constant="120" id="kM8-7C-CWN"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
+                                        <state key="normal" title="OneDrive">
+                                            <color key="titleColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                                <real key="value" value="8"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                                <real key="value" value="1"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingTop">
+                                                <real key="value" value="5"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingLeft">
+                                                <real key="value" value="10"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingBottom">
+                                                <real key="value" value="5"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingRight">
+                                                <real key="value" value="10"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                                <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="textColor">
+                                                <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
+                                        <connections>
+                                            <action selector="OneDriveButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="E7Z-Pa-O4l"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r8D-RY-2sR" customClass="RoundedButton" customModule="Prime_Dictation" customModuleProvider="target">
+                                        <rect key="frame" x="152" y="310.66666666666669" width="110" height="50"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="0VA-yi-G0z"/>
+                                            <constraint firstAttribute="width" constant="110" id="Q9h-YG-pgc"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
+                                        <state key="normal" title="Dropbox">
+                                            <color key="titleColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                                <real key="value" value="8"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                                <real key="value" value="1"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingTop">
+                                                <real key="value" value="5"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingLeft">
+                                                <real key="value" value="10"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingBottom">
+                                                <real key="value" value="5"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingRight">
+                                                <real key="value" value="10"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                                <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="textColor">
+                                                <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
+                                        <connections>
+                                            <action selector="DropboxButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="byn-85-OuG"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SGc-lp-6ij" userLabel="Google Drive Label" customClass="RoundedButton" customModule="Prime_Dictation" customModuleProvider="target">
+                                        <rect key="frame" x="124.66666666666669" y="130.66666666666669" width="165" height="50"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="XuJ-A9-CeX"/>
+                                            <constraint firstAttribute="width" constant="165" id="yep-Tt-hQB"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
+                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                        <state key="normal" title="Google Drive">
+                                            <color key="titleColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                                <real key="value" value="8"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                                <real key="value" value="1"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingTop">
+                                                <real key="value" value="5"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingLeft">
+                                                <real key="value" value="10"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingBottom">
+                                                <real key="value" value="5"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingRight">
+                                                <real key="value" value="10"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                                <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="textColor">
+                                                <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
+                                        <connections>
+                                            <action selector="GoogleDriveButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="6Hw-c0-Otc"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="B5c-FE-vo9" firstAttribute="centerY" secondItem="NVe-Cp-tjn" secondAttribute="centerY" constant="-135" id="IMe-ED-bKc"/>
+                                    <constraint firstItem="r8D-RY-2sR" firstAttribute="centerX" secondItem="NVe-Cp-tjn" secondAttribute="centerX" id="VAP-j9-uwq"/>
+                                    <constraint firstItem="r8D-RY-2sR" firstAttribute="centerY" secondItem="NVe-Cp-tjn" secondAttribute="centerY" constant="135" id="VBg-m2-Ybl"/>
+                                    <constraint firstItem="9qh-lx-pQg" firstAttribute="centerY" secondItem="NVe-Cp-tjn" secondAttribute="centerY" constant="45" id="Vzt-1y-pmK"/>
+                                    <constraint firstItem="9qh-lx-pQg" firstAttribute="centerX" secondItem="NVe-Cp-tjn" secondAttribute="centerX" id="aWU-83-tJd"/>
+                                    <constraint firstItem="SGc-lp-6ij" firstAttribute="centerX" secondItem="NVe-Cp-tjn" secondAttribute="centerX" id="ukD-1I-MPa"/>
+                                    <constraint firstItem="B5c-FE-vo9" firstAttribute="centerX" secondItem="NVe-Cp-tjn" secondAttribute="centerX" id="yZm-fQ-Txr"/>
+                                    <constraint firstItem="SGc-lp-6ij" firstAttribute="centerY" secondItem="NVe-Cp-tjn" secondAttribute="centerY" constant="-45" id="zGs-iC-rQK"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fiM-fD-Moc" userLabel="Bottom View">
+                                <rect key="frame" x="0.0" y="571" width="414" height="165"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AWb-dR-20j" userLabel="Select Folder">
+                                        <rect key="frame" x="41" y="56" width="65" height="53"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="65" id="Rwx-3g-rbR"/>
+                                            <constraint firstAttribute="height" constant="50" id="oGP-Wv-z3H"/>
+                                        </constraints>
+                                        <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain">
+                                            <backgroundConfiguration key="background" image="folder.fill.badge.gearshape" catalog="system"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="SelectFolderButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="dM4-aU-6w1"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="165" id="AtM-In-DmW"/>
+                                    <constraint firstItem="AWb-dR-20j" firstAttribute="centerY" secondItem="fiM-fD-Moc" secondAttribute="centerY" id="BlT-pi-voi"/>
+                                    <constraint firstItem="AWb-dR-20j" firstAttribute="leading" secondItem="fiM-fD-Moc" secondAttribute="leading" constant="45" id="Utr-Q2-FTl"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="91F-Bu-qrb"/>
                         <color key="backgroundColor" systemColor="labelColor"/>
                         <constraints>
-                            <constraint firstItem="1pg-lu-8Ka" firstAttribute="top" secondItem="91F-Bu-qrb" secondAttribute="top" constant="85" id="RLr-M1-TqR"/>
-                            <constraint firstItem="coM-Cj-5Ge" firstAttribute="centerX" secondItem="91F-Bu-qrb" secondAttribute="centerX" id="c6G-3T-Lbj"/>
-                            <constraint firstItem="coM-Cj-5Ge" firstAttribute="top" secondItem="91F-Bu-qrb" secondAttribute="top" constant="20" id="gNn-1u-pcP"/>
-                            <constraint firstItem="1pg-lu-8Ka" firstAttribute="centerX" secondItem="Nw9-qh-Ju0" secondAttribute="centerX" id="q96-kf-c89"/>
+                            <constraint firstItem="NVe-Cp-tjn" firstAttribute="leading" secondItem="91F-Bu-qrb" secondAttribute="leading" id="3YQ-ui-DJB"/>
+                            <constraint firstItem="fiM-fD-Moc" firstAttribute="top" secondItem="NVe-Cp-tjn" secondAttribute="bottom" id="AKT-lq-IgB"/>
+                            <constraint firstItem="c4s-rH-0Gs" firstAttribute="top" secondItem="91F-Bu-qrb" secondAttribute="top" id="CWl-yI-l7C"/>
+                            <constraint firstItem="NVe-Cp-tjn" firstAttribute="top" secondItem="c4s-rH-0Gs" secondAttribute="bottom" id="CqJ-Rp-7FO"/>
+                            <constraint firstItem="fiM-fD-Moc" firstAttribute="bottom" secondItem="91F-Bu-qrb" secondAttribute="bottom" id="IgW-Kj-ETZ"/>
+                            <constraint firstItem="7vL-zX-FOy" firstAttribute="trailing" secondItem="Nw9-qh-Ju0" secondAttribute="trailing" id="Jhp-PE-Vnm"/>
+                            <constraint firstItem="7vL-zX-FOy" firstAttribute="bottom" secondItem="Nw9-qh-Ju0" secondAttribute="bottom" id="XwQ-cd-wG5"/>
+                            <constraint firstItem="NVe-Cp-tjn" firstAttribute="trailing" secondItem="91F-Bu-qrb" secondAttribute="trailing" id="Y91-a7-eXW"/>
+                            <constraint firstItem="c4s-rH-0Gs" firstAttribute="leading" secondItem="91F-Bu-qrb" secondAttribute="leading" id="YBt-03-gw6"/>
+                            <constraint firstItem="c4s-rH-0Gs" firstAttribute="trailing" secondItem="91F-Bu-qrb" secondAttribute="trailing" id="iUC-TO-j2Z"/>
+                            <constraint firstItem="7vL-zX-FOy" firstAttribute="leading" secondItem="Nw9-qh-Ju0" secondAttribute="leading" id="j7d-lh-rsf"/>
+                            <constraint firstItem="fiM-fD-Moc" firstAttribute="leading" secondItem="91F-Bu-qrb" secondAttribute="leading" id="jMb-2D-MdC"/>
+                            <constraint firstItem="7vL-zX-FOy" firstAttribute="centerX" secondItem="91F-Bu-qrb" secondAttribute="centerX" id="udj-zA-1vO"/>
+                            <constraint firstItem="7vL-zX-FOy" firstAttribute="top" secondItem="Nw9-qh-Ju0" secondAttribute="top" id="voR-Sj-5fC"/>
+                            <constraint firstItem="7vL-zX-FOy" firstAttribute="centerY" secondItem="91F-Bu-qrb" secondAttribute="centerY" id="w8e-6J-9mo"/>
+                            <constraint firstItem="fiM-fD-Moc" firstAttribute="trailing" secondItem="91F-Bu-qrb" secondAttribute="trailing" id="yw8-jG-N9j"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="hHB-8b-a40"/>
@@ -643,8 +704,6 @@
                         <outlet property="GoogleDriveLabel" destination="SGc-lp-6ij" id="6E1-VU-e6u"/>
                         <outlet property="OneDriveLabel" destination="9qh-lx-pQg" id="w1N-IF-UIc"/>
                         <outlet property="SelectFolderIcon" destination="AWb-dR-20j" id="Hsz-IJ-I79"/>
-                        <outlet property="arrowTopConstraint" destination="gNn-1u-pcP" id="bzK-ws-2UI"/>
-                        <outlet property="titleTopConstraint" destination="RLr-M1-TqR" id="yPd-CK-CxU"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="VTs-7P-DE6" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -661,10 +720,6 @@
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="BG" translatesAutoresizingMaskIntoConstraints="NO" id="b7o-lc-ePW">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="414" id="SgM-iM-py8"/>
-                                    <constraint firstAttribute="height" constant="736" id="giR-4Y-RLt"/>
-                                </constraints>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9VC-N4-gWh" userLabel="BackButton">
                                 <rect key="frame" x="184.66666666666666" y="691" width="45" height="25"/>
@@ -698,9 +753,11 @@
                             <constraint firstItem="9VC-N4-gWh" firstAttribute="centerX" secondItem="qpC-Nw-kmF" secondAttribute="centerX" id="Eb5-fq-EI6"/>
                             <constraint firstItem="b7o-lc-ePW" firstAttribute="leading" secondItem="qpC-Nw-kmF" secondAttribute="leading" id="QwV-SV-H5c"/>
                             <constraint firstItem="b7o-lc-ePW" firstAttribute="top" secondItem="qpC-Nw-kmF" secondAttribute="top" id="TOF-5m-EDo"/>
+                            <constraint firstItem="b7o-lc-ePW" firstAttribute="centerX" secondItem="qpC-Nw-kmF" secondAttribute="centerX" id="VNh-nz-8IG"/>
                             <constraint firstItem="hMz-sM-hdh" firstAttribute="leading" secondItem="3KK-z6-XcD" secondAttribute="leading" constant="8" id="cgb-o7-nPT"/>
                             <constraint firstItem="9VC-N4-gWh" firstAttribute="top" secondItem="hMz-sM-hdh" secondAttribute="bottom" constant="10" id="d9x-aT-4OX"/>
                             <constraint firstItem="hMz-sM-hdh" firstAttribute="trailing" secondItem="3KK-z6-XcD" secondAttribute="trailing" constant="-8" id="hw3-z8-gh1"/>
+                            <constraint firstItem="b7o-lc-ePW" firstAttribute="centerY" secondItem="qpC-Nw-kmF" secondAttribute="centerY" id="mOg-1E-ikl"/>
                             <constraint firstItem="hMz-sM-hdh" firstAttribute="top" secondItem="3KK-z6-XcD" secondAttribute="top" constant="18" id="rHN-Sh-A6L"/>
                         </constraints>
                     </view>

@@ -53,32 +53,21 @@ class SettingsViewController: UIViewController {
         }
     }
     
-    override func viewSafeAreaInsetsDidChange() {
-        super.viewSafeAreaInsetsDidChange()
-        adjustHeaderTop()
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        let debugTap = UITapGestureRecognizer(target: self, action: #selector(debugHitTest(_:)))
+        debugTap.cancelsTouchesInView = false   // important so buttons still get a chance
+        view.addGestureRecognizer(debugTap)
     }
 
-    private var didAdjustOnce = false
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        if !didAdjustOnce { adjustHeaderTop() }
-    }
-
-    private func adjustHeaderTop() {
-        didAdjustOnce = true
-        // We only compensate when it's an adapted sheet (not a popover),
-        // and only if there's NO navigation bar (safe area already accounts for it).
-        let isSheet = (sheetPresentationController != nil) && (popoverPresentationController == nil)
-        let hasNavBar = (navigationController != nil) && !(navigationController?.navigationBar.isHidden ?? false)
-
-        let extraInset = (isSheet && !hasNavBar) ? view.safeAreaInsets.top : 0
-
-        titleTopConstraint.constant = desiredTitleTop - extraInset
-        arrowTopConstraint.constant = desiredArrowTop - extraInset
-        // Clamp so we never go negative offscreen
-        titleTopConstraint.constant = max(titleTopConstraint.constant, 0)
-        arrowTopConstraint.constant = max(arrowTopConstraint.constant, 0)
-        view.layoutIfNeeded()
+    @objc private func debugHitTest(_ gesture: UITapGestureRecognizer) {
+        let point = gesture.location(in: view)
+        if let hit = view.hitTest(point, with: nil) {
+            print("DEBUG hit view:", type(of: hit), "tag:", hit.tag)
+        } else {
+            print("DEBUG hit: nil")
+        }
     }
     
     @IBAction func EmailButton(_ sender: Any) {

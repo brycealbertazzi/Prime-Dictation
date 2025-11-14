@@ -109,27 +109,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         Haptic.prepare()
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "ShowSettingsPopover",
-           let vc = segue.destination as? SettingsViewController,
-           let pop = vc.popoverPresentationController {
-
-            if let anchor = sender as? UIView {
-                pop.sourceView = anchor
-                pop.sourceRect = anchor.bounds
-                pop.permittedArrowDirections = [.up, .down]
-            } else {
-                pop.sourceView = view
-                pop.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 1, height: 1)
-                pop.permittedArrowDirections = []
-            }
-            pop.delegate = self
-
-            // Optional: prevent swipe-down dismissal when full screen
-            vc.isModalInPresentation = true
-        }
-    }
-    
     //MARK: Listen to Playback
     @IBAction func ListenButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
@@ -482,28 +461,16 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         present(vc, animated: true)
     }
 
-    private func showSettingsPopover(anchorView: UIView?, barButtonItem: UIBarButtonItem?) {
+    private func showDestinationScreen() {
         let vc = storyboard!.instantiateViewController(withIdentifier: "SettingsViewController") as! SettingsViewController
-        vc.modalPresentationStyle = .popover
-
-        if let pop = vc.popoverPresentationController {
-            if let item = barButtonItem {
-                pop.barButtonItem = item
-            } else if let view = anchorView {
-                pop.sourceView = view
-                pop.sourceRect = view.bounds
-                pop.permittedArrowDirections = [.up, .down]
-            } else {
-                pop.sourceView = self.view
-                pop.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 1, height: 1)
-                pop.permittedArrowDirections = []
-            }
-            pop.delegate = self
-        }
-
+        vc.modalPresentationStyle = .fullScreen
         present(vc, animated: true)
     }
 
+    @IBAction func DestinationButton(_ sender: Any) {
+        showDestinationScreen()
+    }
+    
     @IBAction func SendButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
         if recordingManager.savedAudioTranscriptionObjects.count > 0 {
@@ -523,7 +490,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 Task { await emailManager.SendToEmail(hasTranscription: toggledHasTranscription) }
             default:
                 print("No destination selected")
-                showSettingsPopover(anchorView: DestinationLabel, barButtonItem: nil)
+                showDestinationScreen()
             }
         } else {
             ProgressHUD.failed("No recording to send")
