@@ -24,6 +24,8 @@ class TranscriptionViewController: UIViewController {
         var choice: FontSelection
         var size: Double
     }
+    
+    private let lineHeightMultiple: CGFloat = 1.2   // tweak between 1.1–1.25 to taste
 
     // 12 font options
     private let fontChoices: [FontSelection] = [
@@ -57,7 +59,7 @@ class TranscriptionViewController: UIViewController {
         
         TranscriptionTextBox.text = transcriptText
         loadUserDefaultFontSettings()
-        TranscriptionTextBox.font = makeSemibold(selectedFontChoice.fontName, size: selectedFontSize)
+        applyFontAndLineSpacing()
         
         // Option to press Done action item on keyboard toolbar to dismiss
         addDoneButtonToKeyboard()
@@ -99,6 +101,34 @@ class TranscriptionViewController: UIViewController {
         }
     }
     
+    private func applyFontAndLineSpacing() {
+        guard let text = TranscriptionTextBox.text else { return }
+
+        // Build the font from current selection + size
+        let font: UIFont
+        if let name = selectedFontChoice.fontName {
+            font = makeSemibold(name, size: selectedFontSize)
+        } else {
+            font = makeSemibold(nil, size: selectedFontSize)
+        }
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineHeightMultiple = lineHeightMultiple
+        // Optional: small paragraph spacing
+        // paragraphStyle.paragraphSpacing = font.pointSize * 0.2
+
+        let attrs: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .paragraphStyle: paragraphStyle
+        ]
+
+        // Apply to existing text
+        TranscriptionTextBox.attributedText = NSAttributedString(string: text, attributes: attrs)
+
+        // Ensure newly typed text uses same style
+        TranscriptionTextBox.typingAttributes = attrs
+    }
+    
     private func makeSemibold(_ fontName: String?, size: CGFloat) -> UIFont {
         // If user selected a specific font name, try to load that first
         if let name = fontName, let baseFont = UIFont(name: name, size: size) {
@@ -123,7 +153,7 @@ class TranscriptionViewController: UIViewController {
             try UserDefaults.standard.setCodable(fontSettings, forKey: userDefaultsFontSettingsKey)
             print("Saved font settings: choice=\(fontSettings.choice.title), size=\(fontSettings.size)")
         } catch {
-            print("Failed to save font settings:", error)
+            print("Failed to save font settings")
         }
 
         // 🔐 Force a disk write (mainly useful while debugging)
@@ -134,8 +164,8 @@ class TranscriptionViewController: UIViewController {
     
     private func setupFontSizeSlider() {
         // Reasonable range for transcript text
-        fontSizeSlider.minimumValue = 12
-        fontSizeSlider.maximumValue = 34
+        fontSizeSlider.minimumValue = 10
+        fontSizeSlider.maximumValue = 40
         
         let currentSize = Float(TranscriptionTextBox.font?.pointSize ?? 18)
         fontSizeSlider.value = currentSize
@@ -183,24 +213,18 @@ class TranscriptionViewController: UIViewController {
         let newSize = CGFloat(sender.value)
         selectedFontSize = newSize
 
-        if let name = selectedFontChoice.fontName {
-            TranscriptionTextBox.font = makeSemibold(name, size: newSize)
-        } else {
-            TranscriptionTextBox.font = makeSemibold(nil, size: newSize)
+        UIView.animate(withDuration: 0.1) {
+            self.applyFontAndLineSpacing()
         }
     }
     
     @objc private func fontSizeSliderTouchEnded(_ sender: UISlider) {
-        print("new font size: \(sender.value)")
-        let currentSize = Double(sender.value)
-        selectedFontSize = CGFloat(currentSize)
-
-        // Update settings + persist
-        fontSettings.size = currentSize
-        fontSettings.choice = selectedFontChoice
-
+        let newSize = CGFloat(sender.value)
+        selectedFontSize = newSize
+        print("new font size: \(newSize)")
+        
+        // Persist settings
         persistFontSettings()
-
         hideFontSizeSlider()
     }
     
@@ -285,29 +309,21 @@ class TranscriptionViewController: UIViewController {
         let alert = UIAlertController(title: "Choose Font",
                                       message: nil,
                                       preferredStyle: .actionSheet)
-        let currentSize = CGFloat(self.TranscriptionTextBox.font?.pointSize ?? CGFloat(self.fontSizeSlider.value))
+        let currentSize = CGFloat(self.TranscriptionTextBox.font?.pointSize ?? self.selectedFontSize)
         for choice in fontChoices {
             let isSelected = (choice.title == selectedFontChoice.title)
 
             let action = UIAlertAction(title: choice.title, style: .default, handler: { [weak self] _ in
                 guard let self = self else { return }
 
-                let currentSize = CGFloat(self.TranscriptionTextBox.font?.pointSize ?? self.selectedFontSize)
+                self.selectedFontChoice = choice
+                self.selectedFontSize = currentSize
 
-                let font: UIFont
-                if let name = choice.fontName {
-                    font = self.makeSemibold(name, size: currentSize)
-                } else {
-                    font = self.makeSemibold(nil, size: currentSize)
+                UIView.animate(withDuration: 0.1) {
+                    self.applyFontAndLineSpacing()
                 }
 
-                self.TranscriptionTextBox.font = font
-                self.selectedFontChoice = choice
-
                 // Update settings + persist
-                self.fontSettings.choice = choice
-                self.fontSettings.size = Double(currentSize)
-
                 self.persistFontSettings()
             })
 
