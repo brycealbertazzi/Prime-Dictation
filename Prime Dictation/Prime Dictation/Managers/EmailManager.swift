@@ -72,6 +72,20 @@ final class EmailManager: NSObject {
         }
     }
 
+    func isValidEmail(_ email: String) -> Bool {
+        // Trim whitespace/newlines
+        let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Basic RFC-5322–compatible pattern (good balance of strict + practical)
+        let pattern =
+        #"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$"#
+
+        let regex = try! NSRegularExpression(pattern: pattern, options: [.caseInsensitive])
+        let range = NSRange(location: 0, length: trimmed.utf16.count)
+
+        return regex.firstMatch(in: trimmed, options: [], range: range) != nil
+    }
+    
     private func showEmailInputModal(from presentingVC: UIViewController, with prefilledEmail: String?) {
         let alert = UIAlertController(title: "Enter Email Address", message: nil, preferredStyle: .alert)
         alert.addTextField { tf in
@@ -83,6 +97,10 @@ final class EmailManager: NSObject {
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Save", style: .default) { _ in
             if let email = alert.textFields?.first?.text, !email.isEmpty {
+                if (!self.isValidEmail(email)) {
+                    ProgressHUD.failed("Please enter a valid email.")
+                    return
+                }
                 self.saveEmailAddress(email)
             } else {
                 ProgressHUD.failed("Email cannot be empty.")
