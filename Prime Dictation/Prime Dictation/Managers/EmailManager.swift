@@ -93,6 +93,7 @@ final class EmailManager: NSObject {
             tf.text = prefilledEmail
             tf.keyboardType = .emailAddress
             tf.autocapitalizationType = .none
+            tf.clearButtonMode = .whileEditing
         }
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Save", style: .default) { _ in
