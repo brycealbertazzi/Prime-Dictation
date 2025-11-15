@@ -147,16 +147,16 @@
                                                     <action selector="PreviousRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="fcw-wf-7kx"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IlT-gg-nU8" userLabel="Rename File Label">
-                                                <rect key="frame" x="170" y="63.666666666666686" width="35" height="40"/>
+                                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IlT-gg-nU8" userLabel="Rename File Label">
+                                                <rect key="frame" x="165" y="63" width="45" height="50"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="height" constant="40" id="LTr-HL-0OD"/>
-                                                    <constraint firstAttribute="width" constant="35" id="uRp-Yb-bOg"/>
+                                                    <constraint firstAttribute="height" constant="50" id="LTr-HL-0OD"/>
+                                                    <constraint firstAttribute="width" constant="45" id="uRp-Yb-bOg"/>
                                                 </constraints>
                                                 <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.17254901960784313" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <state key="normal" title="Button"/>
                                                 <buttonConfiguration key="configuration" style="plain">
-                                                    <backgroundConfiguration key="background" image="pencil.and.list.clipboard" catalog="system"/>
+                                                    <backgroundConfiguration key="background" image="waveform.path.ecg.text.clipboard.fill.rtl" catalog="system"/>
                                                 </buttonConfiguration>
                                                 <connections>
                                                     <action selector="RenameFileButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Y4a-Lq-BsA"/>
@@ -831,7 +831,7 @@
         <image name="headphones" catalog="system" width="128" height="121"/>
         <image name="paperplane.circle.fill" catalog="system" width="128" height="123"/>
         <image name="paperplane.fill" catalog="system" width="128" height="119"/>
-        <image name="pencil.and.list.clipboard" catalog="system" width="114" height="128"/>
+        <image name="waveform.path.ecg.text.clipboard.fill.rtl" catalog="system" width="103" height="128"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
@@ -839,7 +839,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="tintColor">
-            <color red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.53333333333333333" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

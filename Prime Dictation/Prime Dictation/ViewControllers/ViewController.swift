@@ -72,6 +72,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         // Do any additional setup after loading the view.
         HideRecordingInProgressUI()
         HideListeningUI()
+        // Hide the arrow initially just in case, there is a brief moment after loading the app that both arrows show up no matter what, this will prevent the possibility of an out of range error
+        PreviousRecordingLabel.isHidden = true
+        NextRecordingLabel.isHidden = true
         
         //FileNameLabel should be disabled at all times
         FileNameLabel.isEnabled = false
