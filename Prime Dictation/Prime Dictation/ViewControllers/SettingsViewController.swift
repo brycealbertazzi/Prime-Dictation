@@ -53,23 +53,6 @@ class SettingsViewController: UIViewController {
         }
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-        let debugTap = UITapGestureRecognizer(target: self, action: #selector(debugHitTest(_:)))
-        debugTap.cancelsTouchesInView = false   // important so buttons still get a chance
-        view.addGestureRecognizer(debugTap)
-    }
-
-    @objc private func debugHitTest(_ gesture: UITapGestureRecognizer) {
-        let point = gesture.location(in: view)
-        if let hit = view.hitTest(point, with: nil) {
-            print("DEBUG hit view:", type(of: hit), "tag:", hit.tag)
-        } else {
-            print("DEBUG hit: nil")
-        }
-    }
-    
     @IBAction func EmailButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
         emailManager.handleEmailButtonTap(from: self)
