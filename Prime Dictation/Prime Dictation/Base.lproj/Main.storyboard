@@ -30,12 +30,12 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="R5K-8g-HC8">
-                                        <rect key="frame" x="182" y="178" width="50" height="50"/>
+                                        <rect key="frame" x="182" y="173" width="50" height="50"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="50" id="EVB-Gx-Ygw"/>
                                             <constraint firstAttribute="width" constant="50" id="ID6-rK-sgL"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" name="Palatino-Bold" family="Palatino" pointSize="55"/>
+                                        <fontDescription key="fontDescription" name="Georgia-Bold" family="Georgia" pointSize="60"/>
                                         <color key="tintColor" systemColor="tintColor"/>
                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                         <state key="normal" title="T">
@@ -69,7 +69,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EGn-C5-l6S" userLabel="See Transcription Label">
-                                        <rect key="frame" x="124" y="178" width="50" height="50"/>
+                                        <rect key="frame" x="124" y="173" width="50" height="50"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="50" id="DIJ-EA-lbN"/>
                                             <constraint firstAttribute="width" constant="50" id="pgh-cg-Db9"/>
@@ -115,8 +115,8 @@
                                     <constraint firstItem="1tL-fi-eIn" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="top" constant="75" id="14G-OU-8AH"/>
                                     <constraint firstItem="R5K-8g-HC8" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="DYG-F5-jxF"/>
                                     <constraint firstItem="EGn-C5-l6S" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="GSz-dr-GkA"/>
-                                    <constraint firstAttribute="bottom" secondItem="EGn-C5-l6S" secondAttribute="bottom" constant="40" id="JJO-zZ-SFu"/>
-                                    <constraint firstAttribute="bottom" secondItem="R5K-8g-HC8" secondAttribute="bottom" constant="40" id="fgq-il-bit"/>
+                                    <constraint firstAttribute="bottom" secondItem="EGn-C5-l6S" secondAttribute="bottom" constant="45" id="JJO-zZ-SFu"/>
+                                    <constraint firstAttribute="bottom" secondItem="R5K-8g-HC8" secondAttribute="bottom" constant="45" id="fgq-il-bit"/>
                                     <constraint firstItem="1tL-fi-eIn" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="s0d-rv-qhg"/>
                                 </constraints>
                             </view>
@@ -156,7 +156,7 @@
                                                 <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.17254901960784313" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <state key="normal" title="Button"/>
                                                 <buttonConfiguration key="configuration" style="plain">
-                                                    <backgroundConfiguration key="background" image="waveform.path.ecg.text.clipboard.fill.rtl" catalog="system"/>
+                                                    <backgroundConfiguration key="background" image="waveform.path.ecg.text.clipboard" catalog="system"/>
                                                 </buttonConfiguration>
                                                 <connections>
                                                     <action selector="RenameFileButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Y4a-Lq-BsA"/>
@@ -753,7 +753,7 @@
                                 </connections>
                             </button>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hMz-sM-hdh">
-                                <rect key="frame" x="8" y="38" width="398" height="629"/>
+                                <rect key="frame" x="8" y="38" width="398" height="635"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <fontDescription key="fontDescription" name="PingFangMO-Semibold" family="PingFang MO" pointSize="18"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
@@ -831,7 +831,7 @@
         <image name="headphones" catalog="system" width="128" height="121"/>
         <image name="paperplane.circle.fill" catalog="system" width="128" height="123"/>
         <image name="paperplane.fill" catalog="system" width="128" height="119"/>
-        <image name="waveform.path.ecg.text.clipboard.fill.rtl" catalog="system" width="103" height="128"/>
+        <image name="waveform.path.ecg.text.clipboard" catalog="system" width="103" height="128"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
