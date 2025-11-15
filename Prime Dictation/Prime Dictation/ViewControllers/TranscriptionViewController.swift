@@ -300,6 +300,7 @@ class TranscriptionViewController: UIViewController {
         if TranscriptionTextBox.isFirstResponder {
             TranscriptionTextBox.scrollRangeToVisible(TranscriptionTextBox.selectedRange)
         }
+        hideFontSizeSlider()
     }
     
     @objc private func keyboardWillHide(_ notification: Notification) {
@@ -326,6 +327,7 @@ class TranscriptionViewController: UIViewController {
     // Button that shows the font selection list
     @IBAction func chooseFontButtonTapped(_ sender: UIView) {
         Haptic.tap(intensity: 0.7)
+        hideFontSizeSlider()
         
         let alert = UIAlertController(title: "Choose Font",
                                       message: nil,
