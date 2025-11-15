@@ -148,7 +148,7 @@ class GDFolderPickerViewController: UITableViewController {
                 label.text = "Last selected: \(sel.name)"
             }
         } else {
-            label.text = "Last selected: None"
+            label.text = "Last selected: Root"
         }
         return v
     }
@@ -1149,15 +1149,4 @@ final class GoogleDriveManager: NSObject {
             persistedSelection = nil
         }
     }
-
-    // MARK: - Display Helpers
-
-    func getSelectionDisplayString() -> String {
-        if let sel = persistedSelection {
-            return sel.folderId == GoogleDriveManager.googleDriveRootId ? "Google Drive (root)" : sel.name
-        } else {
-            return "Google Drive (root)"
-        }
-    }
-    
 }
