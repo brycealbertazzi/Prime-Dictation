@@ -32,6 +32,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var TranscribeLabel: UIButton!
     @IBOutlet weak var SeeTranscriptionLabel: UIButton!
     @IBOutlet weak var PoorConnectionLabel: UILabel!
+    @IBOutlet weak var EstimatedWaitLabel: UILabel!
     
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
     var audioRecorder: AVAudioRecorder! //Responsible for recording our audio
@@ -85,6 +86,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         try? recordingSession.setActive(true)
         RecordLabel.setImage(UIImage(named: "RecordButton"), for: .normal)
         PoorConnectionLabel.isHidden = true
+        EstimatedWaitLabel.isHidden = true
         //Request permission
         if #available(iOS 17.0, *) {
             AVAudioApplication.requestRecordPermission { granted in
@@ -347,7 +349,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 self.PoorConnectionLabel.layer.removeAllAnimations()
                 self.PoorConnectionLabel.alpha = 1.0
                 self.PoorConnectionLabel.isHidden = true
-                
+                self.EstimatedWaitLabel.isHidden = true
+                self.EstimatedWaitLabel.text = "Estimated wait:"
             }
             
             do {
@@ -427,6 +430,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         // Reset label
         PoorConnectionLabel.isHidden = true
         PoorConnectionLabel.alpha = 1.0
+        var estimatedWaitLabel: String
+        if time < 45 {
+            estimatedWaitLabel = "Estimated wait: < 1 min"
+        } else {
+            estimatedWaitLabel = "Estimated wait: ~\(Int(ceil(time / 60))) min"
+        }
+        showEstimatedWaitUI(label: estimatedWaitLabel)
 
         transcriptionProgressStage = 0
         let total = max(time, 6.0)     // avoid flicker for tiny clips
@@ -455,8 +465,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         let threshold = total * 1.3
         poorConnectionStartTimer = Timer.scheduledTimer(withTimeInterval: threshold, repeats: false) { [weak self] _ in
             guard let self = self else { return }
-            self.PoorConnectionLabel.isHidden = false
-            self.PoorConnectionLabel.alpha = 1.0
+            showPoorConnectionUI()
 
             // Fade 1.0 -> 0.0 -> 1.0 ... forever (until you cancel)
             UIView.animate(withDuration: 1.0,
@@ -471,7 +480,16 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     private func showPoorConnectionUI() {
+        EstimatedWaitLabel.isHidden = true
+        PoorConnectionLabel.alpha = 1.0
         PoorConnectionLabel.isHidden = false
+    }
+    
+    private func showEstimatedWaitUI(label: String) {
+        PoorConnectionLabel.isHidden = true
+        EstimatedWaitLabel.text = label
+        EstimatedWaitLabel.alpha = 0.75
+        EstimatedWaitLabel.isHidden = false
     }
     
     private func showTranscriptionScreen() {
