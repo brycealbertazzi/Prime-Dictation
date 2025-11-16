@@ -930,7 +930,8 @@ final class GoogleDriveManager: NSObject {
                 service: service,
                 parentFolderId: GoogleDriveManager.googleDriveRootId,
                 onPicked: { [weak self] selection in
-                    self?.updateSelectedFolder(selection)
+                    guard let self = self else { return }
+                    self.updateSelectedFolder(selection)
                     onPicked?(selection)
                 }
             )

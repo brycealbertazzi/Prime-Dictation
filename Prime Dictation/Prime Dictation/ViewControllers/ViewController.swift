@@ -371,13 +371,21 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             ProgressHUD.failed("No recording found")
             return
         }
-        let seconds = recordingDuration(for: url)
-        let estimatedTranscriptionSeconds = (seconds / 2) + 15
-        
-        if (seconds >= 300) {
-            transcriptionLengthWarning(seconds: seconds, estimated: estimatedTranscriptionSeconds)
-        } else {
-            executeTranscription(estimated: estimatedTranscriptionSeconds)
+        Task {
+            let seconds = await recordingDuration(for: url)
+            if (seconds <= 0) {
+                displayAlert(title: "Transcription Failed", message: "We were unable to transcribe your recording because the length of the recording could not be determined. Make another recording and try again.")
+                ProgressHUD.dismiss()
+                return
+            }
+            
+            let estimatedTranscriptionSeconds = (seconds / 2) + 15
+            
+            if (seconds >= 300) {
+                transcriptionLengthWarning(seconds: seconds, estimated: estimatedTranscriptionSeconds)
+            } else {
+                executeTranscription(estimated: estimatedTranscriptionSeconds)
+            }
         }
     }
     
@@ -386,11 +394,26 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         showTranscriptionScreen()
     }
     
-    private func recordingDuration(for url: URL) -> TimeInterval {
+    @MainActor
+    private func recordingDuration(for url: URL) async -> TimeInterval {
         let asset = AVURLAsset(url: url)
-        let seconds = CMTimeGetSeconds(asset.duration)
-        guard seconds.isFinite, seconds > 0 else { return 0 }
-        return seconds
+
+        if #available(iOS 17.0, *) {
+            do {
+                let duration = try await asset.load(.duration)
+                let seconds = duration.seconds   // CMTime extension
+                guard seconds.isFinite, seconds > 0 else { return 0 }
+                return seconds
+            } catch {
+                print("Unable to get duration of audio file")
+                return 0
+            }
+        } else {
+            // Fallback for older iOS: use the synchronous property
+            let seconds = asset.duration.seconds
+            guard seconds.isFinite, seconds > 0 else { return 0 }
+            return seconds
+        }
     }
     
     private func transcriptionInProgressUI(time: TimeInterval) {

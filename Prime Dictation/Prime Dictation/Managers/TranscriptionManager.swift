@@ -115,7 +115,7 @@ class TranscriptionManager {
         let toggledTranscriptFilePath = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
         if (!FileManager.default.fileExists(atPath: toggledTranscriptFilePath.path)) { return }
         
-        let toggledText = try String(contentsOf: toggledTranscriptFilePath)
+        let toggledText = try String(contentsOf: toggledTranscriptFilePath, encoding: .utf8)
         recordingManager.toggledAudioTranscriptionObject.transcriptionText = toggledText
         recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex] = recordingManager.toggledAudioTranscriptionObject
     }
@@ -396,9 +396,7 @@ class TranscriptionManager {
 
         let (data, resp) = try await URLSession.shared.data(for: req)
         guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-            if let http = resp as? HTTPURLResponse {
-                print("signedPut non-2xx")
-            }
+            print("signedPut non-2xx")
             return nil
         }
 

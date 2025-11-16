@@ -36,7 +36,7 @@ extension AppServices {
             do { try await u.delete() } catch { try? Auth.auth().signOut() }
         }
         do {
-            let res = try await Auth.auth().signInAnonymously()
+            try await Auth.auth().signInAnonymously()
         } catch {
             print("❌ rebind signInAnonymously failed")
         }

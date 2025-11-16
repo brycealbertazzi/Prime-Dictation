@@ -80,7 +80,7 @@
                                             <color key="titleColor" red="0.5568627451" green="0.2666666667" blue="0.67843137249999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </state>
                                         <buttonConfiguration key="configuration" style="plain">
-                                            <backgroundConfiguration key="background" image="doc.text.fill" catalog="system"/>
+                                            <backgroundConfiguration key="background" image="text.document.fill" catalog="system"/>
                                             <color key="baseForegroundColor" red="0.5568627451" green="0.2666666667" blue="0.67843137249999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </buttonConfiguration>
                                         <userDefinedRuntimeAttributes>
@@ -194,21 +194,21 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xv6-iB-UAN" userLabel="Recording View">
                                         <rect key="frame" x="32" y="25" width="350" height="172"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EmE-RS-QlP" userLabel="Stop">
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EmE-RS-QlP" userLabel="Stop">
                                                 <rect key="frame" x="10" y="36" width="100" height="100"/>
                                                 <state key="normal" image="EndButton"/>
                                                 <connections>
                                                     <action selector="StopRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8PK-a2-dMr"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aq9-EU-DW7" userLabel="Record">
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aq9-EU-DW7" userLabel="Record">
                                                 <rect key="frame" x="125" y="36" width="100" height="100"/>
                                                 <state key="normal" image="RecordButton"/>
                                                 <connections>
                                                     <action selector="RecordButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ny2-1D-Ccm"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HCQ-U9-aU8" userLabel="Pause">
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HCQ-U9-aU8" userLabel="Pause">
                                                 <rect key="frame" x="240" y="36" width="100" height="100"/>
                                                 <state key="normal" image="PauseButton"/>
                                                 <connections>
@@ -219,7 +219,10 @@
                                         <constraints>
                                             <constraint firstAttribute="width" constant="350" id="0bb-xY-SH3"/>
                                             <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="xv6-iB-UAN" secondAttribute="centerX" id="9UJ-9s-5vo"/>
+                                            <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="xv6-iB-UAN" secondAttribute="centerY" id="LME-Oa-J6M"/>
                                             <constraint firstItem="HCQ-U9-aU8" firstAttribute="leading" secondItem="aq9-EU-DW7" secondAttribute="trailing" constant="15" id="MTM-Lp-b04"/>
+                                            <constraint firstItem="HCQ-U9-aU8" firstAttribute="centerY" secondItem="xv6-iB-UAN" secondAttribute="centerY" id="adB-Yb-hqH"/>
+                                            <constraint firstItem="EmE-RS-QlP" firstAttribute="centerY" secondItem="xv6-iB-UAN" secondAttribute="centerY" id="eGy-Oh-xpd"/>
                                             <constraint firstItem="aq9-EU-DW7" firstAttribute="leading" secondItem="EmE-RS-QlP" secondAttribute="trailing" constant="15" id="mJc-7x-j1u"/>
                                             <constraint firstAttribute="height" constant="172" id="xKo-BL-Qqq"/>
                                         </constraints>
@@ -826,11 +829,11 @@
         <image name="PreviousArrow" width="100" height="100"/>
         <image name="RecordButton" width="100" height="100"/>
         <image name="chevron.down" catalog="system" width="128" height="70"/>
-        <image name="doc.text.fill" catalog="system" width="115" height="128"/>
         <image name="folder.fill.badge.gearshape" catalog="system" width="128" height="93"/>
         <image name="headphones" catalog="system" width="128" height="121"/>
         <image name="paperplane.circle.fill" catalog="system" width="128" height="123"/>
         <image name="paperplane.fill" catalog="system" width="128" height="119"/>
+        <image name="text.document.fill" catalog="system" width="115" height="128"/>
         <image name="waveform.path.ecg.text.clipboard" catalog="system" width="103" height="128"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
