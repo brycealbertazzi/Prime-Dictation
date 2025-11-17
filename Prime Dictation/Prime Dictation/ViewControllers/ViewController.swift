@@ -80,33 +80,32 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         //FileNameLabel should be disabled at all times
         FileNameLabel.isEnabled = false
         /*****/
-        //Initialize recording session
+        
+        // Initialize recording session (configure, but don't force it active yet)
         recordingSession = AVAudioSession.sharedInstance()
         try? recordingSession.setCategory(.playAndRecord, options: [.defaultToSpeaker, .allowBluetoothHFP])
-        try? recordingSession.setActive(true)
+
         RecordLabel.setImage(UIImage(named: "RecordButton"), for: .normal)
         PoorConnectionLabel.isHidden = true
         EstimatedWaitLabel.isHidden = true
+
         //Request permission
-        if #available(iOS 17.0, *) {
-            AVAudioApplication.requestRecordPermission { granted in
-                if granted {
-                    print("Mic access granted")
-                } else {
-                    print("Mic access denied")
-                }
-            }
-        } else {
-            // Fallback for older iOS versions
-            AVAudioSession.sharedInstance().requestRecordPermission { granted in
-                if granted {
-                    print("Mic access granted")
-                } else {
-                    print("Mic access denied")
-                }
+        AVAudioApplication.requestRecordPermission { granted in
+            if granted {
+                print("Mic access granted")
+            } else {
+                print("Mic access denied")
             }
         }
+       
         recordingManager.SetSavedRecordingsOnLoad()
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAudioSessionInterruption(_:)),
+            name: AVAudioSession.interruptionNotification,
+            object: recordingSession
+        )
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -117,13 +116,20 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     //MARK: Listen to Playback
     @IBAction func ListenButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
-        //Store the path to the recording in this "path" variable
-        let previousRecordingPath = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName).appendingPathExtension(recordingManager.audioRecordingExtension)
-        
-        //Play the previously recorded recording
+
+        let previousRecordingPath = recordingManager.GetDirectory()
+            .appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName)
+            .appendingPathExtension(recordingManager.audioRecordingExtension)
+
         do {
+            // Try to activate the audio session for playback.
+            // This is where an active call will usually cause failure.
+            try recordingSession.setCategory(.playAndRecord,
+                                             options: [.defaultToSpeaker, .allowBluetoothHFP])
             try recordingSession.setMode(.default)
-            try recordingSession.setActive(true)                       // ✅ ensure active
+            try recordingSession.setActive(true, options: .notifyOthersOnDeactivation)
+
+            // Now playback can proceed.
             try recordingSession.overrideOutputAudioPort(.speaker)
             audioPlayer = try AVAudioPlayer(contentsOf: previousRecordingPath)
             audioPlayer?.delegate = self
@@ -132,13 +138,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             audioPlayer.enableRate = true
             audioPlayer.rate = 1
             audioPlayer.play()
-            
+
             ShowListeningUI()
-            
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTimeListen(timer:))
             watch.start()
+
         } catch {
-            ProgressHUD.failed("Unable to play recording, make another recording and try again")
+            // Most likely reason: phone / FaceTime / VoIP is active.
+            displayAlert(title: "Playback Unavailable", message: "Prime Dictation can’t play audio while a phone or FaceTime call is active.")
         }
     }
     
@@ -196,6 +203,41 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         
         self.present(alert, animated: true)
     }
+    
+    @objc private func handleAudioSessionInterruption(_ notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+            let type = AVAudioSession.InterruptionType(rawValue: typeValue)
+        else { return }
+
+        switch type {
+        case .began:
+            // A call / FaceTime / VoIP (or similar) grabbed the audio session.
+            if audioRecorder?.isRecording == true {
+                audioRecorder.stop()
+                audioRecorder = nil
+                watch.stop()
+                HideRecordingInProgressUI()
+                
+                DispatchQueue.main.async {
+                    self.displayAlert(
+                        title: "Recording Interrupted",
+                        message: "Your recording was stopped because another app started using the microphone (for example a phone or FaceTime call)."
+                    )
+                }
+            }
+
+        case .ended:
+            // You *could* optionally re-enable the UI or offer to resume, but
+            // for a dictation app it's usually better to just let the user tap Record again.
+            break
+
+        @unknown default:
+            break
+        }
+    }
+
 
     @IBAction func RecordButton(_ sender: Any) {
         guard audioRecorder == nil else { return }
@@ -228,19 +270,31 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         ]
 
         do {
-            try recordingSession.setMode(.measurement)
+            // 🟢 Reactivate session for recording; this will usually pause/duck music.
+            try recordingSession.setCategory(.playAndRecord,
+                                             options: [.defaultToSpeaker, .allowBluetoothHFP])
+            try recordingSession.setActive(true, options: .notifyOthersOnDeactivation)
+
             audioRecorder = try AVAudioRecorder(url: fileName, settings: settings)
             audioRecorder.delegate = self
             audioRecorder.prepareToRecord()
             audioRecorder.isMeteringEnabled = false
             audioRecorder.record()
+
             ListenLabel.isHidden = true
             ShowRecordingInProgressUI()
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTime(timer:))
             watch.start()
             StopWatchLabel.isHidden = false
         } catch {
-            ProgressHUD.failed("Unable to start recording, try again later.")
+            // 🔴 Most likely: another app (phone/FaceTime/VoIP) has the mic.
+            audioRecorder = nil
+            DispatchQueue.main.async {
+                self.displayAlert(
+                    title: "Microphone In Use",
+                    message: "Prime Dictation can’t access the microphone because it’s currently being used by another app, such as a phone or FaceTime call."
+                )
+            }
         }
     }
     
