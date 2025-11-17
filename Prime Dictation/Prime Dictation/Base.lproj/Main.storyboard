@@ -242,7 +242,7 @@
                                         <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="calibratedRGB"/>
                                         <state key="normal" image="paperplane.circle.fill" catalog="system"/>
                                         <buttonConfiguration key="configuration" style="plain">
-                                            <backgroundConfiguration key="background" image="paperplane.fill" catalog="system"/>
+                                            <backgroundConfiguration key="background" image="tray.and.arrow.up.fill" catalog="system"/>
                                         </buttonConfiguration>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
@@ -841,8 +841,8 @@
         <image name="folder.fill.badge.gearshape" catalog="system" width="128" height="93"/>
         <image name="headphones" catalog="system" width="128" height="121"/>
         <image name="paperplane.circle.fill" catalog="system" width="128" height="123"/>
-        <image name="paperplane.fill" catalog="system" width="128" height="119"/>
         <image name="text.document.fill" catalog="system" width="115" height="128"/>
+        <image name="tray.and.arrow.up.fill" catalog="system" width="128" height="117"/>
         <image name="waveform.path.ecg.text.clipboard" catalog="system" width="103" height="128"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
