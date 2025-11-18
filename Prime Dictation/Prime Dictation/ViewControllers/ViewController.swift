@@ -32,7 +32,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var TranscribeLabel: UIButton!
     @IBOutlet weak var SeeTranscriptionLabel: UIButton!
     @IBOutlet weak var PoorConnectionLabel: UILabel!
-    @IBOutlet weak var EstimatedWaitLabel: UILabel!
     
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
     var audioRecorder: AVAudioRecorder! //Responsible for recording our audio
@@ -87,7 +86,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
         RecordLabel.setImage(UIImage(named: "RecordButton"), for: .normal)
         PoorConnectionLabel.isHidden = true
-        EstimatedWaitLabel.isHidden = true
 
         // Request permission
         AVAudioApplication.requestRecordPermission { [weak self] granted in
@@ -408,19 +406,23 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
     private var poorConnectionStartTimer: Timer?
     
-    func transcriptionLengthWarning(seconds: CGFloat, estimated: CGFloat) {
-        let estimatedMinutesRoundedUp = Int(ceil(estimated / 60))
+    func transcriptionAlert(seconds: CGFloat, estimated: CGFloat) {
+        let estimatedWaitStr: String = getEstimatedWaitLabel(seconds: TimeInterval(estimated))
         
         if (seconds >= 600) {
             // Red warning
             let title = "Very long transcription"
-            let msg = "Your recording is over 10 minutes long. Transcription accuracy will likely be reduced and transcription may take a long time to complete. For best results, consider breaking this into shorter recordings and transcribing each one separately. You’ll need to keep Prime Dictation open while we transcribe. Are you sure you want to proceed? Estimated time: \(estimatedMinutesRoundedUp) minutes"
-            displayAlertLongRecording(title: title, message: msg, estimated: estimated)
-        } else {
+            let msg = "Your recording is over 10 minutes long. Transcription accuracy will likely be reduced and transcription may take a long time to complete. For best results, consider breaking this into shorter recordings and transcribing each one separately. You’ll need to keep Prime Dictation open while we transcribe. Are you sure you want to transcribe? \(estimatedWaitStr)"
+            displayTranscriptionAlert(title: title, message: msg, estimated: estimated)
+        } else if (seconds >= 300) {
             // Yellow warning
             let title = "Long transcription"
-            let msg = "Your recording is over 5 minutes long. Transcription accuracy may be affected, and it could take a while to complete. For best results, consider breaking long recordings into smaller parts and transcribing each one separately. You’ll need to keep Prime Dictation open while we transcribe. Are you sure you want to proceed? Estimated time: \(estimatedMinutesRoundedUp) minutes"
-            displayAlertLongRecording(title: title, message: msg, estimated: estimated)
+            let msg = "Your recording is over 5 minutes long. Transcription accuracy may be affected, and it could take a while to complete. For best results, consider breaking long recordings into smaller parts and transcribing each one separately. You’ll need to keep Prime Dictation open while we transcribe. Are you sure you want to transcribe? \(estimatedWaitStr)"
+            displayTranscriptionAlert(title: title, message: msg, estimated: estimated)
+        } else {
+            let title = "Start transcription?"
+            let msg = "The app will be locked while transcribing, please keep Prime Dictation open during the process. \(estimatedWaitStr)"
+            displayTranscriptionAlert(title: title, message: msg, estimated: estimated)
         }
     }
     
@@ -439,8 +441,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 self.PoorConnectionLabel.layer.removeAllAnimations()
                 self.PoorConnectionLabel.alpha = 1.0
                 self.PoorConnectionLabel.isHidden = true
-                self.EstimatedWaitLabel.isHidden = true
-                self.EstimatedWaitLabel.text = "Estimated wait:"
             }
             
             do {
@@ -475,14 +475,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 ProgressHUD.dismiss()
                 return
             }
-            
             let estimatedTranscriptionSeconds = (seconds / 2) + 15
-            
-            if (seconds >= 300) {
-                transcriptionLengthWarning(seconds: seconds, estimated: estimatedTranscriptionSeconds)
-            } else {
-                executeTranscription(estimated: estimatedTranscriptionSeconds)
-            }
+            transcriptionAlert(seconds: seconds, estimated: estimatedTranscriptionSeconds)
         }
     }
     
@@ -513,6 +507,16 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
     
+    private func getEstimatedWaitLabel(seconds: TimeInterval) -> String {
+        var estimatedWaitLabel: String = ""
+        if seconds < 45 {
+            estimatedWaitLabel = "Estimated wait: under 1 min"
+        } else {
+            estimatedWaitLabel = "Estimated wait: ~\(Int(ceil(seconds / 60))) min"
+        }
+        return estimatedWaitLabel
+    }
+    
     private func transcriptionInProgressUI(time: TimeInterval) {
         // Cancel any prior timers
         transcriptionProgressTimer?.invalidate()
@@ -524,13 +528,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         // Reset label
         PoorConnectionLabel.isHidden = true
         PoorConnectionLabel.alpha = 1.0
-        var estimatedWaitLabel: String
-        if time < 45 {
-            estimatedWaitLabel = "Estimated wait: < 1 min"
-        } else {
-            estimatedWaitLabel = "Estimated wait: ~\(Int(ceil(time / 60))) min"
-        }
-        showEstimatedWaitUI(label: estimatedWaitLabel)
 
         transcriptionProgressStage = 0
         let total = max(time, 6.0)     // avoid flicker for tiny clips
@@ -574,16 +571,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     private func showPoorConnectionUI() {
-        EstimatedWaitLabel.isHidden = true
         PoorConnectionLabel.alpha = 1.0
         PoorConnectionLabel.isHidden = false
-    }
-    
-    private func showEstimatedWaitUI(label: String) {
-        PoorConnectionLabel.isHidden = true
-        EstimatedWaitLabel.text = label
-        EstimatedWaitLabel.alpha = 0.75
-        EstimatedWaitLabel.isHidden = false
     }
     
     private func showTranscriptionScreen() {
@@ -643,12 +632,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         present(alert, animated: true, completion: nil)
     }
     
-    func displayAlertLongRecording(title: String, message: String, estimated: CGFloat) {
+    func displayTranscriptionAlert(title: String, message: String, estimated: CGFloat) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))  // just dismiss
 
-        alert.addAction(UIAlertAction(title: "Proceed", style: .default) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "Transcribe", style: .default) { [weak self] _ in
             guard let self = self else { return }
             self.executeTranscription(estimated: estimated)
         })

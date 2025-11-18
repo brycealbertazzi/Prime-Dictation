@@ -310,22 +310,14 @@
                                             <action selector="SendButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ImA-qy-NzW"/>
                                         </connections>
                                     </button>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Estimated Wait: " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lcE-Lo-NQ0" userLabel="Estimated Wait Label">
-                                        <rect key="frame" x="98" y="132" width="218" height="36"/>
-                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="30"/>
-                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
                                 </subviews>
                                 <gestureRecognizers/>
                                 <constraints>
                                     <constraint firstItem="xv6-iB-UAN" firstAttribute="top" secondItem="nJI-Eq-CWr" secondAttribute="top" constant="25" id="0WN-3G-Q8d"/>
                                     <constraint firstItem="DWH-sd-6b5" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="5AQ-1J-6l2"/>
-                                    <constraint firstItem="lcE-Lo-NQ0" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="5LL-9d-omy"/>
                                     <constraint firstItem="TEJ-KL-gv0" firstAttribute="centerY" secondItem="svK-SA-aO1" secondAttribute="centerY" id="7Gt-cE-h6W"/>
                                     <constraint firstItem="TEJ-KL-gv0" firstAttribute="leading" secondItem="nJI-Eq-CWr" secondAttribute="leading" constant="30" id="A3i-1b-gR7"/>
                                     <constraint firstAttribute="bottom" secondItem="DWH-sd-6b5" secondAttribute="bottom" constant="100" id="AIa-CB-fC4"/>
-                                    <constraint firstAttribute="bottom" secondItem="lcE-Lo-NQ0" secondAttribute="bottom" constant="100" id="Byk-BS-g3c"/>
                                     <constraint firstItem="xv6-iB-UAN" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="Mta-b2-w0b"/>
                                     <constraint firstAttribute="trailing" secondItem="svK-SA-aO1" secondAttribute="trailing" constant="30" id="cq6-Pe-4pg"/>
                                     <constraint firstAttribute="bottom" secondItem="TEJ-KL-gv0" secondAttribute="bottom" constant="50" id="u4g-J3-kaI"/>
@@ -419,7 +411,6 @@
                     <connections>
                         <outlet property="DestinationLabel" destination="TEJ-KL-gv0" id="dYf-oa-RfN"/>
                         <outlet property="EndPlaybackLabel" destination="JP1-AS-jj7" id="HgY-ia-gVo"/>
-                        <outlet property="EstimatedWaitLabel" destination="lcE-Lo-NQ0" id="Dc1-HK-X3k"/>
                         <outlet property="FileNameLabel" destination="ma4-wR-ucz" id="J8z-3S-8F3"/>
                         <outlet property="ListenLabel" destination="tAV-Xq-Ydt" id="x77-pk-KvP"/>
                         <outlet property="NextRecordingLabel" destination="RQo-s8-1EL" id="Qxy-BS-mC3"/>
