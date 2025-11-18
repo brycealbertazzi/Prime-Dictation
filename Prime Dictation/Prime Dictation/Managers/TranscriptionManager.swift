@@ -374,29 +374,61 @@ class TranscriptionManager {
     func uploadRecordingToCGBucket(to signedURL: URL, from fileURL: URL) async throws {
         let data = try Data(contentsOf: fileURL)
 
-        var req = URLRequest(url: signedURL)
-        req.httpMethod = "PUT"
-        req.setValue("audio/mp4", forHTTPHeaderField: "Content-Type")
-        req.httpBody = data
+        var lastError: Error?
+        let maxAttempts = 3
+        let timeout: TimeInterval = 10   // try 8–12s range
 
-        let (__, resp): (Data, URLResponse)
-        do {
-            (__, resp) = try await URLSession.shared.data(for: req)
-        } catch {
-            // Propagate the real error up to transcribeAudioFile
-            throw TranscriptionError.error("Upload to transcription server failed", underlying: error)
+        for attempt in 1...maxAttempts {
+            print("📤 Upload attempt \(attempt) starting at \(Date())")
+
+            var req = URLRequest(
+                url: signedURL,
+                cachePolicy: .reloadIgnoringLocalCacheData,
+                timeoutInterval: timeout
+            )
+            req.httpMethod = "PUT"
+            req.setValue("audio/mp4", forHTTPHeaderField: "Content-Type")
+            req.httpBody = data
+
+            do {
+                let (_, resp) = try await URLSession.shared.data(for: req)
+
+                guard let http = resp as? HTTPURLResponse else {
+                    throw TranscriptionError.error("Upload failed – no HTTP response")
+                }
+
+                print("📥 Upload attempt \(attempt) got status \(http.statusCode) at \(Date())")
+
+                guard (200...299).contains(http.statusCode) else {
+                    throw TranscriptionError.error("Upload failed – server returned \(http.statusCode)")
+                }
+
+                print("✅ Upload OK on attempt \(attempt)")
+                return
+            } catch {
+                lastError = error
+
+                let nsErr = error as NSError
+                print("❌ Upload attempt \(attempt) error: domain=\(nsErr.domain) code=\(nsErr.code) desc=\(nsErr.localizedDescription) at \(Date())")
+
+                // treat "network connection lost" / "timed out" as transient
+                if nsErr.domain == NSURLErrorDomain &&
+                    (nsErr.code == NSURLErrorNetworkConnectionLost ||
+                     nsErr.code == NSURLErrorTimedOut) &&
+                    attempt < maxAttempts {
+
+                    print("⚠️ Transient upload error on attempt \(attempt) – will retry")
+                    continue
+                }
+
+                // Non-transient or last attempt
+                throw TranscriptionError.error("Upload to transcription server failed", underlying: error)
+            }
         }
 
-        guard let http = resp as? HTTPURLResponse else {
-            throw TranscriptionError.error("Upload failed – no HTTP response")
-        }
-
-        guard (200...299).contains(http.statusCode) else {
-            throw TranscriptionError.error("Upload failed – server returned \(http.statusCode)")
-        }
-
-        print("✅ Upload OK")
+        throw TranscriptionError.error("Upload to transcription server failed after retries", underlying: lastError)
     }
+
 
     func mintSignedURL() async throws -> URL? {
         print("🟣 mintSignedURL: starting at \(Date())")
