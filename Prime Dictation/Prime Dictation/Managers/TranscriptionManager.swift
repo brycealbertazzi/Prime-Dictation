@@ -39,32 +39,52 @@ class TranscriptionManager {
     
     /// Call this to upload, wait (max 20m), and get the signed URL to the transcript.
     func transcribeAudioFile() async throws {
-        // Clear cache before transcription
+        print("🟢 transcribeAudioFile: entered")
+
         await MainActor.run {
+            print("🟢 transcribeAudioFile: clearing cached text")
             self.toggledTranscriptText = nil
             self.recordingManager.toggledAudioTranscriptionObject.transcriptionText = nil
             self.recordingManager.savedAudioTranscriptionObjects[self.recordingManager.toggledRecordingsIndex] =
                 self.recordingManager.toggledAudioTranscriptionObject
         }
-        await MainActor.run { viewController?.DisableUI() }
-        defer { Task { await MainActor.run { self.viewController?.EnableUI() } } }
+
+        await MainActor.run {
+            print("🟢 transcribeAudioFile: DisableUI")
+            viewController?.DisableUI()
+        }
+        defer {
+            Task { @MainActor in
+                print("🟢 transcribeAudioFile: EnableUI (defer)")
+                self.viewController?.EnableUI()
+            }
+        }
 
         guard let txtSignerBase = SignedTxtURLGCFunction else {
+            print("❌ transcribeAudioFile: missing SignedTxtURLGCFunction")
             throw TranscriptionError.error("Transcription service not configured (text signer)")
         }
         guard SignedAudioUrlGCFunction != nil else {
+            print("❌ transcribeAudioFile: missing SignedAudioUrlGCFunction")
             throw TranscriptionError.error("Transcription service not configured (audio signer)")
         }
+
+        print("🟢 transcribeAudioFile: about to mintSignedURL()")
         guard let signedPUT = try? await mintSignedURL() else {
+            print("❌ transcribeAudioFile: mintSignedURL returned nil or threw")
             throw TranscriptionError.error("Unable to obtain an upload URL")
         }
+
         guard let recordingURL = recordingManager.toggledRecordingURL else {
+            print("❌ transcribeAudioFile: toggledRecordingURL is nil")
             throw TranscriptionError.error("No recording found to transcribe")
         }
+
         do {
             try await uploadRecordingToCGBucket(to: signedPUT, from: recordingURL)
-            print("Uploaded recording to GC bucket")
+            print("✅ transcribeAudioFile: uploadRecordingToCGBucket finished")
         } catch {
+            print("❌ transcribeAudioFile: upload failed: \(error)")
             throw TranscriptionError.error("Upload failed", underlying: error)
         }
 
@@ -127,7 +147,7 @@ class TranscriptionManager {
         filename: String,
         hardCapSeconds: TimeInterval,
         backoffCapSeconds: TimeInterval,
-        notBefore: Date? = nil                 // 👈 new
+        notBefore: Date? = nil
     ) async throws -> URL {
         let deadline = Date().addingTimeInterval(hardCapSeconds)
         var attempt = 0
@@ -136,15 +156,24 @@ class TranscriptionManager {
             attempt += 1
             do {
                 let signedTxtURL = try await fetchSignedTxtURL(base: txtSignerBase, filename: filename)
-                if await objectIsFreshAndExists(at: signedTxtURL, notBefore: notBefore) {   // 👈 freshness check
+                print("📝 [waitForTranscriptReady] attempt \(attempt) – got signed URL")
+
+                if await objectIsFreshAndExists(at: signedTxtURL, notBefore: notBefore) {
+                    print("✅ [waitForTranscriptReady] transcript is ready")
                     return signedTxtURL
+                } else {
+                    print("⌛ [waitForTranscriptReady] transcript not ready yet")
                 }
-            } catch { /* /sign may 404 until ready; ignore and retry */ }
+            } catch {
+                print("⚠️ [waitForTranscriptReady] /sign error on attempt \(attempt): \(error.localizedDescription)")
+            }
 
             let base: TimeInterval = 0.5, factor: Double = 1.1
             let delay = min(base * pow(factor, Double(attempt)), backoffCapSeconds)
             let jitter = Double.random(in: 0...0.3)
-            try? await Task.sleep(nanoseconds: UInt64((delay + jitter) * 1_000_000_000))
+            let sleepSeconds = delay + jitter
+            print("⏱️ [waitForTranscriptReady] sleeping \(sleepSeconds)s")
+            try? await Task.sleep(nanoseconds: UInt64(sleepSeconds * 1_000_000_000))
         }
 
         if Task.isCancelled {
@@ -348,38 +377,46 @@ class TranscriptionManager {
         var req = URLRequest(url: signedURL)
         req.httpMethod = "PUT"
         req.setValue("audio/mp4", forHTTPHeaderField: "Content-Type")
-        // ❌ Do NOT add Authorization on a GCS signed URL
         req.httpBody = data
 
+        let (__, resp): (Data, URLResponse)
         do {
-            let (_, resp) = try await URLSession.shared.data(for: req)
-            guard let http = resp as? HTTPURLResponse else {
-                print("❌ Not a HTTPURLResponse"); return
-            }
-            if http.statusCode != 200 {
-                print("❌ Non-200 status code when uploading to GC bucket: \(http.statusCode)")
-                return
-            }
-            print("✅ Upload OK")
+            (__, resp) = try await URLSession.shared.data(for: req)
         } catch {
-            print("❌ URLSession error")
+            // Propagate the real error up to transcribeAudioFile
+            throw TranscriptionError.error("Upload to transcription server failed", underlying: error)
         }
+
+        guard let http = resp as? HTTPURLResponse else {
+            throw TranscriptionError.error("Upload failed – no HTTP response")
+        }
+
+        guard (200...299).contains(http.statusCode) else {
+            throw TranscriptionError.error("Upload failed – server returned \(http.statusCode)")
+        }
+
+        print("✅ Upload OK")
     }
 
-
     func mintSignedURL() async throws -> URL? {
-        // 1) Firebase ID token
+        print("🟣 mintSignedURL: starting at \(Date())")
+
         let token: String
         do {
+            print("🟣 mintSignedURL: about to getFreshIDToken at \(Date())")
             token = try await AppServices.shared.getFreshIDToken()
+            print("🟣 mintSignedURL: got token at \(Date())")
         } catch {
-            print("Unable to fetch FirebaseAuth token")
+            print("❌ mintSignedURL: getFreshIDToken error: \(error)")
             return nil
         }
 
         // 2) Target base URL of the Cloud Run service for signedPut
         guard let signedPutBase = SignedAudioUrlGCFunction,
-              let url = URL(string: signedPutBase) else { return nil }
+              let url = URL(string: signedPutBase) else {
+            print("❌ mintSignedURL: bad SignedAudioUrlGCFunction")
+            return nil
+        }
 
         // 3) JSON body expected by your Node handler (req.body)
         let bucketPath = "\(recordingManager.toggledAudioTranscriptionObject.fileName).\(recordingManager.audioRecordingExtension)"
