@@ -89,12 +89,17 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PoorConnectionLabel.isHidden = true
         EstimatedWaitLabel.isHidden = true
 
-        //Request permission
-        AVAudioApplication.requestRecordPermission { granted in
-            if granted {
-                print("Mic access granted")
-            } else {
-                print("Mic access denied")
+        // Request permission
+        AVAudioApplication.requestRecordPermission { [weak self] granted in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                print("granted: \(granted)")
+                if !granted {
+                    self.displayAlert(
+                        title: "Microphone Access Needed",
+                        message: "Prime Dictation can’t record because microphone access is turned off. Go to Settings > Privacy & Security > Microphone and allow access for Prime Dictation."
+                    )
+                }
             }
         }
        
@@ -197,7 +202,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             if let newName = alert.textFields?.first?.text, !newName.isEmpty {
                 self.recordingManager.RenameFile(newName: newName)
             } else {
-                ProgressHUD.failed("Name cannot be empty.")
+                ProgressHUD.failed("File name cannot be empty.")
             }
         })
         
@@ -223,7 +228,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 DispatchQueue.main.async {
                     self.displayAlert(
                         title: "Recording Interrupted",
-                        message: "Your recording was stopped because another app started using the microphone (for example a phone or FaceTime call)."
+                        message: "Your recording was stopped because another app started using the microphone, for example a phone or FaceTime call."
                     )
                 }
             }
@@ -242,12 +247,43 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBAction func RecordButton(_ sender: Any) {
         guard audioRecorder == nil else { return }
 
-        // 1) Haptic immediately (same run loop)
         Haptic.tap(intensity: 1.0)
 
-        // 2) Small delay to let the engine complete before session changes
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) {
-            self.startRecording()
+        let permission = AVAudioApplication.shared.recordPermission
+
+        switch permission {
+        case .granted:
+            // Small delay like you had before
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) {
+                self.startRecording()
+            }
+
+        case .denied:
+            // Don’t even try to record; just explain what to do.
+            displayAlert(
+                title: "Microphone Access Needed",
+                message: "Prime Dictation can’t record because microphone access is turned off. Go to Settings > Privacy & Security > Microphone and allow access for Prime Dictation."
+            )
+
+        case .undetermined:
+            // Ask on first tap, then branch on the result
+            AVAudioApplication.requestRecordPermission { [weak self] granted in
+                guard let self = self else { return }
+                DispatchQueue.main.async {
+                    if granted {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) {
+                            self.startRecording()
+                        }
+                    } else {
+                        self.displayAlert(
+                            title: "Microphone Access Needed",
+                            message: "Prime Dictation can’t record because microphone access is turned off. Go to Settings > Privacy & Security > Microphone and allow access for Prime Dictation."
+                        )
+                    }
+                }
+            }
+        @unknown default:
+            break
         }
     }
     
@@ -377,13 +413,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         
         if (seconds >= 600) {
             // Red warning
-            let title = "Transcription length DANGER"
-            let msg = "Your recording is over 10 minutes long. We don't recommend transcribing recordings of this length. Transcription accuracy will be significantly affected. Please consider breaking it up into multiple recordings and transcribing each one separately. It will take a long time to transcribe your file, you must keep the app open during the process otherwise the transcription will not complete. Are you sure you would like to proceed? Estimated time: \(estimatedMinutesRoundedUp) minutes"
+            let title = "Very long transcription"
+            let msg = "Your recording is over 10 minutes long. Transcription accuracy will likely be reduced and transcription may take a long time to complete. For best results, consider breaking this into shorter recordings and transcribing each one separately. You’ll need to keep Prime Dictation open while we transcribe. Are you sure you want to proceed? Estimated time: \(estimatedMinutesRoundedUp) minutes"
             displayAlertLongRecording(title: title, message: msg, estimated: estimated)
         } else {
             // Yellow warning
-            let title = "Transcription length warning"
-            let msg = "Your recording is over 5 minutes long. Transcription accuracy may be affected. Please consider breaking it up into multiple recordings and transcribing each one separately. It will take some time to transcribe your file, you must keep the app open during the process otherwise the transcription will not complete. Are you sure you would like to proceed? Estimated time: \(estimatedMinutesRoundedUp) minutes"
+            let title = "Long transcription"
+            let msg = "Your recording is over 5 minutes long. Transcription accuracy may be affected, and it could take a while to complete. For best results, consider breaking long recordings into smaller parts and transcribing each one separately. You’ll need to keep Prime Dictation open while we transcribe. Are you sure you want to proceed? Estimated time: \(estimatedMinutesRoundedUp) minutes"
             displayAlertLongRecording(title: title, message: msg, estimated: estimated)
         }
     }
@@ -416,7 +452,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 }
             } catch {
                 await MainActor.run {
-                    self.displayAlert(title: "Transcription Failed", message: "We were unable to transcribe your recording. Try again later.")
+                    self.displayAlert(title: "Transcription Failed", message: "We were unable to transcribe your recording. Check your internet connection and try again later.")
                     ProgressHUD.dismiss()
                 }
             }
@@ -425,13 +461,17 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     @IBAction func TranscribeButton(_ sender: Any) {
         guard let url = recordingManager.toggledRecordingURL else {
-            ProgressHUD.failed("No recording found")
+            displayAlert(
+                title: "Recording Not Found",
+                message: "We were unable to find this recording. Please make a new recording and try again."
+            )
+            ProgressHUD.dismiss()
             return
         }
         Task {
             let seconds = await recordingDuration(for: url)
             if (seconds <= 0) {
-                displayAlert(title: "Transcription Failed", message: "We were unable to transcribe your recording because the length of the recording could not be determined. Make another recording and try again.")
+                displayAlert(title: "Transcription Failed", message: "We were unable to transcribe this recording because its length couldn’t be determined. Make another recording and try again.")
                 ProgressHUD.dismiss()
                 return
             }
@@ -591,7 +631,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 showDestinationScreen()
             }
         } else {
-            ProgressHUD.failed("No recording to send")
+            displayAlert(title: "No recording found", message: "There is no recording to send, make a recording first and try again.")
         }
     }
     

@@ -348,7 +348,7 @@ class RecordingManager {
             }
 
         } catch {
-            ProgressHUD.failed("Failed to rename file")
+            ProgressHUD.failed("We were unable to rename your file.")
             print("Failed to rename file")
         }
     }

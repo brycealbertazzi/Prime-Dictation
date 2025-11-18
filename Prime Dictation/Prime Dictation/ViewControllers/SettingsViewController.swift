@@ -74,11 +74,11 @@ class SettingsViewController: UIViewController {
                 self.UpdateSelectedDestinationUserDefaults(destination: .dropbox)
                 self.UpdateSelectedDestinationUI(destination: .dropbox)
             case .cancel:
-                ProgressHUD.failed("Canceled Dropbox Login")
+                ProgressHUD.failed("Dropbox sign-in was canceled.")
             case .error(_, _):
-                ProgressHUD.failed("Unable to log into Dropbox")
+                ProgressHUD.failed("Dropbox sign-in failed. Please try again.")
             case .none:
-                ProgressHUD.failed("Unable to log into Dropbox")
+                ProgressHUD.failed("Dropbox sign-in failed. Please try again.")
             }
         }
     }
@@ -97,9 +97,9 @@ class SettingsViewController: UIViewController {
                 self.UpdateSelectedDestinationUserDefaults(destination: .onedrive)
                 self.UpdateSelectedDestinationUI(destination: .onedrive)
             case .cancel:
-                ProgressHUD.failed("Canceled OneDrive Login")
+                ProgressHUD.failed("OneDrive sign-in was canceled.")
             case .error:
-                ProgressHUD.failed("Unable to log into OneDrive")
+                ProgressHUD.failed("OneDrive sign-in failed. Please try again.")
             }
         }
     }
@@ -119,11 +119,11 @@ class SettingsViewController: UIViewController {
                 self.UpdateSelectedDestinationUserDefaults(destination: .googledrive)
                 self.UpdateSelectedDestinationUI(destination: .googledrive)
             case .cancel:
-                ProgressHUD.failed("Canceled Google Drive Login")
+                ProgressHUD.failed("Google Drive sign-in was canceled.")
             case .error(_, _):
-                ProgressHUD.failed("Unable to log into Google Drive")
+                ProgressHUD.failed("Google Drive sign-in failed. Please try again.")
             case .none:
-                ProgressHUD.failed("Unable to log into Google Drive")
+                ProgressHUD.failed("Google Drive sign-in failed. Please try again.")
             }
         }
     }
@@ -131,23 +131,19 @@ class SettingsViewController: UIViewController {
     @IBAction func SelectFolderButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
         let currentDestination = DestinationManager.SELECTED_DESTINATION
-        
+
         switch currentDestination {
         case .dropbox:
-            ProgressHUD.animate("Opening file picker", .activityIndicator)
+            ProgressHUD.animate("Opening folder picker…", .activityIndicator)
             dropboxManager.PresentDropboxFolderPicker { selection in }
-            break
         case .onedrive:
-            ProgressHUD.animate("Opening file picker", .activityIndicator)
+            ProgressHUD.animate("Opening folder picker…", .activityIndicator)
             oneDriveManager.PresentOneDriveFolderPicker { selection in }
-            break
         case .googledrive:
-            ProgressHUD.animate("Opening file picker", .activityIndicator)
+            ProgressHUD.animate("Opening folder picker…", .activityIndicator)
             googleDriveManager.presentGoogleDriveFolderPicker { selection in }
-            break
         default:
-            ProgressHUD.failed("No destination selected")
-            break
+            ProgressHUD.failed("Select a destination above before choosing a folder.")
         }
     }
     

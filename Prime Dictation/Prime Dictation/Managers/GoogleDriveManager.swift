@@ -88,7 +88,8 @@ class GDFolderPickerViewController: UITableViewController {
                             self.dismiss(animated: true)
                             ProgressHUD.succeed("Signed out of Google Drive")
                         } else {
-                            ProgressHUD.failed("Sign out failed")
+                            // CHANGED
+                            ProgressHUD.failed("Google Drive sign out failed")
                         }
                     }
                 }
@@ -216,8 +217,9 @@ class GDFolderPickerViewController: UITableViewController {
             guard let self = self else { return }
             switch result {
             case .failure(_):
-                ProgressHUD.failed("Unable to open folder picker, try again later")
-                print("Failed to load folders")
+                // CHANGED
+                ProgressHUD.failed("Unable to load Google Drive folders. Try again later.")
+                print("Failed to load Google Drive folders")
                 self.dismiss(animated: true)
 
             case .success(let rows):
@@ -234,6 +236,7 @@ class GDFolderPickerViewController: UITableViewController {
             ProgressHUD.dismiss()
         }
     }
+
 
     private func checkFoldersForChildren(parentFolderIds: [String]) {
         guard !parentFolderIds.isEmpty else { return }
@@ -943,14 +946,17 @@ final class GoogleDriveManager: NSObject {
         let proceed: () -> Void = { [weak self] in
             guard let self = self, let service = self.driveService else {
                 self?.sanitizeAuthorizerParameters()
-                ProgressHUD.failed("Unable to open folder picker, try again later")
+                // CHANGED
+                ProgressHUD.failed("Unable to open Google Drive, try again later.")
                 print("driveService or self is nil")
                 return
             }
             self.preflightAuthAndDrive { ok in
-                if ok { presentPicker(service) }
-                else {
-                    ProgressHUD.failed("Unable to open folder picker, try again later")
+                if ok {
+                    presentPicker(service)
+                } else {
+                    // CHANGED
+                    ProgressHUD.failed("Unable to open Google Drive, try again later.")
                     print("failed preflightAuthAndDrive")
                 }
             }
@@ -965,15 +971,17 @@ final class GoogleDriveManager: NSObject {
         }
     }
 
+
     // MARK: - Upload
     func SendToGoogleDrive(hasTranscription: Bool) {
         guard let viewController = self.viewController else { return }
         guard let recordingManager = self.recordingManager else {
-            ProgressHUD.failed("No recording to send, please record first")
+            ProgressHUD.failed("Unable to send recording. Try again later.")
             return
         }
         guard driveService != nil else {
-            ProgressHUD.failed("Unable to send to Google Drive, try again later.")
+            // CHANGED
+            ProgressHUD.failed("Google Drive is not available right now. Try again later.")
             print("driveService is nil")
             return
         }

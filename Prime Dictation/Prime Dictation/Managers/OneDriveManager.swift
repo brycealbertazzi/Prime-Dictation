@@ -145,7 +145,7 @@ final class OneDriveManager {
                     self.presentInteractive(completion: completion)
                 } else {
                     DispatchQueue.main.async {
-                        ProgressHUD.failed("Unable to sign into OneDrive, try again later.")
+                        ProgressHUD.failed("Unable to sign into OneDrive. Check your internet connection and try again.")
                         completion(.error(error))
                     }
                 }
@@ -191,8 +191,10 @@ final class OneDriveManager {
             DispatchQueue.main.async {
                 ProgressHUD.dismiss()
                 if userCanceled {
+                    // User explicitly canceled the Microsoft sign-in flow.
                     completion(.cancel)
                 } else {
+                    ProgressHUD.failed("Unable to sign into OneDrive. Please try again later.")
                     completion(.error(error))
                 }
             }
@@ -231,7 +233,7 @@ final class OneDriveManager {
 
         if !handled {
             DispatchQueue.main.async {
-                ProgressHUD.failed("Unable to sign into OneDrive")
+                ProgressHUD.failed("Unable to complete OneDrive sign-in. Please try again.")
             }
         }
         return handled
@@ -241,7 +243,7 @@ final class OneDriveManager {
     @MainActor
     func PresentOneDriveFolderPicker(onPicked: ((OneDriveSelection) -> Void)? = nil) {
         guard let settingsVC = settingsViewController else {
-            ProgressHUD.failed("Unable to open folder picker, try again later")
+            ProgressHUD.failed("Unable to open the OneDrive folder picker. Try again later.")
             print("Settings view controller is nil")
             return
         }
@@ -269,7 +271,7 @@ final class OneDriveManager {
                 nav.modalPresentationStyle = .formSheet
                 settingsVC.present(nav, animated: true)
             } catch {
-                ProgressHUD.failed("Unable to open folder picker, sign into OneDrive and try again")
+                ProgressHUD.failed("Unable to open the OneDrive folder picker. Make sure you are signed into OneDrive and try again.")
             }
         }
     }
@@ -379,7 +381,7 @@ final class OneDriveManager {
                     ProgressHUD.dismiss()
                     viewController.displayAlert(
                         title: "Send failed",
-                        message: "Unable to send recording and/or transcript to OneDrive. Make sure you have a folder selected, check your connection and try again.",
+                        message: "Unable to send the recording and/or transcript to OneDrive. Check your internet connection and try again.",
                     )
                 }
             }
@@ -924,7 +926,7 @@ final class OneDriveManager {
                 self.tableView.reloadData()
                 self.title = (ctx.itemId == "root") ? "OneDrive" : (ctx.name ?? "OneDrive Folder")
             } catch {
-                ProgressHUD.failed("Unable to load OneDrive folders, try again later.")
+                ProgressHUD.failed("Unable to load OneDrive folders. Check your internet connection and try again.")
                 print("Unable to list OneDrive folders")
             }
         }

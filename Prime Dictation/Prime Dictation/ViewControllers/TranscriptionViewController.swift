@@ -274,7 +274,7 @@ class TranscriptionViewController: UIViewController {
         view.endEditing(true)
         // Save the updated text to the recording manager
         guard let newText = TranscriptionTextBox.text else {
-            ProgressHUD.failed("Failed to update transcription")
+            ProgressHUD.failed("We were unable to edit the transcription. Make sure the textbox is not empty and try again.")
             return
         }
         recordingManager.UpdateToggledTranscriptionText(newText: newText, editing: true)

@@ -99,12 +99,12 @@ final class EmailManager: NSObject {
         alert.addAction(UIAlertAction(title: "Save", style: .default) { _ in
             if let email = alert.textFields?.first?.text, !email.isEmpty {
                 if (!self.isValidEmail(email)) {
-                    ProgressHUD.failed("Please enter a valid email.")
+                    ProgressHUD.failed("Please enter a valid email address.")
                     return
                 }
                 self.saveEmailAddress(email)
             } else {
-                ProgressHUD.failed("Email cannot be empty.")
+                ProgressHUD.failed("Email address can’t be empty.")
             }
         })
         presentingVC.present(alert, animated: true)
@@ -113,7 +113,7 @@ final class EmailManager: NSObject {
     private func saveEmailAddress(_ email: String) {
         UserDefaults.standard.set(email, forKey: emailStorageKey)
         self.emailAddress = email
-        ProgressHUD.succeed("Email saved")
+        ProgressHUD.succeed("Email address saved")
     }
 
     // MARK: - Main action
@@ -124,34 +124,41 @@ final class EmailManager: NSObject {
         viewController?.DisableUI()
 
         do {
-            guard let presignStr = presignURLString, let signerURL = URL(string: presignStr), signerURL.scheme == "https" else {
+            guard let presignStr = presignURLString,
+                  let signerURL = URL(string: presignStr),
+                  signerURL.scheme == "https" else {
                 print("❌ PRESIGNED_UPLOAD_AWS_LAMBDA_FUNCTION missing/invalid or not https")
-                ProgressHUD.failed("Email service not configured (presign)")
+                ProgressHUD.failed("Email service is not available. Try again later.")
                 viewController?.EnableUI()
                 return
             }
-            guard let emailStr = emailURLString, let emailURL = URL(string: emailStr), emailURL.scheme == "https" else {
+
+            guard let emailStr = emailURLString,
+                  let emailURL = URL(string: emailStr),
+                  emailURL.scheme == "https" else {
                 print("❌ EMAIL_SENDER_AWS_LAMBDA_FUNCTION missing/invalid or not https")
-                ProgressHUD.failed("Email service not configured (sender)")
+                ProgressHUD.failed("Email service is not available. Try again later.")
                 viewController?.EnableUI()
                 return
             }
 
             guard let toEmail = emailAddress, !toEmail.isEmpty else {
                 print("❌ Email not set")
-                ProgressHUD.failed("You have not set your email address")
+                ProgressHUD.failed("Add your email address in Settings before sending.")
                 viewController?.EnableUI()
                 return
             }
+
             guard let recordingFileURL = recordingManager?.toggledRecordingURL else {
-                print("❌ No recording to send")
-                ProgressHUD.failed("No recording to send")
+                print("❌ No recording to send (URL)")
+                ProgressHUD.failed("No recording available to send. Make a recording and try again.")
                 viewController?.EnableUI()
                 return
             }
+
             guard let recordingName = recordingManager?.toggledAudioTranscriptionObject.fileName else {
                 print("❌ No recording name")
-                ProgressHUD.failed("No recording to send")
+                ProgressHUD.failed("No recording available to send. Make a recording and try again.")
                 viewController?.EnableUI()
                 return
             }
@@ -160,19 +167,23 @@ final class EmailManager: NSObject {
 
             var transcriptionFileURL: URL? = nil
             if hasTranscription {
-                transcriptionFileURL = urlWithoutExtension.appendingPathExtension(recordingManager?.transcriptionRecordingExtension ?? "txt")
+                transcriptionFileURL = urlWithoutExtension.appendingPathExtension(
+                    recordingManager?.transcriptionRecordingExtension ?? "txt"
+                )
             }
 
             // Heavy I/O off main actor
             let recData: Data = try await withCheckedThrowingContinuation { cont in
                 DispatchQueue.global(qos: .userInitiated).async {
-                    do { cont.resume(returning: try Data(contentsOf: recordingFileURL, options: .mappedIfSafe)) }
-                    catch { cont.resume(throwing: error) }
+                    do {
+                        cont.resume(returning: try Data(contentsOf: recordingFileURL, options: .mappedIfSafe))
+                    } catch {
+                        cont.resume(throwing: error)
+                    }
                 }
             }
 
             let recKey = "recordings/\(recordingName).\(recordingManager?.audioRecordingExtension ?? "m4a")"
-
             let bearer = try await AppServices.shared.getFreshIDToken()
 
             // 1) Presign + upload recording
@@ -190,8 +201,11 @@ final class EmailManager: NSObject {
             if let tURL = transcriptionFileURL {
                 let txData: Data = try await withCheckedThrowingContinuation { cont in
                     DispatchQueue.global(qos: .userInitiated).async {
-                        do { cont.resume(returning: try Data(contentsOf: tURL, options: .mappedIfSafe)) }
-                        catch { cont.resume(throwing: error) }
+                        do {
+                            cont.resume(returning: try Data(contentsOf: tURL, options: .mappedIfSafe))
+                        } catch {
+                            cont.resume(throwing: error)
+                        }
                     }
                 }
                 let tKey = "transcriptions/\(recordingName).\(recordingManager?.transcriptionRecordingExtension ?? "txt")"
@@ -206,28 +220,45 @@ final class EmailManager: NSObject {
                 transcriptionKey = tKey
                 try await uploadToS3(presigned: txPresign, fileData: txData)
             }
-            
+
             // 3) Send Email to user's email address
             do {
-                _ = try await sendEmail(endpoint: emailURL, toEmail: toEmail, recordingKey: recKey, transcriptionKey: transcriptionKey, bearer: bearer)
+                _ = try await sendEmail(
+                    endpoint: emailURL,
+                    toEmail: toEmail,
+                    recordingKey: recKey,
+                    transcriptionKey: transcriptionKey,
+                    bearer: bearer
+                )
+
                 if hasTranscription {
-                    ProgressHUD.succeed("Recording & transcript sent to Email")
+                    ProgressHUD.succeed("Recording and transcript sent to your email")
                 } else {
-                    ProgressHUD.succeed("Recording sent to Email")
+                    ProgressHUD.succeed("Recording sent to your email")
                 }
                 AudioFeedback.shared.playWhoosh(intensity: 0.6)
                 print("✅ email lambda returned 2xx")
             } catch {
-                print("❌ email lambda failed")
+                print("❌ email lambda failed: \(error)")
+                ProgressHUD.dismiss()
+                viewController?.displayAlert(
+                    title: "Email not sent",
+                    message: "We couldn’t send your email. Check your connection and try again."
+                )
             }
+
             viewController?.EnableUI()
         } catch {
             ProgressHUD.dismiss()
-            print("❌ SendToEmail error")
-            viewController?.displayAlert(title: "Email not sent", message: "Failed to send email, try again later")
+            print("❌ SendToEmail error: \(error)")
+            viewController?.displayAlert(
+                title: "Email not sent",
+                message: "We couldn’t send your email. Check your connection and try again."
+            )
             viewController?.EnableUI()
         }
     }
+
 
     // MARK: - Network calls
     func sendEmail(

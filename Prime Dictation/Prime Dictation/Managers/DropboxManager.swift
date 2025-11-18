@@ -159,7 +159,7 @@ final class DropboxManager {
     @MainActor
     func PresentDropboxFolderPicker(onPicked: ((DBSelection) -> Void)? = nil) {
         guard let _ = settingsViewController else {
-            ProgressHUD.failed("Unable to open folder picker, try again later")
+            ProgressHUD.failed("Unable to open the Dropbox folder picker.")
             print("Settings view controller is nil")
             return
         }
@@ -201,8 +201,8 @@ final class DropboxManager {
                         ProgressHUD.failed("Unable to open folder picker, try again later")
                         print("Dropbox client not available")
                     }
-                case .cancel: ProgressHUD.failed("Canceled Dropbox Login")
-                case .error, .none: ProgressHUD.failed("Unable to log into Dropbox")
+                case .cancel: ProgressHUD.dismiss()
+                case .error, .none: ProgressHUD.failed("Unable to sign in to Dropbox. Check your connection and try again.")
                 }
             }
         }
@@ -238,9 +238,9 @@ final class DropboxManager {
                     self?.settingsViewController?.UpdateSelectedDestinationUserDefaults(destination: .dropbox)
                     self?.settingsViewController?.UpdateSelectedDestinationUI(destination: .dropbox)
                 case .cancel:
-                    ProgressHUD.failed("Canceled Dropbox Login")
+                    ProgressHUD.dismiss()
                 case .error, .none:
-                    ProgressHUD.failed("Unable to log into Dropbox")
+                    ProgressHUD.failed("Unable to sign in to Dropbox. Check your connection and try again.")
                 }
                 viewController.EnableUI()
             }
@@ -253,7 +253,10 @@ final class DropboxManager {
             switch selResult {
             case .failure:
                 DispatchQueue.main.async {
-                    ProgressHUD.failed("Unable to send to Dropbox, try again later")
+                    viewController.displayAlert(
+                        title: "Unable to send to Dropbox",
+                        message: "Your selected folder may no longer exist. Select another folder and try again."
+                    )
                     print("Dropbox upload failed, unable to resolve selection")
                     viewController.EnableUI()
                 }
@@ -262,7 +265,10 @@ final class DropboxManager {
                     switch pathResult {
                     case .failure:
                         DispatchQueue.main.async {
-                            ProgressHUD.failed("Unable to send to Dropbox, try again later")
+                            viewController.displayAlert(
+                                title: "Unable to send to Dropbox",
+                                message: "Your selected folder may no longer exist. Select another folder and try again."
+                            )
                             print("Dropbox upload failed, unable to resolve path result")
                             viewController.EnableUI()
                         }
@@ -303,13 +309,16 @@ final class DropboxManager {
                             upload(client, local: transcriptURL, to: remoteTxt) { ok2 in
                                 DispatchQueue.main.async {
                                     if ok2 {
-                                        ProgressHUD.succeed("Recording & transcript sent to Dropbox")
+                                        ProgressHUD.succeed("Recording and transcript sent to Dropbox")
                                     } else {
                                         // Audio was sent; transcript failed — still inform user
                                         ProgressHUD.dismiss()
                                         viewController.displayAlert(
                                             title: "Transcript upload failed",
-                                            message: "The recording was sent to Dropbox, but the transcript could not be uploaded.",
+                                            message: """
+                                            Your recording was sent to Dropbox, but the transcript could not be uploaded.
+                                            Check your connection and try again, or resend the transcript later.
+                                            """
                                         )
                                     }
                                     AudioFeedback.shared.playWhoosh(intensity: 0.6)
@@ -435,7 +444,10 @@ final class DropboxManager {
     // Optional legacy error path (no longer used by resolver)
     func DisplayNoFolderSelectedError() {
         ProgressHUD.dismiss()
-        viewController?.displayAlert(title: "Recording send failed", message: "Your selected folder may have been deleted, select another folder and try again.")
+        viewController?.displayAlert(
+            title: "Unable to send to Dropbox",
+            message: "Your selected folder may no longer exist. Select another folder and try again."
+        )
     }
 
     // MARK: - Picker: build map for ALL ancestor levels (no account awareness)
@@ -600,7 +612,7 @@ final class DropboxManager {
                                 self.dismiss(animated: true)
                                 ProgressHUD.succeed("Signed out of Dropbox")
                             } else {
-                                ProgressHUD.failed("Sign out failed")
+                                ProgressHUD.failed("Unable to sign out of Dropbox. Try again later.")
                             }
                         }
                     }
@@ -682,7 +694,7 @@ final class DropboxManager {
           manager.getFolderMetadata(client: client, idOrPath: idToUse) { res in
             switch res {
             case .failure:
-              ProgressHUD.failed("Unable to pick this folder")
+                ProgressHUD.failed("Unable to select this folder. Try again or choose a different folder.")
             case .success(let meta):
               let name = meta.name ?? meta.pathLower?.split(separator: "/").last.map(String.init) ?? "Dropbox"
               let sel = DBSelection(folderId: meta.id, pathLower: meta.pathLower, name: name)
@@ -707,7 +719,7 @@ final class DropboxManager {
                 DispatchQueue.main.async {
                     switch result {
                     case .failure:
-                        ProgressHUD.failed("Unable to list Dropbox folders")
+                        ProgressHUD.failed("Unable to load your Dropbox folders. Check your connection and try again.")
                     case .success(let payload):
                         if reset { self.items = payload.items } else { self.items.append(contentsOf: payload.items) }
                         self.cursor = payload.cursor
