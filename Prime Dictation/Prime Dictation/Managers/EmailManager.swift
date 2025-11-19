@@ -120,8 +120,9 @@ final class EmailManager: NSObject {
 
     @MainActor
     func SendToEmail(hasTranscription: Bool) async {
+        guard let viewController, let recordingManager else { return }
         ProgressHUD.animate("Sending...", .triangleDotShift)
-        viewController?.DisableUI()
+        viewController.DisableUI()
 
         do {
             guard let presignStr = presignURLString,
@@ -129,7 +130,7 @@ final class EmailManager: NSObject {
                   signerURL.scheme == "https" else {
                 print("❌ PRESIGNED_UPLOAD_AWS_LAMBDA_FUNCTION missing/invalid or not https")
                 ProgressHUD.failed("Email service is not available. Try again later.")
-                viewController?.EnableUI()
+                viewController.EnableUI()
                 return
             }
 
@@ -138,28 +139,29 @@ final class EmailManager: NSObject {
                   emailURL.scheme == "https" else {
                 print("❌ EMAIL_SENDER_AWS_LAMBDA_FUNCTION missing/invalid or not https")
                 ProgressHUD.failed("Email service is not available. Try again later.")
-                viewController?.EnableUI()
+                viewController.EnableUI()
                 return
             }
 
             guard let toEmail = emailAddress, !toEmail.isEmpty else {
                 print("❌ Email not set")
                 ProgressHUD.failed("Add your email address in Settings before sending.")
-                viewController?.EnableUI()
+                viewController.EnableUI()
                 return
             }
 
-            guard let recordingFileURL = recordingManager?.toggledRecordingURL else {
+            guard let recordingFileURL = recordingManager.toggledRecordingURL else {
                 print("❌ No recording to send (URL)")
                 ProgressHUD.failed("No recording available to send. Make a recording and try again.")
-                viewController?.EnableUI()
+                viewController.EnableUI()
                 return
             }
 
-            guard let recordingName = recordingManager?.toggledAudioTranscriptionObject.fileName else {
+            let recordingName = recordingManager.toggledAudioTranscriptionObject.fileName
+            if recordingName.count <= 0 {
                 print("❌ No recording name")
                 ProgressHUD.failed("No recording available to send. Make a recording and try again.")
-                viewController?.EnableUI()
+                viewController.EnableUI()
                 return
             }
 
@@ -168,7 +170,7 @@ final class EmailManager: NSObject {
             var transcriptionFileURL: URL? = nil
             if hasTranscription {
                 transcriptionFileURL = urlWithoutExtension.appendingPathExtension(
-                    recordingManager?.transcriptionRecordingExtension ?? "txt"
+                    recordingManager.transcriptionRecordingExtension
                 )
             }
 
@@ -183,7 +185,7 @@ final class EmailManager: NSObject {
                 }
             }
 
-            let recKey = "recordings/\(recordingName).\(recordingManager?.audioRecordingExtension ?? "m4a")"
+            let recKey = "recordings/\(recordingName).\(recordingManager.audioRecordingExtension)"
             let bearer = try await AppServices.shared.getFreshIDToken()
 
             // 1) Presign + upload recording
@@ -208,7 +210,7 @@ final class EmailManager: NSObject {
                         }
                     }
                 }
-                let tKey = "transcriptions/\(recordingName).\(recordingManager?.transcriptionRecordingExtension ?? "txt")"
+                let tKey = "transcriptions/\(recordingName).\(recordingManager.transcriptionRecordingExtension)"
 
                 let txPresign = try await mintPresignedPUT(
                     functionURL: signerURL,
@@ -230,32 +232,47 @@ final class EmailManager: NSObject {
                     transcriptionKey: transcriptionKey,
                     bearer: bearer
                 )
-
+                
                 if hasTranscription {
                     ProgressHUD.succeed("Recording and transcript sent to your email")
+                    if UIApplication.shared.applicationState == .active {
+                        // App is foreground → safe to play the ding now
+                        AudioFeedback.shared.playWhoosh(intensity: 0.6)
+                    } else {
+                        // App is background → defer the ding + alert
+                        viewController.sendingCompletedInBackground = true
+                        viewController.sendingInBackgroundMessage = "Your recording and transcript were sent to your email address while Prime Dictation was in the background."
+                    }
                 } else {
                     ProgressHUD.succeed("Recording sent to your email")
+                    if UIApplication.shared.applicationState == .active {
+                        // App is foreground → safe to play the ding now
+                        AudioFeedback.shared.playWhoosh(intensity: 0.6)
+                    } else {
+                        // App is background → defer the ding + alert
+                        viewController.sendingCompletedInBackground = true
+                        viewController.sendingInBackgroundMessage = "Your recording was sent to your email address while Prime Dictation was in the background."
+                    }
                 }
-                AudioFeedback.shared.playWhoosh(intensity: 0.6)
                 print("✅ email lambda returned 2xx")
             } catch {
                 print("❌ email lambda failed: \(error)")
                 ProgressHUD.dismiss()
-                viewController?.displayAlert(
+                viewController.displayAlert(
                     title: "Email not sent",
                     message: "We couldn’t send your email. Check your connection and try again."
                 )
             }
 
-            viewController?.EnableUI()
+            viewController.EnableUI()
         } catch {
             ProgressHUD.dismiss()
             print("❌ SendToEmail error: \(error)")
-            viewController?.displayAlert(
+            viewController.displayAlert(
                 title: "Email not sent",
                 message: "We couldn’t send your email. Check your connection and try again."
             )
-            viewController?.EnableUI()
+            viewController.EnableUI()
         }
     }
 

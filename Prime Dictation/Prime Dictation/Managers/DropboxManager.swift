@@ -301,7 +301,15 @@ final class DropboxManager {
                                 DispatchQueue.main.async {
                                     ProgressHUD.succeed("Recording sent to Dropbox")
                                     viewController.EnableUI()
-                                    AudioFeedback.shared.playWhoosh(intensity: 0.6)
+                                    
+                                    if UIApplication.shared.applicationState == .active {
+                                        // App is foreground → safe to play the ding now
+                                        AudioFeedback.shared.playDing(intensity: 0.6)
+                                    } else {
+                                        // App is background → defer the ding + alert
+                                        viewController.sendingCompletedInBackground = true
+                                        viewController.sendingInBackgroundMessage = "Your recording was sent to Dropbox while Prime Dictation was in the background."
+                                    }
                                 }
                                 return
                             }
@@ -310,6 +318,14 @@ final class DropboxManager {
                                 DispatchQueue.main.async {
                                     if ok2 {
                                         ProgressHUD.succeed("Recording and transcript sent to Dropbox")
+                                        if UIApplication.shared.applicationState == .active {
+                                            // App is foreground → safe to play the ding now
+                                            AudioFeedback.shared.playDing(intensity: 0.6)
+                                        } else {
+                                            // App is background → defer the ding + alert
+                                            viewController.sendingCompletedInBackground = true
+                                            viewController.sendingInBackgroundMessage = "Your recording and transcript were sent to Dropbox while Prime Dictation was in the background."
+                                        }
                                     } else {
                                         // Audio was sent; transcript failed — still inform user
                                         ProgressHUD.dismiss()
@@ -320,8 +336,8 @@ final class DropboxManager {
                                             Check your connection and try again, or resend the transcript later.
                                             """
                                         )
+                                        AudioFeedback.shared.playWhoosh(intensity: 0.6)
                                     }
-                                    AudioFeedback.shared.playWhoosh(intensity: 0.6)
                                     viewController.EnableUI()
                                 }
                             }

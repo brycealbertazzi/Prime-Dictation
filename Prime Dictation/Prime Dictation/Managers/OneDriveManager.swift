@@ -367,14 +367,28 @@ final class OneDriveManager {
                     )
                     await MainActor.run {
                         ProgressHUD.succeed("Recording & transcript sent to OneDrive")
+                        if UIApplication.shared.applicationState == .active {
+                            // App is foreground → safe to play the ding now
+                            AudioFeedback.shared.playWhoosh(intensity: 0.6)
+                        } else {
+                            // App is background → defer the ding + alert
+                            viewController.sendingCompletedInBackground = true
+                            viewController.sendingInBackgroundMessage = "Your recording and transcript were sent to OneDrive while Prime Dictation was in the background."
+                        }
                     }
                 } else {
                     await MainActor.run {
                         ProgressHUD.succeed("Recording sent to OneDrive")
+                        if UIApplication.shared.applicationState == .active {
+                            // App is foreground → safe to play the ding now
+                            AudioFeedback.shared.playWhoosh(intensity: 0.6)
+                        } else {
+                            // App is background → defer the ding + alert
+                            viewController.sendingCompletedInBackground = true
+                            viewController.sendingInBackgroundMessage = "Your recording was sent to OneDrive while Prime Dictation was in the background."
+                        }
                     }
                 }
-                AudioFeedback.shared.playWhoosh(intensity: 0.6)
-
             } catch {
                 // If audio failed (or transcript failed after audio), show a concise message
                 await MainActor.run {

@@ -109,12 +109,94 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             name: AVAudioSession.interruptionNotification,
             object: recordingSession
         )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppWillResignActive(_:)),
+            name: UIApplication.willResignActiveNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appDidBecomeActive),
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil
+        )
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         Haptic.prepare()
     }
+    
+    private var wasPlayingBeforeBackground = false
+    private var transcriptionCompletedInBackground = false
+    var sendingCompletedInBackground = false
+    var sendingInBackgroundMessage: String = ""
+    @objc private func handleAppWillResignActive(_ notification: Notification) {
+        // If we’re recording, stop & save as if user tapped Stop
+        if audioRecorder?.isRecording == true {
+            audioRecorder.stop()
+            isRecordingPaused = false
+            audioRecorder = nil
+            ListenLabel.isHidden = false
+            HideRecordingInProgressUI()
+
+            // Save the number of recordings
+            UserDefaults.standard.set(recordingManager.numberOfRecordings, forKey: "myNumber")
+            recordingManager.UpdateSavedRecordings()
+
+            watch.stop()
+            StopWatchLabel.isHidden = true
+        }
+
+        // If we’re playing back, just pause *and remember that it was playing*
+        if audioPlayer?.isPlaying == true {
+            wasPlayingBeforeBackground = true
+            pausePlayback()
+        } else {
+            wasPlayingBeforeBackground = false
+        }
+    }
+
+    @objc private func appDidBecomeActive(_ note: Notification) {
+        // Only resume if we auto-paused because of backgrounding
+        if wasPlayingBeforeBackground {
+            wasPlayingBeforeBackground = false
+            resumePlayback()
+        }
+
+        // If a transcription finished while we were in the background,
+        // play the ding and let the user know.
+        if transcriptionCompletedInBackground {
+            transcriptionCompletedInBackground = false
+
+            AudioFeedback.shared.playDing(intensity: 0.6)
+            displayAlert(
+                title: "Transcription Complete",
+                message: "Your transcription finished while Prime Dictation was in the background."
+            )
+        }
+        
+        // If a transcription finished while we were in the background,
+        // play the whoosh and let the user know.
+        if (sendingCompletedInBackground) {
+            sendingCompletedInBackground = false
+            
+            AudioFeedback.shared.playWhoosh(intensity: 0.6)
+            displayAlert(
+                title: "Sending Complete",
+                message: sendingInBackgroundMessage
+            )
+        }
+    }
+
+
     
     //MARK: Listen to Playback
     @IBAction func ListenButton(_ sender: Any) {
@@ -218,19 +300,18 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         case .began:
             // A call / FaceTime / VoIP (or similar) grabbed the audio session.
             if audioRecorder?.isRecording == true {
-                audioRecorder.stop()
-                audioRecorder = nil
-                watch.stop()
-                HideRecordingInProgressUI()
-                
                 DispatchQueue.main.async {
-                    self.displayAlert(
-                        title: "Recording Interrupted",
-                        message: "Your recording was stopped because another app started using the microphone, for example a phone or FaceTime call."
-                    )
+                    self.finishCurrentRecording(interrupted: true)
                 }
             }
-
+            // 🔊 ALSO handle playback being interrupted
+            if audioPlayer?.isPlaying == true {
+                audioPlayer.pause()
+                watch.pause()
+                DispatchQueue.main.async {
+                    self.PausePlaybackLabel.setTitle("Resume", for: .normal)
+                }
+            }
         case .ended:
             // You *could* optionally re-enable the UI or offer to resume, but
             // for a dictation app it's usually better to just let the user tap Record again.
@@ -332,25 +413,38 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
     
-    //MARK: Pause-Resume-End Recordings and Playbacks:
-    @IBAction func StopRecordingButton(_ sender: Any) {
-        Haptic.tap(intensity: 1.0)
-        //If we are already recording audio, stop the recording
+    private func finishCurrentRecording(interrupted: Bool) {
+        guard audioRecorder != nil else { return }
+
         audioRecorder.stop()
         isRecordingPaused = false
         audioRecorder = nil
+
         ListenLabel.isHidden = false
         HideRecordingInProgressUI()
         PausePlayButtonLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
-        
-        //Save the number of recordings
+
+        // Save the number of recordings
         UserDefaults.standard.set(recordingManager.numberOfRecordings, forKey: "myNumber")
-        
-        //Set the file name label to name or recording
+
+        // Refresh saved recordings + filename label
         recordingManager.UpdateSavedRecordings()
-        
+
         watch.stop()
         StopWatchLabel.isHidden = true
+
+        if interrupted {
+            displayAlert(
+                title: "Recording Interrupted",
+                message: "Another app started using the microphone. Your recording has been safely stopped and saved in Prime Dictation."
+            )
+        }
+    }
+    
+    //MARK: Pause-Resume-End Recordings and Playbacks:
+    @IBAction func StopRecordingButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
+        finishCurrentRecording(interrupted: false)
     }
     
     var isRecordingPaused: Bool = false
@@ -379,25 +473,30 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         HideListeningUI()
     }
     
+    private func pausePlayback() {
+        audioPlayer.pause()
+        isRecordingPaused = true
+        PausePlaybackLabel.setTitle("Resume", for: .normal)
+        watch.pause()
+    }
+    
+    private func resumePlayback() {
+        audioPlayer?.delegate = self
+        audioPlayer.prepareToPlay()
+        audioPlayer.volume = 1
+        audioPlayer.play()
+        PausePlaybackLabel.setTitle("Pause", for: .normal)
+        watch.resume()
+        isRecordingPaused = false
+        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTimeListen(timer:))
+    }
     
     @IBAction func PausePlaybackButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
         if audioPlayer.isPlaying {
-            //Pause Recording
-            audioPlayer.pause()
-            isRecordingPaused = true
-            PausePlaybackLabel.setTitle("Resume", for: .normal)
-            watch.pause()
+            pausePlayback()
         } else {
-            //Resume Recording
-            audioPlayer?.delegate = self
-            audioPlayer.prepareToPlay()
-            audioPlayer.volume = 1
-            audioPlayer.play()
-            PausePlaybackLabel.setTitle("Pause", for: .normal)
-            watch.resume()
-            isRecordingPaused = false
-            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTimeListen(timer:))
+            resumePlayback()
         }
     }
     
@@ -448,11 +547,21 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 recordingManager.SetToggledAudioTranscriptObjectAfterTranscription()
                 await MainActor.run {
                     ProgressHUD.succeed("Transcription Complete")
-                    AudioFeedback.shared.playDing(intensity: 0.6)
+
+                    if UIApplication.shared.applicationState == .active {
+                        // App is foreground → safe to play the ding now
+                        AudioFeedback.shared.playDing(intensity: 0.6)
+                    } else {
+                        // App is background → defer the ding + alert
+                        self.transcriptionCompletedInBackground = true
+                    }
                 }
             } catch {
                 await MainActor.run {
-                    self.displayAlert(title: "Transcription Failed", message: "We were unable to transcribe your recording. Check your internet connection and try again later.")
+                    self.displayAlert(
+                        title: "Transcription Failed",
+                        message: "We were unable to transcribe your recording. Check your internet connection and try again later."
+                    )
                     ProgressHUD.dismiss()
                 }
             }

@@ -1049,9 +1049,16 @@ final class GoogleDriveManager: NSObject {
                     guard shouldSendTranscript else {
                         DispatchQueue.main.async {
                             ProgressHUD.succeed("Recording sent to Google Drive")
+                            if UIApplication.shared.applicationState == .active {
+                                // App is foreground → safe to play the ding now
+                                AudioFeedback.shared.playWhoosh(intensity: 0.6)
+                            } else {
+                                // App is background → defer the ding + alert
+                                viewController.sendingCompletedInBackground = true
+                                viewController.sendingInBackgroundMessage = "Your recording was sent to OneDrive while Prime Dictation was in the background."
+                            }
                             viewController.EnableUI()
                         }
-                        AudioFeedback.shared.playWhoosh(intensity: 0.6)
                         return
                     }
 
@@ -1063,7 +1070,14 @@ final class GoogleDriveManager: NSObject {
                             switch result2 {
                             case .success:
                                 ProgressHUD.succeed("Recording & transcript sent to Google Drive")
-                                AudioFeedback.shared.playWhoosh(intensity: 0.6)
+                                if UIApplication.shared.applicationState == .active {
+                                    // App is foreground → safe to play the ding now
+                                    AudioFeedback.shared.playWhoosh(intensity: 0.6)
+                                } else {
+                                    // App is background → defer the ding + alert
+                                    viewController.sendingCompletedInBackground = true
+                                    viewController.sendingInBackgroundMessage = "Your recording and transcript were sent to Google Drive while Prime Dictation was in the background."
+                                }
                             case .failure(_):
                                 // Audio is already uploaded; inform transcript failure lightly
                                 ProgressHUD.dismiss()
