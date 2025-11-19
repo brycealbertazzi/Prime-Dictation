@@ -303,11 +303,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             }
             // 🔊 ALSO handle playback being interrupted
             if audioPlayer?.isPlaying == true {
-                audioPlayer.pause()
-                watch.pause()
-                DispatchQueue.main.async {
-                    self.PausePlaybackLabel.setTitle("Resume", for: .normal)
-                }
+                self.pausePlayback()
             }
         case .ended:
             // You *could* optionally re-enable the UI or offer to resume, but
@@ -462,15 +458,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
     
-    @IBAction func EndPlaybackButton(_ sender: Any) {
-        Haptic.tap(intensity: 1.0)
-        PausePlaybackLabel.setTitle("Pause", for: .normal)
-        isRecordingPaused = false
-        audioPlayer.stop()
-        watch.stop()
-        HideListeningUI()
-    }
-    
     private func pausePlayback() {
         audioPlayer.pause()
         isRecordingPaused = true
@@ -487,6 +474,19 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         watch.resume()
         isRecordingPaused = false
         Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTimeListen(timer:))
+    }
+    
+    private func endPlayback() {
+        PausePlaybackLabel.setTitle("Pause", for: .normal)
+        isRecordingPaused = false
+        audioPlayer.stop()
+        watch.stop()
+        HideListeningUI()
+    }
+    
+    @IBAction func EndPlaybackButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
+        endPlayback()
     }
     
     @IBAction func PausePlaybackButton(_ sender: Any) {
