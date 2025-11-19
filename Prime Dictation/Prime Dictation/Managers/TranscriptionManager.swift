@@ -27,20 +27,25 @@ class TranscriptionManager {
     
     enum TranscriptionError: LocalizedError {
         case error(String, underlying: Error? = nil)
+        case uploadForbidden403   // ✅ special case
 
         var errorDescription: String? {
             switch self {
             case .error(let msg, let underlying):
                 if let underlying { return "\(msg) – \(underlying.localizedDescription)" }
                 return msg
+            case .uploadForbidden403:
+                return "Upload rejected with 403 (forbidden)."
             }
         }
     }
+
     
     /// Call this to upload, wait (max 20m), and get the signed URL to the transcript.
     func transcribeAudioFile() async throws {
         print("🟢 transcribeAudioFile: entered")
 
+        // 1) Clear cached text & mark state
         await MainActor.run {
             print("🟢 transcribeAudioFile: clearing cached text")
             self.toggledTranscriptText = nil
@@ -49,6 +54,7 @@ class TranscriptionManager {
                 self.recordingManager.toggledAudioTranscriptionObject
         }
 
+        // 2) Disable UI while running
         await MainActor.run {
             print("🟢 transcribeAudioFile: DisableUI")
             viewController?.DisableUI()
@@ -60,6 +66,7 @@ class TranscriptionManager {
             }
         }
 
+        // 3) Basic config guards
         guard let txtSignerBase = SignedTxtURLGCFunction else {
             print("❌ transcribeAudioFile: missing SignedTxtURLGCFunction")
             throw TranscriptionError.error("Transcription service not configured (text signer)")
@@ -69,31 +76,44 @@ class TranscriptionManager {
             throw TranscriptionError.error("Transcription service not configured (audio signer)")
         }
 
+        let transcriptFilename = "\(recordingManager.toggledAudioTranscriptionObject.fileName)." +
+                                 "\(recordingManager.transcriptionRecordingExtension)"
+
+        // 4) Ensure we have a valid recording URL; reconstruct if needed
+        let recordingURL: URL
+        if let existing = recordingManager.toggledRecordingURL {
+            recordingURL = existing
+        } else {
+            let candidate = recordingManager.GetDirectory()
+                .appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName)
+                .appendingPathExtension(recordingManager.audioRecordingExtension)
+
+            if FileManager.default.fileExists(atPath: candidate.path) {
+                print("ℹ️ transcribeAudioFile: reconstructed toggledRecordingURL from disk")
+                recordingManager.toggledRecordingURL = candidate
+                recordingURL = candidate
+            } else {
+                print("❌ transcribeAudioFile: no recording found on disk")
+                throw TranscriptionError.error("No recording found to transcribe")
+            }
+        }
+
+        // 5) Mint signed PUT for audio
         print("🟢 transcribeAudioFile: about to mintSignedURL()")
         guard let signedPUT = try? await mintSignedURL() else {
             print("❌ transcribeAudioFile: mintSignedURL returned nil or threw")
             throw TranscriptionError.error("Unable to obtain an upload URL")
         }
 
-        guard let recordingURL = recordingManager.toggledRecordingURL else {
-            print("❌ transcribeAudioFile: toggledRecordingURL is nil")
-            throw TranscriptionError.error("No recording found to transcribe")
-        }
+        // 6) Upload audio, then wait for transcript
+        var signedTxtURL: URL
 
-        do {
-            try await uploadRecordingToCGBucket(to: signedPUT, from: recordingURL)
-            print("✅ transcribeAudioFile: uploadRecordingToCGBucket finished")
-        } catch {
-            print("❌ transcribeAudioFile: upload failed: \(error)")
-            throw TranscriptionError.error("Upload failed", underlying: error)
-        }
-
-        let transcriptFilename = "\(recordingManager.toggledAudioTranscriptionObject.fileName).\(recordingManager.transcriptionRecordingExtension)"
-
-        let signedTxtURL: URL
         do {
             let uploadStart = Date()
+            try await uploadRecordingToCGBucket(to: signedPUT, from: recordingURL)
+            print("✅ transcribeAudioFile: uploadRecordingToCGBucket finished")
 
+            // Normal path: upload just succeeded, so give backend up to 20 min
             signedTxtURL = try await waitForTranscriptReady(
                 txtSignerBase: txtSignerBase + "/sign",
                 filename: transcriptFilename,
@@ -101,10 +121,24 @@ class TranscriptionManager {
                 backoffCapSeconds: 60,
                 notBefore: uploadStart
             )
+        } catch TranscriptionError.uploadForbidden403 {
+            print("⚠️ transcribeAudioFile: upload 403 – assuming audio already uploaded, probing for existing transcript")
+
+            // Weird case (e.g. phone died earlier and audio already in bucket):
+            // short probe for an existing transcript so we don't hang forever.
+            signedTxtURL = try await waitForTranscriptReady(
+                txtSignerBase: txtSignerBase + "/sign",
+                filename: transcriptFilename,
+                hardCapSeconds: 60,     // 1 minute max in this special case
+                backoffCapSeconds: 10,
+                notBefore: nil
+            )
         } catch {
-            throw TranscriptionError.error("Transcription didn’t complete", underlying: error)
+            print("❌ transcribeAudioFile: upload failed: \(error)")
+            throw TranscriptionError.error("Upload failed", underlying: error)
         }
 
+        // 7) Download transcript and update local state/UI
         let localPath = recordingManager.GetDirectory()
             .appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName)
             .appendingPathExtension(recordingManager.transcriptionRecordingExtension)
@@ -116,15 +150,20 @@ class TranscriptionManager {
                 overwrite: true
             )
             await MainActor.run {
-                recordingManager.UpdateToggledTranscriptionText(newText: toggledTranscriptText ?? "", editing: false)
+                recordingManager.UpdateToggledTranscriptionText(
+                    newText: toggledTranscriptText ?? "",
+                    editing: false
+                )
                 recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex].hasTranscription = true
-                recordingManager.toggledAudioTranscriptionObject = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex]
+                recordingManager.toggledAudioTranscriptionObject =
+                    recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex]
                 viewController.HasTranscriptionUI()
             }
         } catch {
             throw TranscriptionError.error("Couldn’t download the transcript", underlying: error)
         }
     }
+
 
     
     @MainActor
@@ -376,7 +415,7 @@ class TranscriptionManager {
 
         var lastError: Error?
         let maxAttempts = 3
-        let timeout: TimeInterval = 10   // try 8–12s range
+        let timeout: TimeInterval = 10
 
         for attempt in 1...maxAttempts {
             print("📤 Upload attempt \(attempt) starting at \(Date())")
@@ -399,6 +438,11 @@ class TranscriptionManager {
 
                 print("📥 Upload attempt \(attempt) got status \(http.statusCode) at \(Date())")
 
+                if http.statusCode == 403 {
+                    // ✅ Let the caller decide what to do with this (likely "already uploaded")
+                    throw TranscriptionError.uploadForbidden403
+                }
+
                 guard (200...299).contains(http.statusCode) else {
                     throw TranscriptionError.error("Upload failed – server returned \(http.statusCode)")
                 }
@@ -408,26 +452,30 @@ class TranscriptionManager {
             } catch {
                 lastError = error
 
+                // If our special 403, don't retry – bubble it up
+                if let tErr = error as? TranscriptionError,
+                   case .uploadForbidden403 = tErr {
+                    throw tErr
+                }
+
                 let nsErr = error as NSError
                 print("❌ Upload attempt \(attempt) error: domain=\(nsErr.domain) code=\(nsErr.code) desc=\(nsErr.localizedDescription) at \(Date())")
 
-                // treat "network connection lost" / "timed out" as transient
                 if nsErr.domain == NSURLErrorDomain &&
                     (nsErr.code == NSURLErrorNetworkConnectionLost ||
                      nsErr.code == NSURLErrorTimedOut) &&
                     attempt < maxAttempts {
-
                     print("⚠️ Transient upload error on attempt \(attempt) – will retry")
                     continue
                 }
 
-                // Non-transient or last attempt
                 throw TranscriptionError.error("Upload to transcription server failed", underlying: error)
             }
         }
 
         throw TranscriptionError.error("Upload to transcription server failed after retries", underlying: lastError)
     }
+
 
 
     func mintSignedURL() async throws -> URL? {
