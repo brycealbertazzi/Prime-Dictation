@@ -552,7 +552,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 await MainActor.run {
                     self.safeDisplayAlert(
                         title: "Transcription Failed",
-                        message: "We were unable to transcribe your recording. Check your internet connection and try again later.",
+                        message: "We were unable to transcribe your recording. Your connection may be slow, try again later.",
                         type: .transcribe,
                         result: .failure
                     )

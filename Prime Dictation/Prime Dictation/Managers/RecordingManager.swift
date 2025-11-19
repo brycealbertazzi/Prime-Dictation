@@ -388,20 +388,23 @@ class RecordingManager {
     /// Finds the next numeric suffix for files that share the same minute stamp.
     /// Matches exactly `fileName` or `fileName(<number>)` and returns the next number to use.
     func GetDuplicateIndex(newFileName: String, isNewFile: Bool) -> Int {
-        let toggledFileNameBase = toggledAudioTranscriptionObject.fileName.split(separator: "(")[0]
         var previousHighestDupIndex = -1
         var numDups = 0
         
         for object in savedAudioTranscriptionObjects {
             let name = object.fileName
-            let split = name.split(separator: "(")
-            let base = String(split[0])
-            let index = extractDigits(from: name)
-            if (base == newFileName) {
-                previousHighestDupIndex = max(previousHighestDupIndex, index)
-                numDups += 1
-            }
+            
+            let parts = name.split(separator: "(", maxSplits: 1, omittingEmptySubsequences: true)
+            guard let first = parts.first else { continue }
+            
+            let base = String(first).trimmingCharacters(in: .whitespaces)
+            guard base == newFileName else { continue }
+            
+            let index = extractDigits(from: name)  // assume 0 if no "(n)"
+            previousHighestDupIndex = max(previousHighestDupIndex, index)
+            numDups += 1
         }
+        
         return numDups == 0 ? 0 : previousHighestDupIndex + 1
     }
     
