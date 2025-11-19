@@ -253,9 +253,10 @@ final class DropboxManager {
             switch selResult {
             case .failure:
                 DispatchQueue.main.async {
-                    viewController.displayAlert(
+                    viewController.safeDisplayAlert(
                         title: "Unable to send to Dropbox",
-                        message: "Your selected folder may no longer exist. Select another folder and try again."
+                        message: "Your selected folder may no longer exist. Select another folder and try again.",
+                        result: .failure
                     )
                     print("Dropbox upload failed, unable to resolve selection")
                     viewController.EnableUI()
@@ -265,9 +266,10 @@ final class DropboxManager {
                     switch pathResult {
                     case .failure:
                         DispatchQueue.main.async {
-                            viewController.displayAlert(
+                            viewController.safeDisplayAlert(
                                 title: "Unable to send to Dropbox",
-                                message: "Your selected folder may no longer exist. Select another folder and try again."
+                                message: "Your selected folder may no longer exist. Select another folder and try again.",
+                                result: .failure
                             )
                             print("Dropbox upload failed, unable to resolve path result")
                             viewController.EnableUI()
@@ -283,10 +285,11 @@ final class DropboxManager {
                         upload(client, local: audioURL, to: remoteAudio) { ok in
                             guard ok else {
                                 DispatchQueue.main.async {
-                                    ProgressHUD.dismiss()
-                                    viewController.displayAlert(
-                                        title: "Recording upload failed",
+                                    viewController.safeDisplayAlert(
+                                        title: "Recording send failed",
                                         message: "Unable to upload the recording to Dropbox. Check your connection and try again.",
+                                        type: .send,
+                                        result: .failure
                                     )
                                     viewController.EnableUI()
                                 }
@@ -301,15 +304,12 @@ final class DropboxManager {
                                 DispatchQueue.main.async {
                                     ProgressHUD.succeed("Recording sent to Dropbox")
                                     viewController.EnableUI()
-                                    
-                                    if UIApplication.shared.applicationState == .active {
-                                        // App is foreground → safe to play the ding now
-                                        AudioFeedback.shared.playDing(intensity: 0.6)
-                                    } else {
-                                        // App is background → defer the ding + alert
-                                        viewController.sendingCompletedInBackground = true
-                                        viewController.sendingInBackgroundMessage = "Your recording was sent to Dropbox while Prime Dictation was in the background."
-                                    }
+                                    viewController.safeDisplayAlert(
+                                        title: "Sent to Dropbox",
+                                        message: "Your recording was sent to Dropbox while Prime Dictation was in the background.",
+                                        type: .send,
+                                        result: .success
+                                    )
                                 }
                                 return
                             }
@@ -318,25 +318,22 @@ final class DropboxManager {
                                 DispatchQueue.main.async {
                                     if ok2 {
                                         ProgressHUD.succeed("Recording and transcript sent to Dropbox")
-                                        if UIApplication.shared.applicationState == .active {
-                                            // App is foreground → safe to play the ding now
-                                            AudioFeedback.shared.playDing(intensity: 0.6)
-                                        } else {
-                                            // App is background → defer the ding + alert
-                                            viewController.sendingCompletedInBackground = true
-                                            viewController.sendingInBackgroundMessage = "Your recording and transcript were sent to Dropbox while Prime Dictation was in the background."
-                                        }
+                                        viewController.safeDisplayAlert(
+                                            title: "Sent to Dropbox",
+                                            message: "Your recording and transcript were sent to Dropbox while Prime Dictation was in the background.",
+                                            type: .send,
+                                            result: .success
+                                        )
                                     } else {
-                                        // Audio was sent; transcript failed — still inform user
-                                        ProgressHUD.dismiss()
-                                        viewController.displayAlert(
+                                        viewController.safeDisplayAlert(
                                             title: "Transcript upload failed",
                                             message: """
                                             Your recording was sent to Dropbox, but the transcript could not be uploaded.
                                             Check your connection and try again, or resend the transcript later.
-                                            """
+                                            """,
+                                            type: .send,
+                                            result: .failure
                                         )
-                                        AudioFeedback.shared.playWhoosh(intensity: 0.6)
                                     }
                                     viewController.EnableUI()
                                 }
@@ -459,10 +456,10 @@ final class DropboxManager {
 
     // Optional legacy error path (no longer used by resolver)
     func DisplayNoFolderSelectedError() {
-        ProgressHUD.dismiss()
-        viewController?.displayAlert(
+        viewController?.safeDisplayAlert(
             title: "Unable to send to Dropbox",
-            message: "Your selected folder may no longer exist. Select another folder and try again."
+            message: "Your selected folder may no longer exist. Select another folder and try again.",
+            result: .failure
         )
     }
 

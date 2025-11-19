@@ -137,7 +137,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     private var wasPlayingBeforeBackground = false
     private var transcriptionCompletedInBackground = false
     var sendingCompletedInBackground = false
-    var sendingInBackgroundMessage: String = ""
+    var alertDisplayedInBackground: Bool = false
+    var pendingAlertTitle: String = ""
+    var pendingAlertMessage: String = ""
     @objc private func handleAppWillResignActive(_ notification: Notification) {
         // If we’re recording, stop & save as if user tapped Stop
         if audioRecorder?.isRecording == true {
@@ -170,33 +172,28 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             wasPlayingBeforeBackground = false
             resumePlayback()
         }
+        
+        // If any alert was displayed in the background, including transibing and sending. Delay the alert until this point when they reenter the app
+        if alertDisplayedInBackground {
+            alertDisplayedInBackground = false
+            displayAlert(
+                title: pendingAlertTitle,
+                message: pendingAlertMessage
+            )
+        }
 
-        // If a transcription finished while we were in the background,
-        // play the ding and let the user know.
+        // If a transcription finished while we were in the background, play the
         if transcriptionCompletedInBackground {
             transcriptionCompletedInBackground = false
-
             AudioFeedback.shared.playDing(intensity: 0.6)
-            displayAlert(
-                title: "Transcription Complete",
-                message: "Your transcription finished while Prime Dictation was in the background."
-            )
         }
         
-        // If a transcription finished while we were in the background,
-        // play the whoosh and let the user know.
+        // If a transcription finished while we were in the background, play the whoosh
         if (sendingCompletedInBackground) {
             sendingCompletedInBackground = false
-            
             AudioFeedback.shared.playWhoosh(intensity: 0.6)
-            displayAlert(
-                title: "Sending Complete",
-                message: sendingInBackgroundMessage
-            )
         }
     }
-
-
     
     //MARK: Listen to Playback
     @IBAction func ListenButton(_ sender: Any) {
@@ -434,9 +431,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         StopWatchLabel.isHidden = true
 
         if interrupted {
-            displayAlert(
+            safeDisplayAlert(
                 title: "Recording Interrupted",
-                message: "Another app started using the microphone. Your recording has been safely stopped and saved in Prime Dictation."
+                message: "Another app started using the microphone. Your recording has been safely stopped and saved in Prime Dictation.",
+                result: .failure
             )
         }
     }
@@ -548,21 +546,16 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 await MainActor.run {
                     ProgressHUD.succeed("Transcription Complete")
 
-                    if UIApplication.shared.applicationState == .active {
-                        // App is foreground → safe to play the ding now
-                        AudioFeedback.shared.playDing(intensity: 0.6)
-                    } else {
-                        // App is background → defer the ding + alert
-                        self.transcriptionCompletedInBackground = true
-                    }
+                    self.safeDisplayAlert(title: "Transcription Complete", message: "Your recording was transcribed while Prime Dictation was in the background.", type: .transcribe, result: .success)
                 }
             } catch {
                 await MainActor.run {
-                    self.displayAlert(
+                    self.safeDisplayAlert(
                         title: "Transcription Failed",
-                        message: "We were unable to transcribe your recording. Check your internet connection and try again later."
+                        message: "We were unable to transcribe your recording. Check your internet connection and try again later.",
+                        type: .transcribe,
+                        result: .failure
                     )
-                    ProgressHUD.dismiss()
                 }
             }
         }
@@ -580,8 +573,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         Task {
             let seconds = await recordingDuration(for: url)
             if (seconds <= 0) {
-                displayAlert(title: "Transcription Failed", message: "We were unable to transcribe this recording because its length couldn’t be determined. Make another recording and try again.")
-                ProgressHUD.dismiss()
+                self.safeDisplayAlert(
+                    title: "Transcription Failed",
+                    message: "We were unable to transcribe this recording because its length couldn’t be determined. Make another recording and try again.",
+                    type: .transcribe,
+                    result: .failure
+                )
                 return
             }
             let estimatedTranscriptionSeconds = (seconds / 2) + 15
@@ -734,11 +731,48 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     func displayAlert(title: String, message: String, handler: (@MainActor () -> Void)? = nil) {
+        ProgressHUD.dismiss()
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: {_ in
             handler?()
         }))
         present(alert, animated: true, completion: nil)
+    }
+    
+    enum SafeAlertType {
+        case transcribe
+        case send
+        case other
+    }
+    
+    enum SafeAlertResult {
+        case success
+        case failure
+    }
+    
+    func safeDisplayAlert(title: String, message: String, type: SafeAlertType = .other, result: SafeAlertResult) {
+        if UIApplication.shared.applicationState == .active {
+            // The task completed while the app was open
+            if result == .success {
+                if type == .transcribe {
+                    AudioFeedback.shared.playDing(intensity: 0.6)
+                } else if type == .send {
+                    AudioFeedback.shared.playWhoosh(intensity: 0.6)
+                }
+            } else {
+                displayAlert(title: title, message: message)
+            }
+        } else {
+            // The task completed in the background
+            if type == .transcribe {
+                transcriptionCompletedInBackground = true
+            } else if type == .send {
+                sendingCompletedInBackground = true
+            }
+            alertDisplayedInBackground = true
+            pendingAlertTitle = title
+            pendingAlertMessage = message
+        }
     }
     
     func displayTranscriptionAlert(title: String, message: String, estimated: CGFloat) {

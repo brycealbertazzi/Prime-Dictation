@@ -1017,7 +1017,11 @@ final class GoogleDriveManager: NSObject {
 
             guard exists else {
                 ProgressHUD.dismiss()
-                viewController.displayAlert(title: "Recording send failed", message: "Your selected folder may have been deleted, select another folder and try again.")
+                viewController.safeDisplayAlert(
+                    title: "Recording send failed",
+                    message: "Your selected folder may have been deleted, select another folder and try again.",
+                    result: .failure
+                )
                 viewController.EnableUI()
                 self.persistedSelection = nil
                 return
@@ -1032,9 +1036,11 @@ final class GoogleDriveManager: NSObject {
                 case .failure(_):
                     DispatchQueue.main.async {
                         ProgressHUD.dismiss()
-                        viewController.displayAlert(
+                        viewController.safeDisplayAlert(
                             title: "Recording upload failed",
                             message: "Unable to upload the recording to Google Drive. Check your connection and try again.",
+                            type: .send,
+                            result: .failure
                         )
                         viewController.EnableUI()
                     }
@@ -1049,14 +1055,12 @@ final class GoogleDriveManager: NSObject {
                     guard shouldSendTranscript else {
                         DispatchQueue.main.async {
                             ProgressHUD.succeed("Recording sent to Google Drive")
-                            if UIApplication.shared.applicationState == .active {
-                                // App is foreground → safe to play the ding now
-                                AudioFeedback.shared.playWhoosh(intensity: 0.6)
-                            } else {
-                                // App is background → defer the ding + alert
-                                viewController.sendingCompletedInBackground = true
-                                viewController.sendingInBackgroundMessage = "Your recording was sent to OneDrive while Prime Dictation was in the background."
-                            }
+                            viewController.safeDisplayAlert(
+                                title: "Sent to Google Drive",
+                                message: "Your recording was sent to OneDrive while Prime Dictation was in the background.",
+                                type: .send,
+                                result: .success
+                            )
                             viewController.EnableUI()
                         }
                         return
@@ -1070,20 +1074,18 @@ final class GoogleDriveManager: NSObject {
                             switch result2 {
                             case .success:
                                 ProgressHUD.succeed("Recording & transcript sent to Google Drive")
-                                if UIApplication.shared.applicationState == .active {
-                                    // App is foreground → safe to play the ding now
-                                    AudioFeedback.shared.playWhoosh(intensity: 0.6)
-                                } else {
-                                    // App is background → defer the ding + alert
-                                    viewController.sendingCompletedInBackground = true
-                                    viewController.sendingInBackgroundMessage = "Your recording and transcript were sent to Google Drive while Prime Dictation was in the background."
-                                }
+                                viewController.safeDisplayAlert(
+                                    title: "Sent to Google Drive",
+                                    message: "Your recording and transcript were sent to Google Drive while Prime Dictation was in the background.",
+                                    type: .send,
+                                    result: .success
+                                )
                             case .failure(_):
-                                // Audio is already uploaded; inform transcript failure lightly
-                                ProgressHUD.dismiss()
-                                viewController.displayAlert(
+                                viewController.safeDisplayAlert(
                                     title: "Transcript upload failed",
                                     message: "The recording was sent to Google Drive, but the transcript could not be uploaded.",
+                                    type: .send,
+                                    result: .failure
                                 )
                             }
                             viewController.EnableUI()

@@ -235,32 +235,30 @@ final class EmailManager: NSObject {
                 
                 if hasTranscription {
                     ProgressHUD.succeed("Recording and transcript sent to your email")
-                    if UIApplication.shared.applicationState == .active {
-                        // App is foreground → safe to play the ding now
-                        AudioFeedback.shared.playWhoosh(intensity: 0.6)
-                    } else {
-                        // App is background → defer the ding + alert
-                        viewController.sendingCompletedInBackground = true
-                        viewController.sendingInBackgroundMessage = "Your recording and transcript were sent to your email address while Prime Dictation was in the background."
-                    }
+                    viewController.safeDisplayAlert(
+                        title: "Email Sent",
+                        message: "Your recording and transcript were sent to your email address while Prime Dictation was in the background.",
+                        type: .send,
+                        result: .success
+                    )
                 } else {
                     ProgressHUD.succeed("Recording sent to your email")
-                    if UIApplication.shared.applicationState == .active {
-                        // App is foreground → safe to play the ding now
-                        AudioFeedback.shared.playWhoosh(intensity: 0.6)
-                    } else {
-                        // App is background → defer the ding + alert
-                        viewController.sendingCompletedInBackground = true
-                        viewController.sendingInBackgroundMessage = "Your recording was sent to your email address while Prime Dictation was in the background."
-                    }
+                    viewController.safeDisplayAlert(
+                        title: "Email Sent",
+                        message: "Your recording was sent to your email address while Prime Dictation was in the background.",
+                        type: .send,
+                        result: .success
+                    )
                 }
                 print("✅ email lambda returned 2xx")
             } catch {
                 print("❌ email lambda failed: \(error)")
                 ProgressHUD.dismiss()
-                viewController.displayAlert(
+                viewController.safeDisplayAlert(
                     title: "Email not sent",
-                    message: "We couldn’t send your email. Check your connection and try again."
+                    message: "We couldn’t send your email. Check your connection and try again.",
+                    type: .send,
+                    result: .failure
                 )
             }
 
@@ -268,9 +266,11 @@ final class EmailManager: NSObject {
         } catch {
             ProgressHUD.dismiss()
             print("❌ SendToEmail error: \(error)")
-            viewController.displayAlert(
+            viewController.safeDisplayAlert(
                 title: "Email not sent",
-                message: "We couldn’t send your email. Check your connection and try again."
+                message: "We couldn’t send your email. Check your connection and try again.",
+                type: .send,
+                result: .failure
             )
             viewController.EnableUI()
         }
