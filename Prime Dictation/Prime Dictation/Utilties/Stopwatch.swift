@@ -13,6 +13,7 @@ class Stopwatch {
     private var currentElapsedTime: TimeInterval?
     var viewController: ViewController!
     
+    
     init(viewController: ViewController) {
         self.viewController = viewController
     }
@@ -49,6 +50,10 @@ class Stopwatch {
     }
     
     func UpdateElapsedTime(timer: Timer) {
+        if viewController.subscriptionState.accessLevel == .trial && overTrialRemainingLength() {
+            timer.invalidate()
+            viewController.finishCurrentRecording(interrupted: true, trialEnded: true)
+        }
         if self.isRunning && !viewController.isRecordingPaused {
             let minutes = Int(self.elapsedTime / 60)
             let seconds = Int(self.elapsedTime.truncatingRemainder(dividingBy: 60))
@@ -82,5 +87,11 @@ class Stopwatch {
     
     func overRecordingLength() -> Bool {
         return elapsedTime > viewController.audioPlayer.duration
+    }
+    
+    func overTrialRemainingLength() -> Bool {
+        print("elapsedTime: \(self.elapsedTime)")
+        print("remainingTime: \(viewController.subscriptionState.trialManager.remainingFreeTrialTime())")
+        return self.elapsedTime > viewController.subscriptionState.trialManager.remainingFreeTrialTime()
     }
 }

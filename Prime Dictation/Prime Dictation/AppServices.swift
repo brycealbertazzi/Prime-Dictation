@@ -22,7 +22,8 @@ final class AppServices {
     let recordingManager = RecordingManager()
     let transcriptionManager = TranscriptionManager()
     
-
+    let subscriptionState = SubscriptionState()
+    
     private init() {}
 
 }

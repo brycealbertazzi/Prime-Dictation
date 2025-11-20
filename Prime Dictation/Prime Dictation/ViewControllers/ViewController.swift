@@ -45,6 +45,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     var recordingManager: RecordingManager!
     var transcriptionManager: TranscriptionManager!
+    
+    var subscriptionState: SubscriptionState!
+    
     var watch: Stopwatch!
     
     //MARK: View did load
@@ -58,6 +61,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         googleDriveManager = services.googleDriveManager
         destinationManager = services.destinationManager
         emailManager = services.emailManager
+        subscriptionState = services.subscriptionState
         
         recordingManager.attach(viewController: self, transcriptionManager: transcriptionManager)
         transcriptionManager.attach(viewController: self, recordingMananger: recordingManager)
@@ -317,6 +321,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
 
     @IBAction func RecordButton(_ sender: Any) {
+        let access = subscriptionState.accessLevel
+        print("access: \(access)")
+        print("remaining trial time: \(subscriptionState.trialManager.remainingFreeTrialTime())")
+        guard access != .locked else {
+            trialEndedAlert()
+            return
+        }
+        
         guard audioRecorder == nil else { return }
 
         Haptic.tap(intensity: 1.0)
@@ -406,7 +418,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
     
-    private func finishCurrentRecording(interrupted: Bool) {
+    func finishCurrentRecording(interrupted: Bool, trialEnded: Bool = false) {
         guard audioRecorder != nil else { return }
 
         audioRecorder.stop()
@@ -425,8 +437,20 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
         watch.stop()
         StopWatchLabel.isHidden = true
+        
+        if let url = recordingManager.toggledRecordingURL {
+            Task {
+                let seconds = await self.recordingDuration(for: url)
+                subscriptionState.trialManager.addRecording(seconds: seconds)
+            }
+        }
 
         if interrupted {
+            if (trialEnded) {
+                subscriptionState.trialManager.endFreeTrial()
+                trialEndedAlert()
+                return
+            }
             safeDisplayAlert(
                 title: "Recording Interrupted",
                 message: "Another app started using the microphone. Your recording has been safely stopped and saved in Prime Dictation.",
@@ -736,6 +760,19 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: {_ in
             handler?()
         }))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func trialEndedAlert() {
+        let alert = UIAlertController(title: "Free Trial Limit Reached", message: "You’ve used your 3 free minutes of recording. Subscribe to continue recording unlimited audio.", preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: "Not Now", style: .cancel))  // just dismiss
+
+        alert.addAction(UIAlertAction(title: "Subscribe", style: .default) { [weak self] _ in
+            guard let self = self else { return }
+            // Go to subscription page
+        })
+
         present(alert, animated: true, completion: nil)
     }
     
