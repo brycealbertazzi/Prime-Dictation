@@ -34,7 +34,6 @@ final class SubscriptionState {
     }
 }
 
-
 final class TrialManager {
     static let TRIAL_LIMIT: TimeInterval = 60 * 3 // 3 minutes
     private let key = "primeDictationTrialUsage"

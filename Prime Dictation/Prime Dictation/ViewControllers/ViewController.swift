@@ -446,11 +446,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
 
         if interrupted {
-            if (trialEnded) {
-                subscriptionState.trialManager.endFreeTrial()
-                trialEndedAlert()
-                return
-            }
+            // UNCOMMENT LATER
+//            if (trialEnded) {
+//                subscriptionState.trialManager.endFreeTrial()
+//                trialEndedAlert()
+//                return
+//            }
             safeDisplayAlert(
                 title: "Recording Interrupted",
                 message: "Another app started using the microphone. Your recording has been safely stopped and saved in Prime Dictation.",
