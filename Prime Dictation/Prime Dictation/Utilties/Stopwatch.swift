@@ -90,8 +90,6 @@ class Stopwatch {
     }
     
     func overTrialRemainingLength() -> Bool {
-        print("elapsedTime: \(self.elapsedTime)")
-        print("remainingTime: \(viewController.subscriptionState.trialManager.remainingFreeTrialTime())")
         return self.elapsedTime > viewController.subscriptionState.trialManager.remainingFreeTrialTime()
     }
 }

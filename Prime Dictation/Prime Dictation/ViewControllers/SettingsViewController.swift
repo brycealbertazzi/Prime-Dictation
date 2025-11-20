@@ -105,27 +105,29 @@ class SettingsViewController: UIViewController {
     }
     
     @IBAction func GoogleDriveButton(_ sender: Any) {
-        Haptic.tap(intensity: 1.0)
-        googleDriveManager.openAuthorizationFlow { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success:
-                self.UpdateSelectedDestinationUserDefaults(destination: .googledrive)
-                self.UpdateSelectedDestinationUI(destination: .googledrive)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                    self.googleDriveManager.presentGoogleDriveFolderPicker { selection in }
-                }
-            case .alreadyAuthenticated:
-                self.UpdateSelectedDestinationUserDefaults(destination: .googledrive)
-                self.UpdateSelectedDestinationUI(destination: .googledrive)
-            case .cancel:
-                ProgressHUD.failed("Google Drive sign-in was canceled.")
-            case .error(_, _):
-                ProgressHUD.failed("Google Drive sign-in failed. Please try again.")
-            case .none:
-                ProgressHUD.failed("Google Drive sign-in failed. Please try again.")
-            }
-        }
+        displayAlert(title: "Destination Unavailable", message: "The Google Drive destination is not available yet. The developer is working on a security certification for Google Drive. Please use a different destination for now.")
+
+//        Haptic.tap(intensity: 1.0)
+//        googleDriveManager.openAuthorizationFlow { [weak self] result in
+//            guard let self = self else { return }
+//            switch result {
+//            case .success:
+//                self.UpdateSelectedDestinationUserDefaults(destination: .googledrive)
+//                self.UpdateSelectedDestinationUI(destination: .googledrive)
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+//                    self.googleDriveManager.presentGoogleDriveFolderPicker { selection in }
+//                }
+//            case .alreadyAuthenticated:
+//                self.UpdateSelectedDestinationUserDefaults(destination: .googledrive)
+//                self.UpdateSelectedDestinationUI(destination: .googledrive)
+//            case .cancel:
+//                ProgressHUD.failed("Google Drive sign-in was canceled.")
+//            case .error(_, _):
+//                ProgressHUD.failed("Google Drive sign-in failed. Please try again.")
+//            case .none:
+//                ProgressHUD.failed("Google Drive sign-in failed. Please try again.")
+//            }
+//        }
     }
     
     @IBAction func SelectFolderButton(_ sender: Any) {
