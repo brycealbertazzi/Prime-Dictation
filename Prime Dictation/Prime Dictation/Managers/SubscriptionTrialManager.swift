@@ -1,16 +1,5 @@
 import UIKit
 
-enum TrialState: Int, Codable {
-    case notStarted
-    case inProgress
-    case completed
-}
-
-struct TrialUsage: Codable {
-    var totalSeconds: TimeInterval
-    var state: TrialState
-}
-
 enum SubscriptionSchedule: Int, Codable {
     case none
     case daily
@@ -32,9 +21,10 @@ struct SubscriptionUsage: Codable {
 
 
 enum AccessLevel {
-    case recording_locked // trial over, no subscription. No recording allowed
+    case locked // trial over, no subscription. No recording allowed
     case trial        // within free minutes
     case subscribed   // has any active sub, has transcription minutes remaining
+    case subscription_expired // Has had sub before, but it expired and the user did not renew. Recording and transcription not allowed
 }
 
 final class SubscriptionManager {
@@ -43,14 +33,19 @@ final class SubscriptionManager {
     var isSubscribed: Bool = false  // updated via StoreKit checks
     var trialManager = TrialManager()
     private let key = "primeDictationSubscriptionUsage"
+    private let hasEverSubscribedKey = "primeDictationHasEverSubscribed"
 
     var accessLevel: AccessLevel {
         if isSubscribed {
+            hasEverSubscribed = true
             return .subscribed
+        }
+        if hasEverSubscribed {
+            return .subscription_expired
         }
         switch trialManager.state {
         case .completed:
-            return .recording_locked
+            return .locked
         case .notStarted, .inProgress:
             return .trial
         }
@@ -71,6 +66,17 @@ final class SubscriptionManager {
         }
     }
     
+    var hasEverSubscribed: Bool {
+        get {
+            // Defaults to false if the key doesn't exist yet
+            return UserDefaults.standard.bool(forKey: hasEverSubscribedKey)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: hasEverSubscribedKey)
+        }
+    }
+    
+    // Only call when the user is subscribed
     func canTranscribe(recordingSeconds: TimeInterval) -> Bool {
         // Call refreshBuckets() here when the store kit params are retrieved
         
@@ -95,8 +101,10 @@ final class SubscriptionManager {
         usage = u
     }
     
+    // Will only be called when the user is subscribed
     func remainingTranscriptionTime() -> TimeInterval {
         let remaining: TimeInterval
+        let zero: TimeInterval = TimeInterval(0)
 
         switch usage.schedule {
         case .daily:
@@ -104,10 +112,10 @@ final class SubscriptionManager {
         case .monthly:
             remaining = Self.MONTHLY_LIMIT - usage.monthlySecondsUsed
         case .none:
-            return TrialManager.TRIAL_LIMIT + 10000 // Make sure when they are on the free trial, they can transcribe all the recordings they make in the trial, they will be limited by a recording restriction
+            return zero
         }
 
-        return max(0, remaining)
+        return max(zero, remaining)
     }
     
 }
@@ -165,6 +173,17 @@ extension SubscriptionManager {
 
         usage = u
     }
+}
+
+enum TrialState: Int, Codable {
+    case notStarted
+    case inProgress
+    case completed
+}
+
+struct TrialUsage: Codable {
+    var totalSeconds: TimeInterval
+    var state: TrialState
 }
 
 final class TrialManager {

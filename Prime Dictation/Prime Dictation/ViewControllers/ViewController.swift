@@ -347,7 +347,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         let access = subscriptionManager.accessLevel
         print("access: \(access)")
         print("remaining trial time: \(subscriptionManager.trialManager.remainingFreeTrialTime())")
-        guard access != .recording_locked else {
+        guard access != .locked else {
             trialEndedAlert()
             return
         }
