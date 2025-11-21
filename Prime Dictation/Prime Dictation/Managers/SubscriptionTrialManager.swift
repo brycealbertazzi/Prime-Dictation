@@ -78,6 +78,10 @@ final class SubscriptionManager {
     
     // Only call when the user is subscribed
     func canTranscribe(recordingSeconds: TimeInterval) -> Bool {
+        if accessLevel == .subscription_expired {
+            return false
+        }
+        
         // Call refreshBuckets() here when the store kit params are retrieved
         
         let remainingTranscriptionTimeInSchedulePeriod: TimeInterval = self.remainingTranscriptionTime()

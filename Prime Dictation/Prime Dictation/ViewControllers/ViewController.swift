@@ -347,8 +347,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         let access = subscriptionManager.accessLevel
         print("access: \(access)")
         print("remaining trial time: \(subscriptionManager.trialManager.remainingFreeTrialTime())")
-        guard access != .locked else {
+        if access == .locked {
             trialEndedAlert()
+            return
+        }
+        if access == .subscription_expired {
+            subscriptionExpiredAlert()
             return
         }
         
@@ -609,6 +613,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     @IBAction func TranscribeButton(_ sender: Any) {
+        let access = subscriptionManager.accessLevel
+        if access == .subscription_expired {
+            subscriptionExpiredAlert()
+            return
+        }
+        
         guard let url = recordingManager.toggledRecordingURL else {
             displayAlert(
                 title: "Recording Not Found",
@@ -788,6 +798,19 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     func trialEndedAlert() {
         let alert = UIAlertController(title: "Free Trial Limit Reached", message: "You’ve used your 3 free minutes of recording. Subscribe to continue recording unlimited audio.", preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: "Not Now", style: .cancel))  // just dismiss
+
+        alert.addAction(UIAlertAction(title: "Subscribe", style: .default) { [weak self] _ in
+            guard let self = self else { return }
+            // Go to subscription page
+        })
+
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func subscriptionExpiredAlert() {
+        let alert = UIAlertController(title: "Subscription Expired", message: "Subscribe again to continue recording unlimited audio and access transcription.", preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: "Not Now", style: .cancel))  // just dismiss
 
