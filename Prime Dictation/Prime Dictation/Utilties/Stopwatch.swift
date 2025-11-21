@@ -12,7 +12,7 @@ class Stopwatch {
     private var startTime : Date?
     private var currentElapsedTime: TimeInterval?
     var viewController: ViewController!
-    let subscriptionState: SubscriptionState! = AppServices.shared.subscriptionState
+    let subscriptionManager: SubscriptionManager! = AppServices.shared.subscriptionManager
     
     
     init(viewController: ViewController) {
@@ -51,11 +51,10 @@ class Stopwatch {
     }
     
     func UpdateElapsedTime(timer: Timer) {
-        // UNCOMMENT LATER
-//        if subscriptionState.accessLevel == .trial && overTrialRemainingLength() {
-//            timer.invalidate()
-//            viewController.finishCurrentRecording(interrupted: true, trialEnded: true)
-//        }
+        if subscriptionManager.accessLevel == .trial && overTrialRemainingLength() {
+            timer.invalidate()
+            viewController.finishCurrentRecording(interrupted: true, trialEnded: true)
+        }
         if self.isRunning && !viewController.isRecordingPaused {
             let minutes = Int(self.elapsedTime / 60)
             let seconds = Int(self.elapsedTime.truncatingRemainder(dividingBy: 60))
@@ -93,7 +92,7 @@ class Stopwatch {
     
     func overTrialRemainingLength() -> Bool {
         print("elapsedTime: \(self.elapsedTime)")
-        print("remainingFreeTrialTime: \(subscriptionState.trialManager.remainingFreeTrialTime())")
-        return self.elapsedTime > subscriptionState.trialManager.remainingFreeTrialTime()
+        print("remainingFreeTrialTime: \(subscriptionManager.trialManager.remainingFreeTrialTime())")
+        return self.elapsedTime > subscriptionManager.trialManager.remainingFreeTrialTime()
     }
 }

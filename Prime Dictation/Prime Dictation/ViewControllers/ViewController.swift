@@ -46,13 +46,16 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     var recordingManager: RecordingManager!
     var transcriptionManager: TranscriptionManager!
     
-    var subscriptionState: SubscriptionState!
+    var subscriptionManager: SubscriptionManager!
     
     var watch: Stopwatch!
     
     //MARK: View did load
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        loadSubscriptions()
+        
         let services = AppServices.shared
         recordingManager = services.recordingManager
         transcriptionManager = services.transcriptionManager
@@ -61,7 +64,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         googleDriveManager = services.googleDriveManager
         destinationManager = services.destinationManager
         emailManager = services.emailManager
-        subscriptionState = services.subscriptionState
+        subscriptionManager = services.subscriptionManager
         
         recordingManager.attach(viewController: self, transcriptionManager: transcriptionManager)
         transcriptionManager.attach(viewController: self, recordingMananger: recordingManager)
@@ -136,6 +139,26 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         Haptic.prepare()
+    }
+    
+    func loadSubscriptions() {
+        Task {
+            await StoreKitManager.shared.configure()
+
+            let manager = StoreKitManager.shared
+
+            if manager.hasLifetimeDeal {
+                // unlock: 60 minutes/day forever
+            } else if manager.activeSubscriptions.contains(.dailyAnnual) ||
+                      manager.activeSubscriptions.contains(.dailyMonthly) {
+                // unlock: 60 minutes/day
+            } else if manager.activeSubscriptions.contains(.standardMonthly) {
+                // unlock: 150 minutes/month
+            } else {
+                // no sub / no LTD
+                // apply your trial rules and free limitations
+            }
+        }
     }
     
     private var wasPlayingBeforeBackground = false
@@ -321,10 +344,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
 
     @IBAction func RecordButton(_ sender: Any) {
-        let access = subscriptionState.accessLevel
+        let access = subscriptionManager.accessLevel
         print("access: \(access)")
-        print("remaining trial time: \(subscriptionState.trialManager.remainingFreeTrialTime())")
-        guard access != .locked else {
+        print("remaining trial time: \(subscriptionManager.trialManager.remainingFreeTrialTime())")
+        guard access != .recording_locked else {
             trialEndedAlert()
             return
         }
@@ -441,17 +464,16 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         if let url = recordingManager.toggledRecordingURL {
             Task {
                 let seconds = await self.recordingDuration(for: url)
-                subscriptionState.trialManager.addRecording(seconds: seconds)
+                subscriptionManager.trialManager.addRecording(seconds: seconds)
             }
         }
 
         if interrupted {
-            // UNCOMMENT LATER
-//            if (trialEnded) {
-//                subscriptionState.trialManager.endFreeTrial()
-//                trialEndedAlert()
-//                return
-//            }
+            if (trialEnded) {
+                subscriptionManager.trialManager.endFreeTrial()
+                trialEndedAlert()
+                return
+            }
             safeDisplayAlert(
                 title: "Recording Interrupted",
                 message: "Another app started using the microphone. Your recording has been safely stopped and saved in Prime Dictation.",

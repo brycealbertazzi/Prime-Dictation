@@ -1,0 +1,225 @@
+import UIKit
+
+enum TrialState: Int, Codable {
+    case notStarted
+    case inProgress
+    case completed
+}
+
+struct TrialUsage: Codable {
+    var totalSeconds: TimeInterval
+    var state: TrialState
+}
+
+enum SubscriptionSchedule: Int, Codable {
+    case none
+    case daily
+    case monthly
+}
+
+struct SubscriptionUsage: Codable {
+    var schedule: SubscriptionSchedule
+    var dailySecondsUsed: TimeInterval
+    var monthlySecondsUsed: TimeInterval
+    /// The normalized start of the daily bucket this `dailySecondsUsed` belongs to.
+    /// Example: startOfDay in the user's local time.
+    var dailyBucketStart: Date?
+    /// Last subscription period start we synced from StoreKit (server authoritative).
+    var lastPeriodStartFromApple: Date?
+    /// Last subscription period end we synced from StoreKit.
+    var lastPeriodEndFromApple: Date?
+}
+
+
+enum AccessLevel {
+    case recording_locked // trial over, no subscription. No recording allowed
+    case trial        // within free minutes
+    case subscribed   // has any active sub, has transcription minutes remaining
+}
+
+final class SubscriptionManager {
+    static let DAILY_LIMIT: TimeInterval = 60 * 60 // 60 minutes
+    static let MONTHLY_LIMIT: TimeInterval = 60 * 150 // 150 minutes
+    var isSubscribed: Bool = false  // updated via StoreKit checks
+    var trialManager = TrialManager()
+    private let key = "primeDictationSubscriptionUsage"
+
+    var accessLevel: AccessLevel {
+        if isSubscribed {
+            return .subscribed
+        }
+        switch trialManager.state {
+        case .completed:
+            return .recording_locked
+        case .notStarted, .inProgress:
+            return .trial
+        }
+    }
+    
+    var usage: SubscriptionUsage {
+        get {
+            if let data = UserDefaults.standard.data(forKey: key),
+               let decoded = try? JSONDecoder().decode(SubscriptionUsage.self, from: data) {
+                return decoded
+            }
+            return SubscriptionUsage(schedule: .none, dailySecondsUsed: 0, monthlySecondsUsed: 0, dailyBucketStart: nil, lastPeriodStartFromApple: nil, lastPeriodEndFromApple: nil)
+        }
+        set {
+            if let data = try? JSONEncoder().encode(newValue) {
+                UserDefaults.standard.set(data, forKey: key)
+            }
+        }
+    }
+    
+    func canTranscribe(recordingSeconds: TimeInterval) -> Bool {
+        // Call refreshBuckets() here when the store kit params are retrieved
+        
+        let remainingTranscriptionTimeInSchedulePeriod: TimeInterval = self.remainingTranscriptionTime()
+        
+        return recordingSeconds <= remainingTranscriptionTimeInSchedulePeriod
+    }
+    
+    /// Add `seconds` to the daily/monthly transcription usage
+    func addTranscription(seconds: TimeInterval) {
+        var u = usage
+
+        switch u.schedule {
+        case .daily:
+            u.dailySecondsUsed += seconds
+        case .monthly:
+            u.monthlySecondsUsed += seconds
+        case .none:
+            break
+        }
+
+        usage = u
+    }
+    
+    func remainingTranscriptionTime() -> TimeInterval {
+        let remaining: TimeInterval
+
+        switch usage.schedule {
+        case .daily:
+            remaining = Self.DAILY_LIMIT - usage.dailySecondsUsed
+        case .monthly:
+            remaining = Self.MONTHLY_LIMIT - usage.monthlySecondsUsed
+        case .none:
+            return TrialManager.TRIAL_LIMIT + 10000 // Make sure when they are on the free trial, they can transcribe all the recordings they make in the trial, they will be limited by a recording restriction
+        }
+
+        return max(0, remaining)
+    }
+    
+}
+
+extension SubscriptionManager {
+    /// Call this on app launch / foreground with the latest period dates from StoreKit.
+    ///
+    /// - Parameters:
+    ///   - now: Current date (defaults to `Date()`).
+    ///   - latestPeriodStart: Latest subscription period start from StoreKit (if any).
+    ///   - latestPeriodEnd: Latest subscription period end from StoreKit (if any).
+    func refreshBuckets(
+        now: Date = Date(),
+        latestPeriodStart: Date?,
+        latestPeriodEnd: Date?
+    ) {
+        var u = usage
+        let calendar = Calendar.current
+
+        // --- DAILY BUCKET (for 60 min/day plans) ---
+        if u.schedule == .daily {
+            let todayStart = calendar.startOfDay(for: now)
+
+            if let bucketStart = u.dailyBucketStart {
+                // If the stored bucket isn't "today", reset it
+                if calendar.compare(bucketStart, to: todayStart, toGranularity: .day) != .orderedSame {
+                    u.dailyBucketStart = todayStart
+                    u.dailySecondsUsed = 0
+                }
+            } else {
+                // First-time setup
+                u.dailyBucketStart = todayStart
+                u.dailySecondsUsed = 0
+            }
+        }
+
+        // --- MONTHLY BUCKET (for 150 min/month plan) ---
+        if u.schedule == .monthly {
+            // Only act if we actually have fresh data from StoreKit
+            if let latestStart = latestPeriodStart, let latestEnd = latestPeriodEnd {
+                let isNewPeriod =
+                    u.lastPeriodStartFromApple == nil ||
+                    u.lastPeriodEndFromApple == nil ||
+                    u.lastPeriodStartFromApple! != latestStart ||
+                    u.lastPeriodEndFromApple! != latestEnd
+
+                if isNewPeriod {
+                    // New StoreKit period => reset monthly usage and store new bounds
+                    u.lastPeriodStartFromApple = latestStart
+                    u.lastPeriodEndFromApple = latestEnd
+                    u.monthlySecondsUsed = 0
+                }
+            }
+        }
+
+        usage = u
+    }
+}
+
+final class TrialManager {
+    static let TRIAL_LIMIT: TimeInterval = 60 * 3 // 3 minutes
+    private let key = "primeDictationTrialUsage"
+
+    var usage: TrialUsage {
+        get {
+            if let data = UserDefaults.standard.data(forKey: key),
+               let decoded = try? JSONDecoder().decode(TrialUsage.self, from: data) {
+                return decoded
+            }
+            return TrialUsage(totalSeconds: 0, state: .notStarted)
+        }
+        set {
+            if let data = try? JSONEncoder().encode(newValue) {
+                UserDefaults.standard.set(data, forKey: key)
+            }
+        }
+    }
+
+    var state: TrialState {
+        get { usage.state }
+        set {
+            var u = usage
+            u.state = newValue
+            usage = u
+        }
+    }
+
+    /// Add `seconds` to the trial usage
+    func addRecording(seconds: TimeInterval) {
+        var u = usage
+        u.totalSeconds += seconds
+
+        if u.state == .notStarted {
+            u.state = .inProgress
+        }
+
+        usage = u   // single write, state + totalSeconds together
+    }
+    
+    func remainingFreeTrialTime() -> TimeInterval {
+        return Self.TRIAL_LIMIT - usage.totalSeconds
+    }
+    
+    func endFreeTrial() {
+        var u = usage
+        
+        u.state = .completed
+        u.totalSeconds = Self.TRIAL_LIMIT
+        
+        usage = u
+    }
+    
+}
+
+
