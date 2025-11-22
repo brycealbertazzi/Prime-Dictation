@@ -80,6 +80,7 @@
 		032F37482EB541C1006C73D2 /* Utilties */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Utilties; sourceTree = "<group>"; };
 		039EE3352EB3BB0C009E9231 /* ViewControllers */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ViewControllers; sourceTree = "<group>"; };
 		039EE3362EB3BB18009E9231 /* Managers */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Managers; sourceTree = "<group>"; };
+		03D1DFF52ED1307A00191DAA /* Views */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Views; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,6 +162,7 @@
 		034182FC22EE36B300670DD1 /* Prime Dictation */ = {
 			isa = PBXGroup;
 			children = (
+				03D1DFF52ED1307A00191DAA /* Views */,
 				032F37482EB541C1006C73D2 /* Utilties */,
 				039EE3362EB3BB18009E9231 /* Managers */,
 				039EE3352EB3BB0C009E9231 /* ViewControllers */,
@@ -195,6 +197,7 @@
 				032F37482EB541C1006C73D2 /* Utilties */,
 				039EE3352EB3BB0C009E9231 /* ViewControllers */,
 				039EE3362EB3BB18009E9231 /* Managers */,
+				03D1DFF52ED1307A00191DAA /* Views */,
 			);
 			name = "Prime Dictation";
 			productName = "Prime Dictation";

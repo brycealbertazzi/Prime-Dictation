@@ -747,7 +747,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         // 2) pass the transcript, if you want
         vc.transcriptText = recordingManager.toggledAudioTranscriptionObject.transcriptionText
 
-        vc.modalPresentationStyle = .fullScreen   // or .pageSheet, whatever
+        vc.modalPresentationStyle = .fullScreen
         present(vc, animated: true)
     }
 
@@ -888,6 +888,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     func ShowRecordingOrListeningUI() {
+        TitleOfAppLabel.alpha = disabledAlpha
         TranscribeLabel.isEnabled = false
         TranscribeLabel.alpha = disabledAlpha
         SeeTranscriptionLabel.isEnabled = false
@@ -903,6 +904,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     func HideRecordingOrListeningUI() {
+        TitleOfAppLabel.alpha = enabledAlpha
         TranscribeLabel.isEnabled = true
         TranscribeLabel.alpha = enabledAlpha
         SeeTranscriptionLabel.isEnabled = true

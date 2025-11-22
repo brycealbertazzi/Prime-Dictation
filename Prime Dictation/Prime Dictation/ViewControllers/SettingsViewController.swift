@@ -20,7 +20,8 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var DropboxLabel: RoundedButton!
     @IBOutlet weak var OneDriveLabel: RoundedButton!
     @IBOutlet weak var GoogleDriveLabel: RoundedButton!
-    @IBOutlet weak var SelectFolderIcon: RoundedButton!
+    @IBOutlet weak var SelectFolderIcon: UIButton!
+    @IBOutlet weak var StoreIcon: UIButton!
     @IBOutlet weak var EmailLabel: RoundedButton!
     
     @IBOutlet weak var arrowTopConstraint: NSLayoutConstraint!
@@ -147,6 +148,20 @@ class SettingsViewController: UIViewController {
         default:
             ProgressHUD.failed("Select a destination above before choosing a folder.")
         }
+    }
+    
+    private func showPaywallScreen() {
+        let vc = storyboard!.instantiateViewController(
+            withIdentifier: "PaywallViewController"
+        ) as! PaywallViewController
+
+        vc.modalPresentationStyle = .fullScreen
+        present(vc, animated: true)
+    }
+    
+    @IBAction func StoreButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
+        showPaywallScreen()
     }
     
     @IBAction func DismissPopover(_ sender: Any) {
