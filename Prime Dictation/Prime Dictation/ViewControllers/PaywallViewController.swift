@@ -14,6 +14,11 @@ class PaywallViewController: UIViewController {
     
     @IBOutlet weak var BackButtonIcon: UIButton!
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        overrideUserInterfaceStyle = .light
+    }
+    
     @IBAction func BackButtonPressed(_ sender: Any) {
         Haptic.tap(intensity: 0.7)
         dismiss(animated: true)
