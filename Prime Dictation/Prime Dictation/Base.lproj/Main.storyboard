@@ -778,16 +778,6 @@
                                 <fontDescription key="fontDescription" name="PingFangMO-Semibold" family="PingFang MO" pointSize="18"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
-                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="4r1-sm-wBs">
-                                <rect key="frame" x="69.666666666666686" y="348" width="275" height="40"/>
-                                <color key="tintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="calibratedRGB"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="275" id="jNv-m5-6Uk"/>
-                                    <constraint firstAttribute="height" constant="40" id="tYn-9K-yyh"/>
-                                </constraints>
-                                <color key="minimumTrackTintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="calibratedRGB"/>
-                                <color key="maximumTrackTintColor" red="0.1058823529" green="0.45882352939999999" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            </slider>
                             <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ylt-yz-5Ym" userLabel="FontSize">
                                 <rect key="frame" x="306" y="681" width="88" height="34"/>
                                 <fontDescription key="fontDescription" name="Georgia-Bold" family="Georgia" pointSize="45"/>
@@ -800,6 +790,16 @@
                                     <action selector="fontSizeButtonTapped:" destination="2Wm-Bx-ZZk" eventType="touchUpInside" id="Lw2-D2-FuE"/>
                                 </connections>
                             </button>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="4r1-sm-wBs">
+                                <rect key="frame" x="70" y="348" width="275" height="40"/>
+                                <color key="tintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="275" id="jNv-m5-6Uk"/>
+                                    <constraint firstAttribute="height" constant="40" id="tYn-9K-yyh"/>
+                                </constraints>
+                                <color key="minimumTrackTintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="maximumTrackTintColor" red="0.1058823529" green="0.45882352939999999" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </slider>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="3KK-z6-XcD"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -852,37 +852,37 @@
                                 <rect key="frame" x="0.0" y="20" width="414" height="648"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="Sso-x8-5Py">
-                                        <rect key="frame" x="16" y="0.0" width="382" height="918"/>
+                                        <rect key="frame" x="16" y="0.0" width="350" height="918"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ozw-hj-7It" userLabel="LTD" customClass="PlanCardView" customModule="Prime_Dictation" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="0.0" width="382" height="182"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="350" height="182"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Limited-Time Lifetime Deal" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GNK-uO-Rkg" userLabel="Title">
-                                                        <rect key="frame" x="84.333333333333329" y="14.999999999999998" width="213.33333333333337" height="20.333333333333329"/>
+                                                        <rect key="frame" x="68.333333333333329" y="14.999999999999998" width="213.33333333333337" height="20.333333333333329"/>
                                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bQF-ml-6Lb" userLabel="Info">
-                                                        <rect key="frame" x="5" y="47" width="372" height="131"/>
+                                                        <rect key="frame" x="5" y="47" width="340" height="131"/>
                                                         <subviews>
                                                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3HZ-yg-xMW" userLabel="Benefit Lines">
-                                                                <rect key="frame" x="0.0" y="27" width="372" height="104"/>
+                                                                <rect key="frame" x="0.0" y="27" width="340" height="104"/>
                                                                 <subviews>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Never pay again, 60-day launch promotion" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="O4h-wE-yeu" userLabel="Detail 2">
-                                                                        <rect key="frame" x="40" y="41" width="292" height="18"/>
+                                                                        <rect key="frame" x="24" y="41" width="292" height="18"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="60 min/day transcription forever" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5Cz-oJ-9Tx" userLabel="Detail 1">
-                                                                        <rect key="frame" x="76.333333333333329" y="8" width="219.66666666666669" height="18"/>
+                                                                        <rect key="frame" x="60.333333333333329" y="8" width="219.66666666666669" height="18"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Unlimited recording" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r8I-I1-Ies" userLabel="Detail 4">
-                                                                        <rect key="frame" x="118.66666666666667" y="76" width="134.66666666666663" height="18"/>
+                                                                        <rect key="frame" x="102.66666666666667" y="76" width="134.66666666666663" height="18"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
@@ -898,7 +898,7 @@
                                                                 </constraints>
                                                             </view>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$79.99 one-time" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pcV-SU-u8Z" userLabel="Price">
-                                                                <rect key="frame" x="107" y="0.0" width="158" height="24"/>
+                                                                <rect key="frame" x="91" y="0.0" width="158" height="24"/>
                                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
@@ -928,40 +928,40 @@
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="f9E-vY-SWf" userLabel="Annual" customClass="PlanCardView" customModule="Prime_Dictation" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="202" width="382" height="225.33333333333337"/>
+                                                <rect key="frame" x="0.0" y="202" width="350" height="225.33333333333337"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Daily Plan – Annual" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PiP-0u-ixq" userLabel="Title">
-                                                        <rect key="frame" x="115.33333333333333" y="14.999999999999998" width="151.33333333333337" height="20.333333333333329"/>
+                                                        <rect key="frame" x="99.333333333333329" y="14.999999999999998" width="151.33333333333337" height="20.333333333333329"/>
                                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aUD-L0-0I4" userLabel="Info">
-                                                        <rect key="frame" x="5" y="47" width="372" height="173"/>
+                                                        <rect key="frame" x="5" y="47" width="340" height="173"/>
                                                         <subviews>
                                                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ug1-h9-iRS" userLabel="Benefit Lines">
-                                                                <rect key="frame" x="0.0" y="27" width="372" height="143"/>
+                                                                <rect key="frame" x="0.0" y="27" width="340" height="143"/>
                                                                 <subviews>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="~$8.33/month - Save 58%" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="07E-RC-K6m" userLabel="Detail 2">
-                                                                        <rect key="frame" x="95.333333333333329" y="41" width="181.33333333333337" height="18"/>
+                                                                        <rect key="frame" x="79.333333333333329" y="41" width="181.33333333333337" height="18"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Your best value for daily transcription" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rbu-0E-sRE" userLabel="Detail 3">
-                                                                        <rect key="frame" x="58.666666666666686" y="73" width="255" height="21"/>
+                                                                        <rect key="frame" x="42.666666666666657" y="73" width="254.99999999999997" height="21"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Unlimited recording" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bov-54-gg9" userLabel="Detail 4">
-                                                                        <rect key="frame" x="118.66666666666667" y="109" width="134.66666666666663" height="18"/>
+                                                                        <rect key="frame" x="102.66666666666667" y="109" width="134.66666666666663" height="18"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="60 min/day transcription" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xa7-vj-4I2" userLabel="Detail 1">
-                                                                        <rect key="frame" x="102.33333333333333" y="8" width="167.33333333333337" height="18"/>
+                                                                        <rect key="frame" x="86.333333333333329" y="8" width="167.33333333333337" height="18"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
@@ -979,7 +979,7 @@
                                                                 </constraints>
                                                             </view>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$99.99/year" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fHg-6d-PZw" userLabel="Price">
-                                                                <rect key="frame" x="127.66666666666666" y="0.0" width="117" height="24"/>
+                                                                <rect key="frame" x="111.66666666666666" y="0.0" width="117" height="24"/>
                                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
@@ -1009,40 +1009,40 @@
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rqt-eA-yUf" userLabel="Standard" customClass="PlanCardView" customModule="Prime_Dictation" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="447.33333333333331" width="382" height="225.33333333333331"/>
+                                                <rect key="frame" x="0.0" y="447.33333333333331" width="350" height="225.33333333333331"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Standard Plan" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dpm-NO-ZVa" userLabel="Title">
-                                                        <rect key="frame" x="135.33333333333334" y="14.999999999999998" width="111.66666666666666" height="20.333333333333329"/>
+                                                        <rect key="frame" x="119.33333333333334" y="14.999999999999998" width="111.66666666666666" height="20.333333333333329"/>
                                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4lH-46-Ppn" userLabel="Info">
-                                                        <rect key="frame" x="5" y="47" width="372" height="173"/>
+                                                        <rect key="frame" x="5" y="47" width="340" height="173"/>
                                                         <subviews>
                                                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="or4-Z0-zqe" userLabel="Benefit Lines">
-                                                                <rect key="frame" x="0.0" y="27" width="372" height="143"/>
+                                                                <rect key="frame" x="0.0" y="27" width="340" height="143"/>
                                                                 <subviews>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Cancel Anytime" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="N6c-a7-7Tr" userLabel="Detail 2">
-                                                                        <rect key="frame" x="132.66666666666666" y="41" width="107" height="18"/>
+                                                                        <rect key="frame" x="116.66666666666666" y="41" width="107" height="18"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Great for light use" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DzJ-1H-Ee5" userLabel="Detail 3">
-                                                                        <rect key="frame" x="124.66666666666666" y="73" width="123" height="21"/>
+                                                                        <rect key="frame" x="108.66666666666666" y="73" width="123" height="21"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Unlimited recording." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qrg-t5-6hf" userLabel="Detail 4">
-                                                                        <rect key="frame" x="116.66666666666666" y="109" width="139" height="18"/>
+                                                                        <rect key="frame" x="100.66666666666669" y="109" width="139" height="18"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="150 min/month transcription" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zbt-W5-JHf" userLabel="Detail 1">
-                                                                        <rect key="frame" x="89.666666666666671" y="8" width="192.66666666666663" height="18"/>
+                                                                        <rect key="frame" x="73.666666666666671" y="8" width="192.66666666666663" height="18"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
@@ -1060,7 +1060,7 @@
                                                                 </constraints>
                                                             </view>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$4.99/month" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QCZ-mZ-x87" userLabel="Price">
-                                                                <rect key="frame" x="124" y="0.0" width="124.33333333333331" height="24"/>
+                                                                <rect key="frame" x="108" y="0.0" width="124.33333333333331" height="24"/>
                                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
@@ -1090,40 +1090,40 @@
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5Ub-Hi-gjH" userLabel="Monthly" customClass="PlanCardView" customModule="Prime_Dictation" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="692.66666666666663" width="382" height="225.33333333333337"/>
+                                                <rect key="frame" x="0.0" y="692.66666666666663" width="350" height="225.33333333333337"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Daily Plan - Monthly" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wYu-ZH-c94" userLabel="Title">
-                                                        <rect key="frame" x="111.66666666666667" y="14.999999999999998" width="158.66666666666663" height="20.333333333333329"/>
+                                                        <rect key="frame" x="95.666666666666671" y="14.999999999999998" width="158.66666666666663" height="20.333333333333329"/>
                                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="09w-an-rXQ" userLabel="Info">
-                                                        <rect key="frame" x="5" y="47" width="372" height="173"/>
+                                                        <rect key="frame" x="5" y="47" width="340" height="173"/>
                                                         <subviews>
                                                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dsK-Vd-NC5" userLabel="Benefit Lines">
-                                                                <rect key="frame" x="0.0" y="27" width="372" height="143"/>
+                                                                <rect key="frame" x="0.0" y="27" width="340" height="143"/>
                                                                 <subviews>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Cancel Anytime" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FeU-zU-vrN" userLabel="Detail 2">
-                                                                        <rect key="frame" x="132.66666666666666" y="41" width="107" height="18"/>
+                                                                        <rect key="frame" x="116.66666666666666" y="41" width="107" height="18"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Daily power without a yearly commitment" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tzd-Wr-tub" userLabel="Detail 3">
-                                                                        <rect key="frame" x="45" y="73" width="282" height="21"/>
+                                                                        <rect key="frame" x="29" y="73" width="282" height="21"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Unlimited recording." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mx8-yV-F6w" userLabel="Detail 4">
-                                                                        <rect key="frame" x="116.66666666666666" y="109" width="139" height="18"/>
+                                                                        <rect key="frame" x="100.66666666666669" y="109" width="139" height="18"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="60 min/day transcription" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Xqg-6I-b0n" userLabel="Detail 1">
-                                                                        <rect key="frame" x="102.33333333333333" y="8" width="167.33333333333337" height="18"/>
+                                                                        <rect key="frame" x="86.333333333333329" y="8" width="167.33333333333337" height="18"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
@@ -1141,7 +1141,7 @@
                                                                 </constraints>
                                                             </view>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$19.99/month" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zNA-HP-Ai8" userLabel="Price">
-                                                                <rect key="frame" x="119.33333333333333" y="0.0" width="133.33333333333337" height="24"/>
+                                                                <rect key="frame" x="103.33333333333333" y="0.0" width="133.33333333333337" height="24"/>
                                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
@@ -1175,9 +1175,9 @@
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="Sso-x8-5Py" firstAttribute="leading" secondItem="BhT-yH-hoz" secondAttribute="leading" constant="16" id="6ae-0O-BPa"/>
-                                    <constraint firstItem="Sso-x8-5Py" firstAttribute="width" secondItem="wdM-S8-Blt" secondAttribute="width" multiplier="0.922705" id="Lnh-gn-rws"/>
                                     <constraint firstItem="BhT-yH-hoz" firstAttribute="bottom" secondItem="Sso-x8-5Py" secondAttribute="bottom" id="Pfg-9p-wS0"/>
-                                    <constraint firstItem="BhT-yH-hoz" firstAttribute="trailing" secondItem="Sso-x8-5Py" secondAttribute="trailing" constant="-16" id="cOH-JD-G3e"/>
+                                    <constraint firstItem="BhT-yH-hoz" firstAttribute="trailing" secondItem="Sso-x8-5Py" secondAttribute="trailing" constant="16" id="cOH-JD-G3e"/>
+                                    <constraint firstItem="Sso-x8-5Py" firstAttribute="centerX" secondItem="wdM-S8-Blt" secondAttribute="centerX" constant="-16" id="hOX-wl-v3v"/>
                                     <constraint firstItem="Sso-x8-5Py" firstAttribute="top" secondItem="BhT-yH-hoz" secondAttribute="top" id="np0-vL-v3M"/>
                                 </constraints>
                                 <viewLayoutGuide key="contentLayoutGuide" id="BhT-yH-hoz"/>
@@ -1258,6 +1258,8 @@
                     </view>
                     <connections>
                         <outlet property="BackButtonIcon" destination="kyG-uY-079" id="7zV-g7-Yqz"/>
+                        <outlet property="ScrollView" destination="Jm5-zJ-FRg" id="4Es-Dd-Ghg"/>
+                        <outlet property="StackView" destination="Sso-x8-5Py" id="l2A-GJ-yjj"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NlI-U2-hqW" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
