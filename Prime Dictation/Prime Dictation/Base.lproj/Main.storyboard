@@ -304,6 +304,9 @@
                                             <userDefinedRuntimeAttribute type="color" keyPath="textColor">
                                                 <color key="value" red="0.039215686270000001" green="0.40000000000000002" blue="0.76078431369999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="color">
+                                                <color key="value" red="0.039215686274509803" green="0.40000000000000002" blue="0.76078431372549016" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                         <connections>
                                             <action selector="SendButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ImA-qy-NzW"/>
@@ -514,6 +517,9 @@
                                             <userDefinedRuntimeAttribute type="color" keyPath="textColor">
                                                 <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="color">
+                                                <color key="value" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                         <connections>
                                             <action selector="EmailButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="rIe-zR-iX2"/>
@@ -553,6 +559,9 @@
                                             </userDefinedRuntimeAttribute>
                                             <userDefinedRuntimeAttribute type="color" keyPath="textColor">
                                                 <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="color">
+                                                <color key="value" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                         <connections>
@@ -594,6 +603,9 @@
                                             <userDefinedRuntimeAttribute type="color" keyPath="textColor">
                                                 <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="color">
+                                                <color key="value" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                         <connections>
                                             <action selector="DropboxButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="byn-85-OuG"/>
@@ -634,6 +646,9 @@
                                             </userDefinedRuntimeAttribute>
                                             <userDefinedRuntimeAttribute type="color" keyPath="textColor">
                                                 <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="color">
+                                                <color key="value" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                         <connections>
@@ -881,8 +896,8 @@
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
-                                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Unlimited recording" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r8I-I1-Ies" userLabel="Detail 4">
-                                                                        <rect key="frame" x="102.66666666666667" y="76" width="134.66666666666663" height="18"/>
+                                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Unlimited recording forever" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r8I-I1-Ies" userLabel="Detail 4">
+                                                                        <rect key="frame" x="76.666666666666686" y="76" width="187" height="18"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
@@ -1035,8 +1050,8 @@
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
-                                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Unlimited recording." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qrg-t5-6hf" userLabel="Detail 4">
-                                                                        <rect key="frame" x="100.66666666666669" y="109" width="139" height="18"/>
+                                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Unlimited recording" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qrg-t5-6hf" userLabel="Detail 4">
+                                                                        <rect key="frame" x="102.66666666666667" y="109" width="134.66666666666663" height="18"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
@@ -1116,8 +1131,8 @@
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
-                                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Unlimited recording." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mx8-yV-F6w" userLabel="Detail 4">
-                                                                        <rect key="frame" x="100.66666666666669" y="109" width="139" height="18"/>
+                                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Unlimited recording" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mx8-yV-F6w" userLabel="Detail 4">
+                                                                        <rect key="frame" x="102.66666666666667" y="109" width="134.66666666666663" height="18"/>
                                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
@@ -1175,10 +1190,10 @@
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="Sso-x8-5Py" firstAttribute="leading" secondItem="BhT-yH-hoz" secondAttribute="leading" constant="16" id="6ae-0O-BPa"/>
-                                    <constraint firstItem="BhT-yH-hoz" firstAttribute="bottom" secondItem="Sso-x8-5Py" secondAttribute="bottom" id="Pfg-9p-wS0"/>
+                                    <constraint firstItem="BhT-yH-hoz" firstAttribute="bottom" secondItem="Sso-x8-5Py" secondAttribute="bottom" constant="10" id="Pfg-9p-wS0"/>
                                     <constraint firstItem="BhT-yH-hoz" firstAttribute="trailing" secondItem="Sso-x8-5Py" secondAttribute="trailing" constant="16" id="cOH-JD-G3e"/>
                                     <constraint firstItem="Sso-x8-5Py" firstAttribute="centerX" secondItem="wdM-S8-Blt" secondAttribute="centerX" constant="-16" id="hOX-wl-v3v"/>
-                                    <constraint firstItem="Sso-x8-5Py" firstAttribute="top" secondItem="BhT-yH-hoz" secondAttribute="top" id="np0-vL-v3M"/>
+                                    <constraint firstItem="Sso-x8-5Py" firstAttribute="top" secondItem="BhT-yH-hoz" secondAttribute="top" constant="10" id="np0-vL-v3M"/>
                                 </constraints>
                                 <viewLayoutGuide key="contentLayoutGuide" id="BhT-yH-hoz"/>
                                 <viewLayoutGuide key="frameLayoutGuide" id="wdM-S8-Blt"/>
@@ -1206,7 +1221,7 @@
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="30"/>
                                 <color key="tintColor" systemColor="tintColor"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                <state key="normal" title="Continue - $4.99">
+                                <state key="normal" title="Continue">
                                     <color key="titleColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="calibratedRGB"/>
                                 </state>
                                 <userDefinedRuntimeAttributes>
@@ -1214,13 +1229,13 @@
                                         <real key="value" value="10"/>
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="color" keyPath="textColor">
-                                        <color key="value" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="value" red="0.0" green="0.47843137254901957" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
-                                        <color key="value" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="value" red="0.0" green="0.47843137254901957" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
-                                        <real key="value" value="2"/>
+                                        <real key="value" value="0.0"/>
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="number" keyPath="paddingTop">
                                         <real key="value" value="5"/>
@@ -1234,7 +1249,14 @@
                                     <userDefinedRuntimeAttribute type="number" keyPath="paddingRight">
                                         <real key="value" value="10"/>
                                     </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="filledStyle" value="YES"/>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="color">
+                                        <color key="value" systemColor="systemBlueColor"/>
+                                    </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="continueButtonTapped:" destination="mlS-rq-HyH" eventType="touchUpInside" id="4F9-mR-1zT"/>
+                                </connections>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Fp-k0-5wk"/>
@@ -1257,9 +1279,14 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="AnnualView" destination="f9E-vY-SWf" id="lLn-MH-fJQ"/>
                         <outlet property="BackButtonIcon" destination="kyG-uY-079" id="7zV-g7-Yqz"/>
+                        <outlet property="ContinueButton" destination="cCu-7I-yJE" id="tkp-dd-n2d"/>
+                        <outlet property="LTDView" destination="Ozw-hj-7It" id="jcq-Hl-CWU"/>
+                        <outlet property="MonthlyView" destination="5Ub-Hi-gjH" id="1nt-Ny-pBg"/>
                         <outlet property="ScrollView" destination="Jm5-zJ-FRg" id="4Es-Dd-Ghg"/>
                         <outlet property="StackView" destination="Sso-x8-5Py" id="l2A-GJ-yjj"/>
+                        <outlet property="StandardView" destination="rqt-eA-yUf" id="Gfc-wL-Zs3"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NlI-U2-hqW" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1288,6 +1315,9 @@
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemBlueColor">
+            <color red="0.0" green="0.53333333333333333" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="tintColor">
             <color red="0.0" green="0.53333333333333333" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

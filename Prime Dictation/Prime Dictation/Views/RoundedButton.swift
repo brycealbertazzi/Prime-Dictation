@@ -3,6 +3,8 @@ import UIKit
 @IBDesignable
 class RoundedButton: UIButton {
 
+    // MARK: - Inspectables
+
     @IBInspectable var cornerRadius: CGFloat = 8 {
         didSet { updateAppearance() }
     }
@@ -11,105 +13,107 @@ class RoundedButton: UIButton {
         didSet { updateAppearance() }
     }
 
-    @IBInspectable var borderColor: UIColor = .systemBlue {
-        didSet { updateAppearance() }
-    }
-    
-    @IBInspectable var textColor: UIColor = .systemBlue {
+    /// Main accent color for border + text when enabled
+    @IBInspectable var color: UIColor = .systemBlue {
         didSet { updateAppearance() }
     }
 
-    @IBInspectable var paddingTop: CGFloat = 6 {
+    /// When true, button uses a filled style (solid background) when enabled.
+    /// When false, it uses the outline / transparent style.
+    @IBInspectable var filledStyle: Bool = false {
         didSet { updateAppearance() }
     }
-    @IBInspectable var paddingLeft: CGFloat = 12 {
-        didSet { updateAppearance() }
-    }
-    @IBInspectable var paddingBottom: CGFloat = 6 {
-        didSet { updateAppearance() }
-    }
-    @IBInspectable var paddingRight: CGFloat = 12 {
-        didSet { updateAppearance() }
-    }
+
+    // MARK: - State
 
     override var isHighlighted: Bool {
         didSet { updateHighlightState() }
     }
 
     override var isEnabled: Bool {
-        didSet { updateEnabledState() }
+        didSet { updateAppearance() }
     }
+
+    // MARK: - Lifecycle
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        // always behave like an old-school UIButton
-        self.configuration = nil
-        // also clear any attributed title IB may have snuck in
-        super.setAttributedTitle(nil, for: .normal)
+        // Always behave like a classic UIButton (no UIButton.Configuration)
+        configuration = nil
+        setAttributedTitle(nil, for: .normal)
         updateAppearance()
     }
 
     override func layoutSubviews() {
-        // kill config every layout so IB / system can’t reapply it
-        self.configuration = nil
+        // Prevent configs from being reapplied
+        configuration = nil
         super.layoutSubviews()
         updateAppearance()
     }
 
-    // 👇 this is the important part
+    // Ensure title updates cleanly
     override func setTitle(_ title: String?, for state: UIControl.State) {
-        // 1) no configs
-        self.configuration = nil
-        // 2) no attributed title
-        super.setAttributedTitle(nil, for: state)
-        // 3) normal UIButton behavior
+        configuration = nil
+        setAttributedTitle(nil, for: state)
         super.setTitle(title, for: state)
-        // 4) force the actual label to match (bypasses UIButton cleverness)
-        self.titleLabel?.text = title
-        // 5) relayout
+        titleLabel?.text = title
         setNeedsLayout()
         layoutIfNeeded()
     }
 
+    // MARK: - Appearance helpers
+
+    /// Sets title colors for all control states based on whether the
+    /// visual style is filled or outline.
+    private func setButtonTextColor(filled: Bool) {
+        let normalColor: UIColor = filled ? .white : color
+
+        setTitleColor(normalColor, for: .normal)
+        setTitleColor(normalColor, for: .highlighted)
+        setTitleColor(normalColor, for: .selected)
+
+        // Slightly faded text for disabled
+        let disabledColor = normalColor.withAlphaComponent(0.4)
+        setTitleColor(disabledColor, for: .disabled)
+    }
+
     private func updateAppearance() {
-        // outline
         layer.cornerRadius = cornerRadius
         layer.borderWidth = borderWidth
         layer.masksToBounds = true
 
-        // border respects enabled
+        let accent = color
+
         if isEnabled {
-            layer.borderColor = borderColor.cgColor
+            // Enabled border
+            layer.borderColor = accent.cgColor
+
+            if filledStyle {
+                // Filled style when enabled
+                backgroundColor = accent
+                setButtonTextColor(filled: true)
+            } else {
+                // Outline style when enabled
+                backgroundColor = .clear
+                setButtonTextColor(filled: false)
+            }
         } else {
-            layer.borderColor = borderColor.withAlphaComponent(0.4).cgColor
+            layer.borderColor = accent.withAlphaComponent(0.3).cgColor
+            titleLabel?.alpha = 0.6
+            if filledStyle {
+                backgroundColor = accent.withAlphaComponent(0.3)
+            }
         }
 
-        // text colors
-        setTitleColor(textColor, for: .normal)
-        setTitleColor(textColor, for: .highlighted)
-        setTitleColor(textColor, for: .selected)
-        setTitleColor(textColor.withAlphaComponent(0.4), for: .disabled)
-
-        // background
-        if !isHighlighted {
-            backgroundColor = .clear
-        }
-
-        titleLabel?.alpha = 1.0
         alpha = 1.0
     }
 
     private func updateHighlightState() {
+        // Simple pressed effect; works for both styles
         if isHighlighted {
-            backgroundColor = textColor.withAlphaComponent(0.2)
-            titleLabel?.alpha = 1.0
+            alpha = 0.8
         } else {
-            backgroundColor = .clear
-            titleLabel?.alpha = 1.0
+            alpha = 1.0
         }
-    }
-
-    private func updateEnabledState() {
-        updateAppearance()
     }
 }

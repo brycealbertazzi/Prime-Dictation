@@ -174,8 +174,7 @@ class SettingsViewController: UIViewController {
     }
     
     func UpdateButton(button: RoundedButton, color: UIColor) {
-        button.textColor = color
-        button.borderColor = color
+        button.color = color
     }
     
     func UpdateSelectedDestinationUI(destination: Destination? = Destination.none) {

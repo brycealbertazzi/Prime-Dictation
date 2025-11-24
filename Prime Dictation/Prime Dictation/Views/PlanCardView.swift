@@ -1,8 +1,16 @@
 import UIKit
+import StoreKit
 
 @IBDesignable
 final class PlanCardView: UIControl {
 
+    var product: StoreKitManager.ProductID! {
+        didSet {
+            productId = product.rawValue
+        }
+    }
+    private(set) var productId: String!
+    
     // MARK: - Init / Layout
 
     override func awakeFromNib() {
@@ -21,7 +29,7 @@ final class PlanCardView: UIControl {
 
         baseView.layer.cornerRadius = 16
         baseView.layer.masksToBounds = true
-        baseView.layer.borderWidth = 1
+        baseView.layer.borderWidth = 5
 
         // Neutral default; will be overridden in updateSelectionAppearance()
         baseView.layer.borderColor = UIColor.separator.cgColor
@@ -59,23 +67,52 @@ final class PlanCardView: UIControl {
     }
 
     private func updateSelectionAppearance() {
-        let baseView = self
         let selected = isSelected
 
-        // Border + background
-        if selected {
-            baseView.layer.borderColor = tintColor.cgColor
-            baseView.backgroundColor = tintColor.withAlphaComponent(0.08)
-        } else {
-            baseView.layer.borderColor = UIColor.separator.cgColor
-            baseView.backgroundColor = UIColor.secondarySystemBackground
-        }
+        // Animate between states so it feels responsive & premium
+        UIView.animate(withDuration: 0.18,
+                       delay: 0,
+                       usingSpringWithDamping: 0.9,
+                       initialSpringVelocity: 0.2,
+                       options: [.beginFromCurrentState, .allowUserInteraction],
+                       animations: { [weak self] in
+            guard let self = self else { return }
+            let baseView = self
 
-        // Subtle press effect
-        if isHighlighted {
-            baseView.alpha = 0.8
-        } else {
-            baseView.alpha = 1.0
-        }
+            if selected {
+                // Stronger border
+                baseView.layer.borderWidth = 2
+                baseView.layer.borderColor = UIColor.tintColor.cgColor
+
+                // Brighter background
+                baseView.backgroundColor = .systemBackground
+
+                // Soft shadow to lift the card
+                baseView.layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
+                baseView.layer.shadowOpacity = 1
+                baseView.layer.shadowOffset = CGSize(width: 0, height: 4)
+                baseView.layer.shadowRadius = 10
+                baseView.layer.masksToBounds = false
+
+                // Slight “picked” pop
+                baseView.transform = CGAffineTransform(scaleX: 1.02, y: 1.02)
+            } else {
+                baseView.layer.borderWidth = 1
+                baseView.layer.borderColor = UIColor.separator.cgColor
+
+                baseView.backgroundColor = .secondarySystemBackground
+
+                baseView.layer.shadowOpacity = 0
+                baseView.layer.shadowRadius = 0
+                baseView.layer.shadowOffset = .zero
+                baseView.layer.masksToBounds = true  // back to clipped
+
+                baseView.transform = .identity
+            }
+
+            // If you have labels, you can also tweak their colors here, e.g.:
+            // self.titleLabel.textColor = selected ? UIColor.label : UIColor.secondaryLabel
+        }, completion: nil)
     }
+
 }
