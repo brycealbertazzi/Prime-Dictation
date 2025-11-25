@@ -7,6 +7,7 @@ final class PlanCardView: UIControl {
     var product: StoreKitManager.ProductID! {
         didSet {
             productId = product.rawValue
+            updateSelectionAppearance()
         }
     }
     private(set) var productId: String!
@@ -29,12 +30,8 @@ final class PlanCardView: UIControl {
 
         baseView.layer.cornerRadius = 16
         baseView.layer.borderWidth = 1
-
-        // Neutral default; will be overridden in updateSelectionAppearance()
         baseView.layer.borderColor = UIColor.separator.cgColor
-        baseView.backgroundColor = UIColor.secondarySystemBackground
-
-        updateSelectionAppearance()
+        baseView.backgroundColor = .secondarySystemBackground
     }
 
     private func setupTap() {
@@ -64,7 +61,7 @@ final class PlanCardView: UIControl {
             updateSelectionAppearance()
         }
     }
-
+    
     private func updateSelectionAppearance() {
         let selected = isSelected
 
@@ -81,6 +78,7 @@ final class PlanCardView: UIControl {
             if selected {
                 // Stronger border
                 baseView.layer.borderWidth = 3
+                
                 baseView.layer.borderColor = UIColor.tintColor.cgColor
 
                 // Brighter background
@@ -96,8 +94,17 @@ final class PlanCardView: UIControl {
                 baseView.transform = CGAffineTransform(scaleX: 1.02, y: 1.02)
             } else {
                 baseView.layer.borderWidth = 1
-                baseView.layer.borderColor = UIColor.separator.cgColor
-
+                
+                if (product == .lifetimeDeal) {
+                    baseView.layer.borderWidth = 2
+                    baseView.layer.borderColor = PDColors.badgeGold.cgColor
+                } else if (product == .dailyAnnual) {
+                    baseView.layer.borderWidth = 2
+                    baseView.layer.borderColor = PDColors.badgePurple.cgColor
+                } else {
+                    baseView.layer.borderColor = UIColor.separator.cgColor
+                }
+                
                 baseView.backgroundColor = .secondarySystemBackground
 
                 baseView.layer.shadowOpacity = 0

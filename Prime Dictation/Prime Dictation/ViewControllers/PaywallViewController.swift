@@ -22,6 +22,11 @@ class PaywallViewController: UIViewController {
     @IBOutlet weak var StandardView: PlanCardView!
     @IBOutlet weak var MonthlyView: PlanCardView!
     
+    @IBOutlet weak var ltdContainerView: UIView!      // outer wrapper for LTD card + badge
+    @IBOutlet weak var ltdBadgeLabel: BadgeLabel!
+    @IBOutlet weak var annualContainerView: UIView!   // outer wrapper for Annual card + badge
+    @IBOutlet weak var annualBadgeLabel: BadgeLabel!
+    
     // MARK: - Model
 
     enum Plan: String {
@@ -64,6 +69,14 @@ class PaywallViewController: UIViewController {
 
         configureCards()
         updateContinueButtonState()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        // Make sure badges are always above their cards
+        ltdContainerView.bringSubviewToFront(ltdBadgeLabel)
+        annualContainerView.bringSubviewToFront(annualBadgeLabel)
     }
 
     // MARK: - Setup

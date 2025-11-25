@@ -1357,6 +1357,10 @@
                         <outlet property="ScrollView" destination="Jm5-zJ-FRg" id="4Es-Dd-Ghg"/>
                         <outlet property="StackView" destination="Sso-x8-5Py" id="l2A-GJ-yjj"/>
                         <outlet property="StandardView" destination="rqt-eA-yUf" id="Gfc-wL-Zs3"/>
+                        <outlet property="annualBadgeLabel" destination="4La-Ls-TcN" id="MNH-mn-pT1"/>
+                        <outlet property="annualContainerView" destination="3bM-ei-gjn" id="a7u-mO-YaG"/>
+                        <outlet property="ltdBadgeLabel" destination="z5p-w0-mPR" id="srG-lQ-WL4"/>
+                        <outlet property="ltdContainerView" destination="KA7-68-mkv" id="XqX-Ri-k3p"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NlI-U2-hqW" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
