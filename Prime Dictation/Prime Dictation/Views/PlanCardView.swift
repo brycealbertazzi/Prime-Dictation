@@ -28,8 +28,7 @@ final class PlanCardView: UIControl {
         let baseView = self
 
         baseView.layer.cornerRadius = 16
-        baseView.layer.masksToBounds = true
-        baseView.layer.borderWidth = 5
+        baseView.layer.borderWidth = 1
 
         // Neutral default; will be overridden in updateSelectionAppearance()
         baseView.layer.borderColor = UIColor.separator.cgColor
@@ -81,7 +80,7 @@ final class PlanCardView: UIControl {
 
             if selected {
                 // Stronger border
-                baseView.layer.borderWidth = 2
+                baseView.layer.borderWidth = 3
                 baseView.layer.borderColor = UIColor.tintColor.cgColor
 
                 // Brighter background
@@ -92,7 +91,6 @@ final class PlanCardView: UIControl {
                 baseView.layer.shadowOpacity = 1
                 baseView.layer.shadowOffset = CGSize(width: 0, height: 4)
                 baseView.layer.shadowRadius = 10
-                baseView.layer.masksToBounds = false
 
                 // Slight “picked” pop
                 baseView.transform = CGAffineTransform(scaleX: 1.02, y: 1.02)
@@ -105,7 +103,6 @@ final class PlanCardView: UIControl {
                 baseView.layer.shadowOpacity = 0
                 baseView.layer.shadowRadius = 0
                 baseView.layer.shadowOffset = .zero
-                baseView.layer.masksToBounds = true  // back to clipped
 
                 baseView.transform = .identity
             }
