@@ -1,12 +1,32 @@
 import UIKit
 
-struct PDColors {
-    static let orange = UIColor(red: 0.73,  green: 0.29,  blue: 0.00,  alpha: 1.0) // #BA4A00
-    static let blue   = UIColor(red: 0.04,  green: 0.40,  blue: 0.76,  alpha: 1.0) // #0A66C2
-    static let red    = UIColor(red: 0.690, green: 0.227, blue: 0.180, alpha: 1.0) // #B03A2E
-    static let purple = UIColor(red: 0.56,  green: 0.27,  blue: 0.68,  alpha: 1.0) // #8E44AD
-    static let badgePurple = UIColor(red: 0.823, green: 0.757, blue: 0.969, alpha: 1.0) // #D2C1F7
-    static let badgeGold = UIColor(red: 0xF6/255.0, green: 0xC7/255.0, blue: 0x45/255.0, alpha: 1.0) // #F6C745
-    static let black  = UIColor(red: 0.173, green: 0.173, blue: 0.180, alpha: 1.0) // Charcoal
-    static let gray = UIColor(red: 0.50, green: 0.55, blue: 0.55, alpha: 1.0) // #7F8C8D
+// MARK: - Hex Convenience
+
+extension UIColor {
+    /// Create a UIColor from a hex integer, e.g. 0xBA4A00
+    convenience init(hex: Int, alpha: CGFloat = 1.0) {
+        let red   = CGFloat((hex >> 16) & 0xFF) / 255.0
+        let green = CGFloat((hex >> 8)  & 0xFF) / 255.0
+        let blue  = CGFloat( hex        & 0xFF) / 255.0
+
+        self.init(red: red, green: green, blue: blue, alpha: alpha)
+    }
 }
+
+// MARK: - App Colors
+
+struct PDColors {
+    static let orange = UIColor(hex: 0xBA4A00)
+    static let blue = UIColor(hex: 0x0A66C2)
+    static let red = UIColor(hex: 0xB03A2E)
+    static let purple = UIColor(hex: 0x8E44AD)
+
+    static let badgePurple = UIColor(hex: 0xD2C1F7)
+    static let badgePurpleBorder = UIColor(hex: 0xBBA7F4)
+    static let badgeGold = UIColor(hex: 0xF6C745)
+    static let badgeGoldBorder = UIColor(hex: 0xE8C24A)
+
+    static let black = UIColor(hex: 0x2C2C2E) // Charcoal-ish
+    static let gray = UIColor(hex: 0x7F8C8D)
+}
+

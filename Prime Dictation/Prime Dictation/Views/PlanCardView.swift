@@ -7,7 +7,7 @@ final class PlanCardView: UIControl {
     var product: StoreKitManager.ProductID! {
         didSet {
             productId = product.rawValue
-            updateSelectionAppearance()
+            updateSelectionAppearance()   // ensure correct border on first layout
         }
     }
     private(set) var productId: String!
@@ -35,15 +35,12 @@ final class PlanCardView: UIControl {
     }
 
     private func setupTap() {
-        // Because this is a UIControl, we can just use touchUpInside,
-        // but a tap recognizer helps when embedded in stack views.
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         addGestureRecognizer(tap)
         isUserInteractionEnabled = true
     }
 
     @objc private func handleTap() {
-        // Toggle selected state; your view controller can enforce single-selection
         isSelected = true
         sendActions(for: .primaryActionTriggered)
     }
@@ -65,7 +62,6 @@ final class PlanCardView: UIControl {
     private func updateSelectionAppearance() {
         let selected = isSelected
 
-        // Animate between states so it feels responsive & premium
         UIView.animate(withDuration: 0.18,
                        delay: 0,
                        usingSpringWithDamping: 0.9,
@@ -76,12 +72,11 @@ final class PlanCardView: UIControl {
             let baseView = self
 
             if selected {
-                // Stronger border
+                // SELECTED STATE
                 baseView.layer.borderWidth = 3
-                
+
                 baseView.layer.borderColor = UIColor.tintColor.cgColor
 
-                // Brighter background
                 baseView.backgroundColor = .systemBackground
 
                 // Soft shadow to lift the card
@@ -92,19 +87,21 @@ final class PlanCardView: UIControl {
 
                 // Slight “picked” pop
                 baseView.transform = CGAffineTransform(scaleX: 1.02, y: 1.02)
+
             } else {
+                // UNSELECTED STATE
                 baseView.layer.borderWidth = 1
-                
-                if (product == .lifetimeDeal) {
+
+                if self.product == .lifetimeDeal {
                     baseView.layer.borderWidth = 2
-                    baseView.layer.borderColor = PDColors.badgeGold.cgColor
-                } else if (product == .dailyAnnual) {
+                    baseView.layer.borderColor = PDColors.badgeGoldBorder.cgColor
+                } else if self.product == .dailyAnnual {
                     baseView.layer.borderWidth = 2
-                    baseView.layer.borderColor = PDColors.badgePurple.cgColor
+                    baseView.layer.borderColor = PDColors.badgePurpleBorder.cgColor
                 } else {
                     baseView.layer.borderColor = UIColor.separator.cgColor
                 }
-                
+
                 baseView.backgroundColor = .secondarySystemBackground
 
                 baseView.layer.shadowOpacity = 0
@@ -113,10 +110,6 @@ final class PlanCardView: UIControl {
 
                 baseView.transform = .identity
             }
-
-            // If you have labels, you can also tweak their colors here, e.g.:
-            // self.titleLabel.textColor = selected ? UIColor.label : UIColor.secondaryLabel
         }, completion: nil)
     }
-
 }

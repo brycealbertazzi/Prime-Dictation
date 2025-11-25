@@ -37,13 +37,9 @@ class PaywallViewController: UIViewController {
     }
     
     private var allCards: [PlanCardView] { [LTDView, AnnualView, StandardView, MonthlyView] }
-    private(set) var selectedProduct: StoreKitManager.ProductID?
 
     private var cardToPlan: [PlanCardView: Plan] = [:]
-    private var selectedPlan: Plan? {
-        didSet { updateContinueButtonState() }
-    }
-
+    private var selectedPlan: Plan?
     private weak var selectedCard: PlanCardView? {
         didSet {
             oldValue?.isSelected = false
@@ -66,9 +62,12 @@ class PaywallViewController: UIViewController {
                 equalTo: ScrollView.frameLayoutGuide.widthAnchor
             )
         ])
-
+        
         configureCards()
-        updateContinueButtonState()
+        // Preset to Annual if the user does not have a product
+        if (selectedPlan == nil) {
+            cardTapped(AnnualView)
+        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -105,14 +104,11 @@ class PaywallViewController: UIViewController {
     // MARK: - Actions
 
     @objc private func cardTapped(_ sender: PlanCardView) {
-        // 1) Update which card is selected
         selectedCard = sender
         selectedPlan = cardToPlan[sender]
-        
-        // 2) Make sure we have a plan
+
         guard let plan = selectedPlan else { return }
-        
-        // 3) Pick a button title based on the plan
+
         let buttonTitle: String
         switch plan {
         case .dailyAnnual:
@@ -125,10 +121,9 @@ class PaywallViewController: UIViewController {
             buttonTitle = "Continue - $79.99"
         }
         
-        // 4) Apply it to the button
+        setBadgeColors(plan: plan)
         ContinueButton.setTitle(buttonTitle, for: .normal)
         
-        // Optional: haptic
         Haptic.tap(intensity: 0.7)
     }
 
@@ -153,12 +148,25 @@ class PaywallViewController: UIViewController {
 
     // MARK: - Helpers
 
-    private func updateContinueButtonState() {
-        let enabled = (selectedPlan != nil)
-        ContinueButton.isEnabled = enabled
-        ContinueButton.alpha = enabled ? 1.0 : 0.6
+    private func setBadgeColors(plan: Plan) {
+        if plan == .dailyAnnual {
+            annualBadgeLabel.backgroundColor = .systemBlue
+            annualBadgeLabel.textColor = UIColor.systemBackground
+            ltdBadgeLabel.backgroundColor = PDColors.badgeGoldBorder
+            ltdBadgeLabel.textColor = UIColor.black
+        } else if plan == .lifetime {
+            ltdBadgeLabel.backgroundColor = .systemBlue
+            ltdBadgeLabel.textColor = UIColor.systemBackground
+            annualBadgeLabel.backgroundColor = PDColors.badgePurpleBorder
+            annualBadgeLabel.textColor = UIColor.black
+        } else {
+            annualBadgeLabel.backgroundColor = PDColors.badgePurpleBorder
+            annualBadgeLabel.textColor = UIColor.black
+            ltdBadgeLabel.backgroundColor = PDColors.badgeGoldBorder
+            ltdBadgeLabel.textColor = UIColor.black
+        }
     }
-
+    
     private func startPurchase(for productId: String) {
         // Hook up StoreKit flow here
         print("Selected productId: \(productId)")
