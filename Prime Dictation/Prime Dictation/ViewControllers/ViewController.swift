@@ -50,6 +50,15 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     var watch: Stopwatch!
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .darkContent
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setNeedsStatusBarAppearanceUpdate()
+    }
+    
     //MARK: View did load
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -758,6 +767,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
 
     @IBAction func DestinationButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
         showDestinationScreen()
     }
     

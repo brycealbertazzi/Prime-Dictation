@@ -30,6 +30,15 @@ class SettingsViewController: UIViewController {
     private let desiredArrowTop: CGFloat = 20
     private let desiredTitleTop: CGFloat = 85
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .darkContent
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setNeedsStatusBarAppearanceUpdate()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
