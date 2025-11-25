@@ -867,13 +867,35 @@
                                 <rect key="frame" x="0.0" y="20" width="414" height="648"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="Sso-x8-5Py">
-                                        <rect key="frame" x="16" y="0.0" width="350" height="890.66666666666663"/>
+                                        <rect key="frame" x="16" y="0.0" width="350" height="915.66666666666663"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KA7-68-mkv" userLabel="LTD Container">
                                                 <rect key="frame" x="0.0" y="0.0" width="350" height="180"/>
                                                 <subviews>
+                                                    <label userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LIMITED TIME" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="z5p-w0-mPR" userLabel="Badge" customClass="BadgeLabel" customModule="Prime_Dictation" customModuleProvider="target">
+                                                        <rect key="frame" x="104.33333333333331" y="-10" width="81.666666666666686" height="20"/>
+                                                        <color key="backgroundColor" red="0.96470588235294119" green="0.7803921568627451" blue="0.27058823529411763" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="20" id="yym-5f-rWk"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="12"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                        <userDefinedRuntimeAttributes>
+                                                            <userDefinedRuntimeAttribute type="boolean" keyPath="pillMode" value="YES"/>
+                                                            <userDefinedRuntimeAttribute type="number" keyPath="horizontalPadding">
+                                                                <real key="value" value="10"/>
+                                                            </userDefinedRuntimeAttribute>
+                                                            <userDefinedRuntimeAttribute type="number" keyPath="verticalPadding">
+                                                                <real key="value" value="5"/>
+                                                            </userDefinedRuntimeAttribute>
+                                                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                                                <real key="value" value="12"/>
+                                                            </userDefinedRuntimeAttribute>
+                                                        </userDefinedRuntimeAttributes>
+                                                    </label>
                                                     <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ozw-hj-7It" userLabel="LTD" customClass="PlanCardView" customModule="Prime_Dictation" customModuleProvider="target">
-                                                        <rect key="frame" x="0.0" y="-27" width="350" height="182"/>
+                                                        <rect key="frame" x="0.0" y="-2" width="350" height="182"/>
                                                         <subviews>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Limited-Time Lifetime Deal" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GNK-uO-Rkg" userLabel="Title">
                                                                 <rect key="frame" x="68.333333333333329" y="14.999999999999998" width="213.33333333333337" height="20.333333333333329"/>
@@ -944,28 +966,6 @@
                                                             <constraint firstItem="GNK-uO-Rkg" firstAttribute="centerX" secondItem="Ozw-hj-7It" secondAttribute="centerX" id="roS-5E-9iL"/>
                                                         </constraints>
                                                     </view>
-                                                    <label userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LIMITED TIME" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="z5p-w0-mPR" userLabel="Badge" customClass="BadgeLabel" customModule="Prime_Dictation" customModuleProvider="target">
-                                                        <rect key="frame" x="104.33333333333331" y="-10" width="81.666666666666686" height="20"/>
-                                                        <color key="backgroundColor" red="0.96470588235294119" green="0.7803921568627451" blue="0.27058823529411763" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        <constraints>
-                                                            <constraint firstAttribute="height" constant="20" id="yym-5f-rWk"/>
-                                                        </constraints>
-                                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="12"/>
-                                                        <nil key="textColor"/>
-                                                        <nil key="highlightedColor"/>
-                                                        <userDefinedRuntimeAttributes>
-                                                            <userDefinedRuntimeAttribute type="boolean" keyPath="pillMode" value="YES"/>
-                                                            <userDefinedRuntimeAttribute type="number" keyPath="horizontalPadding">
-                                                                <real key="value" value="10"/>
-                                                            </userDefinedRuntimeAttribute>
-                                                            <userDefinedRuntimeAttribute type="number" keyPath="verticalPadding">
-                                                                <real key="value" value="5"/>
-                                                            </userDefinedRuntimeAttribute>
-                                                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                                                <real key="value" value="12"/>
-                                                            </userDefinedRuntimeAttribute>
-                                                        </userDefinedRuntimeAttributes>
-                                                    </label>
                                                 </subviews>
                                                 <constraints>
                                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="180" id="8is-zS-igZ"/>
@@ -978,7 +978,7 @@
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3bM-ei-gjn" userLabel="Annual Container">
-                                                <rect key="frame" x="0.0" y="200" width="350" height="200"/>
+                                                <rect key="frame" x="0.0" y="200" width="350" height="225"/>
                                                 <subviews>
                                                     <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="f9E-vY-SWf" userLabel="Annual" customClass="PlanCardView" customModule="Prime_Dictation" customModuleProvider="target">
                                                         <rect key="frame" x="0.0" y="0.0" width="350" height="225.33333333333337"/>
@@ -1094,7 +1094,7 @@
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rqt-eA-yUf" userLabel="Standard" customClass="PlanCardView" customModule="Prime_Dictation" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="419.99999999999994" width="350" height="225.33333333333331"/>
+                                                <rect key="frame" x="0.0" y="444.99999999999994" width="350" height="225.33333333333331"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Standard Plan" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dpm-NO-ZVa" userLabel="Title">
                                                         <rect key="frame" x="119.33333333333334" y="14.999999999999998" width="111.66666666666666" height="20.333333333333329"/>
@@ -1175,7 +1175,7 @@
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5Ub-Hi-gjH" userLabel="Monthly" customClass="PlanCardView" customModule="Prime_Dictation" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="665.33333333333337" width="350" height="225.33333333333337"/>
+                                                <rect key="frame" x="0.0" y="690.33333333333337" width="350" height="225.33333333333337"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Daily Plan - Monthly" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wYu-ZH-c94" userLabel="Title">
                                                         <rect key="frame" x="95.666666666666671" y="14.999999999999998" width="158.66666666666663" height="20.333333333333329"/>
