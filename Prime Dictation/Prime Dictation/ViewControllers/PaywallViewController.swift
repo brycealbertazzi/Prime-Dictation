@@ -255,17 +255,6 @@ class PaywallViewController: UIViewController {
         }
     }
     
-    private func dismissToRoot(animated: Bool = true) {
-        // Dismiss all view controllers that were presented modally
-        // above the root view controller.
-        if let root = view.window?.rootViewController {
-            root.dismiss(animated: animated)
-        } else {
-            // Fallback: just dismiss self if we can't find the root
-            dismiss(animated: animated)
-        }
-    }
-    
     private func startPurchase(for productId: StoreKitManager.ProductID) async {
         do {
             let manager = StoreKitManager.shared
@@ -278,11 +267,14 @@ class PaywallViewController: UIViewController {
             )
             
             if (productId == .lifetimeDeal) {
-                openSubscriptionsAlert(title: "Subscriptions Notice", message: "If you had an active subscription, make sure to cancel it so you will not be billed again.", handler: {self.openManageSubscriptions()})
+                openSubscriptionsAlert(
+                    title: "Subscriptions Notice",
+                    message: "If you had an active subscription, make sure to cancel it so you will not be billed again.",
+                    handler: {self.openManageSubscriptions(dismissOnReturn: true)}
+                )
+            } else {
+                dismiss(animated: true)
             }
-            
-            dismissToRoot()
-
         } catch let error as StoreKitManager.PurchaseError {
             switch error {
             case .userCancelled:
@@ -360,21 +352,23 @@ class PaywallViewController: UIViewController {
     
     func openSubscriptionsAlert(title: String, message: String, handler: (@MainActor () -> Void)? = nil) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Not Now", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Not Now", style: .cancel, handler: {_ in
+            self.dismiss(animated: true)
+        }))
         alert.addAction(UIAlertAction(title: "Subscriptions", style: .default, handler: {_ in
             handler?()
         }))
         present(alert, animated: true, completion: nil)
     }
     
-    func openManageSubscriptions() {
+    func openManageSubscriptions(dismissOnReturn: Bool = true) {
         guard let windowScene = UIApplication.shared.connectedScenes
             .compactMap({ $0 as? UIWindowScene })
             .first(where: { $0.activationState == .foregroundActive }) else {
             return
         }
 
-        Task {
+        Task { [weak self] in
             do {
                 try await AppStore.showManageSubscriptions(
                     in: windowScene,
@@ -384,6 +378,13 @@ class PaywallViewController: UIViewController {
                 // Fallback to the web if native sheet fails
                 if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
                     await UIApplication.shared.open(url)
+                }
+            }
+
+            // This runs AFTER the native manage-subscriptions sheet is closed
+            if dismissOnReturn {
+                await MainActor.run {
+                    self?.dismiss(animated: true)
                 }
             }
         }

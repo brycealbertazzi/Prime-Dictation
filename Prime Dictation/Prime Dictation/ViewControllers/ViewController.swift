@@ -156,6 +156,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             // Make sure StoreKit is ready and entitlements are refreshed
             await manager.configure()
             manager.applyEntitlements(to: subscriptionManager)
+            print("Current Plan: \(manager.currentPlan.debugDescription)")
 
             if subscriptionManager.isSubscribed {
                 // User has *any* purchase => mark trial as "used"
@@ -646,6 +647,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     private var pendingTranscriptionDuration: TimeInterval?
     @IBAction func TranscribeButton(_ sender: Any) {
+        print("Transcribe Button current plan: \(StoreKitManager.shared.currentPlan.debugDescription)")
+        print("Transcribe current usage: \(subscriptionManager.usage)")
         let access = subscriptionManager.accessLevel
 
         if access == .subscription_expired {
@@ -718,17 +721,17 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 if currentPlan == .standardMonthly {
                     let currentMonthlyUsage = subscriptionManager.usage.monthlySecondsUsed
                     let newMonthlyUsage = currentMonthlyUsage + seconds
-                    let softWarningThreshold = SubscriptionManager.MONTHLY_LIMIT * 0.7
-                    let hardWarningThreshold = SubscriptionManager.MONTHLY_LIMIT * 0.9
+                    let softWarningThreshold = SubscriptionManager.MONTHLY_LIMIT * 0.5
+                    let hardWarningThreshold = SubscriptionManager.MONTHLY_LIMIT * 0.75
 
                     print("soft: \(softWarningThreshold), hard: \(hardWarningThreshold)")
                     print("current usage: \(currentMonthlyUsage), new usage: \(newMonthlyUsage)")
 
-                    // Crossing 90% threshold
+                    // Crossing 75% threshold
                     if currentMonthlyUsage < hardWarningThreshold && newMonthlyUsage >= hardWarningThreshold {
                         self.monthlyLimitDisplayAlert(
-                            title: "Almost out of monthly minutes",
-                            message: "You’ve used over 90% of your monthly transcription time. For more minutes and faster resets, upgrade to a daily plan before you run out.",
+                            title: "Running low on minutes",
+                            message: "You’ve used over 75% of your monthly transcription time. For more minutes and daily resets, upgrade to a daily plan before you run out.",
                             onContinue: { [weak self] in
                                 guard let self = self else { return }
                                 self.startTranscriptionFlow(seconds: seconds)
@@ -736,11 +739,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                         )
                         return
                     }
-                    // Crossing 70% threshold
+                    // Crossing 50% threshold
                     else if currentMonthlyUsage < softWarningThreshold && newMonthlyUsage >= softWarningThreshold {
                         self.monthlyLimitDisplayAlert(
-                            title: "You're nearing your monthly limit",
-                            message: "You’ve used over 70% of your monthly transcription minutes. If you need more flexibility, consider upgrading to a daily plan for increased transcription time.",
+                            title: "Need more minutes?",
+                            message: "You’ve used over 50% of your monthly transcription minutes. If you need more flexibility, consider upgrading to a daily plan for increased transcription time.",
                             onContinue: { [weak self] in
                                 guard let self = self else { return }
                                 self.startTranscriptionFlow(seconds: seconds)
@@ -757,7 +760,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     private func startTranscriptionFlow(seconds: TimeInterval) {
-        print("Continuing")
         let estimatedTranscriptionSeconds = (seconds / 2) + 15
         transcriptionAlert(seconds: seconds, estimated: estimatedTranscriptionSeconds)
         pendingTranscriptionDuration = seconds

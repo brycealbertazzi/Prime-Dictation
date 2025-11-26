@@ -47,8 +47,7 @@ final class StoreKitManager: ObservableObject {
     /// Map StoreKit entitlements → your SubscriptionSchedule
     var effectiveSchedule: SubscriptionSchedule {
         if hasLifetimeDeal {
-            // Lifetime = unlimited recording, no daily/monthly buckets needed
-            return .none
+            return .daily
         }
         if activeSubscriptions.contains(.dailyAnnual) ||
             activeSubscriptions.contains(.dailyMonthly) {
@@ -159,15 +158,8 @@ extension StoreKitManager {
             let expirationDate = transaction.expirationDate
             let revocationDate = transaction.revocationDate
 
-            print("––––––––––––––––––––")
-            print("Entitlement for productID: \(productID)")
-            print("  purchaseDate : \(purchaseDate)")
-            print("  expirationDate: \(String(describing: expirationDate))")
-            print("  revocationDate: \(String(describing: revocationDate))")
-
             // Skip already-expired just in case
             if let exp = expirationDate, exp <= now {
-                print("  -> Skipping because it is already expired at \(exp)")
                 continue
             }
 
@@ -183,7 +175,6 @@ extension StoreKitManager {
                     bestSubID     = id
                     bestStartDate = purchaseDate
                     bestExpiration = expirationDate
-                    print("  -> Now treating \(id.rawValue) as BEST sub (priority \(p), exp \(String(describing: expirationDate)))")
                 }
                 // 2) If same tier, prefer the later expiration
                 else if p == bestPriority {
@@ -192,19 +183,11 @@ extension StoreKitManager {
                             bestSubID     = id
                             bestStartDate = purchaseDate
                             bestExpiration = exp
-                            print("  -> Same tier; now treating \(id.rawValue) as BEST sub (later exp \(exp))")
-                        } else {
-                            print("  -> Same tier; keeping previous best sub: \(bestSubID?.rawValue ?? "nil")")
                         }
-                    } else {
-                        print("  -> Same tier; no later expiration, keeping previous best")
                     }
-                } else {
-                    print("  -> Lower tier than current best, ignoring")
                 }
 
             case .lifetimeDeal:
-                print("  -> Treating as lifetime deal")
                 lifetime = true
             }
         }
@@ -213,13 +196,7 @@ extension StoreKitManager {
         if let best = bestSubID {
             activeSubs.insert(best)
         }
-
-        print("StoreKitManager: refreshed entitlements")
-        print("  activeSubs: \(activeSubs)")
-        print("  lifetime: \(lifetime)")
-        print("  periodStart: \(String(describing: bestStartDate))")
-        print("  periodEnd: \(String(describing: bestExpiration))")
-
+        print("Storekit Manager: activeSubs-> \(activeSubs)")
         self.activeSubscriptions = activeSubs
         self.hasLifetimeDeal = lifetime
         self.currentPeriodStart = bestStartDate
@@ -279,27 +256,21 @@ extension StoreKitManager {
             subscriptionManager.hasEverSubscribed = true
         }
 
-        // If the plan type changed (daily <-> monthly <-> none), reset the relevant bucket
+        // If the plan type changed (daily <-> monthly <-> none),
+        // reset BOTH buckets for cleanliness.
         if oldSchedule != newSchedule {
             var usage = subscriptionManager.usage
-            
-            usage.dailySecondsUsed = 0
-            usage.monthlySecondsUsed = 0
-            switch newSchedule {
-            case .daily:
-                // Moving into a daily plan: start fresh daily bucket
+
+            // Clear daily bucket unless the user switched to a lifetime deal
+            if (!hasLifetimeDeal) {
+                usage.dailySecondsUsed = 0
                 usage.dailyBucketStart = nil
-
-            case .monthly:
-                // Moving into a monthly plan: start fresh monthly bucket
-                usage.lastPeriodStartFromApple = nil
-                usage.lastPeriodEndFromApple = nil
-
-            case .none:
-                // No active schedule (trial-only or expired). You can optionally
-                // clear buckets here, but it's not strictly required.
-                break
             }
+
+            // Clear monthly bucket
+            usage.monthlySecondsUsed = 0
+            usage.lastPeriodStartFromApple = nil
+            usage.lastPeriodEndFromApple = nil
 
             subscriptionManager.usage = usage
         }
