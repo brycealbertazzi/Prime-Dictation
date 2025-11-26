@@ -268,9 +268,9 @@ class PaywallViewController: UIViewController {
     
     private func startPurchase(for productId: StoreKitManager.ProductID) async {
         do {
-            try await StoreKitManager.shared.purchase(productId)
-            await StoreKitManager.shared.refreshEntitlements()
-            subscriptionManager.applyStoreKitEntitlements()
+            let manager = StoreKitManager.shared
+            try await manager.purchase(productId)
+            manager.applyEntitlements(to: subscriptionManager)
 
             subscriptionManager.trialManager.usage = TrialUsage(
                 totalSeconds: TrialManager.TRIAL_LIMIT,
@@ -324,8 +324,9 @@ class PaywallViewController: UIViewController {
         Task {
             ProgressHUD.animate("Restoring purchases...", .triangleDotShift)
 
-            await StoreKitManager.shared.refreshEntitlements()
-            subscriptionManager.applyStoreKitEntitlements()
+            let manager = StoreKitManager.shared
+            await manager.refreshEntitlements()
+            manager.applyEntitlements(to: subscriptionManager)
 
             ProgressHUD.dismiss()
 

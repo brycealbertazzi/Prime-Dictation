@@ -155,10 +155,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             let manager = StoreKitManager.shared
             // Make sure StoreKit is ready and entitlements are refreshed
             await manager.configure()
-            await manager.refreshEntitlements()
-
-            // Push StoreKit state into SubscriptionManager
-            subscriptionManager.applyStoreKitEntitlements()
+            manager.applyEntitlements(to: subscriptionManager)
 
             if subscriptionManager.isSubscribed {
                 // User has *any* purchase => mark trial as "used"
@@ -171,11 +168,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 subscriptionManager.isSubscribed = false
                 subscriptionManager.schedule = .none
             }
-            
-            subscriptionManager.refreshBuckets(
-                latestPeriodStart: manager.currentPeriodStart,
-                latestPeriodEnd: manager.currentPeriodEnd
-            )
         }
     }
     
@@ -243,11 +235,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         Task {
             let manager = StoreKitManager.shared
             await manager.refreshEntitlements()
-            subscriptionManager.applyStoreKitEntitlements()
-            subscriptionManager.refreshBuckets(
-                latestPeriodStart: manager.currentPeriodStart,
-                latestPeriodEnd: manager.currentPeriodEnd
-            )
+            manager.applyEntitlements(to: subscriptionManager)
         }
     }
     
