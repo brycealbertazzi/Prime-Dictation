@@ -30,6 +30,10 @@ final class StoreKitManager: ObservableObject {
     /// Current entitlements (active subs and LTD)
     @Published private(set) var activeSubscriptions: Set<ProductID> = []
     @Published private(set) var hasLifetimeDeal: Bool = false
+    
+    /// Effective subscription period for the *chosen* plan
+    @Published private(set) var currentPeriodStart: Date?
+    @Published private(set) var currentPeriodEnd: Date?
 
     var currentPlan: ProductID? {
         if hasLifetimeDeal { return .lifetimeDeal }
@@ -132,6 +136,7 @@ extension StoreKitManager {
         // Track the *single* best subscription in the group
         var bestSubID: ProductID?
         var bestExpiration: Date?
+        var bestStartDate: Date?   // <- NEW
 
         for await result in Transaction.currentEntitlements {
             guard case .verified(let transaction) = result else { continue }
@@ -161,6 +166,7 @@ extension StoreKitManager {
                 if let exp = expirationDate {
                     if bestExpiration == nil || exp > bestExpiration! {
                         bestExpiration = exp
+                        bestStartDate = purchaseDate      // <- capture start
                         bestSubID = id
                         print("  -> Now treating \(id.rawValue) as BEST sub (exp \(exp))")
                     } else {
@@ -172,6 +178,7 @@ extension StoreKitManager {
                         print("  -> No expiration, but already have best: \(currentBest.rawValue)")
                     } else if bestSubID == nil {
                         bestSubID = id
+                        bestStartDate = purchaseDate      // <- capture start
                         print("  -> Treating \(id.rawValue) as best sub (no expiration)")
                     }
                 }
@@ -190,10 +197,15 @@ extension StoreKitManager {
         print("StoreKitManager: refreshed entitlements")
         print("  activeSubs: \(activeSubs)")
         print("  lifetime: \(lifetime)")
+        print("  periodStart: \(String(describing: bestStartDate))")
+        print("  periodEnd: \(String(describing: bestExpiration))")
 
         self.activeSubscriptions = activeSubs
         self.hasLifetimeDeal = lifetime
+        self.currentPeriodStart = bestStartDate
+        self.currentPeriodEnd = bestExpiration
     }
+
 
 }
 

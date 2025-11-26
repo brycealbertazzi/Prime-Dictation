@@ -152,9 +152,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     func loadSubscriptions() {
         Task {
+            let manager = StoreKitManager.shared
             // Make sure StoreKit is ready and entitlements are refreshed
-            await StoreKitManager.shared.configure()
-            await StoreKitManager.shared.refreshEntitlements()
+            await manager.configure()
+            await manager.refreshEntitlements()
 
             // Push StoreKit state into SubscriptionManager
             subscriptionManager.applyStoreKitEntitlements()
@@ -170,6 +171,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 subscriptionManager.isSubscribed = false
                 subscriptionManager.schedule = .none
             }
+            
+            subscriptionManager.refreshBuckets(
+                latestPeriodStart: manager.currentPeriodStart,
+                latestPeriodEnd: manager.currentPeriodEnd
+            )
         }
     }
     
@@ -235,8 +241,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         
         // 🔄 Refresh subscribed state in the background (idempotent + cheap)
         Task {
-            await StoreKitManager.shared.refreshEntitlements()
+            let manager = StoreKitManager.shared
+            await manager.refreshEntitlements()
             subscriptionManager.applyStoreKitEntitlements()
+            subscriptionManager.refreshBuckets(
+                latestPeriodStart: manager.currentPeriodStart,
+                latestPeriodEnd: manager.currentPeriodEnd
+            )
         }
     }
     
@@ -675,34 +686,138 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 return
             }
 
-            // If they are subscribed, enforce daily/monthly limits
-            if access == .subscribed {
-                // Daily reset works without StoreKit dates;
-                // monthly reset kicks in if you pass real period dates later.
-                subscriptionManager.refreshBuckets(
-                    now: Date(),
-                    latestPeriodStart: nil,
-                    latestPeriodEnd: nil
-                )
+            let access = subscriptionManager.accessLevel
+            let manager = StoreKitManager.shared
+            let currentPlan = manager.currentPlan
 
+            // If they are subscribed, enforce daily/monthly limits (LTD has no cap)
+            if access == .subscribed && currentPlan != .lifetimeDeal {
+                let schedule = subscriptionManager.schedule
+
+                // 1️⃣ Hard cap: cannot transcribe this recording
                 if !subscriptionManager.canTranscribe(recordingSeconds: seconds) {
-                    self.displayAlert(
-                        title: "Transcription Limit Reached",
-                        message: "You’ve used all available transcription time for this period. Try again after your limit resets or switch to a higher plan.",
-                        handler: { [weak self] in
-                            self?.showPaywallScreen()
+                    let remainingTimeStr = formatMinutesAndSeconds(subscriptionManager.remainingTranscriptionTime().rounded())
+                    let recordingSecondsStr = formatMinutesAndSeconds(seconds.rounded())
+
+                    switch schedule {
+                    case .daily:
+                        self.displayAlert(
+                            title: "Insufficient minutes remaining",
+                            message: "You have \(remainingTimeStr) of transcription time left today, but this recording is \(recordingSecondsStr) long. Your minutes will reset at midnight your local time. Try again tomorrow."
+                        )
+                    case .monthly:
+                        let billingPeriodEnd: Date? = subscriptionManager.usage.lastPeriodEndFromApple
+                        let billingPeriodEndStr: String
+                        if let billingEnd = billingPeriodEnd {
+                            billingPeriodEndStr = self.humanReadableDate(billingEnd)
+                        } else {
+                            billingPeriodEndStr = ""
                         }
-                    )
+
+                        self.monthlyLimitDisplayAlert(
+                            title: "Insufficient minutes remaining",
+                            message: "You have \(remainingTimeStr) of transcription time left in your current monthly billing period, but this recording is \(recordingSecondsStr) long. Upgrade to a daily plan to get more transcription minutes. Your minutes will reset at the start of your next billing period\(billingPeriodEndStr).",
+                            onContinue: {}
+                        )
+                    default:
+                        break
+                    }
+
                     return
+                }
+
+                // 2️⃣ Soft / hard warnings at 70% / 90% for the Standard monthly plan
+                if currentPlan == .standardMonthly {
+                    let currentMonthlyUsage = subscriptionManager.usage.monthlySecondsUsed
+                    let newMonthlyUsage = currentMonthlyUsage + seconds
+                    let softWarningThreshold = SubscriptionManager.MONTHLY_LIMIT * 0.7
+                    let hardWarningThreshold = SubscriptionManager.MONTHLY_LIMIT * 0.9
+
+                    print("soft: \(softWarningThreshold), hard: \(hardWarningThreshold)")
+                    print("current usage: \(currentMonthlyUsage), new usage: \(newMonthlyUsage)")
+
+                    // Crossing 90% threshold
+                    if currentMonthlyUsage < hardWarningThreshold && newMonthlyUsage >= hardWarningThreshold {
+                        self.monthlyLimitDisplayAlert(
+                            title: "Almost out of monthly minutes",
+                            message: "You’ve used over 90% of your monthly transcription time. For more minutes and faster resets, upgrade to a daily plan before you run out.",
+                            onContinue: { [weak self] in
+                                guard let self = self else { return }
+                                self.startTranscriptionFlow(seconds: seconds)
+                            }
+                        )
+                        return
+                    }
+                    // Crossing 70% threshold
+                    else if currentMonthlyUsage < softWarningThreshold && newMonthlyUsage >= softWarningThreshold {
+                        self.monthlyLimitDisplayAlert(
+                            title: "You're nearing your monthly limit",
+                            message: "You’ve used over 70% of your monthly transcription minutes. If you need more flexibility, consider upgrading to a daily plan for increased transcription time.",
+                            onContinue: { [weak self] in
+                                guard let self = self else { return }
+                                self.startTranscriptionFlow(seconds: seconds)
+                            }
+                        )
+                        return
+                    }
                 }
             }
 
-            let estimatedTranscriptionSeconds = (seconds / 2) + 15
-            transcriptionAlert(seconds: seconds, estimated: estimatedTranscriptionSeconds)
-            
-            // Remember the duration so we can log usage after success
-            self.pendingTranscriptionDuration = seconds
+            // 3️⃣ No blocking + no warning case → continue directly
+            self.startTranscriptionFlow(seconds: seconds)
         }
+    }
+    
+    private func startTranscriptionFlow(seconds: TimeInterval) {
+        print("Continuing")
+        let estimatedTranscriptionSeconds = (seconds / 2) + 15
+        transcriptionAlert(seconds: seconds, estimated: estimatedTranscriptionSeconds)
+        pendingTranscriptionDuration = seconds
+    }
+    
+    func humanReadableDate(_ date: Date?) -> String {
+        guard let date = date else { return "" }
+
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long      // e.g., January 12, 2025
+        formatter.timeStyle = .none
+        formatter.locale = Locale.current
+
+        return " on \(formatter.string(from: date))"
+    }
+    
+    func formatMinutesAndSeconds(_ seconds: TimeInterval) -> String {
+        let totalSeconds = Int(seconds.rounded())
+
+        // If under 60 seconds → just show seconds
+        if totalSeconds < 60 {
+            return "\(totalSeconds) second\(totalSeconds == 1 ? "" : "s")"
+        }
+
+        let minutes = totalSeconds / 60
+        let secs = totalSeconds % 60
+
+        return "\(minutes) minute\(minutes == 1 ? "" : "s") and \(secs) second\(secs == 1 ? "" : "s")"
+    }
+    
+    func monthlyLimitDisplayAlert(
+        title: String,
+        message: String,
+        onContinue: @escaping () -> Void
+    ) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+
+        // "Not Now" = don't upgrade, but still continue with transcription
+        alert.addAction(UIAlertAction(title: "Not Now", style: .default) { _ in
+            onContinue()
+        })
+
+        alert.addAction(UIAlertAction(title: "Upgrade", style: .default) { [weak self] _ in
+            guard let self = self else { return }
+            self.showPaywallScreen()
+        })
+
+        present(alert, animated: true, completion: nil)
     }
     
     @IBAction func SeeTranscriptionButton(_ sender: Any) {

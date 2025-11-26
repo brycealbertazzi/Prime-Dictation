@@ -280,6 +280,8 @@ class PaywallViewController: UIViewController {
             if (productId == .lifetimeDeal) {
                 openSubscriptionsAlert(title: "Subscriptions Notice", message: "If you had an active subscription, make sure to cancel it so you will not be billed again.", handler: {self.openManageSubscriptions()})
             }
+            
+            dismissToRoot()
 
         } catch let error as StoreKitManager.PurchaseError {
             switch error {

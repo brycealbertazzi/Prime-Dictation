@@ -28,8 +28,8 @@ enum AccessLevel {
 }
 
 final class SubscriptionManager {
-    static let DAILY_LIMIT: TimeInterval = 60 * 60 // 60 minutes
-    static let MONTHLY_LIMIT: TimeInterval = 60 * 150 // 150 minutes
+    static let DAILY_LIMIT: TimeInterval = 20 // 60 minutes
+    static let MONTHLY_LIMIT: TimeInterval = 30 // 150 minutes
     var isSubscribed: Bool = false  // updated via StoreKit checks
     var trialManager = TrialManager()
     private let key = "primeDictationSubscriptionUsage"
@@ -93,8 +93,6 @@ final class SubscriptionManager {
             return false
         }
         
-        // Call refreshBuckets() here when the store kit params are retrieved
-        
         let remainingTranscriptionTimeInSchedulePeriod: TimeInterval = self.remainingTranscriptionTime()
         
         return recordingSeconds <= remainingTranscriptionTimeInSchedulePeriod
@@ -120,7 +118,7 @@ final class SubscriptionManager {
     func remainingTranscriptionTime() -> TimeInterval {
         let remaining: TimeInterval
         let zero: TimeInterval = TimeInterval(0)
-
+        print("usage: \(usage)")
         switch usage.schedule {
         case .daily:
             remaining = Self.DAILY_LIMIT - usage.dailySecondsUsed
@@ -230,7 +228,7 @@ struct TrialUsage: Codable {
 }
 
 final class TrialManager {
-    static let TRIAL_LIMIT: TimeInterval = 60 * 3 // 3 minutes
+    static let TRIAL_LIMIT: TimeInterval = 10 // 3 minutes
     private let key = "primeDictationTrialUsage"
 
     var usage: TrialUsage {
