@@ -261,11 +261,8 @@ extension StoreKitManager {
         if oldSchedule != newSchedule {
             var usage = subscriptionManager.usage
 
-            // Clear daily bucket unless the user switched to a lifetime deal
-            if (!hasLifetimeDeal) {
-                usage.dailySecondsUsed = 0
-                usage.dailyBucketStart = nil
-            }
+            usage.dailySecondsUsed = 0
+            usage.dailyBucketStart = nil
 
             // Clear monthly bucket
             usage.monthlySecondsUsed = 0
