@@ -66,6 +66,17 @@ final class SubscriptionManager {
         }
     }
     
+    var schedule: SubscriptionSchedule {
+        get {
+            return usage.schedule
+        }
+        set {
+            var u = usage
+            u.schedule = newValue
+            usage = u
+        }
+    }
+    
     var hasEverSubscribed: Bool {
         get {
             // Defaults to false if the key doesn't exist yet
@@ -122,6 +133,34 @@ final class SubscriptionManager {
         return max(zero, remaining)
     }
     
+    // Apply StoreKitManager state to this SubscriptionManager
+    @MainActor
+    func applyStoreKitEntitlements() {
+        let manager = StoreKitManager.shared
+
+        if manager.hasLifetimeDeal {
+            // Lifetime deal acts like "always subscribed", but no rolling limit
+            hasEverSubscribed = true
+            isSubscribed = true
+            schedule = .none
+        } else if manager.activeSubscriptions.contains(.dailyAnnual) ||
+                  manager.activeSubscriptions.contains(.dailyMonthly) {
+            hasEverSubscribed = true
+            isSubscribed = true
+            schedule = .daily
+        } else if manager.activeSubscriptions.contains(.standardMonthly) {
+            hasEverSubscribed = true
+            isSubscribed = true
+            schedule = .monthly
+        } else {
+            // No active sub
+            isSubscribed = false
+            // keep hasEverSubscribed as-is (so we can show "subscription expired" state)
+            if !hasEverSubscribed {
+                schedule = .none
+            }
+        }
+    }
 }
 
 extension SubscriptionManager {

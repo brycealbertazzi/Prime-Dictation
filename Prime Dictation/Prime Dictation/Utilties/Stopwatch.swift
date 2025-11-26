@@ -91,6 +91,10 @@ class Stopwatch {
     }
     
     func overTrialRemainingLength() -> Bool {
+        if subscriptionManager.isSubscribed {
+            print("Subscribed, will not calculate trial expiration")
+            return false
+        }
         print("elapsedTime: \(self.elapsedTime)")
         print("remainingFreeTrialTime: \(subscriptionManager.trialManager.remainingFreeTrialTime())")
         return self.elapsedTime > subscriptionManager.trialManager.remainingFreeTrialTime()

@@ -9,6 +9,7 @@
 import UIKit
 import AVFoundation
 import ProgressHUD
+import StoreKit
 
 class PaywallViewController: UIViewController {
     
@@ -16,6 +17,7 @@ class PaywallViewController: UIViewController {
     @IBOutlet weak var ScrollView: UIScrollView!
     @IBOutlet weak var StackView: UIStackView!
     @IBOutlet weak var ContinueButton: RoundedButton!
+    @IBOutlet weak var RestorePurchasesButton: UIButton!
     
     @IBOutlet weak var LTDView: PlanCardView!
     @IBOutlet weak var AnnualView: PlanCardView!
@@ -27,6 +29,8 @@ class PaywallViewController: UIViewController {
     @IBOutlet weak var annualContainerView: UIView!   // outer wrapper for Annual card + badge
     @IBOutlet weak var annualBadgeLabel: BadgeLabel!
     
+    private let subscriptionManager = AppServices.shared.subscriptionManager
+
     // MARK: - Model
 
     enum Plan: String {
@@ -62,7 +66,6 @@ class PaywallViewController: UIViewController {
         super.viewDidLoad()
         overrideUserInterfaceStyle = .light
         
-        // Just to be explicit
         StackView.translatesAutoresizingMaskIntoConstraints = false
 
         // Make the content width match the scroll view’s visible width
@@ -71,12 +74,33 @@ class PaywallViewController: UIViewController {
                 equalTo: ScrollView.frameLayoutGuide.widthAnchor
             )
         ])
+        ScrollView.delaysContentTouches = false
         
         configureCards()
-        // Preset to Annual if the user does not have a product
-        if (selectedPlan == nil) {
-            cardTapped(AnnualView)
-        }
+        preselectPlan()
+        
+        let title = "Restore Purchases"
+
+        let normal = NSAttributedString(
+            string: title,
+            attributes: [
+                .underlineStyle: NSUnderlineStyle.single.rawValue,
+                .foregroundColor: PDColors.black,
+                .font: UIFont.systemFont(ofSize: 14, weight: .semibold)
+            ]
+        )
+
+        let highlighted = NSAttributedString(
+            string: title,
+            attributes: [
+                .underlineStyle: NSUnderlineStyle.single.rawValue,
+                .foregroundColor: PDColors.black.withAlphaComponent(0.6),
+                .font: UIFont.systemFont(ofSize: 14, weight: .semibold)
+            ]
+        )
+
+        RestorePurchasesButton.setAttributedTitle(normal, for: .normal)
+        RestorePurchasesButton.setAttributedTitle(highlighted, for: .highlighted)
     }
     
     override func viewDidLayoutSubviews() {
@@ -109,8 +133,37 @@ class PaywallViewController: UIViewController {
             card.addTarget(self, action: #selector(cardTapped(_:)), for: .primaryActionTriggered)
         }
     }
-
+    
     // MARK: - Actions
+    
+    private func preselectPlan() {
+        let manager = StoreKitManager.shared
+        let current = manager.currentPlan   // we’ll define this in a sec
+        
+        let cardToSelect: PlanCardView?
+
+        switch current {
+        case .some(.dailyAnnual):
+            cardToSelect = AnnualView
+        case .some(.standardMonthly):
+            cardToSelect = StandardView
+        case .some(.dailyMonthly):
+            cardToSelect = MonthlyView
+        case .some(.lifetimeDeal):
+            cardToSelect = LTDView
+        case .none:
+            // No sub – push them toward annual by default
+            cardToSelect = AnnualView
+        }
+
+        if let card = cardToSelect {
+            cardTapped(card)   // reuses your existing logic
+        }
+    }
+
+    private var currentProduct: StoreKitManager.ProductID? {
+        StoreKitManager.shared.currentPlan
+    }
 
     @objc private func cardTapped(_ sender: PlanCardView) {
         selectedCard = sender
@@ -118,40 +171,66 @@ class PaywallViewController: UIViewController {
 
         guard let plan = selectedPlan else { return }
 
-        let buttonTitle: String
+        // Map Plan -> product ID used by StoreKitManager
+        let productId: StoreKitManager.ProductID
         switch plan {
         case .dailyAnnual:
-            buttonTitle = "Continue - $99.99"
+            productId = .dailyAnnual
         case .standard:
-            buttonTitle = "Continue - $4.99"
+            productId = .standardMonthly
         case .dailyMonthly:
-            buttonTitle = "Continue - $19.99"
+            productId = .dailyMonthly
         case .lifetime:
-            buttonTitle = "Continue - $79.99"
+            productId = .lifetimeDeal
         }
-        
+
+        let isCurrent = (productId == currentProduct)
+
+        let buttonTitle: String
+        if isCurrent {
+            buttonTitle = "Current Plan"
+        } else {
+            // Normal purchase titles
+            switch plan {
+            case .dailyAnnual:
+                buttonTitle = "Continue - $99.99"
+            case .standard:
+                buttonTitle = "Continue - $4.99"
+            case .dailyMonthly:
+                buttonTitle = "Continue - $19.99"
+            case .lifetime:
+                buttonTitle = "Continue - $79.99"
+            }
+        }
+
         setBadgeColors(plan: plan)
         ContinueButton.setTitle(buttonTitle, for: .normal)
-        
+
         Haptic.tap(intensity: 0.7)
     }
 
     @IBAction private func continueButtonTapped(_ sender: UIButton) {
-        guard let plan = selectedPlan else {
-            // Optional: shake / highlight cards
+        guard let card = selectedCard else {
             return
         }
-
-        // Handle purchase based on selected plan
-        switch plan {
-        case .dailyAnnual:
-            startPurchase(for: AnnualView.productId)
-        case .standard:
-            startPurchase(for: StandardView.productId)
-        case .dailyMonthly:
-            startPurchase(for: MonthlyView.productId)
-        case .lifetime:
-            startPurchase(for: LTDView.productId)
+        
+        guard let selectedProduct = card.product else {
+            return
+        }
+        
+        if currentProduct == selectedProduct {
+            let alert = UIAlertController(
+                title: "Already Subscribed",
+                message: "You’re already on this plan. If you recently changed plans, the new plan may not start until your next billing date. You can manage your subscription in the App Store.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
+        Task {
+            await startPurchase(for: selectedProduct)
         }
     }
 
@@ -176,13 +255,135 @@ class PaywallViewController: UIViewController {
         }
     }
     
-    private func startPurchase(for productId: String) {
-        // Hook up StoreKit flow here
-        print("Selected productId: \(productId)")
+    private func dismissToRoot(animated: Bool = true) {
+        // Dismiss all view controllers that were presented modally
+        // above the root view controller.
+        if let root = view.window?.rootViewController {
+            root.dismiss(animated: animated)
+        } else {
+            // Fallback: just dismiss self if we can't find the root
+            dismiss(animated: animated)
+        }
     }
+    
+    private func startPurchase(for productId: StoreKitManager.ProductID) async {
+        do {
+            try await StoreKitManager.shared.purchase(productId)
+            await StoreKitManager.shared.refreshEntitlements()
+            subscriptionManager.applyStoreKitEntitlements()
+
+            subscriptionManager.trialManager.usage = TrialUsage(
+                totalSeconds: TrialManager.TRIAL_LIMIT,
+                state: .completed
+            )
+            
+            if (productId == .lifetimeDeal) {
+                openSubscriptionsAlert(title: "Subscriptions Notice", message: "If you had an active subscription, make sure to cancel it so you will not be billed again.", handler: {self.openManageSubscriptions()})
+            }
+
+        } catch let error as StoreKitManager.PurchaseError {
+            switch error {
+            case .userCancelled:
+                // 👇 This is the “cancelled from the sheet” case
+                displayAlert(
+                    title: "Purchase Cancelled",
+                    message: currentProduct != nil ? "No changes were made to your subscription." : "The subscription selection sheet was dismissed without making a purchase."
+                )
+            case .pending:
+                displayAlert(
+                    title: "Purchase Pending",
+                    message: "Your purchase is pending approval. Please try again later."
+                )
+            default:
+                displayAlert(
+                    title: "Purchase Cancelled",
+                    message: currentProduct != nil ? "No changes were made to your subscription." : "The subscription selection sheet was dismissed without making a purchase."
+                )
+            }
+        } catch {
+            print("Unable to purchase product: \(error)")
+            displayAlert(
+                title: "Purchase Cancelled",
+                message: currentProduct != nil ? "No changes were made to your subscription." : "The subscription selection sheet was dismissed without making a purchase."
+            )
+        }
+    }
+
+
     
     @IBAction func BackButtonPressed(_ sender: Any) {
         Haptic.tap(intensity: 0.7)
         dismiss(animated: true)
     }
+    
+    @IBAction func RestorePurchasesButtonPressed(_ sender: Any) {
+        Haptic.tap(intensity: 0.7)
+
+        Task {
+            ProgressHUD.animate("Restoring purchases...", .triangleDotShift)
+
+            await StoreKitManager.shared.refreshEntitlements()
+            subscriptionManager.applyStoreKitEntitlements()
+
+            ProgressHUD.dismiss()
+
+            if subscriptionManager.isSubscribed {
+                subscriptionManager.trialManager.usage = TrialUsage(
+                    totalSeconds: TrialManager.TRIAL_LIMIT,
+                    state: .completed
+                )
+
+                displayAlert(
+                    title: "Purchases Restored",
+                    message: "Your previous purchases have been restored.",
+                    handler: { self.dismiss(animated: true) }
+                )
+            } else {
+                displayAlert(
+                    title: "No Purchases Found",
+                    message: "We couldn’t find any previous purchases for this Apple ID."
+                )
+            }
+        }
+    }
+    
+    func displayAlert(title: String, message: String, handler: (@MainActor () -> Void)? = nil) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: {_ in
+            handler?()
+        }))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func openSubscriptionsAlert(title: String, message: String, handler: (@MainActor () -> Void)? = nil) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Not Now", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Subscriptions", style: .default, handler: {_ in
+            handler?()
+        }))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func openManageSubscriptions() {
+        guard let windowScene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first(where: { $0.activationState == .foregroundActive }) else {
+            return
+        }
+
+        Task {
+            do {
+                try await AppStore.showManageSubscriptions(
+                    in: windowScene,
+                    subscriptionGroupID: StoreKitManager.SubscriptionConfig.subscriptionGroupID
+                )
+            } catch {
+                // Fallback to the web if native sheet fails
+                if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
+                    await UIApplication.shared.open(url)
+                }
+            }
+        }
+    }
+    
 }

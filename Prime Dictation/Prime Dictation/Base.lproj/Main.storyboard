@@ -867,7 +867,7 @@
                                 <rect key="frame" x="0.0" y="20" width="414" height="648"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="Sso-x8-5Py">
-                                        <rect key="frame" x="16" y="0.0" width="350" height="915.66666666666663"/>
+                                        <rect key="frame" x="16" y="0.0" width="350" height="995.66666666666663"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KA7-68-mkv" userLabel="LTD Container">
                                                 <rect key="frame" x="0.0" y="0.0" width="350" height="180"/>
@@ -1255,6 +1255,39 @@
                                                     <constraint firstItem="09w-an-rXQ" firstAttribute="centerX" secondItem="5Ub-Hi-gjH" secondAttribute="centerX" id="zyt-h9-317"/>
                                                 </constraints>
                                             </view>
+                                            <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="117-xJ-LpM" userLabel="Disclaimer">
+                                                <rect key="frame" x="0.0" y="935.66666666666663" width="350" height="60"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Change or cancel your subscription anytime in Settings." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="97U-jv-Sjj" userLabel="Disclaimer Text">
+                                                        <rect key="frame" x="17.333333333333343" y="0.0" width="315.66666666666663" height="14.333333333333334"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                                        <color key="textColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eoa-ef-8gy">
+                                                        <rect key="frame" x="85" y="19.333333333333371" width="180" height="40"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" constant="180" id="CzR-Bx-IUu"/>
+                                                            <constraint firstAttribute="height" constant="40" id="DDT-S2-ShP"/>
+                                                        </constraints>
+                                                        <color key="tintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="plain" title="Restore Purchases">
+                                                            <fontDescription key="titleFontDescription" type="system" pointSize="14"/>
+                                                        </buttonConfiguration>
+                                                        <connections>
+                                                            <action selector="RestorePurchasesButtonPressed:" destination="mlS-rq-HyH" eventType="touchUpInside" id="Ztu-y4-BmF"/>
+                                                        </connections>
+                                                    </button>
+                                                </subviews>
+                                                <constraints>
+                                                    <constraint firstItem="97U-jv-Sjj" firstAttribute="centerX" secondItem="117-xJ-LpM" secondAttribute="centerX" id="H9R-Vy-x6S"/>
+                                                    <constraint firstItem="eoa-ef-8gy" firstAttribute="top" secondItem="97U-jv-Sjj" secondAttribute="bottom" constant="5" id="Jvz-1l-GNT"/>
+                                                    <constraint firstItem="eoa-ef-8gy" firstAttribute="centerX" secondItem="117-xJ-LpM" secondAttribute="centerX" id="O6c-TA-q7g"/>
+                                                    <constraint firstAttribute="height" constant="60" id="b1d-x8-8dA"/>
+                                                    <constraint firstItem="97U-jv-Sjj" firstAttribute="top" secondItem="117-xJ-LpM" secondAttribute="top" id="mIF-3V-yZZ"/>
+                                                </constraints>
+                                            </view>
                                         </subviews>
                                     </stackView>
                                 </subviews>
@@ -1354,6 +1387,7 @@
                         <outlet property="ContinueButton" destination="cCu-7I-yJE" id="tkp-dd-n2d"/>
                         <outlet property="LTDView" destination="Ozw-hj-7It" id="jcq-Hl-CWU"/>
                         <outlet property="MonthlyView" destination="5Ub-Hi-gjH" id="1nt-Ny-pBg"/>
+                        <outlet property="RestorePurchasesButton" destination="eoa-ef-8gy" id="fZJ-FP-rOk"/>
                         <outlet property="ScrollView" destination="Jm5-zJ-FRg" id="4Es-Dd-Ghg"/>
                         <outlet property="StackView" destination="Sso-x8-5Py" id="l2A-GJ-yjj"/>
                         <outlet property="StandardView" destination="rqt-eA-yUf" id="Gfc-wL-Zs3"/>

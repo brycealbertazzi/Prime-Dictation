@@ -17,84 +17,71 @@ import FirebaseAuth
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    var window: UIWindow?
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // Dropbox
         let dropboxAppKey = loadDropboxAppKey()
-        DropboxClientsManager.setupWithAppKey(dropboxAppKey.trimmingCharacters(in: .whitespacesAndNewlines))
-        
+        DropboxClientsManager.setupWithAppKey(
+            dropboxAppKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        )
+
+        // Google Drive
         let GDClientID = loadGoogleDriveClientID()
-        GIDSignIn.sharedInstance.configuration = GIDConfiguration.init(clientID: GDClientID)
-        
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: GDClientID)
+
+        // Firebase
         FirebaseApp.configure()
         Task { await AppServices.shared.rebindAuthToNewProjectOnce() }
-        
+
+        // StoreKit transaction observer (for StoreKit 2)
+        StoreKitManager.shared.startObservingTransactions()
+
         return true
     }
-    
-    private func loadDropboxAppKey() -> String {
-        guard var key = Bundle.main.object(forInfoDictionaryKey: "DROPBOX_APP_KEY") as? String else {
-            fatalError("Missing DROPBOX_APP_KEY in Info.plist")
-        }
-        key = key.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        if key.hasPrefix("$(") {
-            fatalError("DROPBOX_APP_KEY was not resolved. Define it in Build Settings/.xcconfig for this target & configuration.")
-        }
-        
-        return key
-    }
-    
-    private func loadGoogleDriveClientID() -> String {
-        guard var key = Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String else {
-            fatalError("Missing GIDGlientID in Info.plist")
-        }
-        key = key.trimmingCharacters(in: .whitespacesAndNewlines)
+    // MARK: - UISceneSession Lifecycle
 
-        if key.hasPrefix("$(") {
-            fatalError("GIDGlientID was not resolved. Define it in Build Settings/.xcconfig for this target & configuration.")
-        }
-        
-        return key
-    }
-    
-    func applicationDidFinishLaunching(_ application: UIApplication) {
+    func application(
+        _ application: UIApplication,
+        configurationForConnecting connectingSceneSession: UISceneSession,
+        options: UIScene.ConnectionOptions
+    ) -> UISceneConfiguration {
 
-    }
-    
-    func applicationWillResignActive(_ application: UIApplication) {
-        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-        // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+        let config = UISceneConfiguration(
+            name: "Default Configuration",
+            sessionRole: connectingSceneSession.role
+        )
+
+        // Make sure you have a `SceneDelegate` class in your project
+        config.delegateClass = SceneDelegate.self
+
+        return config
     }
 
-    func applicationDidEnterBackground(_ application: UIApplication) {
-        // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-        // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    func application(
+        _ application: UIApplication,
+        didDiscardSceneSessions sceneSessions: Set<UISceneSession>
+    ) {
+        // You can clean up any resources specific to discarded scenes here if needed.
     }
 
-    func applicationWillEnterForeground(_ application: UIApplication) {
-        // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
-    }
+    // MARK: - URL Handling (Dropbox, Google, OneDrive)
 
-    func applicationDidBecomeActive(_ application: UIApplication) {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-    }
+    func application(
+        _ app: UIApplication,
+        open url: URL,
+        options: [UIApplication.OpenURLOptionsKey : Any] = [:]
+    ) -> Bool {
 
-    func applicationWillTerminate(_ application: UIApplication) {
-        // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-    }
-    
-//    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-//        return MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String)
-//    }
-
-    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         let scheme = (url.scheme ?? "").lowercased()
+
         if scheme.hasPrefix("com.googleusercontent.apps") {
             return GIDSignIn.sharedInstance.handle(url)
         }
-        
+
         if scheme.hasPrefix("msauth") {
             return AppServices.shared.oneDriveManager.handleRedirect(url: url, options: options)
         }
@@ -108,5 +95,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return false
     }
 
-}
+    // MARK: - Private helpers
 
+    private func loadDropboxAppKey() -> String {
+        guard var key = Bundle.main.object(
+            forInfoDictionaryKey: "DROPBOX_APP_KEY"
+        ) as? String else {
+            fatalError("Missing DROPBOX_APP_KEY in Info.plist")
+        }
+        key = key.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if key.hasPrefix("$(") {
+            fatalError("DROPBOX_APP_KEY was not resolved. Define it in Build Settings/.xcconfig for this target & configuration.")
+        }
+
+        return key
+    }
+
+    private func loadGoogleDriveClientID() -> String {
+        guard var key = Bundle.main.object(
+            forInfoDictionaryKey: "GIDClientID"
+        ) as? String else {
+            fatalError("Missing GIDClientID in Info.plist")
+        }
+        key = key.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if key.hasPrefix("$(") {
+            fatalError("GIDClientID was not resolved. Define it in Build Settings/.xcconfig for this target & configuration.")
+        }
+
+        return key
+    }
+}

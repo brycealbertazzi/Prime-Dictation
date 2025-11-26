@@ -63,6 +63,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        StoreKitManager.shared.startObservingTransactions()
         loadSubscriptions()
         
         let services = AppServices.shared
@@ -107,7 +108,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         AVAudioApplication.requestRecordPermission { [weak self] granted in
             DispatchQueue.main.async {
                 guard let self = self else { return }
-                print("granted: \(granted)")
                 if !granted {
                     self.displayAlert(
                         title: "Microphone Access Needed",
@@ -152,20 +152,23 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     func loadSubscriptions() {
         Task {
+            // Make sure StoreKit is ready and entitlements are refreshed
             await StoreKitManager.shared.configure()
+            await StoreKitManager.shared.refreshEntitlements()
 
-            let manager = StoreKitManager.shared
+            // Push StoreKit state into SubscriptionManager
+            subscriptionManager.applyStoreKitEntitlements()
 
-            if manager.hasLifetimeDeal {
-                // unlock: 60 minutes/day forever
-            } else if manager.activeSubscriptions.contains(.dailyAnnual) ||
-                      manager.activeSubscriptions.contains(.dailyMonthly) {
-                // unlock: 60 minutes/day
-            } else if manager.activeSubscriptions.contains(.standardMonthly) {
-                // unlock: 150 minutes/month
+            if subscriptionManager.isSubscribed {
+                // User has *any* purchase => mark trial as "used"
+                subscriptionManager.trialManager.usage = TrialUsage(
+                    totalSeconds: TrialManager.TRIAL_LIMIT,
+                    state: .completed
+                )
             } else {
-                // no sub / no LTD
-                // apply your trial rules and free limitations
+                // No purchase yet
+                subscriptionManager.isSubscribed = false
+                subscriptionManager.schedule = .none
             }
         }
     }
@@ -228,6 +231,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         if (sendingCompletedInBackground) {
             sendingCompletedInBackground = false
             AudioFeedback.shared.playWhoosh(intensity: 0.6)
+        }
+        
+        // 🔄 Refresh subscribed state in the background (idempotent + cheap)
+        Task {
+            await StoreKitManager.shared.refreshEntitlements()
+            subscriptionManager.applyStoreKitEntitlements()
         }
     }
     
@@ -355,7 +364,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBAction func RecordButton(_ sender: Any) {
         let access = subscriptionManager.accessLevel
         print("access: \(access)")
-        print("remaining trial time: \(subscriptionManager.trialManager.remainingFreeTrialTime())")
+        
+        if (access == .trial) {
+            print("remaining trial time: \(subscriptionManager.trialManager.remainingFreeTrialTime())")
+        }
+
         if access == .locked {
             trialEndedAlert()
             return
@@ -587,26 +600,37 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         transcriptionInProgressUI(time: estimated)
 
         Task {
-            // FINALLY: always run
             defer {
                 self.transcriptionProgressTimer?.invalidate()
                 self.poorConnectionStartTimer?.invalidate()
                 self.transcriptionProgressTimer = nil
                 self.poorConnectionStartTimer = nil
 
-                // Stop the alpha animation and reset the label
                 self.PoorConnectionLabel.layer.removeAllAnimations()
                 self.PoorConnectionLabel.alpha = 1.0
                 self.PoorConnectionLabel.isHidden = true
             }
-            
+
             do {
                 try await transcriptionManager.transcribeAudioFile()
                 recordingManager.SetToggledAudioTranscriptObjectAfterTranscription()
+
+                // ✅ Only log usage if they are subscribed
+                if subscriptionManager.accessLevel == .subscribed,
+                   let duration = pendingTranscriptionDuration {
+                    subscriptionManager.addTranscription(seconds: duration)
+                    pendingTranscriptionDuration = nil
+                }
+
                 await MainActor.run {
                     ProgressHUD.succeed("Transcription Complete")
 
-                    self.safeDisplayAlert(title: "Transcription Complete", message: "Your recording was transcribed while Prime Dictation was in the background.", type: .transcribe, result: .success)
+                    self.safeDisplayAlert(
+                        title: "Transcription Complete",
+                        message: "Your recording was transcribed while Prime Dictation was in the background.",
+                        type: .transcribe,
+                        result: .success
+                    )
                 }
             } catch {
                 await MainActor.run {
@@ -621,13 +645,15 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
     
+    private var pendingTranscriptionDuration: TimeInterval?
     @IBAction func TranscribeButton(_ sender: Any) {
         let access = subscriptionManager.accessLevel
+
         if access == .subscription_expired {
             subscriptionExpiredAlert()
             return
         }
-        
+
         guard let url = recordingManager.toggledRecordingURL else {
             displayAlert(
                 title: "Recording Not Found",
@@ -636,9 +662,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             ProgressHUD.dismiss()
             return
         }
+
         Task {
             let seconds = await recordingDuration(for: url)
-            if (seconds <= 0) {
+            if seconds <= 0 {
                 self.safeDisplayAlert(
                     title: "Transcription Failed",
                     message: "We were unable to transcribe this recording because its length couldn’t be determined. Make another recording and try again.",
@@ -647,8 +674,34 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 )
                 return
             }
+
+            // If they are subscribed, enforce daily/monthly limits
+            if access == .subscribed {
+                // Daily reset works without StoreKit dates;
+                // monthly reset kicks in if you pass real period dates later.
+                subscriptionManager.refreshBuckets(
+                    now: Date(),
+                    latestPeriodStart: nil,
+                    latestPeriodEnd: nil
+                )
+
+                if !subscriptionManager.canTranscribe(recordingSeconds: seconds) {
+                    self.displayAlert(
+                        title: "Transcription Limit Reached",
+                        message: "You’ve used all available transcription time for this period. Try again after your limit resets or switch to a higher plan.",
+                        handler: { [weak self] in
+                            self?.showPaywallScreen()
+                        }
+                    )
+                    return
+                }
+            }
+
             let estimatedTranscriptionSeconds = (seconds / 2) + 15
             transcriptionAlert(seconds: seconds, estimated: estimatedTranscriptionSeconds)
+            
+            // Remember the duration so we can log usage after success
+            self.pendingTranscriptionDuration = seconds
         }
     }
     
@@ -759,6 +812,15 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         vc.modalPresentationStyle = .fullScreen
         present(vc, animated: true)
     }
+    
+    private func showPaywallScreen() {
+        let vc = storyboard!.instantiateViewController(
+            withIdentifier: "PaywallViewController"
+        ) as! PaywallViewController
+
+        vc.modalPresentationStyle = .overFullScreen
+        present(vc, animated: true)
+    }
 
     private func showDestinationScreen() {
         let vc = storyboard!.instantiateViewController(withIdentifier: "SettingsViewController") as! SettingsViewController
@@ -777,19 +839,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             let toggledHasTranscription: Bool = recordingManager.toggledAudioTranscriptionObject.hasTranscription
             switch DestinationManager.SELECTED_DESTINATION {
             case Destination.dropbox:
-                print("Sending to Dropbox")
                 dropboxManager.SendToDropbox(hasTranscription: toggledHasTranscription)
             case Destination.onedrive:
-                print("Sending to OneDrive")
                 oneDriveManager.SendToOneDrive(hasTranscription: toggledHasTranscription)
             case Destination.googledrive:
-                print("Sending to Google Drive")
                 googleDriveManager.SendToGoogleDrive(hasTranscription: toggledHasTranscription)
             case Destination.email:
-                print("Sending to Email")
                 Task { await emailManager.SendToEmail(hasTranscription: toggledHasTranscription) }
             default:
-                print("No destination selected")
                 showDestinationScreen()
             }
         } else {
@@ -813,7 +870,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
         alert.addAction(UIAlertAction(title: "Subscribe", style: .default) { [weak self] _ in
             guard let self = self else { return }
-            // Go to subscription page
+            self.showPaywallScreen()
         })
 
         present(alert, animated: true, completion: nil)
@@ -826,7 +883,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
         alert.addAction(UIAlertAction(title: "Subscribe", style: .default) { [weak self] _ in
             guard let self = self else { return }
-            // Go to subscription page
+            self.showPaywallScreen()
         })
 
         present(alert, animated: true, completion: nil)

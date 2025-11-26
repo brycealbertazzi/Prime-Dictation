@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		030BE2E22E8460B8006E3311 /* SwiftyDropbox in Frameworks */ = {isa = PBXBuildFile; productRef = 030BE2E12E8460B8006E3311 /* SwiftyDropbox */; };
 		031DE4F72E78757C003222CC /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = 031DE4F62E78757C003222CC /* ProgressHUD */; };
+		033457F42ED6877B00482354 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033457F32ED6877800482354 /* SceneDelegate.swift */; };
 		033F4CFC2E78B36000438D32 /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = 033F4CFB2E78B36000438D32 /* ProgressHUD */; };
 		034182FE22EE36B300670DD1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034182FD22EE36B300670DD1 /* AppDelegate.swift */; };
 		0341830322EE36B300670DD1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0341830122EE36B300670DD1 /* Main.storyboard */; };
@@ -65,6 +66,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		033457F32ED6877800482354 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		034182FA22EE36B300670DD1 /* Prime Dictation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Prime Dictation.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		034182FD22EE36B300670DD1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0341830222EE36B300670DD1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -168,6 +170,7 @@
 				039EE3352EB3BB0C009E9231 /* ViewControllers */,
 				03E719402E8764CE003B6BF1 /* AppServices.swift */,
 				034182FD22EE36B300670DD1 /* AppDelegate.swift */,
+				033457F32ED6877800482354 /* SceneDelegate.swift */,
 				0341830122EE36B300670DD1 /* Main.storyboard */,
 				0341830422EE36B300670DD1 /* Assets.xcassets */,
 				03A6F8682EC41A4F00BD411D /* GoogleService-Info.plist */,
@@ -266,6 +269,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				03E719412E8764D0003B6BF1 /* AppServices.swift in Sources */,
+				033457F42ED6877B00482354 /* SceneDelegate.swift in Sources */,
 				034182FE22EE36B300670DD1 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

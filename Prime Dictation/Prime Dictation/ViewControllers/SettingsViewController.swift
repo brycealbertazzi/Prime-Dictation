@@ -164,7 +164,7 @@ class SettingsViewController: UIViewController {
             withIdentifier: "PaywallViewController"
         ) as! PaywallViewController
 
-        vc.modalPresentationStyle = .fullScreen
+        vc.modalPresentationStyle = .overFullScreen
         present(vc, animated: true)
     }
     
