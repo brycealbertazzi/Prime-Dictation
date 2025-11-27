@@ -244,19 +244,19 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBAction func ListenButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
 
+        isRecordingPaused = false
+        watch.stop()
+
         let previousRecordingPath = recordingManager.GetDirectory()
             .appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName)
             .appendingPathExtension(recordingManager.audioRecordingExtension)
 
         do {
-            // Try to activate the audio session for playback.
-            // This is where an active call will usually cause failure.
             try recordingSession.setCategory(.playAndRecord,
                                              options: [.defaultToSpeaker, .allowBluetoothHFP])
             try recordingSession.setMode(.default)
             try recordingSession.setActive(true, options: .notifyOthersOnDeactivation)
 
-            // Now playback can proceed.
             try recordingSession.overrideOutputAudioPort(.speaker)
             audioPlayer = try AVAudioPlayer(contentsOf: previousRecordingPath)
             audioPlayer?.delegate = self
@@ -267,11 +267,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             audioPlayer.play()
 
             ShowListeningUI()
-            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTimeListen(timer:))
+            Timer.scheduledTimer(withTimeInterval: 0.1,
+                                 repeats: true,
+                                 block: watch.UpdateElapsedTimeListen(timer:))
             watch.start()
 
         } catch {
-            // Most likely reason: phone / FaceTime / VoIP is active.
             displayAlert(title: "Playback Unavailable", message: "Prime Dictation can’t play audio while a phone or FaceTime call is active.")
         }
     }
@@ -351,8 +352,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 self.pausePlayback()
             }
         case .ended:
-            // You *could* optionally re-enable the UI or offer to resume, but
-            // for a dictation app it's usually better to just let the user tap Record again.
             break
 
         @unknown default:

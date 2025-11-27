@@ -66,13 +66,15 @@ class Stopwatch {
     }
     
     func UpdateElapsedTimeListen(timer: Timer) {
-        if (overRecordingLength()) {
+        if overRecordingLength() {
             stop()
+            viewController.isRecordingPaused = false
             viewController.HideListeningUI()
+            timer.invalidate()
             return
         }
         
-        if (self.isRunning && !viewController.isRecordingPaused) {
+        if self.isRunning && !viewController.isRecordingPaused {
             let elapsedTime = self.elapsedTime
             let minutes = Int(elapsedTime / 60)
             let seconds = Int(elapsedTime.truncatingRemainder(dividingBy: 60))
@@ -80,7 +82,10 @@ class Stopwatch {
             let minutesTotal = Int(viewController.audioPlayer.duration / 60)
             let secondsTotal = Int(viewController.audioPlayer.duration.truncatingRemainder(dividingBy: 60))
             let tensOfSecondsTotal = Int((viewController.audioPlayer.duration * 10).truncatingRemainder(dividingBy: 10))
-            viewController.StopWatchLabel.text = String(format: "%d:%02d.%d", minutes, seconds, tensOfSeconds) + "/" + String(format: "%d:%02d.%d", minutesTotal, secondsTotal, tensOfSecondsTotal)
+            viewController.StopWatchLabel.text =
+                String(format: "%d:%02d.%d", minutes, seconds, tensOfSeconds)
+                + "/"
+                + String(format: "%d:%02d.%d", minutesTotal, secondsTotal, tensOfSecondsTotal)
         } else {
             timer.invalidate()
         }
