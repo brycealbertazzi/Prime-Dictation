@@ -951,7 +951,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             case Destination.email:
                 Task { await emailManager.SendToEmail(hasTranscription: toggledHasTranscription) }
             default:
-                showDestinationScreen()
+                selectDestinatinonAlert()
             }
         } else {
             displayAlert(title: "No recording found", message: "There is no recording to send, make a recording first and try again.")
@@ -963,6 +963,16 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: {_ in
             handler?()
+        }))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func selectDestinatinonAlert() {
+        let alert = UIAlertController(title: "No destination selected", message: "Before you send, select a destination first.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Not Now", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Destination", style: .default, handler: {[weak self] _ in
+            guard let self else { return }
+            self.showDestinationScreen()
         }))
         present(alert, animated: true, completion: nil)
     }
