@@ -24,7 +24,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var RenameFileLabel: UIButton!
     @IBOutlet weak var PreviousRecordingLabel: UIButton!
     @IBOutlet weak var NextRecordingLabel: UIButton!
-    @IBOutlet weak var PausePlayButtonLabel: UIButton!
     @IBOutlet weak var StopButtonLabel: UIButton!
     @IBOutlet weak var PausePlaybackLabel: UIButton!
     @IBOutlet weak var EndPlaybackLabel: UIButton!
@@ -475,7 +474,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
         ListenLabel.isHidden = false
         HideRecordingInProgressUI()
-        PausePlayButtonLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
 
         // Save the number of recordings
         UserDefaults.standard.set(recordingManager.numberOfRecordings, forKey: "myNumber")
@@ -517,12 +515,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBAction func PausePlayRecordingButton(_ sender: Any) {
         Haptic.tap()
         if self.audioRecorder.isRecording {
-            self.PausePlayButtonLabel.setImage(UIImage(named: "PlayButton"), for: .normal)
             self.audioRecorder.pause()
             self.isRecordingPaused = true
             self.watch.pause()
         } else {
-            self.PausePlayButtonLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
             self.audioRecorder.record()
             self.isRecordingPaused = false
             self.watch.resume()
@@ -1103,7 +1099,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func ShowRecordingInProgressUI() {
         RecordLabel.isHidden = true
         StopButtonLabel.isHidden = false
-        PausePlayButtonLabel.isHidden = false
         FileNameLabel.alpha = disabledAlpha
         ShowRecordingOrListeningUI()
     }
@@ -1111,7 +1106,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func HideRecordingInProgressUI() {
         RecordLabel.isHidden = false
         StopButtonLabel.isHidden = true
-        PausePlayButtonLabel.isHidden = true
         FileNameLabel.alpha = enabledAlpha
         HideRecordingOrListeningUI()
     }
