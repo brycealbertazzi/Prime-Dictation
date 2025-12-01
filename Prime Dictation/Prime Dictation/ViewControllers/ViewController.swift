@@ -663,6 +663,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBAction func TranscribeButton(_ sender: Any) {
         print("Transcribe Button current plan: \(StoreKitManager.shared.currentPlan.debugDescription)")
         print("Transcribe current usage: \(subscriptionManager.usage)")
+        Haptic.tap(intensity: 1.0)
         let access = subscriptionManager.accessLevel
 
         if access == .subscription_expired {
