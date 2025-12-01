@@ -16,7 +16,7 @@
 		0341830522EE36B300670DD1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0341830422EE36B300670DD1 /* Assets.xcassets */; };
 		0341830822EE36B300670DD1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0341830622EE36B300670DD1 /* LaunchScreen.storyboard */; };
 		037D80972E78BABB000D5231 /* SwiftyDropbox in Frameworks */ = {isa = PBXBuildFile; productRef = 037D80962E78BABB000D5231 /* SwiftyDropbox */; };
-		03A6F8692EC41A4F00BD411D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03A6F8682EC41A4F00BD411D /* GoogleService-Info.plist */; };
+		03A5A36B2EDE42A8005B3588 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03A5A36A2EDE42A8005B3588 /* GoogleService-Info.plist */; };
 		03BE287A2E94243300392139 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 03BE28792E94243300392139 /* GoogleSignIn */; };
 		03BE287C2E94243300392139 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 03BE287B2E94243300392139 /* GoogleSignInSwift */; };
 		03BE28812E94433A00392139 /* GoogleAPIClientForRESTCore in Frameworks */ = {isa = PBXBuildFile; productRef = 03BE28802E94433A00392139 /* GoogleAPIClientForRESTCore */; };
@@ -74,7 +74,7 @@
 		0341830722EE36B300670DD1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0341830922EE36B300670DD1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		03A58EE52E7C7FB100B4EE58 /* Prime Dictation.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Prime Dictation.entitlements"; sourceTree = "<group>"; };
-		03A6F8682EC41A4F00BD411D /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		03A5A36A2EDE42A8005B3588 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		03E719402E8764CE003B6BF1 /* AppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServices.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -173,9 +173,9 @@
 				033457F32ED6877800482354 /* SceneDelegate.swift */,
 				0341830122EE36B300670DD1 /* Main.storyboard */,
 				0341830422EE36B300670DD1 /* Assets.xcassets */,
-				03A6F8682EC41A4F00BD411D /* GoogleService-Info.plist */,
 				0341830622EE36B300670DD1 /* LaunchScreen.storyboard */,
 				0341830922EE36B300670DD1 /* Info.plist */,
+				03A5A36A2EDE42A8005B3588 /* GoogleService-Info.plist */,
 				03A58EE52E7C7FB100B4EE58 /* Prime Dictation.entitlements */,
 			);
 			path = "Prime Dictation";
@@ -255,9 +255,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				0341830822EE36B300670DD1 /* LaunchScreen.storyboard in Resources */,
-				03A6F8692EC41A4F00BD411D /* GoogleService-Info.plist in Resources */,
 				0341830522EE36B300670DD1 /* Assets.xcassets in Resources */,
 				0341830322EE36B300670DD1 /* Main.storyboard in Resources */,
+				03A5A36B2EDE42A8005B3588 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

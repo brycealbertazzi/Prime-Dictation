@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(
         _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?
     ) -> Bool {
 
         // Dropbox
@@ -28,17 +28,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             dropboxAppKey.trimmingCharacters(in: .whitespacesAndNewlines)
         )
 
-        // Google Drive
-        let GDClientID = loadGoogleDriveClientID()
-        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: GDClientID)
-
-        // Firebase
+        // Firebase FIRST
         FirebaseApp.configure()
         Task { await AppServices.shared.rebindAuthToNewProjectOnce() }
 
-        // StoreKit transaction observer (for StoreKit 2)
-        StoreKitManager.shared.startObservingTransactions()
+        // Google Sign-In / Drive – use the MANUAL iOS client from Info.plist
+        let GDClientID = loadGoogleDriveClientID()
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: GDClientID)
 
+        StoreKitManager.shared.startObservingTransactions()
         return true
     }
 

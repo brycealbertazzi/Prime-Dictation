@@ -1057,7 +1057,7 @@ final class GoogleDriveManager: NSObject {
                             ProgressHUD.succeed("Recording sent to Google Drive")
                             viewController.safeDisplayAlert(
                                 title: "Sent to Google Drive",
-                                message: "Your recording was sent to OneDrive while Prime Dictation was in the background.",
+                                message: "Your recording was sent to Google Drive while Prime Dictation was in the background.",
                                 type: .send,
                                 result: .success
                             )
