@@ -147,15 +147,15 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IlT-gg-nU8" userLabel="Rename File Label">
-                                                <rect key="frame" x="165" y="63" width="45" height="50"/>
+                                                <rect key="frame" x="168" y="69" width="40" height="40"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="height" constant="50" id="LTr-HL-0OD"/>
-                                                    <constraint firstAttribute="width" constant="45" id="uRp-Yb-bOg"/>
+                                                    <constraint firstAttribute="height" constant="40" id="LTr-HL-0OD"/>
+                                                    <constraint firstAttribute="width" constant="40" id="uRp-Yb-bOg"/>
                                                 </constraints>
                                                 <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.17254901960784313" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <state key="normal" title="Button"/>
                                                 <buttonConfiguration key="configuration" style="plain">
-                                                    <backgroundConfiguration key="background" image="waveform.path.ecg.text.clipboard" catalog="system"/>
+                                                    <backgroundConfiguration key="background" image="pencil" catalog="system"/>
                                                 </buttonConfiguration>
                                                 <connections>
                                                     <action selector="RenameFileButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Y4a-Lq-BsA"/>
@@ -223,6 +223,71 @@
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
+                                    <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="feV-vP-DU5" userLabel="Send View">
+                                        <rect key="frame" x="329" y="168" width="55" height="100"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="None" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zvX-Zz-aHd" userLabel="Accessiblity">
+                                                <rect key="frame" x="7.3333333333333144" y="71" width="40.666666666666664" height="21"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <color key="textColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="svK-SA-aO1">
+                                                <rect key="frame" x="0.0" y="8" width="55" height="55"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="55" id="oUz-Mq-9UC"/>
+                                                    <constraint firstAttribute="height" constant="55" id="w6N-VT-920"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="35"/>
+                                                <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="calibratedRGB"/>
+                                                <state key="normal" title="Send">
+                                                    <color key="titleColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.17254901960784313" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                </state>
+                                                <buttonConfiguration key="configuration" style="plain">
+                                                    <backgroundConfiguration key="background" image="paperplane.fill" catalog="system"/>
+                                                </buttonConfiguration>
+                                                <userDefinedRuntimeAttributes>
+                                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                                        <real key="value" value="8"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                                        <color key="value" red="0.039215686274509803" green="0.40000000000000002" blue="0.76078431372549016" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                                        <real key="value" value="1"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingTop">
+                                                        <real key="value" value="5"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingLeft">
+                                                        <real key="value" value="10"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingBottom">
+                                                        <real key="value" value="5"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                    <userDefinedRuntimeAttribute type="number" keyPath="paddingRight">
+                                                        <real key="value" value="10"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                    <userDefinedRuntimeAttribute type="color" keyPath="textColor">
+                                                        <color key="value" red="0.039215686270000001" green="0.40000000000000002" blue="0.76078431369999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                    <userDefinedRuntimeAttribute type="color" keyPath="color">
+                                                        <color key="value" red="0.039215686274509803" green="0.40000000000000002" blue="0.76078431372549016" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                </userDefinedRuntimeAttributes>
+                                                <connections>
+                                                    <action selector="SendButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ImA-qy-NzW"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstAttribute="bottom" secondItem="svK-SA-aO1" secondAttribute="bottom" constant="50" id="6xd-rO-1hv"/>
+                                            <constraint firstItem="svK-SA-aO1" firstAttribute="centerX" secondItem="feV-vP-DU5" secondAttribute="centerX" id="GPr-bV-GNZ"/>
+                                            <constraint firstAttribute="bottom" secondItem="zvX-Zz-aHd" secondAttribute="bottom" constant="20" id="XUH-2h-Psc"/>
+                                            <constraint firstAttribute="width" constant="55" id="l0L-a9-UkP"/>
+                                            <constraint firstItem="zvX-Zz-aHd" firstAttribute="centerX" secondItem="feV-vP-DU5" secondAttribute="centerX" id="uTI-oc-fbY"/>
+                                        </constraints>
+                                    </view>
                                     <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TEJ-KL-gv0">
                                         <rect key="frame" x="32" y="168" width="50" height="50"/>
                                         <constraints>
@@ -261,63 +326,16 @@
                                             <action selector="DestinationButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="UTw-oh-SWs"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="svK-SA-aO1">
-                                        <rect key="frame" x="329" y="165.66666666666663" width="55" height="55"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="55" id="oUz-Mq-9UC"/>
-                                            <constraint firstAttribute="height" constant="55" id="w6N-VT-920"/>
-                                        </constraints>
-                                        <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="35"/>
-                                        <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="calibratedRGB"/>
-                                        <state key="normal" title="Send">
-                                            <color key="titleColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.17254901960784313" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        </state>
-                                        <buttonConfiguration key="configuration" style="plain">
-                                            <backgroundConfiguration key="background" image="paperplane.fill" catalog="system"/>
-                                        </buttonConfiguration>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                                <real key="value" value="8"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
-                                                <color key="value" red="0.039215686274509803" green="0.40000000000000002" blue="0.76078431372549016" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
-                                                <real key="value" value="1"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingTop">
-                                                <real key="value" value="5"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingLeft">
-                                                <real key="value" value="10"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingBottom">
-                                                <real key="value" value="5"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingRight">
-                                                <real key="value" value="10"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="color" keyPath="textColor">
-                                                <color key="value" red="0.039215686270000001" green="0.40000000000000002" blue="0.76078431369999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="color" keyPath="color">
-                                                <color key="value" red="0.039215686274509803" green="0.40000000000000002" blue="0.76078431372549016" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                            </userDefinedRuntimeAttribute>
-                                        </userDefinedRuntimeAttributes>
-                                        <connections>
-                                            <action selector="SendButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ImA-qy-NzW"/>
-                                        </connections>
-                                    </button>
                                 </subviews>
                                 <gestureRecognizers/>
                                 <constraints>
                                     <constraint firstItem="xv6-iB-UAN" firstAttribute="top" secondItem="nJI-Eq-CWr" secondAttribute="top" constant="25" id="0WN-3G-Q8d"/>
                                     <constraint firstItem="DWH-sd-6b5" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="5AQ-1J-6l2"/>
-                                    <constraint firstItem="TEJ-KL-gv0" firstAttribute="centerY" secondItem="svK-SA-aO1" secondAttribute="centerY" id="7Gt-cE-h6W"/>
                                     <constraint firstItem="TEJ-KL-gv0" firstAttribute="leading" secondItem="nJI-Eq-CWr" secondAttribute="leading" constant="30" id="A3i-1b-gR7"/>
                                     <constraint firstAttribute="bottom" secondItem="DWH-sd-6b5" secondAttribute="bottom" constant="100" id="AIa-CB-fC4"/>
+                                    <constraint firstAttribute="bottom" secondItem="feV-vP-DU5" secondAttribute="bottom" id="E0b-1r-wJS"/>
+                                    <constraint firstAttribute="trailing" secondItem="feV-vP-DU5" secondAttribute="trailing" constant="30" id="IiM-rb-O9o"/>
                                     <constraint firstItem="xv6-iB-UAN" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="Mta-b2-w0b"/>
-                                    <constraint firstAttribute="trailing" secondItem="svK-SA-aO1" secondAttribute="trailing" constant="30" id="cq6-Pe-4pg"/>
                                     <constraint firstAttribute="bottom" secondItem="TEJ-KL-gv0" secondAttribute="bottom" constant="50" id="u4g-J3-kaI"/>
                                 </constraints>
                             </view>
@@ -418,6 +436,7 @@
                         <outlet property="RecordLabel" destination="aq9-EU-DW7" id="aoh-8d-Bsn"/>
                         <outlet property="RenameFileLabel" destination="IlT-gg-nU8" id="nB1-qy-DPv"/>
                         <outlet property="SeeTranscriptionLabel" destination="EGn-C5-l6S" id="Mea-OW-KsR"/>
+                        <outlet property="SendAccessibilityLabel" destination="zvX-Zz-aHd" id="icZ-mY-1PD"/>
                         <outlet property="SendLabel" destination="svK-SA-aO1" id="s8t-Bh-c3r"/>
                         <outlet property="StopButtonLabel" destination="EmE-RS-QlP" id="QWe-k5-g0Q"/>
                         <outlet property="StopWatchLabel" destination="dFf-qS-ITZ" id="Vo8-Pv-V93"/>
@@ -492,7 +511,7 @@
                                                 <real key="value" value="8"/>
                                             </userDefinedRuntimeAttribute>
                                             <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
-                                                <real key="value" value="1"/>
+                                                <real key="value" value="2"/>
                                             </userDefinedRuntimeAttribute>
                                             <userDefinedRuntimeAttribute type="number" keyPath="paddingTop">
                                                 <real key="value" value="5"/>
@@ -535,7 +554,7 @@
                                                 <real key="value" value="8"/>
                                             </userDefinedRuntimeAttribute>
                                             <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
-                                                <real key="value" value="1"/>
+                                                <real key="value" value="2"/>
                                             </userDefinedRuntimeAttribute>
                                             <userDefinedRuntimeAttribute type="number" keyPath="paddingTop">
                                                 <real key="value" value="5"/>
@@ -578,7 +597,7 @@
                                                 <real key="value" value="8"/>
                                             </userDefinedRuntimeAttribute>
                                             <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
-                                                <real key="value" value="1"/>
+                                                <real key="value" value="2"/>
                                             </userDefinedRuntimeAttribute>
                                             <userDefinedRuntimeAttribute type="number" keyPath="paddingTop">
                                                 <real key="value" value="5"/>
@@ -622,7 +641,7 @@
                                                 <real key="value" value="8"/>
                                             </userDefinedRuntimeAttribute>
                                             <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
-                                                <real key="value" value="1"/>
+                                                <real key="value" value="2"/>
                                             </userDefinedRuntimeAttribute>
                                             <userDefinedRuntimeAttribute type="number" keyPath="paddingTop">
                                                 <real key="value" value="5"/>
@@ -1409,9 +1428,9 @@
         <image name="headphones" catalog="system" width="128" height="121"/>
         <image name="paperplane.circle.fill" catalog="system" width="128" height="123"/>
         <image name="paperplane.fill" catalog="system" width="128" height="119"/>
+        <image name="pencil" catalog="system" width="128" height="113"/>
         <image name="text.document.fill" catalog="system" width="115" height="128"/>
         <image name="tray.and.arrow.up.fill" catalog="system" width="128" height="117"/>
-        <image name="waveform.path.ecg.text.clipboard" catalog="system" width="103" height="128"/>
         <image name="xmark.circle" catalog="system" width="128" height="123"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

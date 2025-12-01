@@ -18,7 +18,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var TitleOfAppLabel: UILabel!
     @IBOutlet weak var ListenLabel: UIButton!
     @IBOutlet weak var RecordLabel: UIButton!
-    @IBOutlet weak var SendLabel: RoundedButton!
+    @IBOutlet weak var SendLabel: UIButton!
     @IBOutlet weak var DestinationLabel: UIButton!
     @IBOutlet weak var FileNameLabel: UIButton!
     @IBOutlet weak var RenameFileLabel: UIButton!
@@ -31,6 +31,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var TranscribeLabel: UIButton!
     @IBOutlet weak var SeeTranscriptionLabel: UIButton!
     @IBOutlet weak var PoorConnectionLabel: UILabel!
+    @IBOutlet weak var SendAccessibilityLabel: UILabel!
     
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
     var audioRecorder: AVAudioRecorder! //Responsible for recording our audio
@@ -51,11 +52,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .darkContent
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        setNeedsStatusBarAppearanceUpdate()
     }
     
     //MARK: View did load
@@ -95,6 +91,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         //FileNameLabel should be disabled at all times
         FileNameLabel.isEnabled = false
         /*****/
+        
+        loadAccessibilityText()
         
         // Initialize recording session (configure, but don't force it active yet)
         recordingSession = AVAudioSession.sharedInstance()
@@ -144,9 +142,30 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         NotificationCenter.default.removeObserver(self)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setNeedsStatusBarAppearanceUpdate()
+        loadAccessibilityText()
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         Haptic.prepare()
+    }
+    
+    func loadAccessibilityText() {
+        switch DestinationManager.SELECTED_DESTINATION {
+        case .dropbox:
+            SendAccessibilityLabel.text = "Dropbox"
+        case .onedrive:
+            SendAccessibilityLabel.text = "OneDrive"
+        case .googledrive:
+            SendAccessibilityLabel.text = "G Drive"
+        case .email:
+            SendAccessibilityLabel.text = "Email"
+        default:
+            SendAccessibilityLabel.text = ""
+        }
     }
     
     func loadSubscriptions() {
