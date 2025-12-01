@@ -61,6 +61,33 @@ class SettingsViewController: UIViewController {
             sheet.detents = [.medium(), .large()]     // optional
             sheet.prefersGrabberVisible = true        // toggle to taste
         }
+        
+        setStoreButtonStyling()
+    }
+    
+    private func setStoreButtonStyling() {
+        let title = "Subscription"
+
+        let normal = NSAttributedString(
+            string: title,
+            attributes: [
+                .underlineStyle: NSUnderlineStyle.single.rawValue,
+                .foregroundColor: PDColors.black,
+                .font: UIFont.systemFont(ofSize: 14, weight: .semibold)
+            ]
+        )
+
+        let highlighted = NSAttributedString(
+            string: title,
+            attributes: [
+                .underlineStyle: NSUnderlineStyle.single.rawValue,
+                .foregroundColor: PDColors.black.withAlphaComponent(0.6),
+                .font: UIFont.systemFont(ofSize: 14, weight: .semibold)
+            ]
+        )
+
+        StoreIcon.setAttributedTitle(normal, for: .normal)
+        StoreIcon.setAttributedTitle(highlighted, for: .highlighted)
     }
     
     @IBAction func EmailButton(_ sender: Any) {

@@ -79,6 +79,20 @@ class PaywallViewController: UIViewController {
         configureCards()
         preselectPlan()
         
+        setResorePurchasesButtonStyling()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        // Make sure badges are always above their cards
+        ltdContainerView.bringSubviewToFront(ltdBadgeLabel)
+        annualContainerView.bringSubviewToFront(annualBadgeLabel)
+    }
+
+    // MARK: - Setup
+    
+    private func setResorePurchasesButtonStyling() {
         let title = "Restore Purchases"
 
         let normal = NSAttributedString(
@@ -102,16 +116,6 @@ class PaywallViewController: UIViewController {
         RestorePurchasesButton.setAttributedTitle(normal, for: .normal)
         RestorePurchasesButton.setAttributedTitle(highlighted, for: .highlighted)
     }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        // Make sure badges are always above their cards
-        ltdContainerView.bringSubviewToFront(ltdBadgeLabel)
-        annualContainerView.bringSubviewToFront(annualBadgeLabel)
-    }
-
-    // MARK: - Setup
 
     private func configureCards() {
         // 1) Attach StoreKit products

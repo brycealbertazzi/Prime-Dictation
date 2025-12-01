@@ -966,6 +966,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             case Destination.email:
                 Task { await emailManager.SendToEmail(hasTranscription: toggledHasTranscription) }
             default:
+                print("No destination selected")
                 selectDestinatinonAlert()
             }
         } else {
