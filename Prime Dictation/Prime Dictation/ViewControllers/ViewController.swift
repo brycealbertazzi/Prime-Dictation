@@ -1073,6 +1073,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func DisableDestinationAndSendButtons() {
         SendLabel.isEnabled = false
         SendLabel.alpha = disabledAlpha
+        SendAccessibilityLabel.alpha = disabledAlpha
         DestinationLabel.isEnabled = false
         DestinationLabel.alpha = disabledAlpha
     }
@@ -1080,6 +1081,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func EnableDestinationAndSendButtons() {
         SendLabel.isEnabled = true
         SendLabel.alpha = enabledAlpha
+        SendAccessibilityLabel.alpha = enabledAlpha
         DestinationLabel.isEnabled = true
         DestinationLabel.alpha = enabledAlpha
     }
@@ -1188,6 +1190,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         FileNameLabel.isHidden = true
         SendLabel.isEnabled = false
         SendLabel.alpha = disabledAlpha
+        SendAccessibilityLabel.alpha = disabledAlpha
         PreviousRecordingLabel.isHidden = true
         NextRecordingLabel.isHidden = true
         TranscribeLabel.isHidden = true
@@ -1200,6 +1203,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         FileNameLabel.isHidden = false
         SendLabel.isEnabled = true
         SendLabel.alpha = enabledAlpha
+        SendAccessibilityLabel.alpha = enabledAlpha
         PreviousRecordingLabel.isHidden = numberOfRecordings <= 1 // Show back arrow of there are 2 or more recordings
         NextRecordingLabel.isHidden = true
         RenameFileLabel.isHidden = false
