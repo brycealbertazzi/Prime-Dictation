@@ -586,7 +586,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             displayTranscriptionAlert(title: title, message: msg, estimated: estimated)
         } else {
             let title = "Start transcription?"
-            let msg = "The app will be locked while transcribing, please keep Prime Dictation open during the process. \(estimatedWaitStr)"
+            let msg = estimatedWaitStr
             displayTranscriptionAlert(title: title, message: msg, estimated: estimated)
         }
     }
@@ -618,14 +618,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 }
 
                 await MainActor.run {
-                    ProgressHUD.succeed("Transcription Complete")
-
                     self.safeDisplayAlert(
                         title: "Transcription Complete",
                         message: "Your recording was transcribed while Prime Dictation was in the background.",
                         type: .transcribe,
                         result: .success
                     )
+                    ProgressHUD.dismiss()
+                    self.showTranscriptionScreen()
                 }
             } catch {
                 await MainActor.run {
