@@ -201,18 +201,27 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EmE-RS-QlP" userLabel="Stop">
-                                                <rect key="frame" x="125" y="36" width="100" height="100"/>
+                                                <rect key="frame" x="45" y="36" width="100" height="100"/>
                                                 <state key="normal" image="EndButton"/>
                                                 <connections>
                                                     <action selector="StopRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8PK-a2-dMr"/>
                                                 </connections>
                                             </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XvF-Ob-6ZY" userLabel="PauseResume">
+                                                <rect key="frame" x="205" y="36" width="100" height="100"/>
+                                                <state key="normal" image="PauseButton"/>
+                                                <connections>
+                                                    <action selector="PausePlayRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="dTH-tE-iY3"/>
+                                                </connections>
+                                            </button>
                                         </subviews>
                                         <constraints>
+                                            <constraint firstItem="XvF-Ob-6ZY" firstAttribute="centerY" secondItem="xv6-iB-UAN" secondAttribute="centerY" id="0Qf-QM-Nvy"/>
                                             <constraint firstAttribute="width" constant="350" id="0bb-xY-SH3"/>
                                             <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="xv6-iB-UAN" secondAttribute="centerX" id="9UJ-9s-5vo"/>
-                                            <constraint firstItem="EmE-RS-QlP" firstAttribute="centerX" secondItem="xv6-iB-UAN" secondAttribute="centerX" id="AlZ-r1-ExC"/>
                                             <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="xv6-iB-UAN" secondAttribute="centerY" id="LME-Oa-J6M"/>
+                                            <constraint firstItem="XvF-Ob-6ZY" firstAttribute="centerX" secondItem="xv6-iB-UAN" secondAttribute="centerX" constant="80" id="Sgb-cD-MMF"/>
+                                            <constraint firstItem="EmE-RS-QlP" firstAttribute="centerX" secondItem="xv6-iB-UAN" secondAttribute="centerX" constant="-80" id="TbG-qM-gNb"/>
                                             <constraint firstItem="EmE-RS-QlP" firstAttribute="centerY" secondItem="xv6-iB-UAN" secondAttribute="centerY" id="eGy-Oh-xpd"/>
                                             <constraint firstAttribute="height" constant="172" id="xKo-BL-Qqq"/>
                                         </constraints>
@@ -420,6 +429,7 @@
                         <outlet property="FileNameLabel" destination="ma4-wR-ucz" id="J8z-3S-8F3"/>
                         <outlet property="ListenLabel" destination="tAV-Xq-Ydt" id="x77-pk-KvP"/>
                         <outlet property="NextRecordingLabel" destination="RQo-s8-1EL" id="Qxy-BS-mC3"/>
+                        <outlet property="PausePlayRecordingLabel" destination="XvF-Ob-6ZY" id="BYB-VJ-FXM"/>
                         <outlet property="PausePlaybackLabel" destination="Vvz-gp-8Nr" id="w3z-fG-5BT"/>
                         <outlet property="PoorConnectionLabel" destination="DWH-sd-6b5" id="Ufn-lc-T1T"/>
                         <outlet property="PreviousRecordingLabel" destination="Ad2-00-0E4" id="EfO-Ok-KQM"/>
@@ -1410,6 +1420,7 @@
         <image name="BG" width="1000" height="1000"/>
         <image name="EndButton" width="100" height="100"/>
         <image name="NextArrow" width="100" height="100"/>
+        <image name="PauseButton" width="100" height="100"/>
         <image name="PreviousArrow" width="100" height="100"/>
         <image name="RecordButton" width="100" height="100"/>
         <image name="chevron.down" catalog="system" width="128" height="70"/>

@@ -32,6 +32,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var SeeTranscriptionLabel: UIButton!
     @IBOutlet weak var PoorConnectionLabel: UILabel!
     @IBOutlet weak var SendAccessibilityLabel: UILabel!
+    @IBOutlet weak var PausePlayRecordingLabel: UIButton!
     
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
     var audioRecorder: AVAudioRecorder! //Responsible for recording our audio
@@ -493,6 +494,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
         ListenLabel.isHidden = false
         HideRecordingInProgressUI()
+        PausePlayRecordingLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
 
         // Save the number of recordings
         UserDefaults.standard.set(recordingManager.numberOfRecordings, forKey: "myNumber")
@@ -534,10 +536,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBAction func PausePlayRecordingButton(_ sender: Any) {
         Haptic.tap()
         if self.audioRecorder.isRecording {
+            self.PausePlayRecordingLabel.setImage(UIImage(named: "PlayButton"), for: .normal)
             self.audioRecorder.pause()
             self.isRecordingPaused = true
             self.watch.pause()
         } else {
+            self.PausePlayRecordingLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
             self.audioRecorder.record()
             self.isRecordingPaused = false
             self.watch.resume()
@@ -1122,6 +1126,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func ShowRecordingInProgressUI() {
         RecordLabel.isHidden = true
         StopButtonLabel.isHidden = false
+        PausePlayRecordingLabel.isHidden = false
         FileNameLabel.alpha = disabledAlpha
         ShowRecordingOrListeningUI()
     }
@@ -1129,6 +1134,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func HideRecordingInProgressUI() {
         RecordLabel.isHidden = false
         StopButtonLabel.isHidden = true
+        PausePlayRecordingLabel.isHidden = true
         FileNameLabel.alpha = enabledAlpha
         HideRecordingOrListeningUI()
     }
