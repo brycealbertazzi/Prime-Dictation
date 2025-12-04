@@ -987,6 +987,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 Task { await emailManager.SendToEmail(hasTranscription: toggledHasTranscription) }
             default:
                 print("No destination selected")
+                SendAccessibilityLabel.alpha = 1.0
+                SendLabel.alpha = 1.0
                 selectDestinatinonAlert()
             }
         } else {
