@@ -149,10 +149,8 @@
                                                     <constraint firstAttribute="width" constant="40" id="uRp-Yb-bOg"/>
                                                 </constraints>
                                                 <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.17254901960784313" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="plain">
-                                                    <backgroundConfiguration key="background" image="pencil" catalog="system"/>
-                                                </buttonConfiguration>
+                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                <state key="normal" backgroundImage="pencil" catalog="system"/>
                                                 <connections>
                                                     <action selector="RenameFileButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Y4a-Lq-BsA"/>
                                                 </connections>
@@ -269,6 +267,9 @@
                                         </userDefinedRuntimeAttributes>
                                         <connections>
                                             <action selector="SendButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ImA-qy-NzW"/>
+                                            <action selector="SendButtonHighlighted:" destination="BYZ-38-t0r" eventType="touchDown" id="9tr-Rh-qk2"/>
+                                            <action selector="SendButtonTouchDragEnter:" destination="BYZ-38-t0r" eventType="touchDragEnter" id="kdu-cK-Pmw"/>
+                                            <action selector="SendButtonTouchDragExit:" destination="BYZ-38-t0r" eventType="touchDragExit" id="H9n-d7-aRT"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TEJ-KL-gv0">
@@ -328,17 +329,15 @@
                                     <constraint firstAttribute="bottom" secondItem="TEJ-KL-gv0" secondAttribute="bottom" constant="50" id="u4g-J3-kaI"/>
                                 </constraints>
                             </view>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAV-Xq-Ydt">
-                                <rect key="frame" x="182" y="268" width="50" height="50"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAV-Xq-Ydt">
+                                <rect key="frame" x="182" y="268.33333333333331" width="50" height="49.666666666666686"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="50" id="eOL-3b-DhG"/>
                                     <constraint firstAttribute="height" constant="50" id="icE-xY-k8T"/>
                                 </constraints>
                                 <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <state key="normal" title="Listen"/>
-                                <buttonConfiguration key="configuration" style="plain">
-                                    <backgroundConfiguration key="background" image="headphones" catalog="system"/>
-                                </buttonConfiguration>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" backgroundImage="headphones" catalog="system"/>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
                                         <real key="value" value="8"/>

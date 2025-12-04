@@ -957,6 +957,21 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         showDestinationScreen()
     }
     
+    @IBAction func SendButtonHighlighted(_ sender: Any) {
+        SendAccessibilityLabel.alpha = disabledAlpha // 0.4
+        SendLabel.alpha = 0.5
+    }
+    
+    @IBAction func SendButtonTouchDragEnter(_ sender: Any) {
+        SendAccessibilityLabel.alpha = disabledAlpha // 0.4
+        SendLabel.alpha = 0.5
+    }
+    
+    @IBAction func SendButtonTouchDragExit(_ sender: Any) {
+        SendAccessibilityLabel.alpha = 1.0
+        SendLabel.alpha = 1.0
+    }
+    
     @IBAction func SendButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
         if recordingManager.savedAudioTranscriptionObjects.count > 0 {
