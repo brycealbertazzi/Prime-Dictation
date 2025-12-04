@@ -28,7 +28,7 @@ class RecordingManager {
     
     var savedAudioTranscriptionObjectsKey: String = "savedAudioTranscriptionObjectsKey"
     var savedAudioTranscriptionObjects: [AudioTranscriptionObject] = []
-    let maxNumSavedRecordings = 30
+    let maxNumSavedRecordings = 25
     
     //Stores the current recording in queue the user wants to listen to
     var toggledRecordingsIndex: Int = Int()
