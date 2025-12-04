@@ -354,7 +354,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vvz-gp-8Nr" userLabel="Pause/Play Playback Label">
-                                <rect key="frame" x="254.66666666666663" y="278" width="67" height="45"/>
+                                <rect key="frame" x="272" y="278" width="67" height="45"/>
                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
                                 <state key="normal" title="Pause">
                                     <color key="titleColor" red="0.72941176470588232" green="0.29019607843137252" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -364,7 +364,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JP1-AS-jj7" userLabel="End Playback Label">
-                                <rect key="frame" x="117.66666666666669" y="278" width="42" height="45"/>
+                                <rect key="frame" x="100" y="278" width="42" height="45"/>
                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
                                 <state key="normal" title="End">
                                     <color key="titleColor" red="0.5725490196078431" green="0.16862745098039217" blue="0.12941176470588234" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -373,8 +373,8 @@
                                     <action selector="EndPlaybackButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="aR7-mz-CaT"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="            " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dFf-qS-ITZ">
-                                <rect key="frame" x="169.66666666666666" y="286" width="75" height="27.333333333333314"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Stopwatch" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dFf-qS-ITZ">
+                                <rect key="frame" x="152" y="286" width="110" height="27.333333333333314"/>
                                 <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
                                 <color key="textColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
