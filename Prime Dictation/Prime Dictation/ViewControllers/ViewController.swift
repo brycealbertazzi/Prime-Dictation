@@ -958,13 +958,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     @IBAction func SendButtonHighlighted(_ sender: Any) {
-        SendAccessibilityLabel.alpha = disabledAlpha // 0.4
-        SendLabel.alpha = 0.5
+        SendAccessibilityLabel.alpha = 0.3
+        SendLabel.alpha = disabledAlpha // 0.4
     }
     
     @IBAction func SendButtonTouchDragEnter(_ sender: Any) {
-        SendAccessibilityLabel.alpha = disabledAlpha // 0.4
-        SendLabel.alpha = 0.5
+        SendAccessibilityLabel.alpha = 0.3
+        SendLabel.alpha = disabledAlpha // 0.4
     }
     
     @IBAction func SendButtonTouchDragExit(_ sender: Any) {
@@ -1093,7 +1093,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func DisableDestinationAndSendButtons() {
         SendLabel.isEnabled = false
         SendLabel.alpha = disabledAlpha
-        SendAccessibilityLabel.alpha = disabledAlpha
+        SendAccessibilityLabel.alpha = 0.3
         DestinationLabel.isEnabled = false
         DestinationLabel.alpha = disabledAlpha
     }
@@ -1212,7 +1212,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         FileNameLabel.isHidden = true
         SendLabel.isEnabled = false
         SendLabel.alpha = disabledAlpha
-        SendAccessibilityLabel.alpha = disabledAlpha
+        SendAccessibilityLabel.alpha = 0.3
         PreviousRecordingLabel.isHidden = true
         NextRecordingLabel.isHidden = true
         TranscribeLabel.isHidden = true
