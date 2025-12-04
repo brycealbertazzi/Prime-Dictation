@@ -27,7 +27,7 @@ class RoundedButton: UIButton {
     // MARK: - State
 
     override var isHighlighted: Bool {
-        didSet { updateHighlightState() }
+        didSet { updateAppearance() }
     }
 
     override var isEnabled: Bool {
@@ -82,38 +82,44 @@ class RoundedButton: UIButton {
         layer.borderWidth = borderWidth
         layer.masksToBounds = true
 
-        let accent = color
+        let baseAccent = color
+
+        // Accent color adjusted for state
+        let accent: UIColor
+        if !isEnabled {
+            accent = baseAccent.withAlphaComponent(0.5)
+        } else if isHighlighted {
+            accent = baseAccent.withAlphaComponent(0.5)  // tweak this if you want
+        } else {
+            accent = baseAccent
+        }
+
+        layer.borderColor = accent.cgColor
 
         if isEnabled {
-            // Enabled border
-            layer.borderColor = accent.cgColor
-
             if filledStyle {
-                // Filled style when enabled
+                // Filled style
                 backgroundColor = accent
                 setButtonTextColor(filled: true)
             } else {
-                // Outline style when enabled
+                // Outline style
                 backgroundColor = .clear
                 setButtonTextColor(filled: false)
             }
+            titleLabel?.alpha = isHighlighted ? 0.5 : 1.0
+            alpha = 1.0   // no whole-view alpha tricks needed anymore
         } else {
-            layer.borderColor = accent.withAlphaComponent(0.3).cgColor
-            titleLabel?.alpha = 0.6
+            // Disabled
             if filledStyle {
-                backgroundColor = accent.withAlphaComponent(0.3)
+                backgroundColor = accent
+                setButtonTextColor(filled: true)
+            } else {
+                backgroundColor = .clear
+                setButtonTextColor(filled: false)
             }
-        }
-
-        alpha = 1.0
-    }
-
-    private func updateHighlightState() {
-        // Simple pressed effect; works for both styles
-        if isHighlighted {
-            alpha = 0.8
-        } else {
+            titleLabel?.alpha = 0.5
             alpha = 1.0
         }
     }
+
 }

@@ -28,7 +28,7 @@
                                         <color key="textColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="R5K-8g-HC8">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="R5K-8g-HC8">
                                         <rect key="frame" x="182" y="173" width="50" height="50"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="50" id="EVB-Gx-Ygw"/>
@@ -38,7 +38,7 @@
                                         <color key="tintColor" systemColor="tintColor"/>
                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                         <state key="normal" title="T">
-                                            <color key="titleColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <color key="titleColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </state>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
@@ -67,7 +67,7 @@
                                             <action selector="TranscribeButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="hxH-LN-zb2"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EGn-C5-l6S" userLabel="See Transcription Label">
+                                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EGn-C5-l6S" userLabel="See Transcription Label">
                                         <rect key="frame" x="129" y="173" width="45" height="50"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="50" id="DIJ-EA-lbN"/>
@@ -75,13 +75,9 @@
                                         </constraints>
                                         <color key="tintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                        <state key="normal">
+                                        <state key="normal" backgroundImage="text.document.fill" catalog="system">
                                             <color key="titleColor" red="0.5568627451" green="0.2666666667" blue="0.67843137249999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </state>
-                                        <buttonConfiguration key="configuration" style="plain">
-                                            <backgroundConfiguration key="background" image="text.document.fill" catalog="system"/>
-                                            <color key="baseForegroundColor" red="0.5568627451" green="0.2666666667" blue="0.67843137249999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        </buttonConfiguration>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
                                                 <real key="value" value="8"/>
@@ -233,19 +229,15 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="svK-SA-aO1">
-                                        <rect key="frame" x="329" y="163" width="55" height="55"/>
+                                        <rect key="frame" x="329" y="163.66666666666666" width="55" height="54.333333333333343"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="55" id="oUz-Mq-9UC"/>
                                             <constraint firstAttribute="height" constant="55" id="w6N-VT-920"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="35"/>
                                         <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="calibratedRGB"/>
-                                        <state key="normal" title="Send">
-                                            <color key="titleColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.17254901960784313" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        </state>
-                                        <buttonConfiguration key="configuration" style="plain">
-                                            <backgroundConfiguration key="background" image="paperplane.fill" catalog="system"/>
-                                        </buttonConfiguration>
+                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                        <state key="normal" backgroundImage="paperplane.fill" catalog="system"/>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
                                                 <real key="value" value="8"/>
@@ -286,10 +278,8 @@
                                             <constraint firstAttribute="height" constant="50" id="NQi-eD-b2n"/>
                                         </constraints>
                                         <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="calibratedRGB"/>
-                                        <state key="normal" image="paperplane.circle.fill" catalog="system"/>
-                                        <buttonConfiguration key="configuration" style="plain">
-                                            <backgroundConfiguration key="background" image="tray.and.arrow.up.fill" catalog="system"/>
-                                        </buttonConfiguration>
+                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                        <state key="normal" backgroundImage="tray.and.arrow.up.fill" catalog="system"/>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
                                                 <real key="value" value="8"/>
@@ -475,7 +465,8 @@
                                             <constraint firstAttribute="width" constant="45" id="awK-YQ-3Xr"/>
                                         </constraints>
                                         <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <state key="normal" title="Button"/>
+                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                        <state key="normal" backgroundImage="chevron.down" catalog="system"/>
                                         <buttonConfiguration key="configuration" style="plain">
                                             <backgroundConfiguration key="background" image="chevron.down" catalog="system"/>
                                         </buttonConfiguration>
@@ -685,16 +676,14 @@
                                 <rect key="frame" x="0.0" y="571" width="414" height="165"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AWb-dR-20j" userLabel="Select Folder">
-                                        <rect key="frame" x="174.66666666666666" y="10" width="65" height="50"/>
+                                        <rect key="frame" x="174.66666666666666" y="10.333333333333332" width="67.333333333333343" height="48.333333333333343"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="65" id="Rwx-3g-rbR"/>
                                             <constraint firstAttribute="height" constant="50" id="oGP-Wv-z3H"/>
                                         </constraints>
                                         <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="plain">
-                                            <backgroundConfiguration key="background" image="folder.fill.badge.gearshape" catalog="system"/>
-                                        </buttonConfiguration>
+                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                        <state key="normal" backgroundImage="folder.fill.badge.gearshape" catalog="system"/>
                                         <connections>
                                             <action selector="SelectFolderButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="dM4-aU-6w1"/>
                                         </connections>
@@ -1426,7 +1415,6 @@
         <image name="chevron.down" catalog="system" width="128" height="70"/>
         <image name="folder.fill.badge.gearshape" catalog="system" width="128" height="93"/>
         <image name="headphones" catalog="system" width="128" height="121"/>
-        <image name="paperplane.circle.fill" catalog="system" width="128" height="123"/>
         <image name="paperplane.fill" catalog="system" width="128" height="119"/>
         <image name="pencil" catalog="system" width="128" height="113"/>
         <image name="text.document.fill" catalog="system" width="115" height="128"/>
