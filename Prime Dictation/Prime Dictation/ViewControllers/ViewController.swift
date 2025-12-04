@@ -958,13 +958,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     @IBAction func SendButtonHighlighted(_ sender: Any) {
-        SendAccessibilityLabel.alpha = 0.3
-        SendLabel.alpha = disabledAlpha // 0.4
+        SendAccessibilityLabel.alpha = 0.6
+        SendLabel.alpha = 0.8
     }
     
     @IBAction func SendButtonTouchDragEnter(_ sender: Any) {
-        SendAccessibilityLabel.alpha = 0.3
-        SendLabel.alpha = disabledAlpha // 0.4
+        SendAccessibilityLabel.alpha = 0.6
+        SendLabel.alpha = 0.8
     }
     
     @IBAction func SendButtonTouchDragExit(_ sender: Any) {
