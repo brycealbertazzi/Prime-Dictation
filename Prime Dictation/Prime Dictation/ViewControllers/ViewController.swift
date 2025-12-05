@@ -101,6 +101,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
         RecordLabel.setImage(UIImage(named: "RecordButton"), for: .normal)
         PoorConnectionLabel.isHidden = true
+        StopWatchLabel.text = Stopwatch.StopwatchDefaultText
 
         // Request permission
         AVAudioApplication.requestRecordPermission { [weak self] granted in
@@ -486,6 +487,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     func finishCurrentRecording(interrupted: Bool, trialEnded: Bool = false) {
+        StopWatchLabel.text = Stopwatch.StopwatchDefaultText
         guard audioRecorder != nil else { return }
 
         audioRecorder.stop()
@@ -573,6 +575,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         audioPlayer.stop()
         watch.stop()
         HideListeningUI()
+        StopWatchLabel.text = Stopwatch.StopwatchDefaultText
     }
     
     @IBAction func EndPlaybackButton(_ sender: Any) {

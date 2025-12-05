@@ -50,42 +50,53 @@ class Stopwatch {
         startTime = startTime?.addingTimeInterval(timeWhenResumed?.timeIntervalSince(timeWhenPaused!) ?? 0)
     }
     
+    private func formatStopwatchTime(_ time: TimeInterval) -> String {
+        // Use whole seconds for display
+        let totalSeconds = Int(time)
+
+        if totalSeconds < 60 {
+            // Under a minute: "Xs"
+            return "\(totalSeconds)s"
+        } else {
+            // 1 minute or more: "M:SS"
+            let minutes = totalSeconds / 60
+            let seconds = totalSeconds % 60
+            return String(format: "%d:%02d", minutes, seconds)
+        }
+    }
+    
+    static let StopwatchDefaultText = "0s"
     func UpdateElapsedTime(timer: Timer) {
         if subscriptionManager.accessLevel == .trial && overTrialRemainingLength() {
             timer.invalidate()
             viewController.finishCurrentRecording(interrupted: true, trialEnded: true)
         }
         if self.isRunning && !viewController.isRecordingPaused {
-            let minutes = Int(self.elapsedTime / 60)
-            let seconds = Int(self.elapsedTime.truncatingRemainder(dividingBy: 60))
-            let tensOfSeconds = Int((self.elapsedTime * 10).truncatingRemainder(dividingBy: 10))
-            viewController.StopWatchLabel.text = String(format: "%d:%02d.%d", minutes, seconds, tensOfSeconds)
+            let formatted = formatStopwatchTime(self.elapsedTime)
+            viewController.StopWatchLabel.text = formatted
         } else {
             timer.invalidate()
         }
     }
-    
+
     func UpdateElapsedTimeListen(timer: Timer) {
         if overRecordingLength() {
             stop()
             viewController.isRecordingPaused = false
             viewController.HideListeningUI()
             timer.invalidate()
+            viewController.StopWatchLabel.text = Self.StopwatchDefaultText
             return
         }
         
         if self.isRunning && !viewController.isRecordingPaused {
             let elapsedTime = self.elapsedTime
-            let minutes = Int(elapsedTime / 60)
-            let seconds = Int(elapsedTime.truncatingRemainder(dividingBy: 60))
-            let tensOfSeconds = Int((elapsedTime * 10).truncatingRemainder(dividingBy: 10))
-            let minutesTotal = Int(viewController.audioPlayer.duration / 60)
-            let secondsTotal = Int(viewController.audioPlayer.duration.truncatingRemainder(dividingBy: 60))
-            let tensOfSecondsTotal = Int((viewController.audioPlayer.duration * 10).truncatingRemainder(dividingBy: 10))
-            viewController.StopWatchLabel.text =
-                String(format: "%d:%02d.%d", minutes, seconds, tensOfSeconds)
-                + "/"
-                + String(format: "%d:%02d.%d", minutesTotal, secondsTotal, tensOfSecondsTotal)
+            let currentText = formatStopwatchTime(elapsedTime)
+
+            let totalTime = viewController.audioPlayer.duration
+            let totalText = formatStopwatchTime(totalTime)
+
+            viewController.StopWatchLabel.text = currentText + " / " + totalText
         } else {
             timer.invalidate()
         }
