@@ -4,6 +4,7 @@ import ProgressHUD
 
 class TranscriptionViewController: UIViewController {
     var recordingManager: RecordingManager!
+    var transcriptionManager: TranscriptionManager!
     var transcriptText: String?
     
     @IBOutlet weak var TranscriptionTextBox: UITextView!
@@ -66,6 +67,8 @@ class TranscriptionViewController: UIViewController {
         
         let services = AppServices.shared
         recordingManager = services.recordingManager
+        transcriptionManager = services.transcriptionManager
+        
         
         TranscriptionTextBox.text = transcriptText
         loadUserDefaultFontSettings()
@@ -286,7 +289,11 @@ class TranscriptionViewController: UIViewController {
             ProgressHUD.failed("We were unable to edit the transcription. Make sure the textbox is not empty and try again.")
             return
         }
-        recordingManager.UpdateToggledTranscriptionText(newText: newText, editing: true)
+        transcriptionManager.PersistFileToDisk (
+            newText: newText,
+            editing: true,
+            recordingURL: self.recordingManager.toggledRecordingURL
+        )
     }
     
     // MARK: - Keyboard handling

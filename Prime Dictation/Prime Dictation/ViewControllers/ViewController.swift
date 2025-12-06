@@ -33,6 +33,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var PoorConnectionLabel: UILabel!
     @IBOutlet weak var SendAccessibilityLabel: UILabel!
     @IBOutlet weak var PausePlayRecordingLabel: UIButton!
+    @IBOutlet weak var TranscribingIndicator: UIView!
     
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
     var audioRecorder: AVAudioRecorder! //Responsible for recording our audio
@@ -85,6 +86,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         // Do any additional setup after loading the view.
         HideRecordingInProgressUI()
         HideListeningUI()
+        TranscribingIndicator.isHidden = true
         // Hide the arrow initially just in case, there is a brief moment after loading the app that both arrows show up no matter what, this will prevent the possibility of an out of range error
         PreviousRecordingLabel.isHidden = true
         NextRecordingLabel.isHidden = true
@@ -243,7 +245,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         // If a transcription finished while we were in the background, play the
         if transcriptionCompletedInBackground {
             transcriptionCompletedInBackground = false
-            AudioFeedback.shared.playDing(intensity: 0.6)
+//            AudioFeedback.shared.playDing(intensity: 0.6)
         }
         
         // If a transcription finished while we were in the background, play the whoosh
@@ -306,25 +308,37 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         } else {NoTranscriptionUI()}
     }
     
-    @IBAction func PreviousRecordingButton(_ sender: Any) {
-        Haptic.tap(intensity: 1.0)
-        recordingManager.CheckToggledRecordingsIndex(goingToPreviousRecording: true)
+    func alignToggledObjectWithLastTranscribedObject() {
+        recordingManager.toggledAudioTranscriptionObject = recordingManager.transcribingAudioTranscriptionObject
+        guard let text = recordingManager.transcribingAudioTranscriptionObject.transcriptionText else { return }
+        print("Aligning text: \(text)")
+        Task {
+            try await transcriptionManager.readToggledTextFileAndSetInAudioTranscriptObject()
+        }
+        print("Aligned object: \(recordingManager.toggledAudioTranscriptionObject)")
+    }
+    
+    func goToSubsequentRecording() {
         recordingManager.toggledAudioTranscriptionObject = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex]
         recordingManager.setToggledRecordingURL()
         
         FileNameLabel.setTitle(recordingManager.toggledAudioTranscriptionObject.fileName, for: .normal)
+        if (recordingManager.toggledAudioTranscriptionObject.uuid == recordingManager.transcribingAudioTranscriptionObject.uuid) {
+            alignToggledObjectWithLastTranscribedObject()
+        }
         checkHasTranscription()
-        
+    }
+    
+    @IBAction func PreviousRecordingButton(_ sender: Any) {
+        Haptic.tap(intensity: 1.0)
+        recordingManager.CheckToggledRecordingsIndex(goingToPreviousRecording: true)
+        goToSubsequentRecording()
     }
     
     @IBAction func NextRecordingButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
         recordingManager.CheckToggledRecordingsIndex(goingToPreviousRecording: false)
-        recordingManager.toggledAudioTranscriptionObject = recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex]
-        recordingManager.setToggledRecordingURL()
-        
-        FileNameLabel.setTitle(recordingManager.toggledAudioTranscriptionObject.fileName, for: .normal)
-        checkHasTranscription()
+        goToSubsequentRecording()
     }
     
     @IBAction func RenameFileButton(_ sender: Any) {
@@ -618,23 +632,34 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     func executeTranscription(estimated: CGFloat) {
-        transcriptionInProgressUI(time: estimated)
+//        transcriptionInProgressUI(time: estimated)
 
         Task {
             defer {
-                self.transcriptionProgressTimer?.invalidate()
-                self.poorConnectionStartTimer?.invalidate()
-                self.transcriptionProgressTimer = nil
-                self.poorConnectionStartTimer = nil
-
-                self.PoorConnectionLabel.layer.removeAllAnimations()
-                self.PoorConnectionLabel.alpha = 1.0
-                self.PoorConnectionLabel.isHidden = true
+                self.transcriptionManager.isTranscriptionInProgress = false
+                self.TranscribeLabel.alpha = self.enabledAlpha
+                self.recordingManager.UpdateAudioTranscriptionObjectOnTranscriptionInProgressChange(isTranscriptionInProgress: false)
+                
+//                self.transcriptionProgressTimer?.invalidate()
+//                self.poorConnectionStartTimer?.invalidate()
+//                self.transcriptionProgressTimer = nil
+//                self.poorConnectionStartTimer = nil
+//
+//                self.PoorConnectionLabel.layer.removeAllAnimations()
+//                self.PoorConnectionLabel.alpha = 1.0
+//                self.PoorConnectionLabel.isHidden = true
             }
 
             do {
+                self.transcriptionManager.isTranscriptionInProgress = true
+                self.recordingManager.transcribingAudioTranscriptionObject = self.recordingManager.toggledAudioTranscriptionObject
+                self.recordingManager.lastTranscribedRecordingsURL = self.recordingManager.toggledRecordingURL
+                self.ShowTranscriptionInProgressUI()
+                self.TranscribeLabel.alpha = self.disabledAlpha
+                self.recordingManager.UpdateAudioTranscriptionObjectOnTranscriptionInProgressChange(isTranscriptionInProgress: true)
+                
                 try await transcriptionManager.transcribeAudioFile()
-                recordingManager.SetToggledAudioTranscriptObjectAfterTranscription()
+                recordingManager.UpdateInternalStateAfterTranscription()
 
                 // ✅ Only log usage if they are subscribed
                 if subscriptionManager.accessLevel == .subscribed,
@@ -651,7 +676,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                         result: .success
                     )
                     ProgressHUD.dismiss()
-                    self.showTranscriptionScreen()
+                    self.HideTranscriptionInProgressUI(result: .success)
                 }
             } catch {
                 await MainActor.run {
@@ -661,6 +686,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                         type: .transcribe,
                         result: .failure
                     )
+                    self.HideTranscriptionInProgressUI(result: .failure)
                 }
             }
         }
@@ -668,6 +694,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     private var pendingTranscriptionDuration: TimeInterval?
     @IBAction func TranscribeButton(_ sender: Any) {
+        if (transcriptionManager.isTranscriptionInProgress) {
+            displayAlert(
+                title: "Transcription in Progress",
+                message: "Another recording is being transcribed. Please wait until it finishes."
+            )
+            return
+        }
+        
         print("Transcribe Button current plan: \(StoreKitManager.shared.currentPlan.debugDescription)")
         print("Transcribe current usage: \(subscriptionManager.usage)")
         Haptic.tap(intensity: 1.0)
@@ -1060,7 +1094,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             // The task completed while the app was open
             if result == .success {
                 if type == .transcribe {
-                    AudioFeedback.shared.playDing(intensity: 0.6)
+//                    AudioFeedback.shared.playDing(intensity: 0.6)
                 } else if type == .send {
                     AudioFeedback.shared.playWhoosh(intensity: 0.6)
                 }
@@ -1183,13 +1217,40 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
 
     func NoTranscriptionUI() {
-        TranscribeLabel.isHidden = false
-        SeeTranscriptionLabel.isHidden = true
+        if (transcriptionManager.isTranscriptionInProgress && recordingManager.toggledAudioTranscriptionObject.uuid == recordingManager.transcribingAudioTranscriptionObject.uuid) {
+            ShowTranscriptionInProgressUI()
+        } else {
+            TranscribeLabel.isHidden = false
+            SeeTranscriptionLabel.isHidden = true
+            TranscribingIndicator.isHidden = true
+        }
     }
 
     func HasTranscriptionUI() {
         TranscribeLabel.isHidden = true
         SeeTranscriptionLabel.isHidden = false
+        TranscribingIndicator.isHidden = true
+    }
+    
+    func ShowTranscriptionInProgressUI() {
+        TranscribeLabel.isHidden = true
+        SeeTranscriptionLabel.isHidden = true
+        TranscribingIndicator.isHidden = false
+    }
+    
+    func HideTranscriptionInProgressUI(result: SafeAlertResult) {
+        if (recordingManager.toggledAudioTranscriptionObject.uuid == recordingManager.transcribingAudioTranscriptionObject.uuid) {
+            // We are in the slot of the recording that was transcribing
+            TranscribingIndicator.isHidden = true
+            if result == .success {
+                showTranscriptionScreen()
+                HasTranscriptionUI()
+            } else {
+                NoTranscriptionUI()
+            }
+        } else {
+            // We are in a different slot, show a banner or something
+        }
     }
     
     func DisableUI() {

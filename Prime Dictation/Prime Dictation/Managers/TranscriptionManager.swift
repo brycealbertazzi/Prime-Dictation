@@ -17,6 +17,8 @@ class TranscriptionManager {
     let GCBucketURL = Bundle.main.object(forInfoDictionaryKey: "GC_BUCKET_URL") as? String
     
     var toggledTranscriptText: String? = nil
+    var lastTranscribedText: String? = nil
+    var isTranscriptionInProgress: Bool = false
     
     init () {}
     
@@ -49,24 +51,13 @@ class TranscriptionManager {
         await MainActor.run {
             print("🟢 transcribeAudioFile: clearing cached text")
             self.toggledTranscriptText = nil
+            self.lastTranscribedText = nil
             self.recordingManager.toggledAudioTranscriptionObject.transcriptionText = nil
             self.recordingManager.savedAudioTranscriptionObjects[self.recordingManager.toggledRecordingsIndex] =
                 self.recordingManager.toggledAudioTranscriptionObject
         }
 
-        // 2) Disable UI while running
-        await MainActor.run {
-            print("🟢 transcribeAudioFile: DisableUI")
-            viewController?.DisableUI()
-        }
-        defer {
-            Task { @MainActor in
-                print("🟢 transcribeAudioFile: EnableUI (defer)")
-                self.viewController?.EnableUI()
-            }
-        }
-
-        // 3) Basic config guards
+        // 2) Basic config guards
         guard let txtSignerBase = SignedTxtURLGCFunction else {
             print("❌ transcribeAudioFile: missing SignedTxtURLGCFunction")
             throw TranscriptionError.error("Transcription service not configured (text signer)")
@@ -79,7 +70,7 @@ class TranscriptionManager {
         let transcriptFilename = "\(recordingManager.toggledAudioTranscriptionObject.fileName)." +
                                  "\(recordingManager.transcriptionRecordingExtension)"
 
-        // 4) Ensure we have a valid recording URL; reconstruct if needed
+        // 3) Ensure we have a valid recording URL; reconstruct if needed
         let recordingURL: URL
         if let existing = recordingManager.toggledRecordingURL {
             recordingURL = existing
@@ -118,7 +109,7 @@ class TranscriptionManager {
                 txtSignerBase: txtSignerBase + "/sign",
                 filename: transcriptFilename,
                 hardCapSeconds: 20 * 60,
-                backoffCapSeconds: 60,
+                pollInterval: 2,
                 notBefore: uploadStart
             )
         } catch TranscriptionError.uploadForbidden403 {
@@ -130,7 +121,7 @@ class TranscriptionManager {
                 txtSignerBase: txtSignerBase + "/sign",
                 filename: transcriptFilename,
                 hardCapSeconds: 60,     // 1 minute max in this special case
-                backoffCapSeconds: 10,
+                pollInterval: 2,
                 notBefore: nil
             )
         } catch {
@@ -144,27 +135,22 @@ class TranscriptionManager {
             .appendingPathExtension(recordingManager.transcriptionRecordingExtension)
 
         do {
-            toggledTranscriptText = try await downloadSignedFileAndReadText(
+            lastTranscribedText = try await downloadSignedFileAndReadText(
                 from: signedTxtURL,
                 to: localPath,
                 overwrite: true
             )
             await MainActor.run {
-                recordingManager.UpdateToggledTranscriptionText(
-                    newText: toggledTranscriptText ?? "",
-                    editing: false
+                PersistFileToDisk(
+                    newText: lastTranscribedText ?? "",
+                    editing: false,
+                    recordingURL: self.recordingManager.lastTranscribedRecordingsURL
                 )
-                recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex].hasTranscription = true
-                recordingManager.toggledAudioTranscriptionObject =
-                    recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex]
-                viewController.HasTranscriptionUI()
             }
         } catch {
             throw TranscriptionError.error("Couldn’t download the transcript", underlying: error)
         }
     }
-
-
     
     @MainActor
     func readToggledTextFileAndSetInAudioTranscriptObject() async throws {
@@ -175,8 +161,127 @@ class TranscriptionManager {
         if (!FileManager.default.fileExists(atPath: toggledTranscriptFilePath.path)) { return }
         
         let toggledText = try String(contentsOf: toggledTranscriptFilePath, encoding: .utf8)
+        toggledTranscriptText = toggledText
         recordingManager.toggledAudioTranscriptionObject.transcriptionText = toggledText
+        recordingManager.toggledAudioTranscriptionObject.hasTranscription = true
         recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex] = recordingManager.toggledAudioTranscriptionObject
+    }
+    
+    func PersistFileToDisk(newText: String, editing: Bool = false, recordingURL: URL?) {
+        var finalText: String
+        if (editing) {
+            finalText = newText
+        } else {
+            finalText = normalizeTranscript(newText)
+        }
+        
+        print("PersistFileToDisk finalText: \(finalText)")
+
+        if let fileURL = recordingURL?.deletingPathExtension().appendingPathExtension(recordingManager.transcriptionRecordingExtension) {
+            do {
+                try finalText.write(to: fileURL, atomically: true, encoding: .utf8)
+            } catch {
+                print("⚠️ Failed to write updated transcript to disk")
+            }
+        } else {
+            print("⚠️ No transcript file URL on toggledAudioTranscriptionObject")
+        }
+        
+        if (recordingManager.toggledAudioTranscriptionObject.uuid == recordingManager.transcribingAudioTranscriptionObject.uuid) {
+            Task {
+                try await readToggledTextFileAndSetInAudioTranscriptObject()
+            }
+        }
+    }
+    
+    func normalizeTranscript(_ input: String) -> String {
+        var text = input.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // 1) Collapse newlines -> spaces
+        text = text
+            .replacingOccurrences(of: #"\s*(?:\r\n|\r|\n|\u2028|\u2029)+\s*"#,
+                                  with: " ",
+                                  options: .regularExpression)
+            .replacingOccurrences(of: #"\s{2,}"#, with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // 2) Spoken punctuation -> symbols (with "literal" escape)
+        let tokens = text.split(whereSeparator: { $0.isWhitespace }).map { String($0) }
+        var out: [String] = []
+
+        func lower(_ s: String) -> String { s.lowercased() }
+        func peek(_ i: Int) -> String? { (i < tokens.count) ? tokens[i] : nil }
+        func attach(_ symbol: String) {
+            if let last = out.last {
+                if !last.hasSuffix(symbol) { out[out.count - 1] = last + symbol }
+            } else { out.append(symbol) }
+        }
+        func dropLiteralAndKeep(_ word: String) { if !out.isEmpty { out.removeLast() }; out.append(word) }
+
+        var i = 0
+        while i < tokens.count {
+            let cur = tokens[i]
+            let curL = lower(cur)
+            let prevWord = out.last ?? ""
+            let prevIsLiteral = lower(prevWord) == "literal"
+            let next = peek(i + 1)
+            let nextL = lower(next ?? "")
+
+            if curL == "question", nextL == "mark" {
+                if prevIsLiteral { dropLiteralAndKeep(cur); i += 1; if let n = next { out.append(n) } }
+                else { attach("?"); i += 1 }
+                i += 1; continue
+            }
+            if curL == "exclamation", (nextL == "mark" || nextL == "point") {
+                if prevIsLiteral { dropLiteralAndKeep(cur); i += 1; if let n = next { out.append(n) } }
+                else { attach("!"); i += 1 }
+                i += 1; continue
+            }
+            if ["period","comma","colon","semicolon"].contains(curL) {
+                if prevIsLiteral { dropLiteralAndKeep(cur) }
+                else { attach(["period":".","comma":",","colon":":","semicolon":" ;"][curL] ?? "") }
+                i += 1; continue
+            }
+            out.append(cur)
+            i += 1
+        }
+
+        // 3) Tidy spacing around punctuation
+        var normalized = out.joined(separator: " ")
+        normalized = normalized.replacingOccurrences(of: #"\s+([\.,!?\;:])"#,
+                                                     with: "$1",
+                                                     options: .regularExpression)
+        normalized = normalized.replacingOccurrences(of: #"([\.,!?\;:])([^\s"'\)\]\}])"#,
+                                                     with: "$1 $2",
+                                                     options: .regularExpression)
+        normalized = normalized.replacingOccurrences(of: #"\s{2,}"#,
+                                                     with: " ",
+                                                     options: .regularExpression)
+                               .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // 4) Capitalize the start of sentences (after ., !, ?)
+        normalized = sentenceCase(normalized)
+
+        return normalized.isEmpty ? "[Empty transcript]" : normalized
+    }
+
+    /// Capitalizes the first alphabetic character of the string and any
+    /// alphabetic character that follows `.`, `!`, or `?` (skipping spaces/quotes/brackets).
+    private func sentenceCase(_ s: String) -> String {
+        var result = ""
+        var capitalizeNext = true
+        for ch in s {
+            if capitalizeNext, ch.isLetter {
+                result.append(String(ch).uppercased())
+                capitalizeNext = false
+            } else {
+                result.append(ch)
+            }
+            if ".!?".contains(ch) { capitalizeNext = true }
+            // If you keep newlines anywhere, uncomment:
+            // if ch == "\n" { capitalizeNext = true }
+        }
+        return result
     }
 
     // MARK: - Polling with exponential backoff (cap: 2 minutes; hard cap: 20 minutes)
@@ -185,7 +290,7 @@ class TranscriptionManager {
         txtSignerBase: String,
         filename: String,
         hardCapSeconds: TimeInterval,
-        backoffCapSeconds: TimeInterval,
+        pollInterval: TimeInterval,
         notBefore: Date? = nil
     ) async throws -> URL {
         let deadline = Date().addingTimeInterval(hardCapSeconds)
@@ -207,8 +312,7 @@ class TranscriptionManager {
                 print("⚠️ [waitForTranscriptReady] /sign error on attempt \(attempt): \(error.localizedDescription)")
             }
 
-            let base: TimeInterval = 0.5, factor: Double = 1.1
-            let delay = min(base * pow(factor, Double(attempt)), backoffCapSeconds)
+            let delay = pollInterval
             let jitter = Double.random(in: 0...0.3)
             let sleepSeconds = delay + jitter
             print("⏱️ [waitForTranscriptReady] sleeping \(sleepSeconds)s")
@@ -411,26 +515,42 @@ class TranscriptionManager {
     }
     
     func uploadRecordingToCGBucket(to signedURL: URL, from fileURL: URL) async throws {
-        let data = try Data(contentsOf: fileURL)
+        // Just log size for sanity
+        let fileSizeBytes: Int64 = {
+            if let attrs = try? FileManager.default.attributesOfItem(atPath: fileURL.path),
+               let n = attrs[.size] as? NSNumber {
+                return n.int64Value
+            }
+            return 0
+        }()
+        print("⏱ uploadRecordingToCGBucket: size=\(fileSizeBytes)B")
 
+        // Dedicated session with more generous timeouts
+        let config = URLSessionConfiguration.ephemeral
+        config.timeoutIntervalForRequest = 60      // 60s of “no progress” before -1001
+        config.timeoutIntervalForResource = 120    // Hard cap per request
+        config.waitsForConnectivity = true
+        config.allowsExpensiveNetworkAccess = true
+        config.allowsConstrainedNetworkAccess = true
+
+        let session = URLSession(configuration: config)
+
+        var req = URLRequest(
+            url: signedURL,
+            cachePolicy: .reloadIgnoringLocalCacheData,
+            timeoutInterval: 60 // keep in sync with timeoutIntervalForRequest
+        )
+        req.httpMethod = "PUT"
+        req.setValue("audio/mp4", forHTTPHeaderField: "Content-Type")
+
+        let maxAttempts = 2
         var lastError: Error?
-        let maxAttempts = 3
-        let timeout: TimeInterval = 10
 
         for attempt in 1...maxAttempts {
             print("📤 Upload attempt \(attempt) starting at \(Date())")
 
-            var req = URLRequest(
-                url: signedURL,
-                cachePolicy: .reloadIgnoringLocalCacheData,
-                timeoutInterval: timeout
-            )
-            req.httpMethod = "PUT"
-            req.setValue("audio/mp4", forHTTPHeaderField: "Content-Type")
-            req.httpBody = data
-
             do {
-                let (_, resp) = try await URLSession.shared.data(for: req)
+                let (_, resp) = try await session.upload(for: req, fromFile: fileURL)
 
                 guard let http = resp as? HTTPURLResponse else {
                     throw TranscriptionError.error("Upload failed – no HTTP response")
@@ -439,7 +559,6 @@ class TranscriptionManager {
                 print("📥 Upload attempt \(attempt) got status \(http.statusCode) at \(Date())")
 
                 if http.statusCode == 403 {
-                    // ✅ Let the caller decide what to do with this (likely "already uploaded")
                     throw TranscriptionError.uploadForbidden403
                 }
 
@@ -452,30 +571,39 @@ class TranscriptionManager {
             } catch {
                 lastError = error
 
-                // If our special 403, don't retry – bubble it up
                 if let tErr = error as? TranscriptionError,
                    case .uploadForbidden403 = tErr {
                     throw tErr
                 }
 
                 let nsErr = error as NSError
-                print("❌ Upload attempt \(attempt) error: domain=\(nsErr.domain) code=\(nsErr.code) desc=\(nsErr.localizedDescription) at \(Date())")
+                print("❌ Upload attempt \(attempt) error: domain=\(nsErr.domain) " +
+                      "code=\(nsErr.code) desc=\(nsErr.localizedDescription) at \(Date())")
 
-                if nsErr.domain == NSURLErrorDomain &&
+                let isTransientNetworkError =
+                    nsErr.domain == NSURLErrorDomain &&
                     (nsErr.code == NSURLErrorNetworkConnectionLost ||
-                     nsErr.code == NSURLErrorTimedOut) &&
-                    attempt < maxAttempts {
+                     nsErr.code == NSURLErrorTimedOut ||
+                     nsErr.code == NSURLErrorCannotFindHost ||
+                     nsErr.code == NSURLErrorCannotConnectToHost)
+
+                if isTransientNetworkError && attempt < maxAttempts {
                     print("⚠️ Transient upload error on attempt \(attempt) – will retry")
                     continue
                 }
 
-                throw TranscriptionError.error("Upload to transcription server failed", underlying: error)
+                throw TranscriptionError.error(
+                    "Upload to transcription server failed",
+                    underlying: error
+                )
             }
         }
 
-        throw TranscriptionError.error("Upload to transcription server failed after retries", underlying: lastError)
+        throw TranscriptionError.error(
+            "Upload to transcription server failed after retries",
+            underlying: lastError
+        )
     }
-
 
 
     func mintSignedURL() async throws -> URL? {

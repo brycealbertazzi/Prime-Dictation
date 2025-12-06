@@ -11,9 +11,11 @@ import SwiftyDropbox
 import ProgressHUD
 
 struct AudioTranscriptionObject : Codable {
+    var uuid: UUID
     var fileName: String
     var hasTranscription: Bool
     var transcriptionText: String?
+    var isTranscribing: Bool = false
 }
 
 class RecordingManager {
@@ -34,7 +36,9 @@ class RecordingManager {
     var toggledRecordingsIndex: Int = Int()
     var toggledRecordingURL: URL? = nil
     var toggledTranscriptURL: URL? = nil
-    var toggledAudioTranscriptionObject: AudioTranscriptionObject = AudioTranscriptionObject(fileName: "", hasTranscription: false)
+    var lastTranscribedRecordingsURL: URL? = nil
+    var toggledAudioTranscriptionObject: AudioTranscriptionObject = AudioTranscriptionObject(uuid: UUID(), fileName: "", hasTranscription: false)
+    var transcribingAudioTranscriptionObject: AudioTranscriptionObject = AudioTranscriptionObject(uuid: UUID(), fileName: "", hasTranscription: false)
     
     var numberOfRecordings: Int = 0
     
@@ -59,7 +63,7 @@ class RecordingManager {
     func UpdateSavedRecordings() {
         let recordingCount = savedAudioTranscriptionObjects.count
         if recordingCount < maxNumSavedRecordings {
-            savedAudioTranscriptionObjects.append(AudioTranscriptionObject(fileName: mostRecentRecordingName, hasTranscription: false, transcriptionText: nil))
+            savedAudioTranscriptionObjects.append(AudioTranscriptionObject(uuid: UUID(), fileName: mostRecentRecordingName, hasTranscription: false, transcriptionText: nil, isTranscribing: false))
         } else {
             //Delete the oldest recording and add the next one
             let oldestRecording = savedAudioTranscriptionObjects.removeFirst()
@@ -70,7 +74,7 @@ class RecordingManager {
             } catch {
                 print("UNABLE TO DETETE THE FILE OF AN OLDEST RECORDING IN QUEUE!!!!")
             }
-            savedAudioTranscriptionObjects.append(AudioTranscriptionObject(fileName: mostRecentRecordingName, hasTranscription: false, transcriptionText: nil))
+            savedAudioTranscriptionObjects.append(AudioTranscriptionObject(uuid: UUID(), fileName: mostRecentRecordingName, hasTranscription: false, transcriptionText: nil, isTranscribing: false))
             transcriptionManager.toggledTranscriptText = nil
         }
         saveAudioTranscriptionObjectsToUserDefaults()
@@ -78,9 +82,22 @@ class RecordingManager {
         viewController.NoTranscriptionUI()
     }
     
+    func UpdateAudioTranscriptionObjectOnTranscriptionInProgressChange(isTranscriptionInProgress: Bool) {
+        for (index, audioTransObj) in savedAudioTranscriptionObjects.enumerated() {
+            if (audioTransObj.uuid == transcribingAudioTranscriptionObject.uuid) {
+                print("updating \(audioTransObj.fileName) object isTranscribing to \(isTranscriptionInProgress)")
+                savedAudioTranscriptionObjects[index].isTranscribing = isTranscriptionInProgress
+                if (toggledAudioTranscriptionObject.uuid == transcribingAudioTranscriptionObject.uuid) {
+                    print("updating toggledAudioTranscriptionObject, we are on that one")
+                    toggledAudioTranscriptionObject.isTranscribing = isTranscriptionInProgress
+                }
+            }
+        }
+    }
+    
     func saveAudioTranscriptionObjectsToUserDefaults() {
         let sanitizedAudioTranscriptionObjects: [AudioTranscriptionObject] = savedAudioTranscriptionObjects.map { object in
-            return AudioTranscriptionObject(fileName: object.fileName, hasTranscription: object.hasTranscription, transcriptionText: nil)
+            return AudioTranscriptionObject(uuid: object.uuid, fileName: object.fileName, hasTranscription: object.hasTranscription, transcriptionText: nil, isTranscribing: false)
         }
         do {
             try UserDefaults.standard.setCodable(sanitizedAudioTranscriptionObjects, forKey: savedAudioTranscriptionObjectsKey)
@@ -89,133 +106,30 @@ class RecordingManager {
         }
     }
     
-    func SetToggledAudioTranscriptObjectAfterTranscription() {
-        savedAudioTranscriptionObjects[toggledRecordingsIndex].hasTranscription = true
-        toggledAudioTranscriptionObject = savedAudioTranscriptionObjects[toggledRecordingsIndex]
+    func UpdateInternalStateAfterTranscription() {
+        var indexOfTranscribingObject: Int? = nil
+        for (index, audioTransObj) in savedAudioTranscriptionObjects.enumerated() {
+            if (audioTransObj.uuid == transcribingAudioTranscriptionObject.uuid) {
+                indexOfTranscribingObject = index
+                transcribingAudioTranscriptionObject.hasTranscription = true
+                savedAudioTranscriptionObjects[index] = transcribingAudioTranscriptionObject
+            }
+        }
         
         saveAudioTranscriptionObjectsToUserDefaults()
-        // Temporarily set the transcripionText of the toggledAudioTranscription object to the transcribedText (cache)
+        // Temporarily set the transcripionText of the toggledAudioTranscription object to the transcribedText (cache) after saving to user defaults
         // We don't want to persist this to UserDefaults because it is a very long string and could get corrupted in storage
-        toggledAudioTranscriptionObject.transcriptionText = transcriptionManager.toggledTranscriptText
-        savedAudioTranscriptionObjects[toggledRecordingsIndex] = toggledAudioTranscriptionObject
-        viewController.HasTranscriptionUI()
-    }
-    
-    func UpdateToggledTranscriptionText(newText: String, editing: Bool = false) {
-        // 1) update in-memory cache
-        var finalText: String
-        if (editing) {
-            finalText = newText
-        } else {
-            finalText = normalizeTranscript(newText)
-        }
-        transcriptionManager.toggledTranscriptText = finalText
-        toggledAudioTranscriptionObject.transcriptionText = finalText
-        savedAudioTranscriptionObjects[toggledRecordingsIndex] = toggledAudioTranscriptionObject
-        
-        // 2) persist to disk
-        // assuming your object has something like `fileURL: URL?` or `transcriptFileURL: URL?`
-        if let fileURL = toggledRecordingURL?.deletingPathExtension().appendingPathExtension(transcriptionRecordingExtension) {
-            do {
-                try finalText.write(to: fileURL, atomically: true, encoding: .utf8)
-            } catch {
-                print("⚠️ Failed to write updated transcript to disk")
+        if let index = indexOfTranscribingObject {
+            transcribingAudioTranscriptionObject.transcriptionText = transcriptionManager.lastTranscribedText
+            savedAudioTranscriptionObjects[index] = transcribingAudioTranscriptionObject
+            if (toggledAudioTranscriptionObject.uuid == transcribingAudioTranscriptionObject.uuid) {
+                toggledAudioTranscriptionObject = transcribingAudioTranscriptionObject
             }
         } else {
-            print("⚠️ No transcript file URL on toggledAudioTranscriptionObject")
+            // transcribing object fell out of the queue while transcribing
+            viewController.displayAlert(title: "Transcription not saved", message: "Your pending transcription and its recording moved outside the recording queue therefore were deleted. Please make sure to send your recordings to a destination before they fall outside the queue.")
         }
     }
-    
-    func normalizeTranscript(_ input: String) -> String {
-        var text = input.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        // 1) Collapse newlines -> spaces
-        text = text
-            .replacingOccurrences(of: #"\s*(?:\r\n|\r|\n|\u2028|\u2029)+\s*"#,
-                                  with: " ",
-                                  options: .regularExpression)
-            .replacingOccurrences(of: #"\s{2,}"#, with: " ", options: .regularExpression)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-
-        // 2) Spoken punctuation -> symbols (with "literal" escape)
-        let tokens = text.split(whereSeparator: { $0.isWhitespace }).map { String($0) }
-        var out: [String] = []
-
-        func lower(_ s: String) -> String { s.lowercased() }
-        func peek(_ i: Int) -> String? { (i < tokens.count) ? tokens[i] : nil }
-        func attach(_ symbol: String) {
-            if let last = out.last {
-                if !last.hasSuffix(symbol) { out[out.count - 1] = last + symbol }
-            } else { out.append(symbol) }
-        }
-        func dropLiteralAndKeep(_ word: String) { if !out.isEmpty { out.removeLast() }; out.append(word) }
-
-        var i = 0
-        while i < tokens.count {
-            let cur = tokens[i]
-            let curL = lower(cur)
-            let prevWord = out.last ?? ""
-            let prevIsLiteral = lower(prevWord) == "literal"
-            let next = peek(i + 1)
-            let nextL = lower(next ?? "")
-
-            if curL == "question", nextL == "mark" {
-                if prevIsLiteral { dropLiteralAndKeep(cur); i += 1; if let n = next { out.append(n) } }
-                else { attach("?"); i += 1 }
-                i += 1; continue
-            }
-            if curL == "exclamation", (nextL == "mark" || nextL == "point") {
-                if prevIsLiteral { dropLiteralAndKeep(cur); i += 1; if let n = next { out.append(n) } }
-                else { attach("!"); i += 1 }
-                i += 1; continue
-            }
-            if ["period","comma","colon","semicolon"].contains(curL) {
-                if prevIsLiteral { dropLiteralAndKeep(cur) }
-                else { attach(["period":".","comma":",","colon":":","semicolon":" ;"][curL] ?? "") }
-                i += 1; continue
-            }
-            out.append(cur)
-            i += 1
-        }
-
-        // 3) Tidy spacing around punctuation
-        var normalized = out.joined(separator: " ")
-        normalized = normalized.replacingOccurrences(of: #"\s+([\.,!?\;:])"#,
-                                                     with: "$1",
-                                                     options: .regularExpression)
-        normalized = normalized.replacingOccurrences(of: #"([\.,!?\;:])([^\s"'\)\]\}])"#,
-                                                     with: "$1 $2",
-                                                     options: .regularExpression)
-        normalized = normalized.replacingOccurrences(of: #"\s{2,}"#,
-                                                     with: " ",
-                                                     options: .regularExpression)
-                               .trimmingCharacters(in: .whitespacesAndNewlines)
-
-        // 4) Capitalize the start of sentences (after ., !, ?)
-        normalized = sentenceCase(normalized)
-
-        return normalized.isEmpty ? "[Empty transcript]" : normalized
-    }
-
-    /// Capitalizes the first alphabetic character of the string and any
-    /// alphabetic character that follows `.`, `!`, or `?` (skipping spaces/quotes/brackets).
-    private func sentenceCase(_ s: String) -> String {
-        var result = ""
-        var capitalizeNext = true
-        for ch in s {
-            if capitalizeNext, ch.isLetter {
-                result.append(String(ch).uppercased())
-                capitalizeNext = false
-            } else {
-                result.append(ch)
-            }
-            if ".!?".contains(ch) { capitalizeNext = true }
-            // If you keep newlines anywhere, uncomment:
-            // if ch == "\n" { capitalizeNext = true }
-        }
-        return result
-    }
-
     
     func setToggledRecordingURL() {
         toggledRecordingURL = GetDirectory().appendingPathComponent(toggledAudioTranscriptionObject.fileName).appendingPathExtension(audioRecordingExtension)
