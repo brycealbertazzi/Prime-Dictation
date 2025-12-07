@@ -292,7 +292,8 @@ class TranscriptionViewController: UIViewController {
         transcriptionManager.PersistFileToDisk (
             newText: newText,
             editing: true,
-            recordingURL: self.recordingManager.toggledRecordingURL
+            recordingURL: self.recordingManager.toggledRecordingURL,
+            objectUUID: self.recordingManager.toggledAudioTranscriptionObject.uuid
         )
     }
     

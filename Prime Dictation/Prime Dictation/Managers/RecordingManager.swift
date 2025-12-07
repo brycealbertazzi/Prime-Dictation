@@ -30,15 +30,14 @@ class RecordingManager {
     
     var savedAudioTranscriptionObjectsKey: String = "savedAudioTranscriptionObjectsKey"
     var savedAudioTranscriptionObjects: [AudioTranscriptionObject] = []
+    var transcribingAudioTranscriptionObjects: [AudioTranscriptionObject] = []
     let maxNumSavedRecordings = 25
     
     //Stores the current recording in queue the user wants to listen to
     var toggledRecordingsIndex: Int = Int()
     var toggledRecordingURL: URL? = nil
     var toggledTranscriptURL: URL? = nil
-    var lastTranscribedRecordingsURL: URL? = nil
     var toggledAudioTranscriptionObject: AudioTranscriptionObject = AudioTranscriptionObject(uuid: UUID(), fileName: "", hasTranscription: false)
-    var transcribingAudioTranscriptionObject: AudioTranscriptionObject = AudioTranscriptionObject(uuid: UUID(), fileName: "", hasTranscription: false)
     
     var numberOfRecordings: Int = 0
     
@@ -82,15 +81,13 @@ class RecordingManager {
         viewController.NoTranscriptionUI()
     }
     
-    func UpdateAudioTranscriptionObjectOnTranscriptionInProgressChange(isTranscriptionInProgress: Bool) {
-        for (index, audioTransObj) in savedAudioTranscriptionObjects.enumerated() {
-            if (audioTransObj.uuid == transcribingAudioTranscriptionObject.uuid) {
-                print("updating \(audioTransObj.fileName) object isTranscribing to \(isTranscriptionInProgress)")
-                savedAudioTranscriptionObjects[index].isTranscribing = isTranscriptionInProgress
-                if (toggledAudioTranscriptionObject.uuid == transcribingAudioTranscriptionObject.uuid) {
-                    print("updating toggledAudioTranscriptionObject, we are on that one")
-                    toggledAudioTranscriptionObject.isTranscribing = isTranscriptionInProgress
-                }
+    func UpdateAudioTranscriptionObjectOnTranscriptionInProgressChange(processedObjectUUID: UUID, isTranscriptionInProgress: Bool) {
+        for (index, object) in savedAudioTranscriptionObjects.enumerated() where object.uuid == processedObjectUUID {
+            print("updating \(object.fileName) object isTranscribing to \(isTranscriptionInProgress)")
+            savedAudioTranscriptionObjects[index].isTranscribing = isTranscriptionInProgress
+            if (toggledAudioTranscriptionObject.uuid == processedObjectUUID) {
+                print("updating toggledAudioTranscriptionObject, we are on that one")
+                toggledAudioTranscriptionObject.isTranscribing = isTranscriptionInProgress
             }
         }
     }
@@ -106,33 +103,22 @@ class RecordingManager {
         }
     }
     
-    func UpdateInternalStateAfterTranscription() {
-        var indexOfTranscribingObject: Int? = nil
-        for (index, audioTransObj) in savedAudioTranscriptionObjects.enumerated() {
-            if (audioTransObj.uuid == transcribingAudioTranscriptionObject.uuid) {
-                indexOfTranscribingObject = index
-                transcribingAudioTranscriptionObject.hasTranscription = true
-                savedAudioTranscriptionObjects[index] = transcribingAudioTranscriptionObject
-            }
-        }
-        
-        saveAudioTranscriptionObjectsToUserDefaults()
-        // Temporarily set the transcripionText of the toggledAudioTranscription object to the transcribedText (cache) after saving to user defaults
-        // We don't want to persist this to UserDefaults because it is a very long string and could get corrupted in storage
-        if let index = indexOfTranscribingObject {
-            transcribingAudioTranscriptionObject.transcriptionText = transcriptionManager.lastTranscribedText
-            savedAudioTranscriptionObjects[index] = transcribingAudioTranscriptionObject
-            if (toggledAudioTranscriptionObject.uuid == transcribingAudioTranscriptionObject.uuid) {
-                toggledAudioTranscriptionObject = transcribingAudioTranscriptionObject
-            }
-        } else {
-            // transcribing object fell out of the queue while transcribing
-            viewController.displayAlert(title: "Transcription not saved", message: "Your pending transcription and its recording moved outside the recording queue therefore were deleted. Please make sure to send your recordings to a destination before they fall outside the queue.")
-        }
-    }
-    
     func setToggledRecordingURL() {
         toggledRecordingURL = GetDirectory().appendingPathComponent(toggledAudioTranscriptionObject.fileName).appendingPathExtension(audioRecordingExtension)
+    }
+    
+    func getURLForAudioTranscriptionObject(at uuid: UUID) -> URL? {
+        var fileName: String? = nil
+        for (_, obj) in transcribingAudioTranscriptionObjects.enumerated() {
+            if (obj.uuid == uuid) {
+                fileName = obj.fileName
+            }
+        }
+        if let fileName = fileName {
+            return GetDirectory().appendingPathComponent(fileName).appendingPathExtension(audioRecordingExtension)
+        } else {
+            return nil
+        }
     }
     
     func SelectMostRecentRecording() async throws {

@@ -17,8 +17,7 @@ class TranscriptionManager {
     let GCBucketURL = Bundle.main.object(forInfoDictionaryKey: "GC_BUCKET_URL") as? String
     
     var toggledTranscriptText: String? = nil
-    var lastTranscribedText: String? = nil
-    var isTranscriptionInProgress: Bool = false
+    static let MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS: Int = 3
     
     init () {}
     
@@ -44,17 +43,18 @@ class TranscriptionManager {
 
     
     /// Call this to upload, wait (max 20m), and get the signed URL to the transcript.
-    func transcribeAudioFile() async throws {
+    func transcribeAudioFile(processedObjectInQueue: AudioTranscriptionObject) async throws {
         print("🟢 transcribeAudioFile: entered")
 
         // 1) Clear cached text & mark state
         await MainActor.run {
             print("🟢 transcribeAudioFile: clearing cached text")
             self.toggledTranscriptText = nil
-            self.lastTranscribedText = nil
-            self.recordingManager.toggledAudioTranscriptionObject.transcriptionText = nil
-            self.recordingManager.savedAudioTranscriptionObjects[self.recordingManager.toggledRecordingsIndex] =
-                self.recordingManager.toggledAudioTranscriptionObject
+            if (processedObjectInQueue.uuid == self.recordingManager.toggledAudioTranscriptionObject.uuid) {
+                self.recordingManager.toggledAudioTranscriptionObject.transcriptionText = nil
+                self.recordingManager.savedAudioTranscriptionObjects[self.recordingManager.toggledRecordingsIndex] =
+                    self.recordingManager.toggledAudioTranscriptionObject
+            }
         }
 
         // 2) Basic config guards
@@ -67,16 +67,16 @@ class TranscriptionManager {
             throw TranscriptionError.error("Transcription service not configured (audio signer)")
         }
 
-        let transcriptFilename = "\(recordingManager.toggledAudioTranscriptionObject.fileName)." +
+        let transcriptFilename = "\(processedObjectInQueue.fileName)." +
                                  "\(recordingManager.transcriptionRecordingExtension)"
 
         // 3) Ensure we have a valid recording URL; reconstruct if needed
         let recordingURL: URL
-        if let existing = recordingManager.toggledRecordingURL {
+        if let existing = recordingManager.getURLForAudioTranscriptionObject(at: processedObjectInQueue.uuid) {
             recordingURL = existing
         } else {
             let candidate = recordingManager.GetDirectory()
-                .appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName)
+                .appendingPathComponent(processedObjectInQueue.fileName)
                 .appendingPathExtension(recordingManager.audioRecordingExtension)
 
             if FileManager.default.fileExists(atPath: candidate.path) {
@@ -91,7 +91,7 @@ class TranscriptionManager {
 
         // 5) Mint signed PUT for audio
         print("🟢 transcribeAudioFile: about to mintSignedURL()")
-        guard let signedPUT = try? await mintSignedURL() else {
+        guard let signedPUT = try? await mintSignedURL(processedObjectInQueue: processedObjectInQueue) else {
             print("❌ transcribeAudioFile: mintSignedURL returned nil or threw")
             throw TranscriptionError.error("Unable to obtain an upload URL")
         }
@@ -131,25 +131,69 @@ class TranscriptionManager {
 
         // 7) Download transcript and update local state/UI
         let localPath = recordingManager.GetDirectory()
-            .appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName)
+            .appendingPathComponent(processedObjectInQueue.fileName)
             .appendingPathExtension(recordingManager.transcriptionRecordingExtension)
 
         do {
-            lastTranscribedText = try await downloadSignedFileAndReadText(
+            
+            let transcribedText: String? = try await downloadSignedFileAndReadText(
                 from: signedTxtURL,
                 to: localPath,
                 overwrite: true
             )
+            
             await MainActor.run {
                 PersistFileToDisk(
-                    newText: lastTranscribedText ?? "",
+                    newText: transcribedText ?? "",
                     editing: false,
-                    recordingURL: self.recordingManager.lastTranscribedRecordingsURL
+                    recordingURL: recordingURL,
+                    objectUUID: processedObjectInQueue.uuid
                 )
             }
+            
+            UpdateTranscribingObjectInQueue(processedUUID: processedObjectInQueue.uuid, transcriptionText: transcribedText)
+            
         } catch {
             throw TranscriptionError.error("Couldn’t download the transcript", underlying: error)
         }
+    }
+    
+    func UpdateTranscribingObjectInQueue(processedUUID: UUID, transcriptionText: String?) {
+        var popIndex: Int? = nil
+        for (index, object) in recordingManager.transcribingAudioTranscriptionObjects.enumerated() where object.uuid == processedUUID {
+            recordingManager.transcribingAudioTranscriptionObjects[index].hasTranscription = true
+            recordingManager.transcribingAudioTranscriptionObjects[index].isTranscribing = false
+            recordingManager.transcribingAudioTranscriptionObjects[index].transcriptionText = transcriptionText
+            popIndex = index
+        }
+        
+        var processedObjectInQueueWhenFinished = false
+        for (index, object) in recordingManager.savedAudioTranscriptionObjects.enumerated() where object.uuid == processedUUID {
+            recordingManager.savedAudioTranscriptionObjects[index].hasTranscription = true
+            recordingManager.savedAudioTranscriptionObjects[index].isTranscribing = false
+            recordingManager.savedAudioTranscriptionObjects[index].transcriptionText = transcriptionText
+            
+            if (processedUUID == recordingManager.toggledAudioTranscriptionObject.uuid) {
+                recordingManager.toggledAudioTranscriptionObject.hasTranscription = true
+                recordingManager.toggledAudioTranscriptionObject.isTranscribing = false
+                recordingManager.toggledAudioTranscriptionObject.transcriptionText = transcriptionText
+            }
+            processedObjectInQueueWhenFinished = true
+        }
+        
+        if !processedObjectInQueueWhenFinished {
+            viewController.displayAlert(
+                title: "Transcription not saved",
+                message: "Your pending transcription and its recording moved outside the recording queue therefore were deleted. Please make sure to send your recordings to a destination before they fall outside the queue."
+            )
+        }
+        
+        recordingManager.saveAudioTranscriptionObjectsToUserDefaults()
+        
+        if let popIndex {
+            recordingManager.transcribingAudioTranscriptionObjects.remove(at: popIndex)
+        }
+        
     }
     
     @MainActor
@@ -167,7 +211,7 @@ class TranscriptionManager {
         recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex] = recordingManager.toggledAudioTranscriptionObject
     }
     
-    func PersistFileToDisk(newText: String, editing: Bool = false, recordingURL: URL?) {
+    func PersistFileToDisk(newText: String, editing: Bool = false, recordingURL: URL?, objectUUID: UUID) {
         var finalText: String
         if (editing) {
             finalText = newText
@@ -187,7 +231,7 @@ class TranscriptionManager {
             print("⚠️ No transcript file URL on toggledAudioTranscriptionObject")
         }
         
-        if (recordingManager.toggledAudioTranscriptionObject.uuid == recordingManager.transcribingAudioTranscriptionObject.uuid) {
+        if (recordingManager.toggledAudioTranscriptionObject.uuid == objectUUID) {
             Task {
                 try await readToggledTextFileAndSetInAudioTranscriptObject()
             }
@@ -606,7 +650,7 @@ class TranscriptionManager {
     }
 
 
-    func mintSignedURL() async throws -> URL? {
+    func mintSignedURL(processedObjectInQueue: AudioTranscriptionObject) async throws -> URL? {
         print("🟣 mintSignedURL: starting at \(Date())")
 
         let token: String
@@ -627,7 +671,7 @@ class TranscriptionManager {
         }
 
         // 3) JSON body expected by your Node handler (req.body)
-        let bucketPath = "\(recordingManager.toggledAudioTranscriptionObject.fileName).\(recordingManager.audioRecordingExtension)"
+        let bucketPath = "\(processedObjectInQueue.fileName).\(recordingManager.audioRecordingExtension)"
         let body: [String: Any] = [
             "bucketPath": bucketPath,
             "contentType": "audio/mp4"
