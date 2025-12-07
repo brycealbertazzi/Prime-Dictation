@@ -168,17 +168,20 @@ class TranscriptionManager {
         }
         
         var processedObjectInQueueWhenFinished = false
+        var savedIndex: Int? = nil
         for (index, object) in recordingManager.savedAudioTranscriptionObjects.enumerated() where object.uuid == processedUUID {
             recordingManager.savedAudioTranscriptionObjects[index].hasTranscription = true
             recordingManager.savedAudioTranscriptionObjects[index].isTranscribing = false
-            recordingManager.savedAudioTranscriptionObjects[index].transcriptionText = transcriptionText
+            recordingManager.savedAudioTranscriptionObjects[index].transcriptionText = nil // Don't save the transcription text to UserDefaults, save it as nil always
             
             if (processedUUID == recordingManager.toggledAudioTranscriptionObject.uuid) {
                 recordingManager.toggledAudioTranscriptionObject.hasTranscription = true
                 recordingManager.toggledAudioTranscriptionObject.isTranscribing = false
                 recordingManager.toggledAudioTranscriptionObject.transcriptionText = transcriptionText
             }
+            
             processedObjectInQueueWhenFinished = true
+            savedIndex = index
         }
         
         if !processedObjectInQueueWhenFinished {
@@ -189,6 +192,10 @@ class TranscriptionManager {
         }
         
         recordingManager.saveAudioTranscriptionObjectsToUserDefaults()
+        
+        if let savedIndex {
+            recordingManager.savedAudioTranscriptionObjects[savedIndex].transcriptionText = transcriptionText // Set the transcription text locally here, after saving to userDefaults
+        }
         
         if let popIndex {
             recordingManager.transcribingAudioTranscriptionObjects.remove(at: popIndex)
