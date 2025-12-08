@@ -314,12 +314,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         
         FileNameLabel.setTitle(recordingManager.toggledAudioTranscriptionObject.fileName, for: .normal)
         
-        if (recordingManager.toggledAudioTranscriptionObject.isTranscribing) {
-            RenameFileLabel.alpha = disabledAlpha
-        } else {
-            RenameFileLabel.alpha = enabledAlpha
-        }
-        
         checkHasTranscription()
     }
     
@@ -336,10 +330,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     @IBAction func RenameFileButton(_ sender: Any) {
-        if recordingManager.toggledAudioTranscriptionObject.isTranscribing {
-            displayAlert(title: "Rename not allowed", message: "You may not rename a file while the it is being transcribed. Try again after the transcription completes.")
-        }
-        
         Haptic.tap(intensity: 1.0)
         let alert = UIAlertController(title: "Rename File", message: nil, preferredStyle: .alert)
         
@@ -1166,7 +1156,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func HideRecordingOrListeningUI() {
         TitleOfAppLabel.alpha = enabledAlpha
         TranscribeLabel.isEnabled = true
-        TranscribeLabel.alpha = enabledAlpha
+        if recordingManager.transcribingAudioTranscriptionObjects.count >= TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS {
+            TranscribeLabel.alpha = enabledAlpha
+        }
         SeeTranscriptionLabel.isEnabled = true
         SeeTranscriptionLabel.alpha = enabledAlpha
         PreviousRecordingLabel.isEnabled = true
@@ -1238,7 +1230,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         TranscribeLabel.isHidden = true
         SeeTranscriptionLabel.isHidden = true
         TranscribingIndicator.isHidden = false
-        RenameFileLabel.alpha = disabledAlpha
     }
     
     func HideTranscriptionInProgressUI(result: SafeAlertResult, processedObject: AudioTranscriptionObject) {
@@ -1250,7 +1241,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             } else {
                 NoTranscriptionUI()
             }
-            RenameFileLabel.alpha = enabledAlpha
         } else {
             // We are in a different slot, show a banner or something
         }
