@@ -980,7 +980,6 @@ final class GoogleDriveManager: NSObject {
             return
         }
         guard driveService != nil else {
-            // CHANGED
             ProgressHUD.failed("Google Drive is not available right now. Try again later.")
             print("driveService is nil")
             return
@@ -991,8 +990,15 @@ final class GoogleDriveManager: NSObject {
         // Build local file URLs & names
         let baseName   = recordingManager.toggledAudioTranscriptionObject.fileName
         let dir        = recordingManager.GetDirectory()
-        let audioURL   = dir.appendingPathComponent(baseName).appendingPathExtension(recordingManager.audioRecordingExtension)
-        let transcriptURL = dir.appendingPathComponent(baseName).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
+        let uuid       = recordingManager.toggledAudioTranscriptionObject.uuid.uuidString
+
+        let audioURL = dir
+            .appendingPathComponent(uuid)
+            .appendingPathExtension(recordingManager.audioRecordingExtension)
+
+        let transcriptURL = dir
+            .appendingPathComponent(uuid)
+            .appendingPathExtension(recordingManager.transcriptionRecordingExtension)
 
         let audioFileName = "\(baseName).\(recordingManager.audioRecordingExtension)"
         let txtFileName   = "\(baseName).\(recordingManager.transcriptionRecordingExtension)"
@@ -1011,29 +1017,76 @@ final class GoogleDriveManager: NSObject {
         viewController.DisableUI()
         ProgressHUD.animate("Sending...", .triangleDotShift)
 
+        // -----------------------------------
+        // PREPARE PRETTY FILE URLs UP FRONT
+        // -----------------------------------
+        let prettyAudioURL: URL
+        var prettyTranscriptURL: URL? = nil
+        var shouldSendTranscript = false
+
+        do {
+            // Audio: pretty filename, same audio content
+            prettyAudioURL = try recordingManager.createPrettyFileURLForExport(
+                for: audioURL,
+                exportedFilename: baseName,
+                ext: recordingManager.audioRecordingExtension
+            )
+
+            // Determine if we *have* a transcript to send
+            let localHasTranscript =
+                recordingManager.toggledAudioTranscriptionObject.hasTranscription &&
+                hasTranscription &&
+                FileManager.default.fileExists(atPath: transcriptURL.path)
+
+            shouldSendTranscript = localHasTranscript
+
+            if localHasTranscript {
+                // IMPORTANT: use transcriptURL here, not audioURL
+                prettyTranscriptURL = try recordingManager.createPrettyFileURLForExport(
+                    for: transcriptURL,
+                    exportedFilename: baseName,
+                    ext: recordingManager.transcriptionRecordingExtension
+                )
+            }
+        } catch {
+            ProgressHUD.dismiss()
+            viewController.safeDisplayAlert(
+                title: "Unable to prepare files",
+                message: "Prime Dictation couldn’t prepare the files for upload. Try again later.",
+                type: .send,
+                result: .failure
+            )
+            viewController.EnableUI()
+            return
+        }
+
         // 0) Ensure destination folder still exists
         httpCheckFolderExists(folderId: destFolderId) { [weak self] exists in
             guard let self = self, let viewController = self.viewController else { return }
 
             guard exists else {
-                ProgressHUD.dismiss()
-                viewController.safeDisplayAlert(
-                    title: "Recording send failed",
-                    message: "Your selected folder may have been deleted, select another folder and try again.",
-                    result: .failure
-                )
-                viewController.EnableUI()
-                self.persistedSelection = nil
+                DispatchQueue.main.async {
+                    ProgressHUD.dismiss()
+                    viewController.safeDisplayAlert(
+                        title: "Recording send failed",
+                        message: "Your selected folder may have been deleted, select another folder and try again.",
+                        result: .failure
+                    )
+                    viewController.EnableUI()
+                    self.persistedSelection = nil
+                }
                 return
             }
 
             // 1) Upload audio first
-            self.httpResumableUpload(fileURL: audioURL,
-                                     destFolderId: destFolderId,
-                                     mimeType: audioMime,
-                                     fileName: audioFileName) { result in
+            self.httpResumableUpload(
+                fileURL: prettyAudioURL,
+                destFolderId: destFolderId,
+                mimeType: audioMime,
+                fileName: audioFileName
+            ) { result in
                 switch result {
-                case .failure(_):
+                case .failure:
                     DispatchQueue.main.async {
                         ProgressHUD.dismiss()
                         viewController.safeDisplayAlert(
@@ -1047,12 +1100,7 @@ final class GoogleDriveManager: NSObject {
 
                 case .success:
                     // 2) Optionally upload transcript
-                    let shouldSendTranscript =
-                        recordingManager.toggledAudioTranscriptionObject.hasTranscription &&
-                        hasTranscription &&
-                        FileManager.default.fileExists(atPath: transcriptURL.path)
-
-                    guard shouldSendTranscript else {
+                    guard shouldSendTranscript, let prettyTranscriptURL = prettyTranscriptURL else {
                         DispatchQueue.main.async {
                             ProgressHUD.succeed("Recording sent to Google Drive")
                             viewController.safeDisplayAlert(
@@ -1066,10 +1114,12 @@ final class GoogleDriveManager: NSObject {
                         return
                     }
 
-                    self.httpResumableUpload(fileURL: transcriptURL,
-                                             destFolderId: destFolderId,
-                                             mimeType: txtMime,
-                                             fileName: txtFileName) { result2 in
+                    self.httpResumableUpload(
+                        fileURL: prettyTranscriptURL,
+                        destFolderId: destFolderId,
+                        mimeType: txtMime,
+                        fileName: txtFileName
+                    ) { result2 in
                         DispatchQueue.main.async {
                             switch result2 {
                             case .success:
@@ -1080,7 +1130,7 @@ final class GoogleDriveManager: NSObject {
                                     type: .send,
                                     result: .success
                                 )
-                            case .failure(_):
+                            case .failure:
                                 viewController.safeDisplayAlert(
                                     title: "Transcript upload failed",
                                     message: "The recording was sent to Google Drive, but the transcript could not be uploaded.",
@@ -1095,6 +1145,7 @@ final class GoogleDriveManager: NSObject {
             }
         }
     }
+
 
     private func checkFolderExists(folderId: String, service: GTLRDriveService, completion: @escaping (Bool) -> Void) {
         if folderId == GoogleDriveManager.googleDriveRootId {

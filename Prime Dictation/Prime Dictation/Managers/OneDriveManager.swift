@@ -313,6 +313,7 @@ final class OneDriveManager {
     }
 
     // MARK: - Public: upload entry point (uses selected folder or default)
+    @MainActor
     func SendToOneDrive(hasTranscription: Bool,
                         preferredFileName: String? = nil,
                         progress: ((Double) -> Void)? = nil) {
@@ -321,58 +322,63 @@ final class OneDriveManager {
             guard let viewController = self.viewController,
                   let recordingManager = self.recordingManager else { return }
 
-            await ProgressHUD.animate("Sending...", .triangleDotShift)
-            await viewController.DisableUI()
+            ProgressHUD.animate("Sending...", .triangleDotShift)
+            viewController.DisableUI()
             defer { Task { @MainActor in viewController.EnableUI() } }
 
             // Build local file URLs
             let baseName = recordingManager.toggledAudioTranscriptionObject.fileName
             let dir      = recordingManager.GetDirectory()
-            let audioURL = dir.appendingPathComponent(baseName)
+            let audioURL = dir.appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.uuid.uuidString)
                               .appendingPathExtension(recordingManager.audioRecordingExtension)
-            let txtURL   = dir.appendingPathComponent(baseName)
+            let txtURL   = dir.appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.uuid.uuidString)
                               .appendingPathExtension(recordingManager.transcriptionRecordingExtension)
-
-            // Remote names (sanitize for OneDrive)
-            let audioFileName = self.sanitizeForOneDriveFileName("\(baseName).\(recordingManager.audioRecordingExtension)")
-            let txtFileName   = self.sanitizeForOneDriveFileName("\(baseName).\(recordingManager.transcriptionRecordingExtension)")
 
             do {
                 // 1) Token + destination
                 let token  = try await self.getAccessTokenSilently()
                 let target = try await self.resolveSelectionOrDefault(token: token) // user-picked or default
-
+                
+                let prettyAudioURL: URL? = try recordingManager.createPrettyFileURLForExport(for: audioURL, exportedFilename: recordingManager.toggledAudioTranscriptionObject.fileName, ext: recordingManager.audioRecordingExtension)
+                guard let prettyAudioURL else {
+                    ProgressHUD.dismiss()
+                    ProgressHUD.failed("Unable to send to OneDrive, make another recording and try again later.")
+                    viewController.EnableUI()
+                    return
+                }
                 // 2) Upload audio
                 _ = try await self.uploadRecording(
                     accessToken: token,
-                    fileURL: audioURL,
-                    fileName: audioFileName,
+                    fileURL: prettyAudioURL,
+                    fileName: recordingManager.toggledAudioTranscriptionObject.fileName + "." + recordingManager.audioRecordingExtension,
                     to: target,
                     progress: progress
                 )
-
                 // 3) Optionally upload transcript (respect the toggle + param + file existence)
                 let shouldSendTranscript =
                     recordingManager.toggledAudioTranscriptionObject.hasTranscription &&
                     hasTranscription &&
                     FileManager.default.fileExists(atPath: txtURL.path)
-
+                
+                let prettyTranscriptURL: URL? = try recordingManager.createPrettyFileURLForExport(for: txtURL, exportedFilename: recordingManager.toggledAudioTranscriptionObject.fileName, ext: recordingManager.transcriptionRecordingExtension)
                 if shouldSendTranscript {
-                    _ = try await self.uploadRecording(
-                        accessToken: token,
-                        fileURL: txtURL,
-                        fileName: txtFileName,
-                        to: target,
-                        progress: nil // keep progress tied to the main audio if you want
-                    )
-                    await MainActor.run {
-                        ProgressHUD.succeed("Recording and transcript sent to OneDrive")
-                        viewController.safeDisplayAlert(
-                            title: "Recording and transcript sent to OneDrive",
-                            message: "Your recording and transcript were sent to OneDrive while Prime Dictation was in the background.",
-                            type: .send,
-                            result: .success
+                    if let prettyTranscriptURL {
+                        _ = try await self.uploadRecording(
+                            accessToken: token,
+                            fileURL: prettyTranscriptURL,
+                            fileName: recordingManager.toggledAudioTranscriptionObject.fileName + "." + recordingManager.transcriptionRecordingExtension,
+                            to: target,
+                            progress: nil // keep progress tied to the main audio if you want
                         )
+                        await MainActor.run {
+                            ProgressHUD.succeed("Recording and transcript sent to OneDrive")
+                            viewController.safeDisplayAlert(
+                                title: "Recording and transcript sent to OneDrive",
+                                message: "Your recording and transcript were sent to OneDrive while Prime Dictation was in the background.",
+                                type: .send,
+                                result: .success
+                            )
+                        }
                     }
                 } else {
                     await MainActor.run {
