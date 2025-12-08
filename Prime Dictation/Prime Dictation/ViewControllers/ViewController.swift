@@ -268,10 +268,18 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
         isRecordingPaused = false
         watch.stop()
-
-        let previousRecordingPath = recordingManager.GetDirectory()
-            .appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName)
-            .appendingPathExtension(recordingManager.audioRecordingExtension)
+        
+        let toggledURL: URL? = recordingManager.toggledRecordingURL
+        
+        guard let toggledURL else {
+            print("Toggled URL not set at playback")
+            displayAlert(title: "Playback Unavailable", message: "Unable to find the recording for playback. Make another recording and try again.")
+            return
+        }
+        
+        print("playbackPath: \(recordingManager.toggledRecordingURL?.path ?? "nil")")
+        let exists = FileManager.default.fileExists(atPath: recordingManager.toggledRecordingURL?.path ?? "")
+        print("playbackPath exists: \(exists)")
 
         do {
             try recordingSession.setCategory(.playAndRecord,
@@ -280,7 +288,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             try recordingSession.setActive(true, options: .notifyOthersOnDeactivation)
 
             try recordingSession.overrideOutputAudioPort(.speaker)
-            audioPlayer = try AVAudioPlayer(contentsOf: previousRecordingPath)
+            audioPlayer = try AVAudioPlayer(contentsOf: toggledURL)
             audioPlayer?.delegate = self
             audioPlayer.prepareToPlay()
             audioPlayer.volume = 1
@@ -446,9 +454,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
         recordingManager.numberOfRecordings += 1
         recordingManager.mostRecentRecordingName = recordingManager.RecordingTimeForName()
+        let newUUID = UUID()
+        recordingManager.createNewAudioTranscriptionObject(uuid: newUUID)
+        
         let fileName = recordingManager
             .GetDirectory()
-            .appendingPathComponent(recordingManager.mostRecentRecordingName)
+            .appendingPathComponent(newUUID.uuidString)
             .appendingPathExtension(recordingManager.audioRecordingExtension)
 
         let settings: [String: Any] = [
@@ -1156,7 +1167,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func HideRecordingOrListeningUI() {
         TitleOfAppLabel.alpha = enabledAlpha
         TranscribeLabel.isEnabled = true
-        if recordingManager.transcribingAudioTranscriptionObjects.count >= TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS {
+        if recordingManager.transcribingAudioTranscriptionObjects.count < TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS {
             TranscribeLabel.alpha = enabledAlpha
         }
         SeeTranscriptionLabel.isEnabled = true

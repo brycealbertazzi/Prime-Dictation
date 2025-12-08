@@ -66,8 +66,9 @@ class TranscriptionManager {
             print("❌ transcribeAudioFile: missing SignedAudioUrlGCFunction")
             throw TranscriptionError.error("Transcription service not configured (audio signer)")
         }
-
-        let transcriptFilename = "\(processedObjectInQueue.fileName)." +
+        
+        let processedObjectUUIDString = processedObjectInQueue.uuid.uuidString
+        let transcriptFilename = "\(processedObjectUUIDString)." +
                                  "\(recordingManager.transcriptionRecordingExtension)"
 
         // 3) Ensure we have a valid recording URL; reconstruct if needed
@@ -76,7 +77,7 @@ class TranscriptionManager {
             recordingURL = existing
         } else {
             let candidate = recordingManager.GetDirectory()
-                .appendingPathComponent(processedObjectInQueue.fileName)
+                .appendingPathComponent(processedObjectUUIDString)
                 .appendingPathExtension(recordingManager.audioRecordingExtension)
 
             if FileManager.default.fileExists(atPath: candidate.path) {
@@ -131,7 +132,7 @@ class TranscriptionManager {
 
         // 7) Download transcript and update local state/UI
         let localPath = recordingManager.GetDirectory()
-            .appendingPathComponent(processedObjectInQueue.fileName)
+            .appendingPathComponent(processedObjectUUIDString)
             .appendingPathExtension(recordingManager.transcriptionRecordingExtension)
 
         do {
@@ -208,7 +209,7 @@ class TranscriptionManager {
         if (recordingManager.toggledAudioTranscriptionObject.transcriptionText != nil) {
             return
         }
-        let toggledTranscriptFilePath = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.fileName).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
+        let toggledTranscriptFilePath = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.uuid.uuidString).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
         if (!FileManager.default.fileExists(atPath: toggledTranscriptFilePath.path)) { return }
         
         let toggledText = try String(contentsOf: toggledTranscriptFilePath, encoding: .utf8)
@@ -678,7 +679,7 @@ class TranscriptionManager {
         }
 
         // 3) JSON body expected by your Node handler (req.body)
-        let bucketPath = "\(processedObjectInQueue.fileName).\(recordingManager.audioRecordingExtension)"
+        let bucketPath = "\(processedObjectInQueue.uuid.uuidString).\(recordingManager.audioRecordingExtension)"
         let body: [String: Any] = [
             "bucketPath": bucketPath,
             "contentType": "audio/mp4"

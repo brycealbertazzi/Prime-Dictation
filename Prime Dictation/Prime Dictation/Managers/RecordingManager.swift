@@ -59,31 +59,44 @@ class RecordingManager {
         }
     }
     
+    var newlyCreatedAudioTranscriptionObject: AudioTranscriptionObject? = nil
+    func createNewAudioTranscriptionObject(uuid: UUID) {
+        newlyCreatedAudioTranscriptionObject = AudioTranscriptionObject(
+            uuid: uuid,
+            fileName: mostRecentRecordingName,
+            hasTranscription: false,
+            transcriptionText: nil,
+            isTranscribing: false
+        )
+    }
+    
     func UpdateSavedRecordings() {
         let recordingCount = savedAudioTranscriptionObjects.count
-        if recordingCount < maxNumSavedRecordings {
-            savedAudioTranscriptionObjects.append(AudioTranscriptionObject(uuid: UUID(), fileName: mostRecentRecordingName, hasTranscription: false, transcriptionText: nil, isTranscribing: false))
-        } else {
-            //Delete the oldest recording and add the next one
+        if recordingCount >= maxNumSavedRecordings {
+            //Delete the oldest recording in the queue
             let oldestRecording = savedAudioTranscriptionObjects.removeFirst()
             
             do {
-                let m4aUrl = GetDirectory().appendingPathComponent(oldestRecording.fileName).appendingPathExtension(audioRecordingExtension)
+                let m4aUrl = GetDirectory().appendingPathComponent(oldestRecording.uuid.uuidString).appendingPathExtension(audioRecordingExtension)
                 if (FileManager.default.fileExists(atPath: m4aUrl.path)) {try FileManager.default.removeItem(at: m4aUrl)} else {print("M4A FILES DOES NOT EXIST!!!!")}
             } catch {
                 print("UNABLE TO DETETE THE FILE OF AN OLDEST RECORDING IN QUEUE!!!!")
             }
-            savedAudioTranscriptionObjects.append(AudioTranscriptionObject(uuid: UUID(), fileName: mostRecentRecordingName, hasTranscription: false, transcriptionText: nil, isTranscribing: false))
-            transcriptionManager.toggledTranscriptText = nil
         }
+
+        if let newlyCreatedAudioTranscriptionObject {
+            savedAudioTranscriptionObjects.append(newlyCreatedAudioTranscriptionObject)
+        }
+
         saveAudioTranscriptionObjectsToUserDefaults()
         Task { try await SelectMostRecentRecording() }
         viewController.NoTranscriptionUI()
+        transcriptionManager.toggledTranscriptText = nil
     }
     
     func UpdateAudioTranscriptionObjectOnTranscriptionInProgressChange(processedObjectUUID: UUID, isTranscriptionInProgress: Bool) {
         for (index, object) in savedAudioTranscriptionObjects.enumerated() where object.uuid == processedObjectUUID {
-            print("updating \(object.fileName) object isTranscribing to \(isTranscriptionInProgress)")
+            print("updating \(object.fileName) with uuid: \(object.uuid.uuidString) object isTranscribing to \(isTranscriptionInProgress)")
             savedAudioTranscriptionObjects[index].isTranscribing = isTranscriptionInProgress
             if (toggledAudioTranscriptionObject.uuid == processedObjectUUID) {
                 print("updating toggledAudioTranscriptionObject, we are on that one")
@@ -104,21 +117,24 @@ class RecordingManager {
     }
     
     func setToggledRecordingURL() {
-        toggledRecordingURL = GetDirectory().appendingPathComponent(toggledAudioTranscriptionObject.fileName).appendingPathExtension(audioRecordingExtension)
+        toggledRecordingURL = GetDirectory().appendingPathComponent(toggledAudioTranscriptionObject.uuid.uuidString).appendingPathExtension(audioRecordingExtension)
+    }
+    
+    func createPrettyFileURLForExport(for original: URL, exportedFilename: String, ext: String) throws -> URL {
+        let tempDir = FileManager.default.temporaryDirectory
+        let tempURL = tempDir.appendingPathComponent(exportedFilename).appendingPathExtension(ext)
+
+        let fm = FileManager.default
+        if fm.fileExists(atPath: tempURL.path) {
+            try fm.removeItem(at: tempURL)
+        }
+        try fm.copyItem(at: original, to: tempURL)
+        print("createPrettyFileURLForExport: \(tempURL)")
+        return tempURL
     }
     
     func getURLForAudioTranscriptionObject(at uuid: UUID) -> URL? {
-        var fileName: String? = nil
-        for (_, obj) in transcribingAudioTranscriptionObjects.enumerated() {
-            if (obj.uuid == uuid) {
-                fileName = obj.fileName
-            }
-        }
-        if let fileName = fileName {
-            return GetDirectory().appendingPathComponent(fileName).appendingPathExtension(audioRecordingExtension)
-        } else {
-            return nil
-        }
+        return GetDirectory().appendingPathComponent(uuid.uuidString).appendingPathExtension(audioRecordingExtension)
     }
     
     func SelectMostRecentRecording() async throws {
@@ -179,78 +195,17 @@ class RecordingManager {
         // Normalize: trim and drop any extension the user typed
         let baseNewName = (rawNewName as NSString).deletingPathExtension.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !baseNewName.isEmpty else { return }
-        let santizedBaseName = sanitizedBaseName(baseNewName)
+        let santizedNewName = sanitizedBaseName(baseNewName)
 
         let dir = GetDirectory()
 
-        let oldBase = self.toggledAudioTranscriptionObject.fileName
-        if oldBase == santizedBaseName { return }
-
-        // Compute final new base with your duplicate-per-minute suffix
-        let n = GetDuplicateIndex(newFileName: santizedBaseName, isNewFile: false)
-        let newBase = n > 0 ? "\(santizedBaseName)(\(n))" : santizedBaseName
+        let oldBaseName = self.toggledAudioTranscriptionObject.fileName
+        if oldBaseName == santizedNewName { return }
         
-        if (oldBase == newBase) { return }
-
-        // Build URLs
-        let oldAudioURL = dir.appendingPathComponent(oldBase).appendingPathExtension(audioRecordingExtension)
-        let newAudioURL = dir.appendingPathComponent(newBase).appendingPathExtension(audioRecordingExtension)
-
-        let oldTranscriptURL = dir.appendingPathComponent(oldBase).appendingPathExtension(transcriptionRecordingExtension)
-        let newTranscriptURL = dir.appendingPathComponent(newBase).appendingPathExtension(transcriptionRecordingExtension)
-
-        do {
-            // 1) Rename audio first
-            try FileManager.default.moveItem(at: oldAudioURL, to: newAudioURL)
-
-            // 2) If there is a transcript, rename it too
-            if FileManager.default.fileExists(atPath: oldTranscriptURL.path) {
-                do {
-                    try FileManager.default.moveItem(at: oldTranscriptURL, to: newTranscriptURL)
-                } catch {
-                    // Roll back audio rename if transcript rename fails
-                    try? FileManager.default.moveItem(at: newAudioURL, to: oldAudioURL)
-                    throw error
-                }
-            }
-
-            // 3) Update in-memory model + UI
-            self.savedAudioTranscriptionObjects[self.toggledRecordingsIndex].fileName = newBase
-            self.toggledAudioTranscriptionObject = self.savedAudioTranscriptionObjects[self.toggledRecordingsIndex]
-            self.setToggledRecordingURL() // Make sure this recalculates from fileName
-            viewController.FileNameLabel.setTitle(newBase, for: .normal)
-            saveAudioTranscriptionObjectsToUserDefaults()
-            
-            // 4) Refresh cached transcript URL and in-memory transcript text
-            self.toggledTranscriptURL = self.toggledRecordingURL?
-                .deletingPathExtension()
-                .appendingPathExtension(self.transcriptionRecordingExtension)
-
-            // If a transcript file exists for the renamed recording, reload it into cache
-            if let transcriptURL = self.toggledTranscriptURL,
-               FileManager.default.fileExists(atPath: transcriptURL.path) {
-                do {
-                    let text = try String(contentsOf: transcriptURL, encoding: .utf8)
-                    self.toggledAudioTranscriptionObject.transcriptionText = text
-                    self.savedAudioTranscriptionObjects[self.toggledRecordingsIndex] = self.toggledAudioTranscriptionObject
-                    self.transcriptionManager.toggledTranscriptText = text
-                    // Optionally update UI to reflect that a transcript is available and current
-                    self.viewController.HasTranscriptionUI()
-                } catch {
-                    print("⚠️ Failed to reload transcript after rename")
-                }
-            } else {
-                // No transcript file — clear cached text to avoid stale data
-                self.toggledAudioTranscriptionObject.transcriptionText = nil
-                self.savedAudioTranscriptionObjects[self.toggledRecordingsIndex] = self.toggledAudioTranscriptionObject
-                self.transcriptionManager.toggledTranscriptText = nil
-                self.viewController.NoTranscriptionUI()
-            }
-
-        } catch {
-            ProgressHUD.failed("We were unable to rename your file.")
-            print("Failed to rename file")
-        }
+        self.savedAudioTranscriptionObjects[self.toggledRecordingsIndex].fileName = santizedNewName
+        self.toggledAudioTranscriptionObject = self.savedAudioTranscriptionObjects[self.toggledRecordingsIndex]
+        viewController.FileNameLabel.setTitle(santizedNewName, for: .normal)
+        saveAudioTranscriptionObjectsToUserDefaults()
     }
 
     

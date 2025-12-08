@@ -97,7 +97,7 @@ final class DropboxManager {
         if let userClient = DropboxClientsManager.authorizedClient {
             group.enter()
             userClient.auth.tokenRevoke().response { _, err in
-                if let err { print("Dropbox token revoke (user) failed"); success = false }
+                if err != nil { print("Dropbox token revoke (user) failed"); success = false }
                 group.leave()
             }
         }
@@ -214,17 +214,15 @@ final class DropboxManager {
         guard let viewController, let recordingManager else { return }
 
         // Build local file URLs once
-        let baseName = recordingManager.toggledAudioTranscriptionObject.fileName
+        let objectUUIDString = recordingManager.toggledAudioTranscriptionObject.uuid.uuidString
         let dir = recordingManager.GetDirectory()
-        let audioURL = dir.appendingPathComponent(baseName).appendingPathExtension(recordingManager.audioRecordingExtension)
-        let transcriptURL = dir.appendingPathComponent(baseName).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
-
-        // Helper to upload one file
-        func upload(_ client: DropboxClient, local: URL, to remotePath: String, completion: @escaping (Bool) -> Void) {
-            client.files.upload(path: remotePath, mode: .add, autorename: true, mute: true, input: local)
-                .response { resp, _ in completion(resp != nil) }
-        }
-
+        let audioURL = dir.appendingPathComponent(objectUUIDString).appendingPathExtension(recordingManager.audioRecordingExtension)
+        let transcriptURL = dir.appendingPathComponent(objectUUIDString).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
+        let baseName = recordingManager.toggledAudioTranscriptionObject.fileName
+        
+        var prettyAudioURL: URL? = nil
+        var prettyTranscriptURL: URL? = nil
+        
         // UI
         ProgressHUD.animate("Sending...", .triangleDotShift)
         viewController.DisableUI()
@@ -246,105 +244,143 @@ final class DropboxManager {
             }
             return
         }
-
-        // Resolve destination folder path then upload(s)
-        resolveSelectionOrDefault(client: client) { [weak self] selResult in
-            guard let self = self else { return }
-            switch selResult {
-            case .failure:
-                DispatchQueue.main.async {
-                    viewController.safeDisplayAlert(
-                        title: "Unable to send to Dropbox",
-                        message: "Your selected folder may no longer exist. Select another folder and try again.",
-                        result: .failure
-                    )
-                    print("Dropbox upload failed, unable to resolve selection")
-                    viewController.EnableUI()
-                }
-            case .success(let sel):
-                self.resolveCurrentPath(client: client, selection: sel) { pathResult in
-                    switch pathResult {
-                    case .failure:
-                        DispatchQueue.main.async {
-                            viewController.safeDisplayAlert(
-                                title: "Unable to send to Dropbox",
-                                message: "Your selected folder may no longer exist. Select another folder and try again.",
-                                result: .failure
-                            )
-                            print("Dropbox upload failed, unable to resolve path result")
-                            viewController.EnableUI()
-                        }
-                    case .success(let folderPath):
-                        let normalized = folderPath.isEmpty ? "/" : folderPath
-                        let remoteAudio = (normalized == "/") ? "/\(baseName).\(recordingManager.audioRecordingExtension)"
-                                                               : "\(normalized)/\(baseName).\(recordingManager.audioRecordingExtension)"
-                        let remoteTxt   = (normalized == "/") ? "/\(baseName).\(recordingManager.transcriptionRecordingExtension)"
-                                                               : "\(normalized)/\(baseName).\(recordingManager.transcriptionRecordingExtension)"
-
-                        // 1) Upload audio
-                        upload(client, local: audioURL, to: remoteAudio) { ok in
-                            guard ok else {
-                                DispatchQueue.main.async {
-                                    viewController.safeDisplayAlert(
-                                        title: "Recording send failed",
-                                        message: "Unable to upload the recording to Dropbox. Check your connection and try again.",
-                                        type: .send,
-                                        result: .failure
-                                    )
-                                    viewController.EnableUI()
-                                }
-                                return
+        
+        do {
+            prettyAudioURL = try recordingManager.createPrettyFileURLForExport(
+                for: audioURL,                 // uuid-based file
+                exportedFilename: recordingManager.toggledAudioTranscriptionObject.fileName,    // user-facing base name, no ext
+                ext: recordingManager.audioRecordingExtension
+            )
+            print("prettyAudioURL: \(prettyAudioURL?.path ?? "nil")")
+            guard let prettyAudioURL else {
+                ProgressHUD.dismiss()
+                ProgressHUD.failed("Unable to send to Dropbox, make another recording and try again later.")
+                viewController.EnableUI()
+                return
+            }
+            if (recordingManager.toggledAudioTranscriptionObject.hasTranscription) {
+                prettyTranscriptURL = try recordingManager.createPrettyFileURLForExport(
+                    for: transcriptURL,                 // uuid-based file
+                    exportedFilename: recordingManager.toggledAudioTranscriptionObject.fileName,    // user-facing base name, no ext
+                    ext: recordingManager.transcriptionRecordingExtension
+                )
+                print("prettyTranscriptURL: \(prettyTranscriptURL?.path ?? "nil")")
+            }
+            // Resolve destination folder path then upload(s)
+            resolveSelectionOrDefault(client: client) { [weak self] selResult in
+                guard let self = self else { return }
+                switch selResult {
+                case .failure:
+                    DispatchQueue.main.async {
+                        viewController.safeDisplayAlert(
+                            title: "Unable to send to Dropbox",
+                            message: "Your selected folder may no longer exist. Select another folder and try again.",
+                            result: .failure
+                        )
+                        print("Dropbox upload failed, unable to resolve selection")
+                        viewController.EnableUI()
+                    }
+                case .success(let sel):
+                    self.resolveCurrentPath(client: client, selection: sel) { pathResult in
+                        switch pathResult {
+                        case .failure:
+                            DispatchQueue.main.async {
+                                viewController.safeDisplayAlert(
+                                    title: "Unable to send to Dropbox",
+                                    message: "Your selected folder may no longer exist. Select another folder and try again.",
+                                    result: .failure
+                                )
+                                print("Dropbox upload failed, unable to resolve path result")
+                                viewController.EnableUI()
                             }
+                        case .success(let folderPath):
+                            let normalized = folderPath.isEmpty ? "/" : folderPath
+                            let remoteAudio = (normalized == "/") ? "/\(baseName).\(recordingManager.audioRecordingExtension)"
+                                                                   : "\(normalized)/\(baseName).\(recordingManager.audioRecordingExtension)"
+                            let remoteTxt   = (normalized == "/") ? "/\(baseName).\(recordingManager.transcriptionRecordingExtension)"
+                                                                   : "\(normalized)/\(baseName).\(recordingManager.transcriptionRecordingExtension)"
 
-                            // 2) Optionally upload transcript
-                            let shouldSendTranscript = recordingManager.toggledAudioTranscriptionObject.hasTranscription
-                                && FileManager.default.fileExists(atPath: transcriptURL.path)
-
-                            guard shouldSendTranscript else {
-                                DispatchQueue.main.async {
-                                    ProgressHUD.succeed("Recording sent to Dropbox")
-                                    viewController.EnableUI()
-                                    viewController.safeDisplayAlert(
-                                        title: "Sent to Dropbox",
-                                        message: "Your recording was sent to Dropbox while Prime Dictation was in the background.",
-                                        type: .send,
-                                        result: .success
-                                    )
-                                }
-                                return
-                            }
-
-                            upload(client, local: transcriptURL, to: remoteTxt) { ok2 in
-                                DispatchQueue.main.async {
-                                    if ok2 {
-                                        ProgressHUD.succeed("Recording and transcript sent to Dropbox")
+                            // 1) Upload audio
+                            upload(client, local: prettyAudioURL, to: remoteAudio) { ok in
+                                guard ok else {
+                                    DispatchQueue.main.async {
                                         viewController.safeDisplayAlert(
-                                            title: "Sent to Dropbox",
-                                            message: "Your recording and transcript were sent to Dropbox while Prime Dictation was in the background.",
-                                            type: .send,
-                                            result: .success
-                                        )
-                                    } else {
-                                        viewController.safeDisplayAlert(
-                                            title: "Transcript upload failed",
-                                            message: """
-                                            Your recording was sent to Dropbox, but the transcript could not be uploaded.
-                                            Check your connection and try again, or resend the transcript later.
-                                            """,
+                                            title: "Recording send failed",
+                                            message: "Unable to upload the recording to Dropbox. Check your connection and try again.",
                                             type: .send,
                                             result: .failure
                                         )
+                                        viewController.EnableUI()
                                     }
-                                    viewController.EnableUI()
+                                    return
+                                }
+                                
+                                // 2) Optionally upload transcript
+                                var shouldSendTranscript: Bool = false
+                                if let prettyTranscriptURL {
+                                    shouldSendTranscript = recordingManager.toggledAudioTranscriptionObject.hasTranscription
+                                        && FileManager.default.fileExists(atPath: prettyTranscriptURL.path)
+                                }
+
+                                guard shouldSendTranscript else {
+                                    DispatchQueue.main.async {
+                                        ProgressHUD.succeed("Recording sent to Dropbox")
+                                        viewController.EnableUI()
+                                        viewController.safeDisplayAlert(
+                                            title: "Sent to Dropbox",
+                                            message: "Your recording was sent to Dropbox while Prime Dictation was in the background.",
+                                            type: .send,
+                                            result: .success
+                                        )
+                                    }
+                                    return
+                                }
+                                
+                                if let prettyTranscriptURL {
+                                    upload(client, local: prettyTranscriptURL, to: remoteTxt) { ok2 in
+                                        DispatchQueue.main.async {
+                                            if ok2 {
+                                                ProgressHUD.succeed("Recording and transcript sent to Dropbox")
+                                                viewController.safeDisplayAlert(
+                                                    title: "Sent to Dropbox",
+                                                    message: "Your recording and transcript were sent to Dropbox while Prime Dictation was in the background.",
+                                                    type: .send,
+                                                    result: .success
+                                                )
+                                            } else {
+                                                viewController.safeDisplayAlert(
+                                                    title: "Transcript upload failed",
+                                                    message: """
+                                                    Your recording was sent to Dropbox, but the transcript could not be uploaded.
+                                                    Check your connection and try again, or resend the transcript later.
+                                                    """,
+                                                    type: .send,
+                                                    result: .failure
+                                                )
+                                            }
+                                            viewController.EnableUI()
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+        } catch {
+            print("Unable to create pretty file URL for export: \(error)")
+            ProgressHUD.dismiss()
+            ProgressHUD.failed("Unable to send to Dropbox, make another recording and try again later.")
+            viewController.EnableUI()
+            return
+        }
+
+        // Helper to upload one file
+        func upload(_ client: DropboxClient, local: URL, to remotePath: String, completion: @escaping (Bool) -> Void) {
+            client.files.upload(path: remotePath, mode: .add, autorename: true, mute: true, input: local)
+                .response { resp, _ in completion(resp != nil) }
         }
     }
-
 
     // MARK: - Selection persistence (durable)
 
