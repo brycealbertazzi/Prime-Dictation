@@ -249,12 +249,12 @@
                                                 </connections>
                                             </button>
                                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="Wiu-Nk-ggN">
-                                                <rect key="frame" x="20" y="10" width="335" height="34"/>
+                                                <rect key="frame" x="25" y="10" width="325" height="34"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" relation="lessThanOrEqual" constant="350" id="taD-fL-xVG"/>
                                                 </constraints>
                                                 <color key="minimumTrackTintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                                <color key="thumbTintColor" red="0.17248585820000001" green="0.17266079779999999" blue="0.18154937030000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                <color key="thumbTintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                             </slider>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0s" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dFf-qS-ITZ">
                                                 <rect key="frame" x="178" y="48" width="18.666666666666657" height="22"/>
@@ -265,9 +265,9 @@
                                         </subviews>
                                         <constraints>
                                             <constraint firstItem="tAV-Xq-Ydt" firstAttribute="centerX" secondItem="rAM-Pa-WSN" secondAttribute="centerX" id="11f-hR-jVQ"/>
-                                            <constraint firstItem="Wiu-Nk-ggN" firstAttribute="leading" secondItem="rAM-Pa-WSN" secondAttribute="leading" constant="20" id="3uY-S7-xTM"/>
+                                            <constraint firstItem="Wiu-Nk-ggN" firstAttribute="leading" secondItem="rAM-Pa-WSN" secondAttribute="leading" constant="25" id="3uY-S7-xTM"/>
                                             <constraint firstAttribute="width" constant="375" id="5wd-me-8yy"/>
-                                            <constraint firstAttribute="trailing" secondItem="Wiu-Nk-ggN" secondAttribute="trailing" constant="20" id="NF2-4F-EzC"/>
+                                            <constraint firstAttribute="trailing" secondItem="Wiu-Nk-ggN" secondAttribute="trailing" constant="25" id="NF2-4F-EzC"/>
                                             <constraint firstAttribute="height" constant="80" id="Tuy-zg-xH1"/>
                                             <constraint firstItem="Wiu-Nk-ggN" firstAttribute="top" secondItem="rAM-Pa-WSN" secondAttribute="top" constant="10" id="bFO-iK-eD0"/>
                                             <constraint firstAttribute="bottom" secondItem="dFf-qS-ITZ" secondAttribute="bottom" constant="10" id="bmX-A8-V2b"/>
@@ -855,7 +855,7 @@
                                     <constraint firstAttribute="height" constant="40" id="tYn-9K-yyh"/>
                                 </constraints>
                                 <color key="minimumTrackTintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="calibratedRGB"/>
-                                <color key="thumbTintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <color key="thumbTintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                             </slider>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="3KK-z6-XcD"/>

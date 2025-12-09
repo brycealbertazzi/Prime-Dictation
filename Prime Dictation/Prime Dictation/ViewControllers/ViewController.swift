@@ -62,6 +62,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .regular)
+        if let circleImage = UIImage(systemName: "circle.fill", withConfiguration: config) {
+            PlaybackSlider.setThumbImage(circleImage, for: .normal)
+            PlaybackSlider.setThumbImage(circleImage, for: .highlighted)
+        }
+        
         StoreKitManager.shared.startObservingTransactions()
         loadSubscriptions()
         
