@@ -28,7 +28,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var PlaybackStopwatch: UILabel!
     @IBOutlet weak var TranscribeLabel: UIButton!
     @IBOutlet weak var SeeTranscriptionLabel: UIButton!
-    @IBOutlet weak var PoorConnectionLabel: UILabel!
     @IBOutlet weak var SendAccessibilityLabel: UILabel!
     @IBOutlet weak var PausePlayRecordingLabel: UIButton!
     @IBOutlet weak var TranscribingIndicator: UIView!
@@ -59,6 +58,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         return .darkContent
     }
     
+    enum RecordingState {
+        case recording
+        case playback
+    }
+    
+    var currentRecordingState: RecordingState = .recording
+    
     //MARK: View did load
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -88,7 +94,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         oneDriveManager.attach(viewController: self, recordingManager: recordingManager)
         googleDriveManager.attach(viewController: self, recordingManager: recordingManager)
         emailManager.attach(viewController: self, recordingManager: recordingManager)
-
+        
         watch = Stopwatch(viewController: self)
         
         destinationManager.getDestination()
@@ -111,7 +117,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         try? recordingSession.setCategory(.playAndRecord, options: [.defaultToSpeaker, .allowBluetoothHFP])
 
         RecordLabel.setImage(UIImage(named: "RecordButton"), for: .normal)
-        PoorConnectionLabel.isHidden = true
         PlaybackStopwatch.text = Stopwatch.StopwatchDefaultText
         RecordingStopwatch.text = Stopwatch.StopwatchDefaultText
 
@@ -304,6 +309,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             audioPlayer.enableRate = true
             audioPlayer.rate = 1
             audioPlayer.play()
+            currentRecordingState = .playback
 
             ShowListeningUI()
             Timer.scheduledTimer(withTimeInterval: 0.1,
@@ -490,6 +496,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             audioRecorder.prepareToRecord()
             audioRecorder.isMeteringEnabled = false
             audioRecorder.record()
+            currentRecordingState = .recording
 
             ListenLabel.isHidden = true
             ShowRecordingInProgressUI()
@@ -553,24 +560,46 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     //MARK: Pause-Resume-End Recordings and Playbacks:
     @IBAction func StopRecordingButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
-        finishCurrentRecording(interrupted: false)
+        if currentRecordingState == .recording {
+            finishCurrentRecording(interrupted: false)
+        } else {
+            endPlayback()
+        }
     }
     
     var isRecordingPaused: Bool = false
     @IBAction func PausePlayRecordingButton(_ sender: Any) {
         Haptic.tap()
-        if self.audioRecorder.isRecording {
-            self.PausePlayRecordingLabel.setImage(UIImage(named: "PlayButton"), for: .normal)
-            self.audioRecorder.pause()
-            self.isRecordingPaused = true
-            self.watch.pause()
+        if currentRecordingState == .recording {
+            if self.audioRecorder.isRecording {
+                self.PausePlayRecordingLabel.setImage(UIImage(named: "PlayButton"), for: .normal)
+                self.pauseRecording()
+            } else {
+                self.PausePlayRecordingLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
+                self.resumeRecording()
+            }
         } else {
-            self.PausePlayRecordingLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
-            self.audioRecorder.record()
-            self.isRecordingPaused = false
-            self.watch.resume()
-            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: self.watch.UpdateElapsedTime(timer:))
+            if self.audioPlayer.isPlaying {
+                self.PausePlayRecordingLabel.setImage(UIImage(named: "PlayButton"), for: .normal)
+                self.pausePlayback()
+            } else {
+                self.PausePlayRecordingLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
+                self.resumePlayback()
+            }
         }
+    }
+    
+    private func pauseRecording() {
+        audioRecorder.pause()
+        isRecordingPaused = true
+        watch.pause()
+    }
+    
+    private func resumeRecording() {
+        audioRecorder.record()
+        isRecordingPaused = false
+        watch.resume()
+        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: self.watch.UpdateElapsedTime(timer:))
     }
     
     private func pausePlayback() {
@@ -931,63 +960,63 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         return estimatedWaitLabel
     }
     
-    private func transcriptionInProgressUI(time: TimeInterval) {
-        // Cancel any prior timers
-        transcriptionProgressTimer?.invalidate()
-        poorConnectionStartTimer?.invalidate()
-
-        transcriptionProgressTimer = nil
-        poorConnectionStartTimer = nil
-
-        // Reset label
-        PoorConnectionLabel.isHidden = true
-        PoorConnectionLabel.alpha = 1.0
-
-        transcriptionProgressStage = 0
-        let total = max(time, 6.0)     // avoid flicker for tiny clips
-        let seg = total / 3.0
-
-        // Stage 1 immediately
-        ProgressHUD.animate("Sending audio to servers", .triangleDotShift)
-
-        // Stage 2 & 3
-        transcriptionProgressTimer = Timer.scheduledTimer(withTimeInterval: seg, repeats: true) { [weak self] t in
-            guard let self = self else { return }
-            self.transcriptionProgressStage += 1
-            switch self.transcriptionProgressStage {
-            case 1:
-                ProgressHUD.animate("Transcribing audio file", .triangleDotShift)
-            case 2:
-                ProgressHUD.animate("Finalizing transcription", .triangleDotShift)
-            default:
-                t.invalidate()
-                self.transcriptionProgressTimer = nil
-            }
-        }
-        RunLoop.main.add(transcriptionProgressTimer!, forMode: .common)
-
-        // Poor connection hint at 130% of estimate
-        let threshold = total * 1.3
-        poorConnectionStartTimer = Timer.scheduledTimer(withTimeInterval: threshold, repeats: false) { [weak self] _ in
-            guard let self = self else { return }
-            showPoorConnectionUI()
-
-            // Fade 1.0 -> 0.0 -> 1.0 ... forever (until you cancel)
-            UIView.animate(withDuration: 1.0,
-                           delay: 0,
-                           options: [.autoreverse, .repeat, .allowUserInteraction, .curveEaseInOut],
-                           animations: { [weak self] in
-                               self?.PoorConnectionLabel.alpha = 0.0
-                           },
-                           completion: nil)
-        }
-        RunLoop.main.add(poorConnectionStartTimer!, forMode: .common)
-    }
+//    private func transcriptionInProgressUI(time: TimeInterval) {
+//        // Cancel any prior timers
+//        transcriptionProgressTimer?.invalidate()
+//        poorConnectionStartTimer?.invalidate()
+//
+//        transcriptionProgressTimer = nil
+//        poorConnectionStartTimer = nil
+//
+//        // Reset label
+//        PoorConnectionLabel.isHidden = true
+//        PoorConnectionLabel.alpha = 1.0
+//
+//        transcriptionProgressStage = 0
+//        let total = max(time, 6.0)     // avoid flicker for tiny clips
+//        let seg = total / 3.0
+//
+//        // Stage 1 immediately
+//        ProgressHUD.animate("Sending audio to servers", .triangleDotShift)
+//
+//        // Stage 2 & 3
+//        transcriptionProgressTimer = Timer.scheduledTimer(withTimeInterval: seg, repeats: true) { [weak self] t in
+//            guard let self = self else { return }
+//            self.transcriptionProgressStage += 1
+//            switch self.transcriptionProgressStage {
+//            case 1:
+//                ProgressHUD.animate("Transcribing audio file", .triangleDotShift)
+//            case 2:
+//                ProgressHUD.animate("Finalizing transcription", .triangleDotShift)
+//            default:
+//                t.invalidate()
+//                self.transcriptionProgressTimer = nil
+//            }
+//        }
+//        RunLoop.main.add(transcriptionProgressTimer!, forMode: .common)
+//
+//        // Poor connection hint at 130% of estimate
+//        let threshold = total * 1.3
+//        poorConnectionStartTimer = Timer.scheduledTimer(withTimeInterval: threshold, repeats: false) { [weak self] _ in
+//            guard let self = self else { return }
+//            showPoorConnectionUI()
+//
+//            // Fade 1.0 -> 0.0 -> 1.0 ... forever (until you cancel)
+//            UIView.animate(withDuration: 1.0,
+//                           delay: 0,
+//                           options: [.autoreverse, .repeat, .allowUserInteraction, .curveEaseInOut],
+//                           animations: { [weak self] in
+//                               self?.PoorConnectionLabel.alpha = 0.0
+//                           },
+//                           completion: nil)
+//        }
+//        RunLoop.main.add(poorConnectionStartTimer!, forMode: .common)
+//    }
     
-    private func showPoorConnectionUI() {
-        PoorConnectionLabel.alpha = 1.0
-        PoorConnectionLabel.isHidden = false
-    }
+//    private func showPoorConnectionUI() {
+//        PoorConnectionLabel.alpha = 1.0
+//        PoorConnectionLabel.isHidden = false
+//    }
     
     private func showTranscriptionScreen() {
         // 1) instantiate
@@ -1188,6 +1217,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PreviousRecordingLabel.alpha = disabledAlpha
         NextRecordingLabel.alpha = disabledAlpha
         RenameFileLabel.alpha = disabledAlpha
+        RecordLabel.isHidden = true
+        StopButtonLabel.isHidden = false
+        PausePlayRecordingLabel.isHidden = false
         
         DisableDestinationAndSendButtons()
     }
@@ -1209,14 +1241,15 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PreviousRecordingLabel.alpha = enabledAlpha
         NextRecordingLabel.alpha = enabledAlpha
         RenameFileLabel.alpha = enabledAlpha
+        RecordLabel.isHidden = false
+        StopButtonLabel.isHidden = true
+        PausePlayRecordingLabel.isHidden = true
         
         EnableDestinationAndSendButtons()
     }
     
     func ShowRecordingInProgressUI() {
         RecordLabel.isHidden = true
-        StopButtonLabel.isHidden = false
-        PausePlayRecordingLabel.isHidden = false
         FileNameLabel.alpha = disabledAlpha
         RecordingStopwatch.isHidden = false
         ShowRecordingOrListeningUI()
@@ -1224,8 +1257,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     func HideRecordingInProgressUI() {
         RecordLabel.isHidden = false
-        StopButtonLabel.isHidden = true
-        PausePlayRecordingLabel.isHidden = true
         FileNameLabel.alpha = enabledAlpha
         RecordingStopwatch.isHidden = true
         HideRecordingOrListeningUI()

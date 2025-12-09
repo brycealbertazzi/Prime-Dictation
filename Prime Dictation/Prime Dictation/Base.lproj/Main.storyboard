@@ -332,12 +332,6 @@
                                             <constraint firstAttribute="height" constant="172" id="xKo-BL-Qqq"/>
                                         </constraints>
                                     </view>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Poor Connection" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DWH-sd-6b5" userLabel="Poor Connection Label">
-                                        <rect key="frame" x="93.666666666666686" y="132" width="227" height="36"/>
-                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="30"/>
-                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="svK-SA-aO1">
                                         <rect key="frame" x="329" y="163.66666666666666" width="55" height="54.333333333333343"/>
                                         <constraints>
@@ -430,10 +424,8 @@
                                 <gestureRecognizers/>
                                 <constraints>
                                     <constraint firstItem="xv6-iB-UAN" firstAttribute="top" secondItem="nJI-Eq-CWr" secondAttribute="top" constant="25" id="0WN-3G-Q8d"/>
-                                    <constraint firstItem="DWH-sd-6b5" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="5AQ-1J-6l2"/>
                                     <constraint firstItem="zvX-Zz-aHd" firstAttribute="top" secondItem="svK-SA-aO1" secondAttribute="bottom" constant="5" id="6SM-ef-6Jr"/>
                                     <constraint firstItem="TEJ-KL-gv0" firstAttribute="leading" secondItem="nJI-Eq-CWr" secondAttribute="leading" constant="30" id="A3i-1b-gR7"/>
-                                    <constraint firstAttribute="bottom" secondItem="DWH-sd-6b5" secondAttribute="bottom" constant="100" id="AIa-CB-fC4"/>
                                     <constraint firstItem="xv6-iB-UAN" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="Mta-b2-w0b"/>
                                     <constraint firstAttribute="trailing" secondItem="svK-SA-aO1" secondAttribute="trailing" constant="30" id="THE-Va-Ry3"/>
                                     <constraint firstAttribute="bottom" secondItem="svK-SA-aO1" secondAttribute="bottom" constant="50" id="kFF-lX-dN4"/>
@@ -474,7 +466,6 @@
                         <outlet property="PausePlayRecordingLabel" destination="XvF-Ob-6ZY" id="BYB-VJ-FXM"/>
                         <outlet property="PlaybackSlider" destination="Wiu-Nk-ggN" id="s2x-T5-V1f"/>
                         <outlet property="PlaybackStopwatch" destination="dFf-qS-ITZ" id="Vo8-Pv-V93"/>
-                        <outlet property="PoorConnectionLabel" destination="DWH-sd-6b5" id="Ufn-lc-T1T"/>
                         <outlet property="PreviousRecordingLabel" destination="Ad2-00-0E4" id="EfO-Ok-KQM"/>
                         <outlet property="RecordLabel" destination="aq9-EU-DW7" id="aoh-8d-Bsn"/>
                         <outlet property="RecordingStopwatch" destination="9EW-AN-aJX" id="5qk-Id-XLC"/>
