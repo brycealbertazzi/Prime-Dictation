@@ -25,8 +25,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var PreviousRecordingLabel: UIButton!
     @IBOutlet weak var NextRecordingLabel: UIButton!
     @IBOutlet weak var StopButtonLabel: UIButton!
-    @IBOutlet weak var PausePlaybackLabel: UIButton!
-    @IBOutlet weak var EndPlaybackLabel: UIButton!
     @IBOutlet weak var StopWatchLabel: UILabel!
     @IBOutlet weak var TranscribeLabel: UIButton!
     @IBOutlet weak var SeeTranscriptionLabel: UIButton!
@@ -37,6 +35,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var TranscriptionEstimateLabel: UILabel!
     @IBOutlet weak var TranscribingLabel: UILabel!
     @IBOutlet weak var TranscribingLoadingWheel: UIActivityIndicatorView!
+    @IBOutlet weak var PlaybackSlider: UISlider!
     
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
     var audioRecorder: AVAudioRecorder! //Responsible for recording our audio
@@ -570,7 +569,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     private func pausePlayback() {
         audioPlayer.pause()
         isRecordingPaused = true
-        PausePlaybackLabel.setTitle("Resume", for: .normal)
         watch.pause()
     }
     
@@ -579,14 +577,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         audioPlayer.prepareToPlay()
         audioPlayer.volume = 1
         audioPlayer.play()
-        PausePlaybackLabel.setTitle("Pause", for: .normal)
         watch.resume()
         isRecordingPaused = false
         Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTimeListen(timer:))
     }
     
     private func endPlayback() {
-        PausePlaybackLabel.setTitle("Pause", for: .normal)
         isRecordingPaused = false
         audioPlayer.stop()
         watch.stop()
@@ -1229,8 +1225,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func ShowListeningUI() {
         ListenLabel.isHidden = true
         StopWatchLabel.isHidden = false
-        PausePlaybackLabel.isHidden = false
-        EndPlaybackLabel.isHidden = false
         RecordLabel.isEnabled = false
         ShowRecordingOrListeningUI()
     }
@@ -1238,8 +1232,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func HideListeningUI() {
         ListenLabel.isHidden = false
         StopWatchLabel.isHidden = true
-        PausePlaybackLabel.isHidden = true
-        EndPlaybackLabel.isHidden = true
         RecordLabel.isEnabled = true
         HideRecordingOrListeningUI()
     }

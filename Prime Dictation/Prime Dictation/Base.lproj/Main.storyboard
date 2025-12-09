@@ -167,7 +167,7 @@
                                 <rect key="frame" x="19.666666666666657" y="268" width="375" height="200"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OPi-8M-xC4" userLabel="FileNameView">
-                                        <rect key="frame" x="0.0" y="59" width="375" height="121"/>
+                                        <rect key="frame" x="0.0" y="80" width="375" height="120"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ma4-wR-ucz">
                                                 <rect key="frame" x="149" y="6" width="77" height="34"/>
@@ -216,16 +216,72 @@
                                             <constraint firstItem="ma4-wR-ucz" firstAttribute="centerX" secondItem="OPi-8M-xC4" secondAttribute="centerX" id="ciL-gB-bmU"/>
                                             <constraint firstItem="RQo-s8-1EL" firstAttribute="top" secondItem="OPi-8M-xC4" secondAttribute="top" constant="46" id="i9o-Dm-N4R"/>
                                             <constraint firstItem="RQo-s8-1EL" firstAttribute="leading" secondItem="OPi-8M-xC4" secondAttribute="leading" constant="237" id="qvo-uK-cZF"/>
-                                            <constraint firstAttribute="height" constant="121" id="rDc-7N-BNo"/>
+                                            <constraint firstAttribute="height" constant="120" id="rDc-7N-BNo"/>
                                             <constraint firstItem="IlT-gg-nU8" firstAttribute="centerX" secondItem="OPi-8M-xC4" secondAttribute="centerX" id="uVi-Wn-ATL"/>
                                             <constraint firstItem="Ad2-00-0E4" firstAttribute="leading" secondItem="OPi-8M-xC4" secondAttribute="leading" constant="62" id="vkY-mG-Lad"/>
+                                        </constraints>
+                                    </view>
+                                    <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rAM-Pa-WSN" userLabel="PlaybackView">
+                                        <rect key="frame" x="-1" y="0.0" width="375" height="80"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAV-Xq-Ydt">
+                                                <rect key="frame" x="162.33333333333334" y="15.333333333333336" width="50" height="49.666666666666664"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="50" id="eOL-3b-DhG"/>
+                                                    <constraint firstAttribute="height" constant="50" id="icE-xY-k8T"/>
+                                                </constraints>
+                                                <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                <state key="normal" backgroundImage="headphones" catalog="system"/>
+                                                <userDefinedRuntimeAttributes>
+                                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                                        <real key="value" value="8"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                                        <color key="value" red="0.72941176470588232" green="0.29019607843137252" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                                        <real key="value" value="2"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                </userDefinedRuntimeAttributes>
+                                                <connections>
+                                                    <action selector="ListenButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kHC-ot-UZK"/>
+                                                </connections>
+                                            </button>
+                                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="Wiu-Nk-ggN">
+                                                <rect key="frame" x="20" y="10" width="335" height="34"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="350" id="taD-fL-xVG"/>
+                                                </constraints>
+                                                <color key="minimumTrackTintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                <color key="thumbTintColor" red="0.17248585820000001" green="0.17266079779999999" blue="0.18154937030000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                            </slider>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0s" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dFf-qS-ITZ">
+                                                <rect key="frame" x="178" y="48" width="18.666666666666657" height="22"/>
+                                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="20"/>
+                                                <color key="textColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstItem="tAV-Xq-Ydt" firstAttribute="centerX" secondItem="rAM-Pa-WSN" secondAttribute="centerX" id="11f-hR-jVQ"/>
+                                            <constraint firstItem="Wiu-Nk-ggN" firstAttribute="leading" secondItem="rAM-Pa-WSN" secondAttribute="leading" constant="20" id="3uY-S7-xTM"/>
+                                            <constraint firstAttribute="width" constant="375" id="5wd-me-8yy"/>
+                                            <constraint firstAttribute="trailing" secondItem="Wiu-Nk-ggN" secondAttribute="trailing" constant="20" id="NF2-4F-EzC"/>
+                                            <constraint firstAttribute="height" constant="80" id="Tuy-zg-xH1"/>
+                                            <constraint firstItem="Wiu-Nk-ggN" firstAttribute="top" secondItem="rAM-Pa-WSN" secondAttribute="top" constant="10" id="bFO-iK-eD0"/>
+                                            <constraint firstAttribute="bottom" secondItem="dFf-qS-ITZ" secondAttribute="bottom" constant="10" id="bmX-A8-V2b"/>
+                                            <constraint firstItem="dFf-qS-ITZ" firstAttribute="centerX" secondItem="rAM-Pa-WSN" secondAttribute="centerX" id="jgO-AP-WYd"/>
+                                            <constraint firstItem="Wiu-Nk-ggN" firstAttribute="centerX" secondItem="rAM-Pa-WSN" secondAttribute="centerX" id="ulx-X3-fWm"/>
+                                            <constraint firstItem="tAV-Xq-Ydt" firstAttribute="centerY" secondItem="rAM-Pa-WSN" secondAttribute="centerY" id="vdW-wd-uwL"/>
                                         </constraints>
                                     </view>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="OPi-8M-xC4" firstAttribute="centerX" secondItem="Fhv-jG-Lfw" secondAttribute="centerX" id="9YF-mq-iKL"/>
                                     <constraint firstAttribute="width" constant="375" id="H0b-TM-W1h"/>
-                                    <constraint firstAttribute="bottom" secondItem="OPi-8M-xC4" secondAttribute="bottom" constant="20" id="b92-d7-lLj"/>
+                                    <constraint firstAttribute="bottom" secondItem="OPi-8M-xC4" secondAttribute="bottom" id="b92-d7-lLj"/>
+                                    <constraint firstItem="rAM-Pa-WSN" firstAttribute="top" secondItem="Fhv-jG-Lfw" secondAttribute="top" id="lmv-Ks-p9i"/>
                                     <constraint firstAttribute="height" constant="200" id="rsA-v8-bTf"/>
                                 </constraints>
                             </view>
@@ -377,63 +433,12 @@
                                     <constraint firstAttribute="bottom" secondItem="TEJ-KL-gv0" secondAttribute="bottom" constant="50" id="u4g-J3-kaI"/>
                                 </constraints>
                             </view>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAV-Xq-Ydt">
-                                <rect key="frame" x="182" y="268.33333333333331" width="50" height="49.666666666666686"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="50" id="eOL-3b-DhG"/>
-                                    <constraint firstAttribute="height" constant="50" id="icE-xY-k8T"/>
-                                </constraints>
-                                <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                <state key="normal" backgroundImage="headphones" catalog="system"/>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                        <real key="value" value="8"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
-                                        <color key="value" red="0.72941176470588232" green="0.29019607843137252" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
-                                        <real key="value" value="2"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                                <connections>
-                                    <action selector="ListenButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kHC-ot-UZK"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vvz-gp-8Nr" userLabel="Pause/Play Playback Label">
-                                <rect key="frame" x="228.66666666666663" y="278" width="67" height="45"/>
-                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
-                                <state key="normal" title="Pause">
-                                    <color key="titleColor" red="0.72941176470588232" green="0.29019607843137252" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                </state>
-                                <connections>
-                                    <action selector="PausePlaybackButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="P8C-62-xqe"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JP1-AS-jj7" userLabel="End Playback Label">
-                                <rect key="frame" x="143.66666666666666" y="278" width="42" height="45"/>
-                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="30"/>
-                                <state key="normal" title="End">
-                                    <color key="titleColor" red="0.5725490196078431" green="0.16862745098039217" blue="0.12941176470588234" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <connections>
-                                    <action selector="EndPlaybackButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="aR7-mz-CaT"/>
-                                </connections>
-                            </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0s" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dFf-qS-ITZ">
-                                <rect key="frame" x="195.66666666666666" y="286" width="23" height="27.333333333333314"/>
-                                <fontDescription key="fontDescription" name="MarkerFelt-Thin" family="Marker Felt" pointSize="25"/>
-                                <color key="textColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="UTB-4I-ZUJ" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="0WO-2z-ojd"/>
                             <constraint firstAttribute="bottom" secondItem="UTB-4I-ZUJ" secondAttribute="bottom" id="2TV-dG-g1j"/>
-                            <constraint firstItem="Vvz-gp-8Nr" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="bottom" constant="10" id="4FU-aT-UFj"/>
                             <constraint firstAttribute="trailing" secondItem="nJI-Eq-CWr" secondAttribute="trailing" id="4Y4-6p-Kcs"/>
                             <constraint firstItem="ThE-Sk-wrm" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="4mp-hK-w2U"/>
                             <constraint firstItem="ThE-Sk-wrm" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="A7U-hV-SEJ"/>
@@ -441,33 +446,25 @@
                             <constraint firstItem="Fhv-jG-Lfw" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="CPn-9e-KR6"/>
                             <constraint firstAttribute="bottom" secondItem="nJI-Eq-CWr" secondAttribute="bottom" id="CbI-0Q-3ih"/>
                             <constraint firstItem="UTB-4I-ZUJ" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="Ejf-90-v0O"/>
-                            <constraint firstItem="dFf-qS-ITZ" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="bottom" constant="18" id="GKB-ei-u4H"/>
                             <constraint firstAttribute="trailing" secondItem="ThE-Sk-wrm" secondAttribute="trailing" id="GX8-ji-oaY"/>
-                            <constraint firstItem="Vvz-gp-8Nr" firstAttribute="leading" secondItem="dFf-qS-ITZ" secondAttribute="trailing" constant="10" id="MhV-sx-Hsz"/>
                             <constraint firstItem="Fhv-jG-Lfw" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="bottom" id="OcE-YV-XpX"/>
                             <constraint firstItem="Fhv-jG-Lfw" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="RA3-xB-BPq"/>
                             <constraint firstItem="Fhv-jG-Lfw" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Uup-0n-gPk"/>
                             <constraint firstItem="Fhv-jG-Lfw" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Vx4-VC-VFe"/>
-                            <constraint firstItem="tAV-Xq-Ydt" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="YfV-oY-M1i"/>
                             <constraint firstItem="UTB-4I-ZUJ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="a6k-Xs-qjf"/>
                             <constraint firstAttribute="trailing" secondItem="UTB-4I-ZUJ" secondAttribute="trailing" id="b5J-uk-iHR"/>
-                            <constraint firstItem="JP1-AS-jj7" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="bottom" constant="10" id="ilt-uB-nFS"/>
-                            <constraint firstItem="dFf-qS-ITZ" firstAttribute="leading" secondItem="JP1-AS-jj7" secondAttribute="trailing" constant="10" id="oV5-IC-Fvf"/>
                             <constraint firstItem="nJI-Eq-CWr" firstAttribute="top" secondItem="Fhv-jG-Lfw" secondAttribute="bottom" id="omD-h8-6rK"/>
-                            <constraint firstItem="tAV-Xq-Ydt" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="bottom" id="rpc-jz-A7p"/>
                             <constraint firstItem="Fhv-jG-Lfw" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="sc3-We-gzl"/>
-                            <constraint firstItem="dFf-qS-ITZ" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="us9-zi-V8z"/>
                             <constraint firstItem="nJI-Eq-CWr" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="ywD-Ke-9VV"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="DestinationLabel" destination="TEJ-KL-gv0" id="dYf-oa-RfN"/>
-                        <outlet property="EndPlaybackLabel" destination="JP1-AS-jj7" id="HgY-ia-gVo"/>
                         <outlet property="FileNameLabel" destination="ma4-wR-ucz" id="J8z-3S-8F3"/>
                         <outlet property="ListenLabel" destination="tAV-Xq-Ydt" id="x77-pk-KvP"/>
                         <outlet property="NextRecordingLabel" destination="RQo-s8-1EL" id="Qxy-BS-mC3"/>
                         <outlet property="PausePlayRecordingLabel" destination="XvF-Ob-6ZY" id="BYB-VJ-FXM"/>
-                        <outlet property="PausePlaybackLabel" destination="Vvz-gp-8Nr" id="w3z-fG-5BT"/>
+                        <outlet property="PlaybackSlider" destination="Wiu-Nk-ggN" id="s2x-T5-V1f"/>
                         <outlet property="PoorConnectionLabel" destination="DWH-sd-6b5" id="Ufn-lc-T1T"/>
                         <outlet property="PreviousRecordingLabel" destination="Ad2-00-0E4" id="EfO-Ok-KQM"/>
                         <outlet property="RecordLabel" destination="aq9-EU-DW7" id="aoh-8d-Bsn"/>
@@ -858,7 +855,7 @@
                                     <constraint firstAttribute="height" constant="40" id="tYn-9K-yyh"/>
                                 </constraints>
                                 <color key="minimumTrackTintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="calibratedRGB"/>
-                                <color key="maximumTrackTintColor" red="0.1058823529" green="0.45882352939999999" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="thumbTintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                             </slider>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="3KK-z6-XcD"/>
