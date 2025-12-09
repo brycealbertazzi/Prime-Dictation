@@ -228,8 +228,7 @@ class RecordingManager {
         f.timeZone = .current
         f.amSymbol = "am"
         f.pmSymbol = "pm"
-        // safer: no "/" or ":" in the raw name
-        f.dateFormat = "EEE MMM d yyyy 'at' h.mm a"   // e.g., "Tue Nov 4 2025 at 10.01 pm"
+        f.dateFormat = "EEE MMM d yyyy 'at' h.mm a"
 
         let base = f.string(from: now)
         let sanitized = sanitizedBaseName(base)

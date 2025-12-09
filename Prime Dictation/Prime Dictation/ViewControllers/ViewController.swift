@@ -329,7 +329,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             PlaybackSlider.maximumValue = 1
             PlaybackSlider.value = 0
 
-            Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true,block: watch.UpdateElapsedTimeListen(timer:))
+            Timer.scheduledTimer(withTimeInterval: 0.02, repeats: true,block: watch.UpdateElapsedTimeListen(timer:))
             watch.start()
         } catch {
             displayAlert(title: "Playback Unavailable", message: "Prime Dictation can’t play audio while a phone or FaceTime call is active.")
@@ -629,7 +629,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         audioPlayer.play()
         watch.resume()
         isRecordingPaused = false
-        Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true, block: watch.UpdateElapsedTimeListen(timer:))
+        Timer.scheduledTimer(withTimeInterval: 0.02, repeats: true, block: watch.UpdateElapsedTimeListen(timer:))
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
