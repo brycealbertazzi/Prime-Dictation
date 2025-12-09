@@ -480,6 +480,8 @@
                         <outlet property="TitleOfAppLabel" destination="1tL-fi-eIn" id="Dkj-Gc-VwB"/>
                         <outlet property="TranscribeLabel" destination="R5K-8g-HC8" id="p4x-ZP-vjJ"/>
                         <outlet property="TranscribingIndicator" destination="ENH-Fb-HE7" id="2Q4-Iz-3X5"/>
+                        <outlet property="TranscribingLabel" destination="jjE-im-le3" id="cjO-Tx-J1g"/>
+                        <outlet property="TranscribingLoadingWheel" destination="Sda-0d-SNU" id="JpK-UM-9Cp"/>
                         <outlet property="TranscriptionEstimateLabel" destination="nCF-X9-gER" id="Rso-Us-5Xv"/>
                     </connections>
                 </viewController>

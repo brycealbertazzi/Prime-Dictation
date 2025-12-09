@@ -35,6 +35,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var PausePlayRecordingLabel: UIButton!
     @IBOutlet weak var TranscribingIndicator: UIView!
     @IBOutlet weak var TranscriptionEstimateLabel: UILabel!
+    @IBOutlet weak var TranscribingLabel: UILabel!
+    @IBOutlet weak var TranscribingLoadingWheel: UIActivityIndicatorView!
     
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
     var audioRecorder: AVAudioRecorder! //Responsible for recording our audio
@@ -678,7 +680,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 if recordingManager.transcribingAudioTranscriptionObjects.count >= TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS {
                     TranscribeLabel.alpha = disabledAlpha
                 }
-                print("estimated: \(String(describing: toggledObjectAtTranscribeTime.estimatedTranscriptionTime))")
                 
                 try await transcriptionManager.transcribeAudioFile(processedObjectInQueue: toggledObjectAtTranscribeTime)
 
@@ -1175,6 +1176,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         TranscribeLabel.alpha = disabledAlpha
         SeeTranscriptionLabel.isEnabled = false
         SeeTranscriptionLabel.alpha = disabledAlpha
+        TranscribingLabel.alpha = disabledAlpha
+        TranscribingLoadingWheel.alpha = disabledAlpha
+        TranscriptionEstimateLabel.alpha = disabledAlpha
         PreviousRecordingLabel.isEnabled = false
         NextRecordingLabel.isEnabled = false
         RenameFileLabel.isEnabled = false
@@ -1193,6 +1197,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
         SeeTranscriptionLabel.isEnabled = true
         SeeTranscriptionLabel.alpha = enabledAlpha
+        TranscribingLabel.alpha = enabledAlpha
+        TranscribingLoadingWheel.alpha = enabledAlpha
+        TranscriptionEstimateLabel.alpha = enabledAlpha
         PreviousRecordingLabel.isEnabled = true
         NextRecordingLabel.isEnabled = true
         RenameFileLabel.isEnabled = true
