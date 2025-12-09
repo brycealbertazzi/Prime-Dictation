@@ -25,7 +25,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var PreviousRecordingLabel: UIButton!
     @IBOutlet weak var NextRecordingLabel: UIButton!
     @IBOutlet weak var StopButtonLabel: UIButton!
-    @IBOutlet weak var StopWatchLabel: UILabel!
+    @IBOutlet weak var PlaybackStopwatch: UILabel!
     @IBOutlet weak var TranscribeLabel: UIButton!
     @IBOutlet weak var SeeTranscriptionLabel: UIButton!
     @IBOutlet weak var PoorConnectionLabel: UILabel!
@@ -36,6 +36,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var TranscribingLabel: UILabel!
     @IBOutlet weak var TranscribingLoadingWheel: UIActivityIndicatorView!
     @IBOutlet weak var PlaybackSlider: UISlider!
+    @IBOutlet weak var RecordingStopwatch: UILabel!
     
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
     var audioRecorder: AVAudioRecorder! //Responsible for recording our audio
@@ -62,7 +63,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .regular)
+        let config = UIImage.SymbolConfiguration(pointSize: 17, weight: .regular)
         if let circleImage = UIImage(systemName: "circle.fill", withConfiguration: config) {
             PlaybackSlider.setThumbImage(circleImage, for: .normal)
             PlaybackSlider.setThumbImage(circleImage, for: .highlighted)
@@ -99,9 +100,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PreviousRecordingLabel.isHidden = true
         NextRecordingLabel.isHidden = true
         
-        //FileNameLabel should be disabled at all times
-        FileNameLabel.isEnabled = false
-        /*****/
+        PlaybackSlider.isHidden = true
+        PlaybackStopwatch.isHidden = true
+        RecordingStopwatch.isHidden = true
         
         loadAccessibilityText()
         
@@ -111,7 +112,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
         RecordLabel.setImage(UIImage(named: "RecordButton"), for: .normal)
         PoorConnectionLabel.isHidden = true
-        StopWatchLabel.text = Stopwatch.StopwatchDefaultText
+        PlaybackStopwatch.text = Stopwatch.StopwatchDefaultText
+        RecordingStopwatch.text = Stopwatch.StopwatchDefaultText
 
         // Request permission
         AVAudioApplication.requestRecordPermission { [weak self] granted in
@@ -214,7 +216,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             audioRecorder.stop()
             isRecordingPaused = false
             audioRecorder = nil
-            ListenLabel.isHidden = false
+            HideListeningUI()
             HideRecordingInProgressUI()
 
             // Save the number of recordings
@@ -222,7 +224,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             recordingManager.UpdateSavedRecordings()
 
             watch.stop()
-            StopWatchLabel.isHidden = true
         }
 
         // If we’re playing back, just pause *and remember that it was playing*
@@ -494,7 +495,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             ShowRecordingInProgressUI()
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTime(timer:))
             watch.start()
-            StopWatchLabel.isHidden = false
+            RecordingStopwatch.isHidden = false
         } catch {
             // 🔴 Most likely: another app (phone/FaceTime/VoIP) has the mic.
             audioRecorder = nil
@@ -508,7 +509,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     func finishCurrentRecording(interrupted: Bool, trialEnded: Bool = false) {
-        StopWatchLabel.text = Stopwatch.StopwatchDefaultText
         guard audioRecorder != nil else { return }
 
         audioRecorder.stop()
@@ -526,7 +526,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         recordingManager.UpdateSavedRecordings()
 
         watch.stop()
-        StopWatchLabel.isHidden = true
+        RecordingStopwatch.isHidden = true
+        RecordingStopwatch.text = Stopwatch.StopwatchDefaultText
         
         if let url = recordingManager.toggledRecordingURL {
             Task {
@@ -593,7 +594,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         audioPlayer.stop()
         watch.stop()
         HideListeningUI()
-        StopWatchLabel.text = Stopwatch.StopwatchDefaultText
+        PlaybackStopwatch.text = Stopwatch.StopwatchDefaultText
     }
     
     @IBAction func EndPlaybackButton(_ sender: Any) {
@@ -1217,6 +1218,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         StopButtonLabel.isHidden = false
         PausePlayRecordingLabel.isHidden = false
         FileNameLabel.alpha = disabledAlpha
+        RecordingStopwatch.isHidden = false
         ShowRecordingOrListeningUI()
     }
     
@@ -1225,20 +1227,23 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         StopButtonLabel.isHidden = true
         PausePlayRecordingLabel.isHidden = true
         FileNameLabel.alpha = enabledAlpha
+        RecordingStopwatch.isHidden = true
         HideRecordingOrListeningUI()
     }
     
     func ShowListeningUI() {
         ListenLabel.isHidden = true
-        StopWatchLabel.isHidden = false
+        PlaybackStopwatch.isHidden = false
         RecordLabel.isEnabled = false
+        PlaybackSlider.isHidden = false
         ShowRecordingOrListeningUI()
     }
     
     func HideListeningUI() {
         ListenLabel.isHidden = false
-        StopWatchLabel.isHidden = true
+        PlaybackStopwatch.isHidden = true
         RecordLabel.isEnabled = true
+        PlaybackSlider.isHidden = true
         HideRecordingOrListeningUI()
     }
 

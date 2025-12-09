@@ -73,7 +73,7 @@ class Stopwatch {
         }
         if self.isRunning && !viewController.isRecordingPaused {
             let formatted = formatStopwatchTime(self.elapsedTime)
-            viewController.StopWatchLabel.text = formatted
+            viewController.RecordingStopwatch.text = formatted
         } else {
             timer.invalidate()
         }
@@ -85,7 +85,7 @@ class Stopwatch {
             viewController.isRecordingPaused = false
             viewController.HideListeningUI()
             timer.invalidate()
-            viewController.StopWatchLabel.text = Self.StopwatchDefaultText
+            viewController.PlaybackStopwatch.text = Self.StopwatchDefaultText
             return
         }
         
@@ -96,7 +96,7 @@ class Stopwatch {
             let totalTime = viewController.audioPlayer.duration
             let totalText = formatStopwatchTime(totalTime)
 
-            viewController.StopWatchLabel.text = currentText + " / " + totalText
+            viewController.PlaybackStopwatch.text = currentText + " / " + totalText
         } else {
             timer.invalidate()
         }
