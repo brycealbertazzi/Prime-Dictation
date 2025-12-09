@@ -71,11 +71,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let config = UIImage.SymbolConfiguration(pointSize: 17, weight: .regular)
-        if let circleImage = UIImage(systemName: "circle.fill", withConfiguration: config) {
-            PlaybackSlider.setThumbImage(circleImage, for: .normal)
-            PlaybackSlider.setThumbImage(circleImage, for: .highlighted)
-        }
+//        let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .regular)
+//        if let circleImage = UIImage(systemName: "circle.fill", withConfiguration: config) {
+//            PlaybackSlider.setThumbImage(circleImage, for: .normal)
+//            PlaybackSlider.setThumbImage(circleImage, for: .highlighted)
+//        }
         
         StoreKitManager.shared.startObservingTransactions()
         loadSubscriptions()
@@ -100,13 +100,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         watch = Stopwatch(viewController: self)
         watch.onPlaybackTick = { [weak self] current, duration in
             guard let self = self else { return }
-            self.PlaybackSlider.minimumValue = 0
-            self.PlaybackSlider.maximumValue = Float(duration)
+            guard duration > 0 else { return }
 
-            // Only move the slider when the user is NOT dragging it
-            if !self.isScrubbingSlider {
-                self.PlaybackSlider.value = Float(current)
-            }
+            let progress = Float(current / duration)  // 0.0 → 1.0
+
+            guard !self.isScrubbingSlider else { return }
+                
+            self.PlaybackSlider.value = progress
+            self.PlaybackSlider.setValue(progress, animated: true)
         }
         
         destinationManager.getDestination()
@@ -325,9 +326,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
             ShowListeningUI()
             PlaybackSlider.minimumValue = 0
-            PlaybackSlider.maximumValue = Float(audioPlayer.duration)
+            PlaybackSlider.maximumValue = 1
             PlaybackSlider.value = 0
-            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true,block: watch.UpdateElapsedTimeListen(timer:))
+
+            Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true,block: watch.UpdateElapsedTimeListen(timer:))
             watch.start()
         } catch {
             displayAlert(title: "Playback Unavailable", message: "Prime Dictation can’t play audio while a phone or FaceTime call is active.")
@@ -627,29 +629,48 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         audioPlayer.play()
         watch.resume()
         isRecordingPaused = false
-        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTimeListen(timer:))
+        Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true, block: watch.UpdateElapsedTimeListen(timer:))
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         print("audioPlayerDidFinishPlaying, success: \(flag)")
-        endPlayback()
+        endPlayback(withTransition: true)
     }
     
-    func endPlayback() {
+    func endPlayback(withTransition: Bool = false) {
         isRecordingPaused = false
-        audioPlayer.stop()
         watch.stop()
-        HideListeningUI()
-        PlaybackStopwatch.text = Stopwatch.StopwatchDefaultText
-        PlaybackSlider.value = 0
+
+        if let player = audioPlayer {
+            let duration = player.duration
+
+            // Show "end / end"
+            let endText = watch.formatStopwatchTime(duration)
+            PlaybackStopwatch.text = "\(endText) / \(endText)"
+
+            // Normalized slider → set to 1.0 (100%)
+            PlaybackSlider.minimumValue = 0
+            PlaybackSlider.maximumValue = 1
+            PlaybackSlider.value = 1
+
+            player.stop()
+            audioPlayer = nil
+        }
+        
+        let UIUpdateWait: TimeInterval = withTransition ? 0.75 : 0.0
+        DispatchQueue.main.asyncAfter(deadline: .now() + UIUpdateWait) { [weak self] in
+            guard let self = self else { return }
+            self.PlaybackStopwatch.text = Stopwatch.StopwatchDefaultText
+            self.PlaybackSlider.value = 0
+            self.HideListeningUI()
+        }
     }
     
     @IBAction func PlaybackSliderValueChanged(_ sender: UISlider) {
         guard let player = audioPlayer else { return }
-
-        let newTime = TimeInterval(sender.value)
+        let duration = player.duration
+        let newTime = TimeInterval(sender.value) * duration
         player.currentTime = newTime
-        // Stopwatch tick will pick this up and keep your label in sync
     }
     
     @IBAction func PlaybackSliderTouchDown(_ sender: UISlider) {
@@ -667,27 +688,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     @IBAction func PlaybackSliderTouchUp(_ sender: UISlider) {
         guard let player = audioPlayer else { return }
-
-        let newTime = TimeInterval(sender.value)
+        let duration = player.duration
+        let newTime = TimeInterval(sender.value) * duration
         player.currentTime = newTime
 
         isScrubbingSlider = false
 
         resumePlayback()
-    }
-    
-    @IBAction func EndPlaybackButton(_ sender: Any) {
-        Haptic.tap(intensity: 1.0)
-        endPlayback()
-    }
-    
-    @IBAction func PausePlaybackButton(_ sender: Any) {
-        Haptic.tap(intensity: 1.0)
-        if audioPlayer.isPlaying {
-            pausePlayback()
-        } else {
-            resumePlayback()
-        }
     }
     
     private var transcriptionProgressTimer: Timer?
@@ -1431,4 +1438,3 @@ extension ViewController: UIPopoverPresentationControllerDelegate {
         return nil  // no UINavigationController wrapper
     }
 }
-

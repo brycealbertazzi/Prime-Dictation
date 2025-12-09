@@ -51,7 +51,7 @@ class Stopwatch {
         startTime = startTime?.addingTimeInterval(timeWhenResumed?.timeIntervalSince(timeWhenPaused!) ?? 0)
     }
     
-    private func formatStopwatchTime(_ time: TimeInterval) -> String {
+    func formatStopwatchTime(_ time: TimeInterval) -> String {
         // Use whole seconds for display
         let totalSeconds = Int(time)
 
