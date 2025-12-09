@@ -13,7 +13,8 @@ class Stopwatch {
     private var currentElapsedTime: TimeInterval?
     var viewController: ViewController!
     let subscriptionManager: SubscriptionManager! = AppServices.shared.subscriptionManager
-    
+    // 🔹 New: callback for each playback tick
+    var onPlaybackTick: ((TimeInterval, TimeInterval) -> Void)?
     
     init(viewController: ViewController) {
         self.viewController = viewController
@@ -79,31 +80,22 @@ class Stopwatch {
         }
     }
 
-    func UpdateElapsedTimeListen(timer: Timer) {
-        if overRecordingLength() {
-            stop()
-            viewController.isRecordingPaused = false
-            viewController.HideListeningUI()
-            timer.invalidate()
-            viewController.PlaybackStopwatch.text = Self.StopwatchDefaultText
-            return
-        }
-        
+    func UpdateElapsedTimeListen(timer: Timer) {        
         if self.isRunning && !viewController.isRecordingPaused {
-            let elapsedTime = self.elapsedTime
-            let currentText = formatStopwatchTime(elapsedTime)
+            if let vc = viewController, let player = vc.audioPlayer {
+                let currentTime = player.currentTime
+                let currentText = formatStopwatchTime(currentTime)
 
-            let totalTime = viewController.audioPlayer.duration
-            let totalText = formatStopwatchTime(totalTime)
-
-            viewController.PlaybackStopwatch.text = currentText + " / " + totalText
+                let totalTime = viewController.audioPlayer.duration
+                let totalText = formatStopwatchTime(totalTime)
+                viewController.PlaybackStopwatch.text = currentText + " / " + totalText
+            
+                let duration = player.duration
+                onPlaybackTick?(currentTime, duration)
+            }
         } else {
             timer.invalidate()
         }
-    }
-    
-    func overRecordingLength() -> Bool {
-        return elapsedTime > viewController.audioPlayer.duration
     }
     
     func overTrialRemainingLength() -> Bool {

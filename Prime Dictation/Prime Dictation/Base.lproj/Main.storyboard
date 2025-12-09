@@ -255,6 +255,13 @@
                                                 </constraints>
                                                 <color key="minimumTrackTintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                 <color key="thumbTintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                <connections>
+                                                    <action selector="PlaybackSliderTouchDown:" destination="BYZ-38-t0r" eventType="touchDown" id="O1f-Du-Oh0"/>
+                                                    <action selector="PlaybackSliderTouchUp:" destination="BYZ-38-t0r" eventType="touchUpOutside" id="0LB-hM-KAN"/>
+                                                    <action selector="PlaybackSliderTouchUp:" destination="BYZ-38-t0r" eventType="touchUpInside" id="GiL-hg-K4f"/>
+                                                    <action selector="PlaybackSliderTouchUp:" destination="BYZ-38-t0r" eventType="touchCancel" id="ZC8-XU-IvB"/>
+                                                    <action selector="PlaybackSliderValueChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="UFb-XB-H2A"/>
+                                                </connections>
                                             </slider>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0s" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dFf-qS-ITZ" userLabel="PlaybackStopwatch">
                                                 <rect key="frame" x="178" y="48" width="18.666666666666657" height="22"/>

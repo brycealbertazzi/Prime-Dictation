@@ -299,15 +299,6 @@ class RecordingManager {
             toggledRecordingsIndex += 1
         }
     }
-
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        if viewController.audioPlayer.currentTime <= 0 {
-            player.delegate = viewController
-            viewController.HideListeningUI()
-            viewController.EnableDestinationAndSendButtons()
-            viewController.watch.stop()
-        }
-    }
     
     //Get path to directory
     func GetDirectory() -> URL {
