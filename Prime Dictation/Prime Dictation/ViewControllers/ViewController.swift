@@ -640,7 +640,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func endPlayback(withTransition: Bool = false) {
         isRecordingPaused = false
         watch.stop()
-
+        self.PausePlayRecordingLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
+        
         if let player = audioPlayer {
             let duration = player.duration
 
@@ -677,13 +678,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         guard audioPlayer != nil else { return }
         
         isScrubbingSlider = true
-        pausePlayback()
         
         if audioPlayer.isPlaying {
             wasPlayingBeforeScrub = true
         } else {
             wasPlayingBeforeScrub = false
         }
+        pausePlayback()
     }
     
     @IBAction func PlaybackSliderTouchUp(_ sender: UISlider) {
@@ -693,8 +694,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         player.currentTime = newTime
 
         isScrubbingSlider = false
-
-        resumePlayback()
+        print("was playing before scrub: \(wasPlayingBeforeScrub)")
+        if wasPlayingBeforeScrub {
+            resumePlayback()
+        }
     }
     
     private var transcriptionProgressTimer: Timer?
