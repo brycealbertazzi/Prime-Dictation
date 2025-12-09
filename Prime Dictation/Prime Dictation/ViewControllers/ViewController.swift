@@ -34,6 +34,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var SendAccessibilityLabel: UILabel!
     @IBOutlet weak var PausePlayRecordingLabel: UIButton!
     @IBOutlet weak var TranscribingIndicator: UIView!
+    @IBOutlet weak var TranscriptionEstimateLabel: UILabel!
     
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
     var audioRecorder: AVAudioRecorder! //Responsible for recording our audio
@@ -630,6 +631,22 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
     
+    func getEstimatedTranscriptionTimeDisplayText(recordingDuration: TimeInterval) -> String {
+        // Round to nearest second for display purposes
+        let totalSeconds = Int(recordingDuration.rounded())
+        
+        let minutes = totalSeconds / 60
+        let seconds = totalSeconds % 60
+        
+        if minutes == 0 {
+            // Under 1 minute: "~Xs"
+            return "~\(seconds)s"
+        } else {
+            // 1 minute or more: "~Xm Ys"
+            return "~\(minutes)m \(seconds)s"
+        }
+    }
+    
     func executeTranscription(estimated: CGFloat) {
 //        transcriptionInProgressUI(time: estimated)
 
@@ -656,10 +673,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 self.ShowTranscriptionInProgressUI()
                 
                 recordingManager.UpdateAudioTranscriptionObjectOnTranscriptionInProgressChange(processedObjectUUID: toggledObjectAtTranscribeTime.uuid, isTranscriptionInProgress: true)
+                
                 recordingManager.transcribingAudioTranscriptionObjects.append(toggledObjectAtTranscribeTime)
                 if recordingManager.transcribingAudioTranscriptionObjects.count >= TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS {
                     TranscribeLabel.alpha = disabledAlpha
                 }
+                print("estimated: \(String(describing: toggledObjectAtTranscribeTime.estimatedTranscriptionTime))")
                 
                 try await transcriptionManager.transcribeAudioFile(processedObjectInQueue: toggledObjectAtTranscribeTime)
 
@@ -695,7 +714,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
     
-    private var pendingTranscriptionDuration: TimeInterval?
+    var pendingTranscriptionDuration: TimeInterval?
+    var pendingEstimatedTranscriptionDuration: TimeInterval?
     @IBAction func TranscribeButton(_ sender: Any) {
         if (recordingManager.transcribingAudioTranscriptionObjects.count >= TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS) {
             displayAlert(
@@ -822,6 +842,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         let estimatedTranscriptionSeconds = (seconds / 2) + 15
         transcriptionAlert(seconds: seconds, estimated: estimatedTranscriptionSeconds)
         pendingTranscriptionDuration = seconds
+        pendingEstimatedTranscriptionDuration = estimatedTranscriptionSeconds
     }
     
     func humanReadableDate(_ date: Date?) -> String {
@@ -1238,6 +1259,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     func ShowTranscriptionInProgressUI() {
+        if let estimatedTranscriptionTime = recordingManager.toggledAudioTranscriptionObject.estimatedTranscriptionTime {
+            TranscriptionEstimateLabel.text = getEstimatedTranscriptionTimeDisplayText(recordingDuration: estimatedTranscriptionTime)
+        }
         TranscribeLabel.isHidden = true
         SeeTranscriptionLabel.isHidden = true
         TranscribingIndicator.isHidden = false

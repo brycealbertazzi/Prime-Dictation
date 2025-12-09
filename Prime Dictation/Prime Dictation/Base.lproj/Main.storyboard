@@ -105,27 +105,50 @@
                                             <action selector="SeeTranscriptionButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8Pz-tP-HcO"/>
                                         </connections>
                                     </button>
-                                    <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ENH-Fb-HE7" userLabel="Transcribing Indicator">
-                                        <rect key="frame" x="233" y="173" width="150" height="50"/>
+                                    <view userInteractionEnabled="NO" contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ENH-Fb-HE7" userLabel="Transcribing Indicator">
+                                        <rect key="frame" x="240" y="173" width="160" height="50"/>
                                         <subviews>
-                                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="Sda-0d-SNU">
-                                                <rect key="frame" x="0.0" y="6.6666666666666572" width="37" height="37"/>
-                                                <color key="color" red="0.17248585820000001" green="0.17266079779999999" blue="0.18154937030000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                            </activityIndicatorView>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Transcribing..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jjE-im-le3" userLabel="TranscibingLabel">
-                                                <rect key="frame" x="40.66666666666665" y="13.333333333333341" width="119.33333333333331" height="23.333333333333329"/>
-                                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="19"/>
-                                                <color key="textColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8cR-kz-zk8" userLabel="Transcribing Label View">
+                                                <rect key="frame" x="0.0" y="0.0" width="160" height="40"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Transcribing..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jjE-im-le3" userLabel="Transcibing Label">
+                                                        <rect key="frame" x="40.66666666666665" y="8.9999999999999982" width="119.33333333333331" height="22.333333333333329"/>
+                                                        <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="19"/>
+                                                        <color key="textColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <activityIndicatorView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="Sda-0d-SNU">
+                                                        <rect key="frame" x="0.0" y="0.0" width="40" height="40"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="40" id="0HI-s9-9GO"/>
+                                                            <constraint firstAttribute="width" constant="40" id="Fs4-Mh-1NK"/>
+                                                        </constraints>
+                                                        <color key="color" red="0.17248585820000001" green="0.17266079779999999" blue="0.18154937030000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                    </activityIndicatorView>
+                                                </subviews>
+                                                <constraints>
+                                                    <constraint firstItem="jjE-im-le3" firstAttribute="centerY" secondItem="8cR-kz-zk8" secondAttribute="centerY" id="3s7-0D-O3f"/>
+                                                    <constraint firstAttribute="height" constant="40" id="AUQ-Bq-wQb"/>
+                                                    <constraint firstItem="Sda-0d-SNU" firstAttribute="leading" secondItem="8cR-kz-zk8" secondAttribute="leading" id="KaF-Cb-d9O"/>
+                                                    <constraint firstItem="Sda-0d-SNU" firstAttribute="centerY" secondItem="8cR-kz-zk8" secondAttribute="centerY" id="W8k-ub-wDN"/>
+                                                    <constraint firstAttribute="trailing" secondItem="jjE-im-le3" secondAttribute="trailing" id="u7B-vE-Oc1"/>
+                                                </constraints>
+                                            </view>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="~0s" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nCF-X9-gER" userLabel="Transcription Estimate Label">
+                                                <rect key="frame" x="67.666666666666657" y="33" width="25" height="17"/>
+                                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="15"/>
+                                                <color key="textColor" red="0.17248585820000001" green="0.17266079779999999" blue="0.18154937030000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                         </subviews>
                                         <constraints>
+                                            <constraint firstItem="8cR-kz-zk8" firstAttribute="top" secondItem="ENH-Fb-HE7" secondAttribute="top" id="3U4-fV-CR7"/>
+                                            <constraint firstItem="8cR-kz-zk8" firstAttribute="leading" secondItem="ENH-Fb-HE7" secondAttribute="leading" id="6C4-GD-whl"/>
                                             <constraint firstAttribute="height" constant="50" id="OAn-EQ-8cp"/>
-                                            <constraint firstItem="Sda-0d-SNU" firstAttribute="centerY" secondItem="ENH-Fb-HE7" secondAttribute="centerY" id="fnO-P2-ErM"/>
-                                            <constraint firstItem="jjE-im-le3" firstAttribute="centerY" secondItem="ENH-Fb-HE7" secondAttribute="centerY" id="mjg-g2-lTk"/>
-                                            <constraint firstAttribute="trailing" secondItem="jjE-im-le3" secondAttribute="trailing" id="r5m-Yi-BIo"/>
+                                            <constraint firstAttribute="trailing" secondItem="8cR-kz-zk8" secondAttribute="trailing" id="ZwG-aa-xVh"/>
+                                            <constraint firstItem="nCF-X9-gER" firstAttribute="centerX" secondItem="ENH-Fb-HE7" secondAttribute="centerX" id="c2j-on-oZZ"/>
+                                            <constraint firstAttribute="bottom" secondItem="nCF-X9-gER" secondAttribute="bottom" id="hCh-Mv-0gf"/>
                                             <constraint firstAttribute="width" constant="160" id="tKx-5l-Zyh"/>
-                                            <constraint firstItem="Sda-0d-SNU" firstAttribute="leading" secondItem="ENH-Fb-HE7" secondAttribute="leading" id="tmP-V6-bVK"/>
                                         </constraints>
                                     </view>
                                 </subviews>
@@ -456,7 +479,8 @@
                         <outlet property="StopWatchLabel" destination="dFf-qS-ITZ" id="Vo8-Pv-V93"/>
                         <outlet property="TitleOfAppLabel" destination="1tL-fi-eIn" id="Dkj-Gc-VwB"/>
                         <outlet property="TranscribeLabel" destination="R5K-8g-HC8" id="p4x-ZP-vjJ"/>
-                        <outlet property="TranscribingIndicator" destination="ENH-Fb-HE7" id="Adh-ZN-9sz"/>
+                        <outlet property="TranscribingIndicator" destination="ENH-Fb-HE7" id="2Q4-Iz-3X5"/>
+                        <outlet property="TranscriptionEstimateLabel" destination="nCF-X9-gER" id="Rso-Us-5Xv"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

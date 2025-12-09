@@ -16,6 +16,7 @@ struct AudioTranscriptionObject : Codable {
     var hasTranscription: Bool
     var transcriptionText: String?
     var isTranscribing: Bool = false
+    var estimatedTranscriptionTime: TimeInterval? = nil
 }
 
 class RecordingManager {
@@ -98,9 +99,21 @@ class RecordingManager {
         for (index, object) in savedAudioTranscriptionObjects.enumerated() where object.uuid == processedObjectUUID {
             print("updating \(object.fileName) with uuid: \(object.uuid.uuidString) object isTranscribing to \(isTranscriptionInProgress)")
             savedAudioTranscriptionObjects[index].isTranscribing = isTranscriptionInProgress
-            if (toggledAudioTranscriptionObject.uuid == processedObjectUUID) {
+            let isOnToggledObject = (toggledAudioTranscriptionObject.uuid == processedObjectUUID)
+            if (isOnToggledObject) {
                 print("updating toggledAudioTranscriptionObject, we are on that one")
                 toggledAudioTranscriptionObject.isTranscribing = isTranscriptionInProgress
+            }
+            
+            if (isTranscriptionInProgress) {
+                let pendingDuration: TimeInterval? = viewController.pendingEstimatedTranscriptionDuration
+                savedAudioTranscriptionObjects[index].estimatedTranscriptionTime = pendingDuration
+                if (isOnToggledObject) {
+                    toggledAudioTranscriptionObject.estimatedTranscriptionTime = pendingDuration
+                    if let pendingDuration {
+                        viewController.TranscriptionEstimateLabel.text = viewController.getEstimatedTranscriptionTimeDisplayText(recordingDuration: pendingDuration)
+                    }
+                }
             }
         }
     }
