@@ -428,7 +428,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Prime Dictation/Prime Dictation.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				INFOPLIST_FILE = "Prime Dictation/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Prime Dictation";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
@@ -458,7 +458,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Prime Dictation/Prime Dictation.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				INFOPLIST_FILE = "Prime Dictation/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Prime Dictation";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";

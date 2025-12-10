@@ -70,13 +70,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     //MARK: View did load
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-//        let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .regular)
-//        if let circleImage = UIImage(systemName: "circle.fill", withConfiguration: config) {
-//            PlaybackSlider.setThumbImage(circleImage, for: .normal)
-//            PlaybackSlider.setThumbImage(circleImage, for: .highlighted)
-//        }
-        
+                
         StoreKitManager.shared.startObservingTransactions()
         loadSubscriptions()
         
@@ -147,6 +141,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
        
         recordingManager.SetSavedRecordingsOnLoad()
+        recordingManager.SetTranscribingRecordingsOnLoad()
+        startPollingForToggledTranscriptIfTranscribing()
         
         NotificationCenter.default.addObserver(
             self,
@@ -342,7 +338,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 self.HasTranscriptionUI()
             }
             Task {try await transcriptionManager.readToggledTextFileAndSetInAudioTranscriptObject() }
-        } else {NoTranscriptionUI()}
+        } else {
+            startPollingForToggledTranscriptIfTranscribing()
+        }
     }
     
     func goToSubsequentRecording() {
@@ -694,16 +692,58 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         player.currentTime = newTime
 
         isScrubbingSlider = false
-        print("was playing before scrub: \(wasPlayingBeforeScrub)")
+        
         if wasPlayingBeforeScrub {
             resumePlayback()
         }
     }
     
-    private var transcriptionProgressTimer: Timer?
-    private var transcriptionProgressStage = 0
-
-    private var poorConnectionStartTimer: Timer?
+    func startPollingForToggledTranscriptIfTranscribing() {
+        print("Started polling for toggled transcribing object")
+        let toggledObject: AudioTranscriptionObject = recordingManager.toggledAudioTranscriptionObject
+        print("toggled object expires at: \(toggledObject.transcriptionExpiresAt ?? Date())")
+        if let expiry = toggledObject.transcriptionExpiresAt {
+            let now = Date()
+            print("now: \(now), expiry: \(expiry)")
+            let pollingHasExpiredForObject: Bool = now > expiry
+            if (pollingHasExpiredForObject) {
+                NoTranscriptionUI()
+                displayAlert(title: "Transcription Timed Out", message: "Transcription for this recording: \(toggledObject.fileName) has timed out, it may have failed on the server. You may try again.")
+                
+                let popIndex: Int? = recordingManager.transcribingAudioTranscriptionObjects.firstIndex { $0.uuid == toggledObject.uuid }
+                if let popIndex {
+                    recordingManager.transcribingAudioTranscriptionObjects.remove(at: popIndex)
+                    recordingManager.saveTranscribingObjectsToUserDefaults()
+                    print("recordingManager.transcribingAudioTranscriptionObjects after expiry pop: \(recordingManager.transcribingAudioTranscriptionObjects.description)")
+                }
+                
+                return
+            }
+        }
+        
+        let wasToggledObjectTranscribingWhenAppLastClosed: Bool = recordingManager.transcribingAudioTranscriptionObjects.contains { $0.uuid == toggledObject.uuid }
+        print("wasToggledObjectTranscribingWhenAppLastClosed: \(wasToggledObjectTranscribingWhenAppLastClosed)")
+        if (wasToggledObjectTranscribingWhenAppLastClosed) {
+            ShowTranscriptionInProgressUI()
+            if !recordingManager.toggledAudioTranscriptionObject.isTranscribingLocally {
+                let toggledIndex: Int? = recordingManager.savedAudioTranscriptionObjects.firstIndex { $0.uuid == toggledObject.uuid }
+                if let toggledIndex {
+                    recordingManager.savedAudioTranscriptionObjects[toggledIndex].isTranscribingLocally = true
+                }
+                recordingManager.toggledAudioTranscriptionObject.isTranscribingLocally = true
+                Task {
+                    do {
+                        try await transcriptionManager.startPollingForTranscript(processedObjectUUID: toggledObject.uuid)
+                        self.HideTranscriptionInProgressUI(result: .success, processedObjectUUID: toggledObject.uuid)
+                    } catch {
+                        self.HideTranscriptionInProgressUI(result: .failure, processedObjectUUID: toggledObject.uuid)
+                    }
+                }
+            }
+        } else {
+            NoTranscriptionUI()
+        }
+    }
     
     func transcriptionAlert(seconds: CGFloat, estimated: CGFloat) {
         let estimatedWaitStr: String = getEstimatedWaitLabel(seconds: TimeInterval(estimated))
@@ -742,44 +782,51 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     func executeTranscription(estimated: CGFloat) {
-//        transcriptionInProgressUI(time: estimated)
-
         Task {
             let recordingManager = self.recordingManager
             guard let recordingManager else { return }
             
             let toggledObjectAtTranscribeTime: AudioTranscriptionObject = self.recordingManager.toggledAudioTranscriptionObject
+            let expiryLength: TimeInterval = pendingRecordingDuration != nil ? (pendingRecordingDuration! * 1.5) + 60 : 120.0
+            let expiresAtDate: Date = Date().addingTimeInterval(
+                max(expiryLength, 120.0)
+            )
+            var pendingObject: AudioTranscriptionObject = AudioTranscriptionObject(
+                uuid: toggledObjectAtTranscribeTime.uuid,
+                fileName: toggledObjectAtTranscribeTime.fileName,
+                hasTranscription: false,
+                isTranscribingLocally: false,
+                estimatedTranscriptionTime: pendingEstimatedTranscriptionDuration,
+                transcriptionExpiresAt: expiresAtDate
+            )
+            
             defer {
-                recordingManager.UpdateAudioTranscriptionObjectOnTranscriptionInProgressChange(processedObjectUUID: toggledObjectAtTranscribeTime.uuid, isTranscriptionInProgress: false)
+                pendingObject.isTranscribingLocally = false
+                recordingManager.UpdateAudioTranscriptionObjectOnTranscriptionInProgressChange(processedObject: pendingObject)
                 TranscribeLabel.alpha = enabledAlpha
-                
-//                self.transcriptionProgressTimer?.invalidate()
-//                self.poorConnectionStartTimer?.invalidate()
-//                self.transcriptionProgressTimer = nil
-//                self.poorConnectionStartTimer = nil
-//
-//                self.PoorConnectionLabel.layer.removeAllAnimations()
-//                self.PoorConnectionLabel.alpha = 1.0
-//                self.PoorConnectionLabel.isHidden = true
             }
             
             do {
                 self.ShowTranscriptionInProgressUI()
                 
-                recordingManager.UpdateAudioTranscriptionObjectOnTranscriptionInProgressChange(processedObjectUUID: toggledObjectAtTranscribeTime.uuid, isTranscriptionInProgress: true)
+                pendingObject.isTranscribingLocally = true
                 
-                recordingManager.transcribingAudioTranscriptionObjects.append(toggledObjectAtTranscribeTime)
+                recordingManager.transcribingAudioTranscriptionObjects.append(pendingObject)
                 if recordingManager.transcribingAudioTranscriptionObjects.count >= TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS {
                     TranscribeLabel.alpha = disabledAlpha
                 }
+                recordingManager.saveTranscribingObjectsToUserDefaults()
+
+                TranscriptionEstimateLabel.text = getEstimatedTranscriptionTimeDisplayText(recordingDuration: estimated)
+                recordingManager.UpdateAudioTranscriptionObjectOnTranscriptionInProgressChange(processedObject: pendingObject)
                 
-                try await transcriptionManager.transcribeAudioFile(processedObjectInQueue: toggledObjectAtTranscribeTime)
+                try await transcriptionManager.transcribeAudioFile(processedObjectInQueue: pendingObject)
 
                 // ✅ Only log usage if they are subscribed
                 if subscriptionManager.accessLevel == .subscribed,
-                   let duration = pendingTranscriptionDuration {
+                   let duration = pendingRecordingDuration {
                     subscriptionManager.addTranscription(seconds: duration)
-                    pendingTranscriptionDuration = nil
+                    pendingRecordingDuration = nil
                 }
 
                 await MainActor.run {
@@ -790,7 +837,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                         result: .success
                     )
                     ProgressHUD.dismiss()
-                    self.HideTranscriptionInProgressUI(result: .success, processedObject: toggledObjectAtTranscribeTime)
+                    self.HideTranscriptionInProgressUI(result: .success, processedObjectUUID: pendingObject.uuid)
                 }
                 
             } catch {
@@ -801,13 +848,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                         type: .transcribe,
                         result: .failure
                     )
-                    self.HideTranscriptionInProgressUI(result: .failure, processedObject: toggledObjectAtTranscribeTime)
+                    self.HideTranscriptionInProgressUI(result: .failure, processedObjectUUID: pendingObject.uuid)
                 }
             }
         }
     }
     
-    var pendingTranscriptionDuration: TimeInterval?
+    var pendingRecordingDuration: TimeInterval?
     var pendingEstimatedTranscriptionDuration: TimeInterval?
     @IBAction func TranscribeButton(_ sender: Any) {
         if (recordingManager.transcribingAudioTranscriptionObjects.count >= TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS) {
@@ -934,7 +981,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     private func startTranscriptionFlow(seconds: TimeInterval) {
         let estimatedTranscriptionSeconds = (seconds / 2) + 15
         transcriptionAlert(seconds: seconds, estimated: estimatedTranscriptionSeconds)
-        pendingTranscriptionDuration = seconds
+        pendingRecordingDuration = seconds
         pendingEstimatedTranscriptionDuration = estimatedTranscriptionSeconds
     }
     
@@ -1019,64 +1066,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
         return estimatedWaitLabel
     }
-    
-//    private func transcriptionInProgressUI(time: TimeInterval) {
-//        // Cancel any prior timers
-//        transcriptionProgressTimer?.invalidate()
-//        poorConnectionStartTimer?.invalidate()
-//
-//        transcriptionProgressTimer = nil
-//        poorConnectionStartTimer = nil
-//
-//        // Reset label
-//        PoorConnectionLabel.isHidden = true
-//        PoorConnectionLabel.alpha = 1.0
-//
-//        transcriptionProgressStage = 0
-//        let total = max(time, 6.0)     // avoid flicker for tiny clips
-//        let seg = total / 3.0
-//
-//        // Stage 1 immediately
-//        ProgressHUD.animate("Sending audio to servers", .triangleDotShift)
-//
-//        // Stage 2 & 3
-//        transcriptionProgressTimer = Timer.scheduledTimer(withTimeInterval: seg, repeats: true) { [weak self] t in
-//            guard let self = self else { return }
-//            self.transcriptionProgressStage += 1
-//            switch self.transcriptionProgressStage {
-//            case 1:
-//                ProgressHUD.animate("Transcribing audio file", .triangleDotShift)
-//            case 2:
-//                ProgressHUD.animate("Finalizing transcription", .triangleDotShift)
-//            default:
-//                t.invalidate()
-//                self.transcriptionProgressTimer = nil
-//            }
-//        }
-//        RunLoop.main.add(transcriptionProgressTimer!, forMode: .common)
-//
-//        // Poor connection hint at 130% of estimate
-//        let threshold = total * 1.3
-//        poorConnectionStartTimer = Timer.scheduledTimer(withTimeInterval: threshold, repeats: false) { [weak self] _ in
-//            guard let self = self else { return }
-//            showPoorConnectionUI()
-//
-//            // Fade 1.0 -> 0.0 -> 1.0 ... forever (until you cancel)
-//            UIView.animate(withDuration: 1.0,
-//                           delay: 0,
-//                           options: [.autoreverse, .repeat, .allowUserInteraction, .curveEaseInOut],
-//                           animations: { [weak self] in
-//                               self?.PoorConnectionLabel.alpha = 0.0
-//                           },
-//                           completion: nil)
-//        }
-//        RunLoop.main.add(poorConnectionStartTimer!, forMode: .common)
-//    }
-    
-//    private func showPoorConnectionUI() {
-//        PoorConnectionLabel.alpha = 1.0
-//        PoorConnectionLabel.isHidden = false
-//    }
     
     private func showTranscriptionScreen() {
         // 1) instantiate
@@ -1344,7 +1333,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
 
     func NoTranscriptionUI() {
-        if (recordingManager.toggledAudioTranscriptionObject.isTranscribing) {
+        if (recordingManager.toggledAudioTranscriptionObject.isTranscribingLocally) {
             ShowTranscriptionInProgressUI()
         } else {
             TranscribeLabel.isHidden = false
@@ -1368,8 +1357,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         TranscribingIndicator.isHidden = false
     }
     
-    func HideTranscriptionInProgressUI(result: SafeAlertResult, processedObject: AudioTranscriptionObject) {
-        if (recordingManager.toggledAudioTranscriptionObject.uuid == processedObject.uuid) {
+    func HideTranscriptionInProgressUI(result: SafeAlertResult, processedObjectUUID: UUID) {
+        if (recordingManager.toggledAudioTranscriptionObject.uuid == processedObjectUUID) {
             // We are in the slot of the recording when it finished transcribing
             TranscribingIndicator.isHidden = true
             if result == .success {
@@ -1377,8 +1366,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             } else {
                 NoTranscriptionUI()
             }
-        } else {
-            // We are in a different slot, show a banner or something
         }
     }
     

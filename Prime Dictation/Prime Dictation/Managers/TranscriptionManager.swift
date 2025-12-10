@@ -41,21 +41,9 @@ class TranscriptionManager {
         }
     }
 
-    
     /// Call this to upload, wait (max 20m), and get the signed URL to the transcript.
     func transcribeAudioFile(processedObjectInQueue: AudioTranscriptionObject) async throws {
         print("🟢 transcribeAudioFile: entered")
-
-        // 1) Clear cached text & mark state
-        await MainActor.run {
-            print("🟢 transcribeAudioFile: clearing cached text")
-            self.toggledTranscriptText = nil
-            if (processedObjectInQueue.uuid == self.recordingManager.toggledAudioTranscriptionObject.uuid) {
-                self.recordingManager.toggledAudioTranscriptionObject.transcriptionText = nil
-                self.recordingManager.savedAudioTranscriptionObjects[self.recordingManager.toggledRecordingsIndex] =
-                    self.recordingManager.toggledAudioTranscriptionObject
-            }
-        }
 
         // 2) Basic config guards
         guard let txtSignerBase = SignedTxtURLGCFunction else {
@@ -68,12 +56,12 @@ class TranscriptionManager {
         }
         
         let processedObjectUUIDString = processedObjectInQueue.uuid.uuidString
-        let transcriptFilename = "\(processedObjectUUIDString)." +
+        let transcriptUUIDFileName = "\(processedObjectUUIDString)." +
                                  "\(recordingManager.transcriptionRecordingExtension)"
 
         // 3) Ensure we have a valid recording URL; reconstruct if needed
         let recordingURL: URL
-        if let existing = recordingManager.getURLForAudioTranscriptionObject(at: processedObjectInQueue.uuid) {
+        if let existing = recordingManager.getRecordingURLForAudioTranscriptObject(at: processedObjectInQueue.uuid) {
             recordingURL = existing
         } else {
             let candidate = recordingManager.GetDirectory()
@@ -101,38 +89,42 @@ class TranscriptionManager {
         var signedTxtURL: URL
 
         do {
-            let uploadStart = Date()
             try await uploadRecordingToCGBucket(to: signedPUT, from: recordingURL)
             print("✅ transcribeAudioFile: uploadRecordingToCGBucket finished")
 
             // Normal path: upload just succeeded, so give backend up to 20 min
             signedTxtURL = try await waitForTranscriptReady(
                 txtSignerBase: txtSignerBase + "/sign",
-                filename: transcriptFilename,
+                filename: transcriptUUIDFileName,
                 hardCapSeconds: 20 * 60,
                 pollInterval: 2,
-                notBefore: uploadStart
+                processingUUID: processedObjectInQueue.uuid
             )
-        } catch TranscriptionError.uploadForbidden403 {
-            print("⚠️ transcribeAudioFile: upload 403 – assuming audio already uploaded, probing for existing transcript")
-
-            // Weird case (e.g. phone died earlier and audio already in bucket):
-            // short probe for an existing transcript so we don't hang forever.
-            signedTxtURL = try await waitForTranscriptReady(
-                txtSignerBase: txtSignerBase + "/sign",
-                filename: transcriptFilename,
-                hardCapSeconds: 60,     // 1 minute max in this special case
-                pollInterval: 2,
-                notBefore: nil
-            )
-        } catch {
+        }
+//        catch TranscriptionError.uploadForbidden403 {
+//            print("⚠️ transcribeAudioFile: upload 403 – assuming audio already uploaded, probing for existing transcript")
+//
+//            // Weird case (e.g. phone died earlier and audio already in bucket):
+//            // short probe for an existing transcript so we don't hang forever.
+//            signedTxtURL = try await waitForTranscriptReady(
+//                txtSignerBase: txtSignerBase + "/sign",
+//                filename: transcriptUUIDFileName,
+//                hardCapSeconds: 60,     // 1 minute max in this special case
+//                pollInterval: 2
+//            )
+//        }
+        catch {
             print("❌ transcribeAudioFile: upload failed: \(error)")
             throw TranscriptionError.error("Upload failed", underlying: error)
         }
-
         // 7) Download transcript and update local state/UI
+        try await processSignedTxtURL(signedTxtURL: signedTxtURL, recordingURL: recordingURL, uuid: processedObjectInQueue.uuid)
+    }
+    
+    func processSignedTxtURL(signedTxtURL: URL, recordingURL: URL, uuid: UUID) async throws {
+
         let localPath = recordingManager.GetDirectory()
-            .appendingPathComponent(processedObjectUUIDString)
+            .appendingPathComponent(uuid.uuidString)
             .appendingPathExtension(recordingManager.transcriptionRecordingExtension)
 
         do {
@@ -148,12 +140,10 @@ class TranscriptionManager {
                     newText: transcribedText ?? "",
                     editing: false,
                     recordingURL: recordingURL,
-                    objectUUID: processedObjectInQueue.uuid
+                    objectUUID: uuid
                 )
             }
-            
-            UpdateTranscribingObjectInQueue(processedUUID: processedObjectInQueue.uuid, transcriptionText: transcribedText)
-            
+            UpdateTranscribingObjectInQueue(processedUUID: uuid, transcriptionText: transcribedText)
         } catch {
             throw TranscriptionError.error("Couldn’t download the transcript", underlying: error)
         }
@@ -162,9 +152,6 @@ class TranscriptionManager {
     func UpdateTranscribingObjectInQueue(processedUUID: UUID, transcriptionText: String?) {
         var popIndex: Int? = nil
         for (index, object) in recordingManager.transcribingAudioTranscriptionObjects.enumerated() where object.uuid == processedUUID {
-            recordingManager.transcribingAudioTranscriptionObjects[index].hasTranscription = true
-            recordingManager.transcribingAudioTranscriptionObjects[index].isTranscribing = false
-            recordingManager.transcribingAudioTranscriptionObjects[index].transcriptionText = transcriptionText
             popIndex = index
         }
         
@@ -172,12 +159,12 @@ class TranscriptionManager {
         var savedIndex: Int? = nil
         for (index, object) in recordingManager.savedAudioTranscriptionObjects.enumerated() where object.uuid == processedUUID {
             recordingManager.savedAudioTranscriptionObjects[index].hasTranscription = true
-            recordingManager.savedAudioTranscriptionObjects[index].isTranscribing = false
+            recordingManager.savedAudioTranscriptionObjects[index].isTranscribingLocally = false
             recordingManager.savedAudioTranscriptionObjects[index].transcriptionText = nil // Don't save the transcription text to UserDefaults, save it as nil always
             
             if (processedUUID == recordingManager.toggledAudioTranscriptionObject.uuid) {
                 recordingManager.toggledAudioTranscriptionObject.hasTranscription = true
-                recordingManager.toggledAudioTranscriptionObject.isTranscribing = false
+                recordingManager.toggledAudioTranscriptionObject.isTranscribingLocally = false
                 recordingManager.toggledAudioTranscriptionObject.transcriptionText = transcriptionText
             }
             
@@ -200,8 +187,8 @@ class TranscriptionManager {
         
         if let popIndex {
             recordingManager.transcribingAudioTranscriptionObjects.remove(at: popIndex)
+            recordingManager.saveTranscribingObjectsToUserDefaults()
         }
-        
     }
     
     @MainActor
@@ -335,34 +322,103 @@ class TranscriptionManager {
         }
         return result
     }
+    
+    // To be called on viewDidLoad for the transcribingObjects in UserDefaults
+    func startPollingForTranscript(processedObjectUUID: UUID) async throws {
+        
+        guard let txtSignerBase = SignedTxtURLGCFunction else {
+            print("❌ transcribeAudioFile: missing SignedTxtURLGCFunction")
+            throw TranscriptionError.error("Transcription service not configured (text signer)")
+        }
+        
+        guard SignedAudioUrlGCFunction != nil else {
+            print("❌ transcribeAudioFile: missing SignedAudioUrlGCFunction")
+            throw TranscriptionError.error("Transcription service not configured (audio signer)")
+        }
+        
+        let processedObjectUUIDString = processedObjectUUID.uuidString
+        let transcriptUUIDFileName = "\(processedObjectUUIDString)." +
+                                 "\(recordingManager.transcriptionRecordingExtension)"
 
-    // MARK: - Polling with exponential backoff (cap: 2 minutes; hard cap: 20 minutes)
+        let recordingURL: URL
+        if let existing = recordingManager.getRecordingURLForAudioTranscriptObject(at: processedObjectUUID) {
+            recordingURL = existing
+        } else {
+            let candidate = recordingManager.GetDirectory()
+                .appendingPathComponent(processedObjectUUIDString)
+                .appendingPathExtension(recordingManager.audioRecordingExtension)
 
+            if FileManager.default.fileExists(atPath: candidate.path) {
+                print("ℹ️ transcribeAudioFile: reconstructed toggledRecordingURL from disk")
+                recordingManager.toggledRecordingURL = candidate
+                recordingURL = candidate
+            } else {
+                print("❌ transcribeAudioFile: no recording found on disk")
+                throw TranscriptionError.error("No recording found to transcribe")
+            }
+        }
+        
+        var signedTxtURL: URL
+        // Try a single poll first, if not ready then call waitForTranscriptReady
+        if let existingSignedTxtURL = await performSinglePollForTranscript(txtSignerBase: txtSignerBase, fileName: transcriptUUIDFileName) {
+            signedTxtURL = existingSignedTxtURL
+        } else {
+            do {
+                signedTxtURL = try await waitForTranscriptReady(
+                    txtSignerBase: txtSignerBase + "/sign",
+                    filename: transcriptUUIDFileName,
+                    hardCapSeconds: 20 * 60,
+                    pollInterval: 2,
+                    processingUUID: processedObjectUUID
+                )
+            } catch {
+                print("❌ waitForTranscriptReay failed: \(error)")
+                throw TranscriptionError.error("Transcription failed", underlying: error)
+            }
+        }
+        
+        try await processSignedTxtURL(signedTxtURL: signedTxtURL, recordingURL: recordingURL, uuid: processedObjectUUID)
+    }
+    
+    func performSinglePollForTranscript(txtSignerBase: String, fileName: String) async -> URL? {
+        do {
+            let signedTxtURL = try await fetchSignedTxtURL(base: txtSignerBase, filename: fileName)
+
+            if await objectExists(at: signedTxtURL) {
+                print("✅ [waitForTranscriptReady] transcript is ready")
+                return signedTxtURL
+            } else {
+                print("⌛ [waitForTranscriptReady] transcript not ready yet")
+            }
+        } catch {
+            print("⚠️ [waitForTranscriptReady] /sign error -> \(error.localizedDescription)")
+        }
+        return nil
+    }
+    
+    // MARK: - Polling for the txt file in the bucket every 3 seconds
     private func waitForTranscriptReady(
         txtSignerBase: String,
         filename: String,
         hardCapSeconds: TimeInterval,
         pollInterval: TimeInterval,
-        notBefore: Date? = nil
+        processingUUID: UUID,
     ) async throws -> URL {
         let deadline = Date().addingTimeInterval(hardCapSeconds)
         var attempt = 0
-
+        
         while Date() < deadline && !Task.isCancelled {
-            attempt += 1
-            do {
-                let signedTxtURL = try await fetchSignedTxtURL(base: txtSignerBase, filename: filename)
-                print("📝 [waitForTranscriptReady] attempt \(attempt) – got signed URL")
-
-                if await objectIsFreshAndExists(at: signedTxtURL, notBefore: notBefore) {
-                    print("✅ [waitForTranscriptReady] transcript is ready")
-                    return signedTxtURL
-                } else {
-                    print("⌛ [waitForTranscriptReady] transcript not ready yet")
-                }
-            } catch {
-                print("⚠️ [waitForTranscriptReady] /sign error on attempt \(attempt): \(error.localizedDescription)")
+            if (recordingManager.toggledAudioTranscriptionObject.uuid != processingUUID) {
+                continue
             }
+            
+            let urlFromPoll = await performSinglePollForTranscript(txtSignerBase: txtSignerBase, fileName: filename)
+            if let urlFromPoll {
+                return urlFromPoll
+            }
+            
+            attempt += 1
+            print("⌛ [waitForTranscriptReady] attempt \(attempt)")
 
             let delay = pollInterval
             let jitter = Double.random(in: 0...0.3)
@@ -405,8 +461,8 @@ class TranscriptionManager {
     }
 
     // MARK: - Existence probe (HEAD, fallback 1-byte Range GET)
-    /// Returns true only if the object exists **and** its Last-Modified >= notBefore (if provided).
-    private func objectIsFreshAndExists(at signedURL: URL, notBefore: Date?) async -> Bool {
+    /// Returns true only if the object exists
+    private func objectExists(at signedURL: URL) async -> Bool {
         // RFC 1123 date parser for Last-Modified
         func parseHTTPDate(_ s: String) -> Date? {
             let fmt = DateFormatter()
@@ -425,16 +481,7 @@ class TranscriptionManager {
             let (_, resp) = try await URLSession.shared.data(for: r)
             if let http = resp as? HTTPURLResponse {
                 if http.statusCode == 404 { return false }
-                if (200...299).contains(http.statusCode) {
-                    if let nb = notBefore,
-                       let lm = http.value(forHTTPHeaderField: "Last-Modified"),
-                       let lmDate = parseHTTPDate(lm),
-                       lmDate < nb {
-                        // Object exists but it's from a previous run → keep polling
-                        return false
-                    }
-                    return true
-                }
+                return true
             }
         } catch { /* fall through */ }
 
@@ -449,15 +496,7 @@ class TranscriptionManager {
             if let http = resp as? HTTPURLResponse {
                 if http.statusCode == 404 { return false }
                 if http.statusCode == 304 { return false }
-                if http.statusCode == 206 || http.statusCode == 200 {
-                    if let nb = notBefore,
-                       let lm = http.value(forHTTPHeaderField: "Last-Modified"),
-                       let lmDate = parseHTTPDate(lm),
-                       lmDate < nb {
-                        return false
-                    }
-                    return true
-                }
+                return true
             }
         } catch { }
 
