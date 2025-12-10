@@ -15,9 +15,11 @@ struct AudioTranscriptionObject : Codable {
     var fileName: String
     var hasTranscription: Bool
     var transcriptionText: String? = nil
-    var isTranscribingLocally: Bool = false
+    var isTranscribing: Bool = false
     var estimatedTranscriptionTime: TimeInterval? = nil
     var transcriptionExpiresAt: Date? = nil
+    var showTimedOutBanner: Bool = false
+    var completedBeforeLastView: Bool = false
 }
 
 class RecordingManager {
@@ -53,10 +55,13 @@ class RecordingManager {
     
     func SetSavedRecordingsOnLoad()
     {
+        SetTranscribingRecordingsOnLoad()
         savedAudioTranscriptionObjects = UserDefaults.standard.loadCodable([AudioTranscriptionObject].self, forKey: savedAudioTranscriptionObjectsKey) ?? [AudioTranscriptionObject]()
+        
         let recordingCount = savedAudioTranscriptionObjects.count
         if (recordingCount > 0) {
-            Task { try await SelectMostRecentRecording() }
+            SelectMostRecentRecording()
+            viewController.pollForAllTranscribingObjectOnLoad()
         } else {
             viewController.NoRecordingsUI()
         }
@@ -73,7 +78,7 @@ class RecordingManager {
             fileName: mostRecentRecordingName,
             hasTranscription: false,
             transcriptionText: nil,
-            isTranscribingLocally: false
+            isTranscribing: false
         )
     }
     
@@ -96,26 +101,27 @@ class RecordingManager {
         }
 
         saveAudioTranscriptionObjectsToUserDefaults()
-        Task { try await SelectMostRecentRecording() }
-        viewController.NoTranscriptionUI()
+        SelectMostRecentRecording()
         transcriptionManager.toggledTranscriptText = nil
     }
     
     func UpdateAudioTranscriptionObjectOnTranscriptionInProgressChange(processedObject: AudioTranscriptionObject) {
-        let isObjectTranscribing: Bool = processedObject.isTranscribingLocally
+        let isObjectTranscribing: Bool = processedObject.isTranscribing
         let estimatedTranscriptionTime: TimeInterval? = processedObject.estimatedTranscriptionTime
         let expiresAt: Date? = processedObject.transcriptionExpiresAt
         for (index, object) in savedAudioTranscriptionObjects.enumerated() where object.uuid == processedObject.uuid {
-            savedAudioTranscriptionObjects[index].isTranscribingLocally = isObjectTranscribing
+            savedAudioTranscriptionObjects[index].isTranscribing = isObjectTranscribing
             savedAudioTranscriptionObjects[index].estimatedTranscriptionTime = estimatedTranscriptionTime
             savedAudioTranscriptionObjects[index].transcriptionExpiresAt = expiresAt
             let isOnToggledObject = (toggledAudioTranscriptionObject.uuid == processedObject.uuid)
             if (isOnToggledObject) {
-                toggledAudioTranscriptionObject.isTranscribingLocally = isObjectTranscribing
+                toggledAudioTranscriptionObject.isTranscribing = isObjectTranscribing
                 toggledAudioTranscriptionObject.estimatedTranscriptionTime = estimatedTranscriptionTime
                 toggledAudioTranscriptionObject.transcriptionExpiresAt = expiresAt
             }
         }
+        
+        saveAudioTranscriptionObjectsToUserDefaults()
     }
     
     func saveAudioTranscriptionObjectsToUserDefaults() {
@@ -125,11 +131,14 @@ class RecordingManager {
                 fileName: object.fileName,
                 hasTranscription: object.hasTranscription,
                 transcriptionText: nil,
-                isTranscribingLocally: false,
+                isTranscribing: object.isTranscribing,
                 estimatedTranscriptionTime: object.estimatedTranscriptionTime,
-                transcriptionExpiresAt: object.transcriptionExpiresAt
+                transcriptionExpiresAt: object.transcriptionExpiresAt,
+                showTimedOutBanner: object.showTimedOutBanner,
+                completedBeforeLastView: object.completedBeforeLastView
             )
         }
+        print("Setting saved audio transcription objects to UserDefaults as \(sanitizedAudioTranscriptionObjects.description)")
         do {
             try UserDefaults.standard.setCodable(sanitizedAudioTranscriptionObjects, forKey: savedAudioTranscriptionObjectsKey)
         } catch {
@@ -144,7 +153,7 @@ class RecordingManager {
                 fileName: object.fileName,
                 hasTranscription: object.hasTranscription,
                 transcriptionText: nil,
-                isTranscribingLocally: false,
+                isTranscribing: object.isTranscribing,
                 estimatedTranscriptionTime: object.estimatedTranscriptionTime,
                 transcriptionExpiresAt: object.transcriptionExpiresAt
             )
@@ -178,20 +187,42 @@ class RecordingManager {
         return GetDirectory().appendingPathComponent(uuid.uuidString).appendingPathExtension(audioRecordingExtension)
     }
     
-    func SelectMostRecentRecording() async throws {
+    func SelectMostRecentRecording() {
         let recordingCount = savedAudioTranscriptionObjects.count
         toggledRecordingsIndex = recordingCount - 1
         toggledAudioTranscriptionObject = savedAudioTranscriptionObjects[toggledRecordingsIndex]
+        print("toggledTranscriptionObject after SelectMostRecentRecording: \(toggledAudioTranscriptionObject)")
         setToggledRecordingURL()
         if (toggledAudioTranscriptionObject.hasTranscription) {
-            await viewController.HasTranscriptionUI()
-            Task { try await transcriptionManager.readToggledTextFileAndSetInAudioTranscriptObject() }
+            viewController.HasTranscriptionUI()
+            transcriptionManager.readToggledTextFileAndSetInAudioTranscriptObject()
         } else {
-            print("Polling for toggled transcript on load")
-            await viewController.startPollingForToggledTranscriptIfTranscribing()
+            if (toggledAudioTranscriptionObject.isTranscribing) {
+                viewController.ShowTranscriptionInProgressUI()
+            } else {
+                viewController.NoTranscriptionUI()
+            }
         }
-        await viewController.FileNameLabel.setTitle(savedAudioTranscriptionObjects[toggledRecordingsIndex].fileName, for: .normal)
-        await viewController.HasRecordingsUI(numberOfRecordings: recordingCount)
+        viewController.FileNameLabel.setTitle(savedAudioTranscriptionObjects[toggledRecordingsIndex].fileName, for: .normal)
+        viewController.HasRecordingsUI(numberOfRecordings: recordingCount)
+    }
+    
+    func showCompletedBeforeLastViewAnimationForToggled() {
+        viewController.animateTranscriptionReady()
+        
+        toggledAudioTranscriptionObject.completedBeforeLastView = false
+        if (toggledRecordingsIndex > 0) {
+            savedAudioTranscriptionObjects[toggledRecordingsIndex].completedBeforeLastView = false
+        }
+        saveAudioTranscriptionObjectsToUserDefaults()
+    }
+    
+    func dismissTimedOutBannerForToggled() {
+        toggledAudioTranscriptionObject.showTimedOutBanner = false
+        if (toggledRecordingsIndex > 0) {
+            savedAudioTranscriptionObjects[toggledRecordingsIndex].showTimedOutBanner = false
+        }
+        saveAudioTranscriptionObjectsToUserDefaults()
     }
     
     func sanitizedBaseName(_ name: String, replacement: String = "-") -> String {

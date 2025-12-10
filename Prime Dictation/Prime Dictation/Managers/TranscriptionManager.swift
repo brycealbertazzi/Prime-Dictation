@@ -96,9 +96,8 @@ class TranscriptionManager {
             signedTxtURL = try await waitForTranscriptReady(
                 txtSignerBase: txtSignerBase + "/sign",
                 filename: transcriptUUIDFileName,
-                hardCapSeconds: 20 * 60,
                 pollInterval: 2,
-                processingUUID: processedObjectInQueue.uuid
+                processingObject: processedObjectInQueue
             )
         }
 //        catch TranscriptionError.uploadForbidden403 {
@@ -109,7 +108,6 @@ class TranscriptionManager {
 //            signedTxtURL = try await waitForTranscriptReady(
 //                txtSignerBase: txtSignerBase + "/sign",
 //                filename: transcriptUUIDFileName,
-//                hardCapSeconds: 60,     // 1 minute max in this special case
 //                pollInterval: 2
 //            )
 //        }
@@ -134,6 +132,8 @@ class TranscriptionManager {
                 to: localPath,
                 overwrite: true
             )
+
+            UpdateTranscribingObjectInQueue(processedUUID: uuid, transcriptionText: transcribedText)
             
             await MainActor.run {
                 PersistFileToDisk(
@@ -143,7 +143,6 @@ class TranscriptionManager {
                     objectUUID: uuid
                 )
             }
-            UpdateTranscribingObjectInQueue(processedUUID: uuid, transcriptionText: transcribedText)
         } catch {
             throw TranscriptionError.error("Couldn’t download the transcript", underlying: error)
         }
@@ -159,13 +158,15 @@ class TranscriptionManager {
         var savedIndex: Int? = nil
         for (index, object) in recordingManager.savedAudioTranscriptionObjects.enumerated() where object.uuid == processedUUID {
             recordingManager.savedAudioTranscriptionObjects[index].hasTranscription = true
-            recordingManager.savedAudioTranscriptionObjects[index].isTranscribingLocally = false
+            recordingManager.savedAudioTranscriptionObjects[index].isTranscribing = false
             recordingManager.savedAudioTranscriptionObjects[index].transcriptionText = nil // Don't save the transcription text to UserDefaults, save it as nil always
+            recordingManager.savedAudioTranscriptionObjects[index].completedBeforeLastView = true
             
             if (processedUUID == recordingManager.toggledAudioTranscriptionObject.uuid) {
                 recordingManager.toggledAudioTranscriptionObject.hasTranscription = true
-                recordingManager.toggledAudioTranscriptionObject.isTranscribingLocally = false
+                recordingManager.toggledAudioTranscriptionObject.isTranscribing = false
                 recordingManager.toggledAudioTranscriptionObject.transcriptionText = transcriptionText
+                recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView = true
             }
             
             processedObjectInQueueWhenFinished = true
@@ -175,13 +176,14 @@ class TranscriptionManager {
         if !processedObjectInQueueWhenFinished {
             viewController.displayAlert(
                 title: "Transcription not saved",
-                message: "Your pending transcription and its recording moved outside the recording queue therefore were deleted. Please make sure to send your recordings to a destination before they fall outside the queue."
+                message: "A pending transcription and its recording were moved outside the recording queue therefore were deleted. Please make sure to send your recordings to a destination before they fall outside the queue."
             )
         }
         
         recordingManager.saveAudioTranscriptionObjectsToUserDefaults()
         
         if let savedIndex {
+            toggledTranscriptText = transcriptionText
             recordingManager.savedAudioTranscriptionObjects[savedIndex].transcriptionText = transcriptionText // Set the transcription text locally here, after saving to userDefaults
         }
         
@@ -191,19 +193,23 @@ class TranscriptionManager {
         }
     }
     
-    @MainActor
-    func readToggledTextFileAndSetInAudioTranscriptObject() async throws {
+    func readToggledTextFileAndSetInAudioTranscriptObject() {
         if (recordingManager.toggledAudioTranscriptionObject.transcriptionText != nil) {
             return
         }
         let toggledTranscriptFilePath = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.uuid.uuidString).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
         if (!FileManager.default.fileExists(atPath: toggledTranscriptFilePath.path)) { return }
         
-        let toggledText = try String(contentsOf: toggledTranscriptFilePath, encoding: .utf8)
-        toggledTranscriptText = toggledText
-        recordingManager.toggledAudioTranscriptionObject.transcriptionText = toggledText
-        recordingManager.toggledAudioTranscriptionObject.hasTranscription = true
-        recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex] = recordingManager.toggledAudioTranscriptionObject
+        let toggledText: String? = try? String(contentsOf: toggledTranscriptFilePath, encoding: .utf8)
+        if let toggledText {
+            toggledTranscriptText = toggledText
+            recordingManager.toggledAudioTranscriptionObject.transcriptionText = toggledText
+            recordingManager.toggledAudioTranscriptionObject.hasTranscription = true
+            let savedIndex: Int? = recordingManager.savedAudioTranscriptionObjects.firstIndex { $0.uuid == recordingManager.toggledAudioTranscriptionObject.uuid }
+            if let savedIndex {
+                recordingManager.savedAudioTranscriptionObjects[savedIndex] = recordingManager.toggledAudioTranscriptionObject
+            }
+        } else { return }
     }
     
     func PersistFileToDisk(newText: String, editing: Bool = false, recordingURL: URL?, objectUUID: UUID) {
@@ -224,12 +230,6 @@ class TranscriptionManager {
             }
         } else {
             print("⚠️ No transcript file URL on toggledAudioTranscriptionObject")
-        }
-        
-        if (recordingManager.toggledAudioTranscriptionObject.uuid == objectUUID) {
-            Task {
-                try await readToggledTextFileAndSetInAudioTranscriptObject()
-            }
         }
     }
     
@@ -324,7 +324,7 @@ class TranscriptionManager {
     }
     
     // To be called on viewDidLoad for the transcribingObjects in UserDefaults
-    func startPollingForTranscript(processedObjectUUID: UUID) async throws {
+    func startPollingForTranscript(processedObject: AudioTranscriptionObject) async throws {
         
         guard let txtSignerBase = SignedTxtURLGCFunction else {
             print("❌ transcribeAudioFile: missing SignedTxtURLGCFunction")
@@ -336,12 +336,12 @@ class TranscriptionManager {
             throw TranscriptionError.error("Transcription service not configured (audio signer)")
         }
         
-        let processedObjectUUIDString = processedObjectUUID.uuidString
+        let processedObjectUUIDString = processedObject.uuid.uuidString
         let transcriptUUIDFileName = "\(processedObjectUUIDString)." +
                                  "\(recordingManager.transcriptionRecordingExtension)"
 
         let recordingURL: URL
-        if let existing = recordingManager.getRecordingURLForAudioTranscriptObject(at: processedObjectUUID) {
+        if let existing = recordingManager.getRecordingURLForAudioTranscriptObject(at: processedObject.uuid) {
             recordingURL = existing
         } else {
             let candidate = recordingManager.GetDirectory()
@@ -361,15 +361,18 @@ class TranscriptionManager {
         var signedTxtURL: URL
         // Try a single poll first, if not ready then call waitForTranscriptReady
         if let existingSignedTxtURL = await performSinglePollForTranscript(txtSignerBase: txtSignerBase, fileName: transcriptUUIDFileName) {
+            print("Found on first poll")
             signedTxtURL = existingSignedTxtURL
         } else {
+            print("Did not find on first poll, waiting...")
             do {
+                let recLength : TimeInterval = await viewController.recordingDuration(for: recordingURL)
+                let hardCapSeconds: TimeInterval = (recLength * 1.5) + 60
                 signedTxtURL = try await waitForTranscriptReady(
                     txtSignerBase: txtSignerBase + "/sign",
                     filename: transcriptUUIDFileName,
-                    hardCapSeconds: 20 * 60,
                     pollInterval: 2,
-                    processingUUID: processedObjectUUID
+                    processingObject: processedObject
                 )
             } catch {
                 print("❌ waitForTranscriptReay failed: \(error)")
@@ -377,7 +380,7 @@ class TranscriptionManager {
             }
         }
         
-        try await processSignedTxtURL(signedTxtURL: signedTxtURL, recordingURL: recordingURL, uuid: processedObjectUUID)
+        try await processSignedTxtURL(signedTxtURL: signedTxtURL, recordingURL: recordingURL, uuid: processedObject.uuid)
     }
     
     func performSinglePollForTranscript(txtSignerBase: String, fileName: String) async -> URL? {
@@ -400,17 +403,16 @@ class TranscriptionManager {
     private func waitForTranscriptReady(
         txtSignerBase: String,
         filename: String,
-        hardCapSeconds: TimeInterval,
         pollInterval: TimeInterval,
-        processingUUID: UUID,
+        processingObject: AudioTranscriptionObject
     ) async throws -> URL {
-        let deadline = Date().addingTimeInterval(hardCapSeconds)
         var attempt = 0
+        var deadline: Date = Date().addingTimeInterval(20 * 60) // Default to 20 min from now
+        if let expiration = processingObject.transcriptionExpiresAt {
+            deadline = expiration
+        }
         
         while Date() < deadline && !Task.isCancelled {
-            if (recordingManager.toggledAudioTranscriptionObject.uuid != processingUUID) {
-                continue
-            }
             
             let urlFromPoll = await performSinglePollForTranscript(txtSignerBase: txtSignerBase, fileName: filename)
             if let urlFromPoll {
