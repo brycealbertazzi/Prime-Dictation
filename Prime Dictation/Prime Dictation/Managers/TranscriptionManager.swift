@@ -178,16 +178,18 @@ class TranscriptionManager {
         
         recordingManager.saveAudioTranscriptionObjectsToUserDefaults()
         
+        if let index = recordingManager.transcribingAudioTranscriptionObjects.firstIndex(where: { $0.uuid == processedUUID }) {
+            recordingManager.transcribingAudioTranscriptionObjects.remove(at: index)
+        }
+        
+        recordingManager.saveTranscribingObjectsToUserDefaults()
+        
         if let savedIndex {
             toggledTranscriptText = transcriptionText
             recordingManager.savedAudioTranscriptionObjects[savedIndex].transcriptionText = transcriptionText // Set the transcription text locally here, after saving to userDefaults
         }
         
-        if let index = recordingManager.transcribingAudioTranscriptionObjects.firstIndex(where: { $0.uuid == processedUUID }) {
-            recordingManager.transcribingAudioTranscriptionObjects.remove(at: index)
-        }
-        recordingManager.saveTranscribingObjectsToUserDefaults()
-        
+        viewController.TranscribeLabel.alpha = viewController.enabledAlpha
     }
     
     func readToggledTextFileAndSetInAudioTranscriptObject() {

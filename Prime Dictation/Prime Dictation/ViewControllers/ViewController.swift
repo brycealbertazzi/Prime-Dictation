@@ -698,7 +698,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     func pollForAllTranscribingObjectOnLoad() {
         print("Started polling for toggled transcribing object, count: \(recordingManager.transcribingAudioTranscriptionObjects.count)")
-        for (index, object) in recordingManager.transcribingAudioTranscriptionObjects.enumerated() {
+        if recordingManager.transcribingAudioTranscriptionObjects.count >= TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS {
+            TranscribeLabel.alpha = disabledAlpha
+        }
+        
+        for (_, object) in recordingManager.transcribingAudioTranscriptionObjects.enumerated() {
             let savedIndex: Int? = recordingManager.savedAudioTranscriptionObjects.firstIndex { $0.uuid == object.uuid }
             
             if let expiry = object.transcriptionExpiresAt {
@@ -719,6 +723,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                     if let index = recordingManager.transcribingAudioTranscriptionObjects.firstIndex(where: { $0.uuid == object.uuid }) {
                         recordingManager.transcribingAudioTranscriptionObjects.remove(at: index)
                     }
+                    TranscribeLabel.alpha = enabledAlpha
                     recordingManager.saveTranscribingObjectsToUserDefaults()
                     recordingManager.saveAudioTranscriptionObjectsToUserDefaults()
                     
@@ -809,7 +814,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             defer {
                 pendingObject.isTranscribing = false
                 recordingManager.UpdateAudioTranscriptionObjectOnTranscriptionInProgressChange(processedObject: pendingObject)
-                TranscribeLabel.alpha = enabledAlpha
             }
             
             do {
