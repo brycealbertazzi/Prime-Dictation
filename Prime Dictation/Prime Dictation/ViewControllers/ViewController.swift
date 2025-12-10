@@ -297,8 +297,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             displayAlert(title: "Playback Unavailable", message: "Unable to find the recording for playback. Make another recording and try again.")
             return
         }
-        
-        let exists = FileManager.default.fileExists(atPath: recordingManager.toggledRecordingURL?.path ?? "")
 
         do {
             try recordingSession.setCategory(.playAndRecord,
@@ -329,7 +327,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     func checkHasTranscription() {
-        print("toggledTranscriptionObject: \(recordingManager.toggledAudioTranscriptionObject)")
         if (recordingManager.toggledAudioTranscriptionObject.hasTranscription) {
             DispatchQueue.main.async {
                 self.HasTranscriptionUI()
@@ -337,10 +334,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             transcriptionManager.readToggledTextFileAndSetInAudioTranscriptObject()
         } else {
             if (recordingManager.toggledAudioTranscriptionObject.isTranscribing) {
-                print("Showing transcription in progress on toggle")
                 ShowTranscriptionInProgressUI()
             } else {
-                print("Showing not transcription UI on toggle")
                 NoTranscriptionUI()
             }
         }
@@ -702,7 +697,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     func pollForAllTranscribingObjectOnLoad() {
-        print("Started polling for toggled transcribing object")
+        print("Started polling for toggled transcribing object, count: \(recordingManager.transcribingAudioTranscriptionObjects.count)")
         for (index, object) in recordingManager.transcribingAudioTranscriptionObjects.enumerated() {
             let savedIndex: Int? = recordingManager.savedAudioTranscriptionObjects.firstIndex { $0.uuid == object.uuid }
             
@@ -721,14 +716,16 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                             NoTranscriptionUI()
                         }
                     }
-                    recordingManager.transcribingAudioTranscriptionObjects.remove(at: index)
+                    if let index = recordingManager.transcribingAudioTranscriptionObjects.firstIndex(where: { $0.uuid == object.uuid }) {
+                        recordingManager.transcribingAudioTranscriptionObjects.remove(at: index)
+                    }
                     recordingManager.saveTranscribingObjectsToUserDefaults()
                     recordingManager.saveAudioTranscriptionObjectsToUserDefaults()
                     
-                    return
+                    continue
                 }
             }
-        
+            
             if object.uuid == recordingManager.toggledAudioTranscriptionObject.uuid {
                 if (recordingManager.toggledAudioTranscriptionObject.isTranscribing) {
                     ShowTranscriptionInProgressUI()
@@ -737,6 +734,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             
             Task {
                 do {
+                    print("polling for: \(object.fileName)")
                     try await transcriptionManager.startPollingForTranscript(processedObject: object)
                     if let savedIndex {
                         recordingManager.savedAudioTranscriptionObjects[savedIndex].completedBeforeLastView = true
@@ -934,7 +932,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
                     return
                 }
-
+                
                 // 2️⃣ Soft / hard warnings at 70% / 90% for the Standard monthly plan
                 if currentPlan == .standardMonthly {
                     let currentMonthlyUsage = subscriptionManager.usage.monthlySecondsUsed

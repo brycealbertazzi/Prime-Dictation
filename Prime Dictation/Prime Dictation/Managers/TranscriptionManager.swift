@@ -100,17 +100,18 @@ class TranscriptionManager {
                 processingObject: processedObjectInQueue
             )
         }
-//        catch TranscriptionError.uploadForbidden403 {
-//            print("⚠️ transcribeAudioFile: upload 403 – assuming audio already uploaded, probing for existing transcript")
-//
-//            // Weird case (e.g. phone died earlier and audio already in bucket):
-//            // short probe for an existing transcript so we don't hang forever.
-//            signedTxtURL = try await waitForTranscriptReady(
-//                txtSignerBase: txtSignerBase + "/sign",
-//                filename: transcriptUUIDFileName,
-//                pollInterval: 2
-//            )
-//        }
+        catch TranscriptionError.uploadForbidden403 {
+            print("⚠️ transcribeAudioFile: upload 403 – assuming audio already uploaded, probing for existing transcript")
+
+            // Weird case (e.g. phone died earlier and audio already in bucket):
+            // short probe for an existing transcript so we don't hang forever.
+            signedTxtURL = try await waitForTranscriptReady(
+                txtSignerBase: txtSignerBase + "/sign",
+                filename: transcriptUUIDFileName,
+                pollInterval: 2,
+                processingObject: processedObjectInQueue
+            )
+        }
         catch {
             print("❌ transcribeAudioFile: upload failed: \(error)")
             throw TranscriptionError.error("Upload failed", underlying: error)
@@ -149,11 +150,6 @@ class TranscriptionManager {
     }
     
     func UpdateTranscribingObjectInQueue(processedUUID: UUID, transcriptionText: String?) {
-        var popIndex: Int? = nil
-        for (index, object) in recordingManager.transcribingAudioTranscriptionObjects.enumerated() where object.uuid == processedUUID {
-            popIndex = index
-        }
-        
         var processedObjectInQueueWhenFinished = false
         var savedIndex: Int? = nil
         for (index, object) in recordingManager.savedAudioTranscriptionObjects.enumerated() where object.uuid == processedUUID {
@@ -187,10 +183,11 @@ class TranscriptionManager {
             recordingManager.savedAudioTranscriptionObjects[savedIndex].transcriptionText = transcriptionText // Set the transcription text locally here, after saving to userDefaults
         }
         
-        if let popIndex {
-            recordingManager.transcribingAudioTranscriptionObjects.remove(at: popIndex)
-            recordingManager.saveTranscribingObjectsToUserDefaults()
+        if let index = recordingManager.transcribingAudioTranscriptionObjects.firstIndex(where: { $0.uuid == processedUUID }) {
+            recordingManager.transcribingAudioTranscriptionObjects.remove(at: index)
         }
+        recordingManager.saveTranscribingObjectsToUserDefaults()
+        
     }
     
     func readToggledTextFileAndSetInAudioTranscriptObject() {

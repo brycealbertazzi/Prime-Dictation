@@ -138,7 +138,7 @@ class RecordingManager {
                 completedBeforeLastView: object.completedBeforeLastView
             )
         }
-        print("Setting saved audio transcription objects to UserDefaults as \(sanitizedAudioTranscriptionObjects.description)")
+
         do {
             try UserDefaults.standard.setCodable(sanitizedAudioTranscriptionObjects, forKey: savedAudioTranscriptionObjectsKey)
         } catch {
