@@ -177,6 +177,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         Haptic.prepare()
+        handleTranscriptionCompletionFromBackgroundOrNavigationStack()
+    }
+    
+    func handleTranscriptionCompletionFromBackgroundOrNavigationStack() {
+        guard toggledTranscriptionCompletedInBGOrAnotherVC else { return }
+        toggledTranscriptionCompletedInBGOrAnotherVC = false
+        animateTranscriptionReady()
+        // AudioFeedback.shared.playDing(intensity: 0.6)
     }
     
     func loadAccessibilityText() {
@@ -217,7 +225,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     private var wasPlayingBeforeBackground = false
-    private var transcriptionCompletedInBackground = false
+    var toggledTranscriptionCompletedInBGOrAnotherVC = false
     var sendingCompletedInBackground = false
     var alertDisplayedInBackground: Bool = false
     var pendingAlertTitle: String = ""
@@ -262,18 +270,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 message: pendingAlertMessage
             )
         }
-
-        // If a transcription finished while we were in the background, play the
-        if transcriptionCompletedInBackground {
-            transcriptionCompletedInBackground = false
-//            AudioFeedback.shared.playDing(intensity: 0.6)
-        }
         
         // If a transcription finished while we were in the background, play the whoosh
         if (sendingCompletedInBackground) {
             sendingCompletedInBackground = false
             AudioFeedback.shared.playWhoosh(intensity: 0.6)
         }
+        
+        handleTranscriptionCompletionFromBackgroundOrNavigationStack()
         
         // 🔄 Refresh subscribed state in the background (idempotent + cheap)
         Task {
@@ -1210,7 +1214,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         } else {
             // The task completed in the background
             if type == .transcribe {
-                transcriptionCompletedInBackground = true
+//                toggledTranscriptionCompletedInBGOrAnotherVC = true
             } else if type == .send {
                 sendingCompletedInBackground = true
             }
@@ -1380,7 +1384,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         SeeTranscriptionLabel.isHidden = false
         TranscribingIndicator.isHidden = true
         if (recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView) {
-            recordingManager.showCompletedBeforeLastViewAnimationForToggled()
+            recordingManager.unsetCompletedTranscriptionBeforeLastViewForToggled()
         }
     }
     
@@ -1465,3 +1469,10 @@ extension ViewController: UIPopoverPresentationControllerDelegate {
         return nil  // no UINavigationController wrapper
     }
 }
+
+extension UIViewController {
+    var isCurrentlyVisible: Bool {
+        return isViewLoaded && view.window != nil
+    }
+}
+
