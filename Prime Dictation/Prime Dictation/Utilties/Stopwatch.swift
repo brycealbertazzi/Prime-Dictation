@@ -86,7 +86,7 @@ class Stopwatch {
                 let currentTime = player.currentTime
                 let currentText = formatStopwatchTime(currentTime)
 
-                let totalTime = viewController.audioPlayer.duration
+                let totalTime = player.duration
                 let totalText = formatStopwatchTime(totalTime)
                 viewController.PlaybackStopwatch.text = currentText + " / " + totalText
             

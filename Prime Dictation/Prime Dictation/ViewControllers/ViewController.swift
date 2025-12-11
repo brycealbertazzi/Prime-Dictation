@@ -38,8 +38,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var RecordingStopwatch: UILabel!
     
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
-    var audioRecorder: AVAudioRecorder! //Responsible for recording our audio
-    var audioPlayer: AVAudioPlayer!
+    var audioRecorder: AVAudioRecorder? //Responsible for recording our audio
+    var audioPlayer: AVAudioPlayer?
     
     var dropboxManager: DropboxManager!
     var oneDriveManager: OneDriveManager!
@@ -232,19 +232,22 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     var pendingAlertMessage: String = ""
     @objc private func handleAppWillResignActive(_ notification: Notification) {
         // If we’re recording, stop & save as if user tapped Stop
-        if audioRecorder?.isRecording == true {
-            audioRecorder.stop()
-            isRecordingPaused = false
-            audioRecorder = nil
-            HideListeningUI()
-            HideRecordingInProgressUI()
+        if let recorder = audioRecorder {
+            if recorder.isRecording == true {
+                recorder.stop()
+                isRecordingPaused = false
+                audioRecorder = nil
+                HideListeningUI()
+                HideRecordingInProgressUI()
 
-            // Save the number of recordings
-            UserDefaults.standard.set(recordingManager.numberOfRecordings, forKey: "myNumber")
-            recordingManager.UpdateSavedRecordings()
+                // Save the number of recordings
+                UserDefaults.standard.set(recordingManager.numberOfRecordings, forKey: "myNumber")
+                recordingManager.UpdateSavedRecordings()
 
-            watch.stop()
+                watch.stop()
+            }
         }
+
 
         // If we’re playing back, just pause *and remember that it was playing*
         if audioPlayer?.isPlaying == true {
@@ -301,22 +304,28 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             displayAlert(title: "Playback Unavailable", message: "Unable to find the recording for playback. Make another recording and try again.")
             return
         }
-
+        
         do {
+            audioPlayer = try AVAudioPlayer(contentsOf: toggledURL)
+            
+            guard let audioPlayer else { return }
+            
             try recordingSession.setCategory(.playAndRecord,
                                              options: [.defaultToSpeaker, .allowBluetoothHFP])
             try recordingSession.setMode(.default)
             try recordingSession.setActive(true, options: .notifyOthersOnDeactivation)
 
             try recordingSession.overrideOutputAudioPort(.speaker)
-            audioPlayer = try AVAudioPlayer(contentsOf: toggledURL)
-            audioPlayer?.delegate = self
+            
+            currentRecordingState = .playback
+            
+            audioPlayer.delegate = self
             audioPlayer.prepareToPlay()
             audioPlayer.volume = 1
             audioPlayer.enableRate = true
             audioPlayer.rate = 1
             audioPlayer.play()
-            currentRecordingState = .playback
+            
 
             ShowListeningUI()
             PlaybackSlider.minimumValue = 0
@@ -504,19 +513,22 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             try recordingSession.setCategory(.playAndRecord,
                                              options: [.defaultToSpeaker, .allowBluetoothHFP])
             try recordingSession.setActive(true, options: .notifyOthersOnDeactivation)
-
+            
             audioRecorder = try AVAudioRecorder(url: fileName, settings: settings)
-            audioRecorder.delegate = self
-            audioRecorder.prepareToRecord()
-            audioRecorder.isMeteringEnabled = false
-            audioRecorder.record()
             currentRecordingState = .recording
+            
+            if let audioRecorder {
+                audioRecorder.delegate = self
+                audioRecorder.prepareToRecord()
+                audioRecorder.isMeteringEnabled = false
+                audioRecorder.record()
 
-            ListenLabel.isHidden = true
-            ShowRecordingInProgressUI()
-            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTime(timer:))
-            watch.start()
-            RecordingStopwatch.isHidden = false
+                ListenLabel.isHidden = true
+                ShowRecordingInProgressUI()
+                Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTime(timer:))
+                watch.start()
+                RecordingStopwatch.isHidden = false
+            }
         } catch {
             // 🔴 Most likely: another app (phone/FaceTime/VoIP) has the mic.
             audioRecorder = nil
@@ -530,9 +542,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     func finishCurrentRecording(interrupted: Bool, trialEnded: Bool = false) {
-        guard audioRecorder != nil else { return }
-
-        audioRecorder.stop()
+        audioRecorder?.stop()
         isRecordingPaused = false
         audioRecorder = nil
 
@@ -585,7 +595,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBAction func PausePlayRecordingButton(_ sender: Any) {
         Haptic.tap()
         if currentRecordingState == .recording {
-            if self.audioRecorder.isRecording {
+            guard let recorder = audioRecorder else {
+                return
+            }
+            if recorder.isRecording {
                 self.PausePlayRecordingLabel.setImage(UIImage(named: "PlayButton"), for: .normal)
                 self.pauseRecording()
             } else {
@@ -593,7 +606,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 self.resumeRecording()
             }
         } else {
-            if self.audioPlayer.isPlaying {
+            guard let player = audioPlayer else {
+                return
+            }
+            if player.isPlaying {
                 self.PausePlayRecordingLabel.setImage(UIImage(named: "PlayButton"), for: .normal)
                 self.pausePlayback()
             } else {
@@ -604,12 +620,16 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     private func pauseRecording() {
+        guard let audioRecorder, audioRecorder.isRecording else { return }
+        
         audioRecorder.pause()
         isRecordingPaused = true
         watch.pause()
     }
     
     private func resumeRecording() {
+        guard let audioRecorder else { return }
+        
         audioRecorder.record()
         isRecordingPaused = false
         watch.resume()
@@ -617,16 +637,21 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     private func pausePlayback() {
-        audioPlayer.pause()
+        guard let player = audioPlayer, player.isPlaying else { return }
+    
+        player.pause()
         isRecordingPaused = true
         watch.pause()
+        
     }
     
     private func resumePlayback() {
-        audioPlayer?.delegate = self
-        audioPlayer.prepareToPlay()
-        audioPlayer.volume = 1
-        audioPlayer.play()
+        guard let player = audioPlayer else { return }
+        
+        player.delegate = self
+        player.prepareToPlay()
+        player.volume = 1
+        player.play()
         watch.resume()
         isRecordingPaused = false
         Timer.scheduledTimer(withTimeInterval: 0.02, repeats: true, block: watch.UpdateElapsedTimeListen(timer:))
@@ -640,7 +665,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func endPlayback(withTransition: Bool = false) {
         isRecordingPaused = false
         watch.stop()
-        self.PausePlayRecordingLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
+        
+        PausePlayRecordingLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
+        PausePlayRecordingLabel.isUserInteractionEnabled = false
         
         if let player = audioPlayer {
             let duration = player.duration
@@ -655,7 +682,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             PlaybackSlider.value = 1
 
             player.stop()
-            audioPlayer = nil
+            
         }
         
         let UIUpdateWait: TimeInterval = withTransition ? 0.5 : 0.0
@@ -664,6 +691,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             self.PlaybackStopwatch.text = Stopwatch.StopwatchDefaultText
             self.PlaybackSlider.value = 0
             self.HideListeningUI()
+            
+            audioPlayer = nil
+            PausePlayRecordingLabel.isUserInteractionEnabled = true
         }
     }
     
@@ -675,7 +705,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     @IBAction func PlaybackSliderTouchDown(_ sender: UISlider) {
-        guard audioPlayer != nil else { return }
+        guard let audioPlayer else { return }
         
         isScrubbingSlider = true
         
