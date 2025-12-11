@@ -189,7 +189,6 @@ class TranscriptionManager {
             recordingManager.savedAudioTranscriptionObjects[savedIndex].transcriptionText = transcriptionText // Set the transcription text locally here, after saving to userDefaults
         }
         
-        viewController.TranscribeLabel.alpha = viewController.enabledAlpha
     }
     
     func readToggledTextFileAndSetInAudioTranscriptObject() {

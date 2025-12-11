@@ -742,6 +742,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             }
             
             Task {
+                defer {
+                    TranscribeLabel.alpha = enabledAlpha
+                }
+                
                 do {
                     print("polling for: \(object.fileName)")
                     try await transcriptionManager.startPollingForTranscript(processedObject: object)
@@ -818,6 +822,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             defer {
                 pendingObject.isTranscribing = false
                 recordingManager.UpdateAudioTranscriptionObjectOnTranscriptionInProgressChange(processedObject: pendingObject)
+                TranscribeLabel.alpha = enabledAlpha
             }
             
             do {
