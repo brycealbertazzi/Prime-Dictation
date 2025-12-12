@@ -1283,7 +1283,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func safeDisplayAlert(title: String, message: String, type: SafeAlertType = .other, result: SafeAlertResult) {
         self.currentActionState = .none
         if UIApplication.shared.applicationState == .active {
-            safeAlertInBackground(title: title, message: message, type: type, result: result)
+            safeAlertInForeground(title: title, message: message, type: type, result: result)
         } else {
             safeAlertInBackground(title: title, message: message, type: type, result: result)
         }
