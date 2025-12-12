@@ -750,8 +750,19 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             TranscribeLabel.alpha = disabledAlpha
         }
         
-        for (_, object) in recordingManager.transcribingAudioTranscriptionObjects.enumerated() {
+        for (index, object) in recordingManager.transcribingAudioTranscriptionObjects.enumerated() {
             let savedIndex: Int? = recordingManager.savedAudioTranscriptionObjects.firstIndex { $0.uuid == object.uuid }
+            guard let savedIndex else {
+                // Assume the object was shifted out of the queue and is lost
+                recordingManager.transcribingAudioTranscriptionObjects.remove(at: index)
+                
+                recordingManager.saveTranscribingObjectsToUserDefaults()
+                if (currentActionState == .none) {
+                    TranscribeLabel.alpha = enabledAlpha
+                }
+                
+                continue
+            }
             
             if let expiry = object.transcriptionExpiresAt {
                 let now = Date()
@@ -759,19 +770,20 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 let pollingHasExpiredForObject: Bool = now > expiry
                 if (pollingHasExpiredForObject) {
                     print("expired transcribing object: \(object)")
-                    if let savedIndex {
-                        recordingManager.savedAudioTranscriptionObjects[savedIndex].showTimedOutBanner = true
-                        recordingManager.savedAudioTranscriptionObjects[savedIndex].isTranscribing = false
-                        if object.uuid == recordingManager.toggledAudioTranscriptionObject.uuid {
-                            recordingManager.toggledAudioTranscriptionObject.showTimedOutBanner = true
-                            recordingManager.toggledAudioTranscriptionObject.isTranscribing = false
-                            NoTranscriptionUI()
-                        }
+                    
+                    recordingManager.savedAudioTranscriptionObjects[savedIndex].showTimedOutBanner = true
+                    recordingManager.savedAudioTranscriptionObjects[savedIndex].isTranscribing = false
+                    if object.uuid == recordingManager.toggledAudioTranscriptionObject.uuid {
+                        recordingManager.toggledAudioTranscriptionObject.showTimedOutBanner = true
+                        recordingManager.toggledAudioTranscriptionObject.isTranscribing = false
+                        NoTranscriptionUI()
                     }
-                    if let index = recordingManager.transcribingAudioTranscriptionObjects.firstIndex(where: { $0.uuid == object.uuid }) {
-                        recordingManager.transcribingAudioTranscriptionObjects.remove(at: index)
+                    
+                    recordingManager.transcribingAudioTranscriptionObjects.remove(at: index)
+                    
+                    if (currentActionState == .none) {
+                        TranscribeLabel.alpha = enabledAlpha
                     }
-                    TranscribeLabel.alpha = enabledAlpha
                     recordingManager.saveTranscribingObjectsToUserDefaults()
                     recordingManager.saveAudioTranscriptionObjectsToUserDefaults()
                     
@@ -787,17 +799,18 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             
             Task {
                 defer {
-                    TranscribeLabel.alpha = enabledAlpha
+                    if (currentActionState == .none) {
+                        TranscribeLabel.alpha = enabledAlpha
+                    }
                 }
                 
                 do {
                     print("polling for: \(object.fileName)")
                     try await transcriptionManager.startPollingForTranscript(processedObject: object)
-                    if let savedIndex {
-                        recordingManager.savedAudioTranscriptionObjects[savedIndex].completedBeforeLastView = true
-                        if object.uuid == recordingManager.toggledAudioTranscriptionObject.uuid {
-                            recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView = true
-                        }
+                    
+                    recordingManager.savedAudioTranscriptionObjects[savedIndex].completedBeforeLastView = true
+                    if object.uuid == recordingManager.toggledAudioTranscriptionObject.uuid {
+                        recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView = true
                     }
 
                     self.HideTranscriptionInProgressUI(result: .success, processedObjectUUID: object.uuid)
@@ -866,7 +879,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             defer {
                 pendingObject.isTranscribing = false
                 recordingManager.UpdateAudioTranscriptionObjectOnTranscriptionInProgressChange(processedObject: pendingObject)
-                TranscribeLabel.alpha = enabledAlpha
+                if (currentActionState == .none) {
+                    TranscribeLabel.alpha = enabledAlpha
+                }
             }
             
             do {

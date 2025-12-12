@@ -87,11 +87,11 @@ class TranscriptionManager {
 
         // 6) Upload audio, then wait for transcript
         var signedTxtURL: URL
-
+        
         do {
             try await uploadRecordingToCGBucket(to: signedPUT, from: recordingURL)
             print("✅ transcribeAudioFile: uploadRecordingToCGBucket finished")
-
+            
             // Normal path: upload just succeeded, so give backend up to 20 min
             signedTxtURL = try await waitForTranscriptReady(
                 txtSignerBase: txtSignerBase + "/sign",
@@ -150,7 +150,6 @@ class TranscriptionManager {
     }
     
     func UpdateTranscribingObjectInQueue(processedUUID: UUID, transcriptionText: String?) {
-        var processedObjectInQueueWhenFinished = false
         var savedIndex: Int? = nil
         for (index, object) in recordingManager.savedAudioTranscriptionObjects.enumerated() where object.uuid == processedUUID {
             recordingManager.savedAudioTranscriptionObjects[index].hasTranscription = true
@@ -165,15 +164,7 @@ class TranscriptionManager {
                 recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView = true
             }
             
-            processedObjectInQueueWhenFinished = true
             savedIndex = index
-        }
-        
-        if !processedObjectInQueueWhenFinished {
-            viewController.displayAlert(
-                title: "Transcription not saved",
-                message: "A pending transcription and its recording were moved outside the recording queue therefore were deleted. Please make sure to send your recordings to a destination before they fall outside the queue."
-            )
         }
         
         recordingManager.saveAudioTranscriptionObjectsToUserDefaults()
@@ -188,7 +179,6 @@ class TranscriptionManager {
             toggledTranscriptText = transcriptionText
             recordingManager.savedAudioTranscriptionObjects[savedIndex].transcriptionText = transcriptionText // Set the transcription text locally here, after saving to userDefaults
         }
-        
     }
     
     func readToggledTextFileAndSetInAudioTranscriptObject() {
@@ -365,7 +355,6 @@ class TranscriptionManager {
             print("Did not find on first poll, waiting...")
             do {
                 let recLength : TimeInterval = await viewController.recordingDuration(for: recordingURL)
-                let hardCapSeconds: TimeInterval = (recLength * 1.5) + 60
                 signedTxtURL = try await waitForTranscriptReady(
                     txtSignerBase: txtSignerBase + "/sign",
                     filename: transcriptUUIDFileName,
