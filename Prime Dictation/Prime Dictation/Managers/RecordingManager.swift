@@ -207,21 +207,7 @@ class RecordingManager {
         viewController.HasRecordingsUI(numberOfRecordings: recordingCount)
     }
     
-    func unsetCompletedTranscriptionBeforeLastViewForToggled() {
-        if UIApplication.shared.applicationState == .active, viewController.isCurrentlyVisible {
-            // App is active AND we're on the root VC right now
-            viewController.animateTranscriptionReady()
-        } else {
-            // Either app in background OR user is on another screen
-            viewController.toggledTranscriptionCompletedInBGOrAnotherVC = true
-        }
-        
-        toggledAudioTranscriptionObject.completedBeforeLastView = false
-        if toggledRecordingsIndex > 0 {
-            savedAudioTranscriptionObjects[toggledRecordingsIndex].completedBeforeLastView = false
-        }
-        saveAudioTranscriptionObjectsToUserDefaults()
-    }
+
 
     
     func dismissTimedOutBannerForToggled() {

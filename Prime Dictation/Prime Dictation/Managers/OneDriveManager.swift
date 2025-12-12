@@ -350,7 +350,7 @@ final class OneDriveManager {
                 _ = try await self.uploadRecording(
                     accessToken: token,
                     fileURL: prettyAudioURL,
-                    fileName: recordingManager.toggledAudioTranscriptionObject.fileName + "." + recordingManager.audioRecordingExtension,
+                    fileName: baseName + "." + recordingManager.audioRecordingExtension,
                     to: target,
                     progress: progress
                 )
@@ -366,7 +366,7 @@ final class OneDriveManager {
                         _ = try await self.uploadRecording(
                             accessToken: token,
                             fileURL: prettyTranscriptURL,
-                            fileName: recordingManager.toggledAudioTranscriptionObject.fileName + "." + recordingManager.transcriptionRecordingExtension,
+                            fileName: baseName + "." + recordingManager.transcriptionRecordingExtension,
                             to: target,
                             progress: nil // keep progress tied to the main audio if you want
                         )

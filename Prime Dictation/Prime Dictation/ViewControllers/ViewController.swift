@@ -58,12 +58,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         return .darkContent
     }
     
-    enum RecordingState {
+    enum ActionState {
         case recording
         case playback
+        case sending
+        case none
     }
     
-    var currentRecordingState: RecordingState = .recording
+    var currentActionState: ActionState = .none
     private var isScrubbingSlider = false
     private var wasPlayingBeforeScrub = false
     
@@ -183,8 +185,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func handleTranscriptionCompletionFromBackgroundOrNavigationStack() {
         guard toggledTranscriptionCompletedInBGOrAnotherVC else { return }
         toggledTranscriptionCompletedInBGOrAnotherVC = false
-        animateTranscriptionReady()
-        // AudioFeedback.shared.playDing(intensity: 0.6)
+        if (recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView && currentActionState == .none) {
+            unsetCompletedTranscriptionBeforeLastViewForToggled()
+        }
     }
     
     func loadAccessibilityText() {
@@ -270,7 +273,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             alertDisplayedInBackground = false
             displayAlert(
                 title: pendingAlertTitle,
-                message: pendingAlertMessage
+                message: pendingAlertMessage,
+                handler: {
+                    self.currentActionState = .none
+                    if (self.recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView) {
+                        self.unsetCompletedTranscriptionBeforeLastViewForToggled()
+                    }
+                }
             )
         }
         
@@ -317,7 +326,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
             try recordingSession.overrideOutputAudioPort(.speaker)
             
-            currentRecordingState = .playback
+            currentActionState = .playback
             
             audioPlayer.delegate = self
             audioPlayer.prepareToPlay()
@@ -515,7 +524,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             try recordingSession.setActive(true, options: .notifyOthersOnDeactivation)
             
             audioRecorder = try AVAudioRecorder(url: fileName, settings: settings)
-            currentRecordingState = .recording
+            currentActionState = .recording
             
             if let audioRecorder {
                 audioRecorder.delegate = self
@@ -584,8 +593,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     //MARK: Pause-Resume-End Recordings and Playbacks:
     @IBAction func StopRecordingButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
-        if currentRecordingState == .recording {
+        if currentActionState == .recording {
             finishCurrentRecording(interrupted: false)
+            currentActionState = .none
         } else {
             endPlayback()
         }
@@ -594,7 +604,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     var isRecordingPaused: Bool = false
     @IBAction func PausePlayRecordingButton(_ sender: Any) {
         Haptic.tap()
-        if currentRecordingState == .recording {
+        if currentActionState == .recording {
             guard let recorder = audioRecorder else {
                 return
             }
@@ -694,6 +704,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             
             audioPlayer = nil
             PausePlayRecordingLabel.isUserInteractionEnabled = true
+            currentActionState = .none
+            if (recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView) {
+                unsetCompletedTranscriptionBeforeLastViewForToggled()
+            }
         }
     }
     
@@ -1160,12 +1174,16 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             let toggledHasTranscription: Bool = recordingManager.toggledAudioTranscriptionObject.hasTranscription
             switch DestinationManager.SELECTED_DESTINATION {
             case Destination.dropbox:
+                currentActionState = .sending
                 dropboxManager.SendToDropbox(hasTranscription: toggledHasTranscription)
             case Destination.onedrive:
+                currentActionState = .sending
                 oneDriveManager.SendToOneDrive(hasTranscription: toggledHasTranscription)
             case Destination.googledrive:
+                currentActionState = .sending
                 googleDriveManager.SendToGoogleDrive(hasTranscription: toggledHasTranscription)
             case Destination.email:
+                currentActionState = .sending
                 Task { await emailManager.SendToEmail(hasTranscription: toggledHasTranscription) }
             default:
                 print("No destination selected")
@@ -1238,19 +1256,19 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         if UIApplication.shared.applicationState == .active {
             // The task completed while the app was open
             if result == .success {
-                if type == .transcribe {
-//                    AudioFeedback.shared.playDing(intensity: 0.6)
-                } else if type == .send {
+                if type == .send {
                     AudioFeedback.shared.playWhoosh(intensity: 0.6)
+                    self.currentActionState = .none
+                    if (recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView) {
+                        unsetCompletedTranscriptionBeforeLastViewForToggled()
+                    }
                 }
             } else {
                 displayAlert(title: title, message: message)
             }
         } else {
             // The task completed in the background
-            if type == .transcribe {
-//                toggledTranscriptionCompletedInBGOrAnotherVC = true
-            } else if type == .send {
+            if type == .send {
                 sendingCompletedInBackground = true
             }
             alertDisplayedInBackground = true
@@ -1371,6 +1389,16 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             .withAlignmentRectInsets(UIEdgeInsets(top: -pad, left: -pad, bottom: -pad, right: -pad))
     }
     
+    func unsetCompletedTranscriptionBeforeLastViewForToggled() {
+        animateTranscriptionReady()
+        
+        recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView = false
+        if recordingManager.toggledRecordingsIndex > 0 {
+            recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex].completedBeforeLastView = false
+        }
+        recordingManager.saveAudioTranscriptionObjectsToUserDefaults()
+    }
+    
     func animateTranscriptionReady() {
         guard let button = SeeTranscriptionLabel else { return }
 
@@ -1419,7 +1447,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         SeeTranscriptionLabel.isHidden = false
         TranscribingIndicator.isHidden = true
         if (recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView) {
-            recordingManager.unsetCompletedTranscriptionBeforeLastViewForToggled()
+            guard UIApplication.shared.applicationState == .active, isCurrentlyVisible else {
+                // Either app in background OR user is on another screen
+                toggledTranscriptionCompletedInBGOrAnotherVC = true
+                return
+            }
+            if currentActionState == .none {
+                unsetCompletedTranscriptionBeforeLastViewForToggled()
+            }
         }
     }
     
