@@ -229,7 +229,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     private var wasPlayingBeforeBackground = false
     var toggledTranscriptionCompletedInBGOrAnotherVC = false
-    var sendingCompletedInBackground = false
+    var sendingSucceededInBackground = false
     var alertDisplayedInBackground: Bool = false
     var pendingAlertTitle: String = ""
     var pendingAlertMessage: String = ""
@@ -284,8 +284,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
         
         // If a transcription finished while we were in the background, play the whoosh
-        if (sendingCompletedInBackground) {
-            sendingCompletedInBackground = false
+        if (sendingSucceededInBackground) {
+            sendingSucceededInBackground = false
             AudioFeedback.shared.playWhoosh(intensity: 0.6)
         }
         
@@ -760,15 +760,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             let savedIndex: Int? = recordingManager.savedAudioTranscriptionObjects.firstIndex { $0.uuid == object.uuid }
             guard let savedIndex else {
                 
-                // Assume the object was shifted out of the queue and is lost
-                if let i = recordingManager.transcribingAudioTranscriptionObjects.firstIndex(where: { $0.uuid == object.uuid }) {
-                    recordingManager.transcribingAudioTranscriptionObjects.remove(at: i)
-                }
-                
-                recordingManager.saveTranscribingObjectsToUserDefaults()
+                removeFromTranscribingObjectsAtUUID(uuid: object.uuid)
                 if (currentActionState == .none) {
                     TranscribeLabel.alpha = enabledAlpha
                 }
+                
+                recordingManager.saveTranscribingObjectsToUserDefaults()
                 
                 continue
             }
@@ -788,13 +785,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                         NoTranscriptionUI()
                     }
                     
-                    if let i = recordingManager.transcribingAudioTranscriptionObjects.firstIndex(where: { $0.uuid == object.uuid }) {
-                        recordingManager.transcribingAudioTranscriptionObjects.remove(at: i)
-                    }
-                    
+                    removeFromTranscribingObjectsAtUUID(uuid: object.uuid)
                     if (currentActionState == .none) {
                         TranscribeLabel.alpha = enabledAlpha
                     }
+                    
                     recordingManager.saveTranscribingObjectsToUserDefaults()
                     recordingManager.saveAudioTranscriptionObjectsToUserDefaults()
                     
@@ -809,12 +804,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             }
             
             Task {
+                var pendingObject: AudioTranscriptionObject = object
                 defer {
-                    if (currentActionState == .none) {
-                        TranscribeLabel.alpha = enabledAlpha
-                    }
+                    pendingObject.isTranscribing = false
+                    recordingManager.UpdateAudioTranscriptionObjectOnTranscriptionInProgressChange(processedObject: pendingObject)
                 }
-                
                 do {
                     print("polling for: \(object.fileName)")
                     try await transcriptionManager.startPollingForTranscript(processedObject: object)
@@ -832,22 +826,31 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
     
+    func removeFromTranscribingObjectsAtUUID(uuid: UUID?) {
+        guard let uuid else { return }
+        
+        if let index = recordingManager.transcribingAudioTranscriptionObjects.firstIndex(where: { $0.uuid == uuid }) {
+            recordingManager.transcribingAudioTranscriptionObjects.remove(at: index)
+            recordingManager.saveTranscribingObjectsToUserDefaults()
+        }
+    }
+    
     func transcriptionAlert(seconds: CGFloat, estimated: CGFloat) {
-        let estimatedWaitStr: String = getEstimatedWaitLabel(seconds: TimeInterval(estimated))
+        let estimatedWaitStr: String = getEstimatedTranscriptionTimeDisplayText(recordingDuration: TimeInterval(estimated))
         
         if (seconds >= 600) {
             // Red warning
             let title = "Very long transcription"
-            let msg = "Your recording is over 10 minutes long. Transcription accuracy will likely be reduced and transcription may take a long time to complete. For best results, consider breaking this into shorter recordings and transcribing each one separately. You’ll need to keep Prime Dictation open while we transcribe. Are you sure you want to transcribe? \(estimatedWaitStr)"
+            let msg = "Your recording is over 10 minutes long. Transcription accuracy will likely be reduced and transcription will take a long time to complete. For best results, consider breaking this into shorter recordings and transcribe each one separately. Are you sure you want to transcribe? Estimated wait: \(estimatedWaitStr)"
             displayTranscriptionAlert(title: title, message: msg, estimated: estimated)
         } else if (seconds >= 300) {
             // Yellow warning
             let title = "Long transcription"
-            let msg = "Your recording is over 5 minutes long. Transcription accuracy may be affected, and it could take a while to complete. For best results, consider breaking long recordings into smaller parts and transcribing each one separately. You’ll need to keep Prime Dictation open while we transcribe. Are you sure you want to transcribe? \(estimatedWaitStr)"
+            let msg = "Your recording is over 5 minutes long. Transcription accuracy may be affected, and it could take a while to complete. For best results, consider breaking longer recordings into shorter recordings and transcribe each one separately. Are you sure you want to transcribe? Estimated wait: \(estimatedWaitStr)"
             displayTranscriptionAlert(title: title, message: msg, estimated: estimated)
         } else {
             let title = "Start transcription?"
-            let msg = estimatedWaitStr
+            let msg = "Estimated wait: \(estimatedWaitStr)"
             displayTranscriptionAlert(title: title, message: msg, estimated: estimated)
         }
     }
@@ -890,9 +893,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             defer {
                 pendingObject.isTranscribing = false
                 recordingManager.UpdateAudioTranscriptionObjectOnTranscriptionInProgressChange(processedObject: pendingObject)
-                if (currentActionState == .none) {
-                    TranscribeLabel.alpha = enabledAlpha
-                }
             }
             
             do {
@@ -921,15 +921,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 HideTranscriptionInProgressUI(result: .success, processedObjectUUID: pendingObject.uuid)
                 
             } catch {
-                await MainActor.run {
-                    self.safeDisplayAlert(
-                        title: "Transcription Failed",
-                        message: "We were unable to transcribe your recording. Your connection may be slow, try again later.",
-                        type: .transcribe,
-                        result: .failure
-                    )
-                    self.HideTranscriptionInProgressUI(result: .failure, processedObjectUUID: pendingObject.uuid)
-                }
+                HideTranscriptionInProgressUI(result: .failure, processedObjectUUID: pendingObject.uuid)
             }
         }
     }
@@ -1136,16 +1128,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
     
-    private func getEstimatedWaitLabel(seconds: TimeInterval) -> String {
-        var estimatedWaitLabel: String = ""
-        if seconds < 45 {
-            estimatedWaitLabel = "Estimated wait: under 1 min"
-        } else {
-            estimatedWaitLabel = "Estimated wait: ~\(Int(ceil(seconds / 60))) min"
-        }
-        return estimatedWaitLabel
-    }
-    
     private func showTranscriptionScreen() {
         // 1) instantiate
         let vc = storyboard!.instantiateViewController(
@@ -1278,28 +1260,32 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         case failure
     }
     
-    func safeDisplayAlert(title: String, message: String, type: SafeAlertType = .other, result: SafeAlertResult) {
-        if UIApplication.shared.applicationState == .active {
-            // The task completed while the app was open
-            if result == .success {
-                if type == .send {
-                    AudioFeedback.shared.playWhoosh(intensity: 0.6)
-                    self.currentActionState = .none
-                    if (recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView) {
-                        unsetCompletedTranscriptionBeforeLastViewForToggled()
-                    }
+    func safeAlertInForeground(title: String, message: String, type: SafeAlertType = .other, result: SafeAlertResult) {
+        if result == .success {
+            if type == .send {
+                AudioFeedback.shared.playWhoosh(intensity: 0.6)
+                if (recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView) {
+                    unsetCompletedTranscriptionBeforeLastViewForToggled()
                 }
-            } else {
-                displayAlert(title: title, message: message)
             }
         } else {
-            // The task completed in the background
-            if type == .send {
-                sendingCompletedInBackground = true
-            }
-            alertDisplayedInBackground = true
-            pendingAlertTitle = title
-            pendingAlertMessage = message
+            displayAlert(title: title, message: message)
+        }
+    }
+    
+    func safeAlertInBackground(title: String, message: String, type: SafeAlertType = .other, result: SafeAlertResult) {
+        if type == .send && result == .success { sendingSucceededInBackground = true }
+        alertDisplayedInBackground = true
+        pendingAlertTitle = title
+        pendingAlertMessage = message
+    }
+    
+    func safeDisplayAlert(title: String, message: String, type: SafeAlertType = .other, result: SafeAlertResult) {
+        self.currentActionState = .none
+        if UIApplication.shared.applicationState == .active {
+            safeAlertInBackground(title: title, message: message, type: type, result: result)
+        } else {
+            safeAlertInBackground(title: title, message: message, type: type, result: result)
         }
     }
     

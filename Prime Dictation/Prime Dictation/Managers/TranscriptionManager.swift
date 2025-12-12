@@ -169,12 +169,6 @@ class TranscriptionManager {
         
         recordingManager.saveAudioTranscriptionObjectsToUserDefaults()
         
-        if let index = recordingManager.transcribingAudioTranscriptionObjects.firstIndex(where: { $0.uuid == processedUUID }) {
-            recordingManager.transcribingAudioTranscriptionObjects.remove(at: index)
-        }
-        
-        recordingManager.saveTranscribingObjectsToUserDefaults()
-        
         if let savedIndex {
             toggledTranscriptText = transcriptionText
             recordingManager.savedAudioTranscriptionObjects[savedIndex].transcriptionText = transcriptionText // Set the transcription text locally here, after saving to userDefaults
@@ -354,7 +348,6 @@ class TranscriptionManager {
         } else {
             print("Did not find on first poll, waiting...")
             do {
-                let recLength : TimeInterval = await viewController.recordingDuration(for: recordingURL)
                 signedTxtURL = try await waitForTranscriptReady(
                     txtSignerBase: txtSignerBase + "/sign",
                     filename: transcriptUUIDFileName,

@@ -92,11 +92,8 @@ class RecordingManager {
                 let m4aUrl = GetDirectory().appendingPathComponent(oldestRecording.uuid.uuidString).appendingPathExtension(audioRecordingExtension)
                 if (FileManager.default.fileExists(atPath: m4aUrl.path)) {try FileManager.default.removeItem(at: m4aUrl)} else {print("M4A FILES DOES NOT EXIST!!!!")}
                 if oldestRecording.isTranscribing {
-                    if let transcribingIndex = transcribingAudioTranscriptionObjects.firstIndex(where: { $0.uuid == oldestRecording.uuid }) {
-                        transcribingAudioTranscriptionObjects.remove(at: transcribingIndex)
-                        viewController.TranscribeLabel.alpha = viewController.enabledAlpha
-                        saveTranscribingObjectsToUserDefaults()
-                    }
+                    viewController.removeFromTranscribingObjectsAtUUID(uuid: oldestRecording.uuid)
+                    viewController.TranscribeLabel.alpha = viewController.enabledAlpha
                 }
             } catch {
                 print("UNABLE TO DETETE THE FILE OF AN OLDEST RECORDING IN QUEUE!!!!")
@@ -107,7 +104,6 @@ class RecordingManager {
             savedAudioTranscriptionObjects.append(newlyCreatedAudioTranscriptionObject)
         }
 
-        saveAudioTranscriptionObjectsToUserDefaults()
         SelectMostRecentRecording()
         transcriptionManager.toggledTranscriptText = nil
     }
@@ -129,6 +125,11 @@ class RecordingManager {
         }
         
         saveAudioTranscriptionObjectsToUserDefaults()
+        
+        if (!isObjectTranscribing) {
+            viewController.removeFromTranscribingObjectsAtUUID(uuid: processedObject.uuid)
+            viewController.TranscribeLabel.alpha = viewController.enabledAlpha
+        }
     }
     
     func saveAudioTranscriptionObjectsToUserDefaults() {
