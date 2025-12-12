@@ -658,6 +658,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     private func resumePlayback() {
         guard let player = audioPlayer else { return }
         
+        let remaining = player.duration - player.currentTime
+        if remaining <= 0.1 {
+            endPlayback(withTransition: true)
+            return
+        }
+        
         player.delegate = self
         player.prepareToPlay()
         player.volume = 1
