@@ -128,7 +128,9 @@ class RecordingManager {
         
         if (!isObjectTranscribing) {
             viewController.removeFromTranscribingObjectsAtUUID(uuid: processedObject.uuid)
-            viewController.TranscribeLabel.alpha = viewController.enabledAlpha
+            if viewController.currentActionState == .none {
+                viewController.TranscribeLabel.alpha = viewController.enabledAlpha
+            }
         }
     }
     

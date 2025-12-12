@@ -17,7 +17,7 @@ class TranscriptionManager {
     let GCBucketURL = Bundle.main.object(forInfoDictionaryKey: "GC_BUCKET_URL") as? String
     
     var toggledTranscriptText: String? = nil
-    static let MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS: Int = 3
+    static let MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS: Int = 1
     
     init () {}
     
