@@ -750,11 +750,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             TranscribeLabel.alpha = disabledAlpha
         }
         
-        for (index, object) in recordingManager.transcribingAudioTranscriptionObjects.enumerated() {
+        for (_, object) in recordingManager.transcribingAudioTranscriptionObjects.enumerated() {
             let savedIndex: Int? = recordingManager.savedAudioTranscriptionObjects.firstIndex { $0.uuid == object.uuid }
             guard let savedIndex else {
+                
                 // Assume the object was shifted out of the queue and is lost
-                recordingManager.transcribingAudioTranscriptionObjects.remove(at: index)
+                if let i = recordingManager.transcribingAudioTranscriptionObjects.firstIndex(where: { $0.uuid == object.uuid }) {
+                    recordingManager.transcribingAudioTranscriptionObjects.remove(at: i)
+                }
                 
                 recordingManager.saveTranscribingObjectsToUserDefaults()
                 if (currentActionState == .none) {
@@ -779,7 +782,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                         NoTranscriptionUI()
                     }
                     
-                    recordingManager.transcribingAudioTranscriptionObjects.remove(at: index)
+                    if let i = recordingManager.transcribingAudioTranscriptionObjects.firstIndex(where: { $0.uuid == object.uuid }) {
+                        recordingManager.transcribingAudioTranscriptionObjects.remove(at: i)
+                    }
                     
                     if (currentActionState == .none) {
                         TranscribeLabel.alpha = enabledAlpha
