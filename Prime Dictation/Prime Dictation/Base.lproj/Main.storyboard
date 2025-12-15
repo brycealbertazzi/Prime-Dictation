@@ -767,7 +767,7 @@
                                         </subviews>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="80" id="Nni-Pa-LRF"/>
-                                            <constraint firstAttribute="height" constant="80" id="Xdz-Rf-D8i"/>
+                                            <constraint firstAttribute="height" constant="75" id="Xdz-Rf-D8i"/>
                                             <constraint firstAttribute="bottom" secondItem="pSw-NC-adH" secondAttribute="bottom" id="YWK-SD-feY"/>
                                             <constraint firstItem="AWb-dR-20j" firstAttribute="centerX" secondItem="P3q-zf-FTy" secondAttribute="centerX" id="eRk-LT-vqQ"/>
                                             <constraint firstItem="pSw-NC-adH" firstAttribute="centerX" secondItem="P3q-zf-FTy" secondAttribute="centerX" id="oQd-MK-uMC"/>
