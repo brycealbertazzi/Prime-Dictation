@@ -422,7 +422,7 @@
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="None" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zvX-Zz-aHd" userLabel="Accessiblity">
-                                        <rect key="frame" x="336.33333333333331" y="223" width="40.666666666666686" height="21"/>
+                                        <rect key="frame" x="336.33333333333331" y="223" width="40.666666666666686" height="20.333333333333343"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <color key="highlightedColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -727,19 +727,6 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fiM-fD-Moc" userLabel="Bottom View">
                                 <rect key="frame" x="0.0" y="571" width="414" height="165"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AWb-dR-20j" userLabel="Select Folder">
-                                        <rect key="frame" x="174.66666666666666" y="10.333333333333332" width="67.333333333333343" height="48.333333333333343"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="65" id="Rwx-3g-rbR"/>
-                                            <constraint firstAttribute="height" constant="50" id="oGP-Wv-z3H"/>
-                                        </constraints>
-                                        <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                        <state key="normal" backgroundImage="folder.fill.badge.gearshape" catalog="system"/>
-                                        <connections>
-                                            <action selector="SelectFolderButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="dM4-aU-6w1"/>
-                                        </connections>
-                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="R8A-iq-Fz8" userLabel="Store">
                                         <rect key="frame" x="284" y="125" width="120" height="30"/>
                                         <constraints>
@@ -755,12 +742,43 @@
                                             <action selector="StoreButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="Fxw-0K-Ile"/>
                                         </connections>
                                     </button>
+                                    <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="P3q-zf-FTy" userLabel="Folder View">
+                                        <rect key="frame" x="167" y="0.0" width="80" height="70"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AWb-dR-20j" userLabel="Select Folder">
+                                                <rect key="frame" x="7.6666666666666572" y="0.33333333333333215" width="67.333333333333329" height="48.333333333333343"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="65" id="Rwx-3g-rbR"/>
+                                                    <constraint firstAttribute="height" constant="50" id="oGP-Wv-z3H"/>
+                                                </constraints>
+                                                <color key="tintColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                <state key="normal" backgroundImage="folder.fill.badge.gearshape" catalog="system"/>
+                                                <connections>
+                                                    <action selector="SelectFolderButton:" destination="UhA-a9-Y15" eventType="touchUpInside" id="dM4-aU-6w1"/>
+                                                </connections>
+                                            </button>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="None" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pSw-NC-adH" userLabel="DestinationDisplay">
+                                                <rect key="frame" x="41" y="51" width="0.0" height="0.0"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <color key="textColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <color key="highlightedColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </label>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="80" id="Nni-Pa-LRF"/>
+                                            <constraint firstAttribute="height" constant="80" id="Xdz-Rf-D8i"/>
+                                            <constraint firstAttribute="bottom" secondItem="pSw-NC-adH" secondAttribute="bottom" id="YWK-SD-feY"/>
+                                            <constraint firstItem="AWb-dR-20j" firstAttribute="centerX" secondItem="P3q-zf-FTy" secondAttribute="centerX" id="eRk-LT-vqQ"/>
+                                            <constraint firstItem="pSw-NC-adH" firstAttribute="centerX" secondItem="P3q-zf-FTy" secondAttribute="centerX" id="oQd-MK-uMC"/>
+                                            <constraint firstItem="AWb-dR-20j" firstAttribute="top" secondItem="P3q-zf-FTy" secondAttribute="top" id="q6N-1M-cC6"/>
+                                        </constraints>
+                                    </view>
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="165" id="AtM-In-DmW"/>
-                                    <constraint firstItem="AWb-dR-20j" firstAttribute="top" secondItem="fiM-fD-Moc" secondAttribute="top" constant="10" id="DsX-I7-5wG"/>
-                                    <constraint firstItem="AWb-dR-20j" firstAttribute="centerX" secondItem="fiM-fD-Moc" secondAttribute="centerX" id="Ipq-gj-y8W"/>
                                     <constraint firstAttribute="trailing" secondItem="R8A-iq-Fz8" secondAttribute="trailing" constant="10" id="OUX-cr-xB3"/>
+                                    <constraint firstItem="P3q-zf-FTy" firstAttribute="centerX" secondItem="fiM-fD-Moc" secondAttribute="centerX" id="V3T-ND-Jv5"/>
                                     <constraint firstAttribute="bottom" secondItem="R8A-iq-Fz8" secondAttribute="bottom" constant="10" id="dga-Mm-6zN"/>
                                 </constraints>
                             </view>
@@ -788,6 +806,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="hHB-8b-a40"/>
                     <connections>
+                        <outlet property="DestinationDisplayLabel" destination="pSw-NC-adH" id="h0d-gu-58g"/>
                         <outlet property="DropboxLabel" destination="r8D-RY-2sR" id="1ky-qD-7D5"/>
                         <outlet property="EmailLabel" destination="B5c-FE-vo9" id="AS7-Ct-njx"/>
                         <outlet property="GoogleDriveLabel" destination="SGc-lp-6ij" id="6E1-VU-e6u"/>

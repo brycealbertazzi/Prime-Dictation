@@ -23,12 +23,7 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var SelectFolderIcon: UIButton!
     @IBOutlet weak var StoreIcon: UIButton!
     @IBOutlet weak var EmailLabel: RoundedButton!
-    
-    @IBOutlet weak var arrowTopConstraint: NSLayoutConstraint!
-    @IBOutlet weak var titleTopConstraint: NSLayoutConstraint!
-    
-    private let desiredArrowTop: CGFloat = 20
-    private let desiredTitleTop: CGFloat = 85
+    @IBOutlet weak var DestinationDisplayLabel: UILabel!
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .darkContent
@@ -170,6 +165,8 @@ class SettingsViewController: UIViewController {
         let currentDestination = DestinationManager.SELECTED_DESTINATION
 
         switch currentDestination {
+        case .email:
+            displayAlert(title: "Unavailable for Email", message: "Folder selection is unavailable for Email. Select Google Drive, OneDrive, or Dropbox to use this feature.")
         case .dropbox:
             ProgressHUD.animate("Opening folder picker…", .activityIndicator)
             dropboxManager.PresentDropboxFolderPicker { selection in }
@@ -216,6 +213,7 @@ class SettingsViewController: UIViewController {
         let graphite: UIColor = PDColors.black
         SelectFolderIcon.isEnabled = true
         SelectFolderIcon.alpha = 1.0
+        DestinationDisplayLabel.isHidden = false
 
         UpdateButton(button: DropboxLabel, color: graphite)
         UpdateButton(button: OneDriveLabel, color: graphite)
@@ -225,14 +223,17 @@ class SettingsViewController: UIViewController {
         switch destination {
         case .dropbox:
             UpdateButton(button: DropboxLabel, color: selectedColor)
+            DestinationDisplayLabel.text = "Dropbox"
         case .onedrive:
             UpdateButton(button: OneDriveLabel, color: selectedColor)
+            DestinationDisplayLabel.text = "OneDrive"
         case .googledrive:
             UpdateButton(button: GoogleDriveLabel, color: selectedColor)
+            DestinationDisplayLabel.text = "G Drive"
         case .email: // No need for the nested if check
             UpdateButton(button: EmailLabel, color: selectedColor)
-            SelectFolderIcon.isEnabled = false
             SelectFolderIcon.alpha = 0.4
+            DestinationDisplayLabel.isHidden = true
         case .none?: // Handles the nil case directly
             SelectFolderIcon.isEnabled = false
             SelectFolderIcon.alpha = 0.4

@@ -103,7 +103,8 @@ class RecordingManager {
         if let newlyCreatedAudioTranscriptionObject {
             savedAudioTranscriptionObjects.append(newlyCreatedAudioTranscriptionObject)
         }
-
+        
+        saveAudioTranscriptionObjectsToUserDefaults()
         SelectMostRecentRecording()
         transcriptionManager.toggledTranscriptText = nil
     }

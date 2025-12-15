@@ -1499,7 +1499,21 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         ListenLabel.alpha = disabledAlpha
         TitleOfAppLabel.alpha = disabledAlpha
         FileNameLabel.alpha = disabledAlpha
-        ShowRecordingOrListeningUI()
+        TranscribeLabel.isEnabled = false
+        TranscribeLabel.alpha = disabledAlpha
+        SeeTranscriptionLabel.isEnabled = false
+        SeeTranscriptionLabel.alpha = disabledAlpha
+        TranscribingLabel.alpha = disabledAlpha
+        TranscribingLoadingWheel.alpha = disabledAlpha
+        TranscriptionEstimateLabel.alpha = disabledAlpha
+        PreviousRecordingLabel.isEnabled = false
+        PreviousRecordingLabel.alpha = disabledAlpha
+        NextRecordingLabel.isEnabled = false
+        NextRecordingLabel.alpha = disabledAlpha
+        RenameFileLabel.isEnabled = false
+        RenameFileLabel.alpha = disabledAlpha
+        
+        DisableDestinationAndSendButtons()
     }
     
     func EnableUI() {
@@ -1509,7 +1523,24 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         ListenLabel.alpha = enabledAlpha
         TitleOfAppLabel.alpha = enabledAlpha
         FileNameLabel.alpha = enabledAlpha
-        HideRecordingOrListeningUI()
+        
+        TranscribeLabel.isEnabled = true
+        if recordingManager.transcribingAudioTranscriptionObjects.count < TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS {
+            TranscribeLabel.alpha = enabledAlpha
+        }
+        SeeTranscriptionLabel.isEnabled = true
+        SeeTranscriptionLabel.alpha = enabledAlpha
+        TranscribingLabel.alpha = enabledAlpha
+        TranscribingLoadingWheel.alpha = enabledAlpha
+        TranscriptionEstimateLabel.alpha = enabledAlpha
+        PreviousRecordingLabel.isEnabled = true
+        PreviousRecordingLabel.alpha = enabledAlpha
+        NextRecordingLabel.isEnabled = true
+        NextRecordingLabel.alpha = enabledAlpha
+        RenameFileLabel.isEnabled = true
+        RenameFileLabel.alpha = enabledAlpha
+        
+        EnableDestinationAndSendButtons()
     }
     
     func NoRecordingsUI() {

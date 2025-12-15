@@ -15,6 +15,9 @@
 		0341830322EE36B300670DD1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0341830122EE36B300670DD1 /* Main.storyboard */; };
 		0341830522EE36B300670DD1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0341830422EE36B300670DD1 /* Assets.xcassets */; };
 		0341830822EE36B300670DD1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0341830622EE36B300670DD1 /* LaunchScreen.storyboard */; };
+		036C7DAA2EEF86B8002760FD /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 036C7DA92EEF86B8002760FD /* FirebaseAuth */; };
+		036C7DAC2EEF86B8002760FD /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 036C7DAB2EEF86B8002760FD /* FirebaseCore */; };
+		036C7DAE2EEF871A002760FD /* GoogleAPIClientForRESTCore in Frameworks */ = {isa = PBXBuildFile; productRef = 036C7DAD2EEF871A002760FD /* GoogleAPIClientForRESTCore */; };
 		037D80972E78BABB000D5231 /* SwiftyDropbox in Frameworks */ = {isa = PBXBuildFile; productRef = 037D80962E78BABB000D5231 /* SwiftyDropbox */; };
 		03A5A36B2EDE42A8005B3588 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03A5A36A2EDE42A8005B3588 /* GoogleService-Info.plist */; };
 		03BE287A2E94243300392139 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 03BE28792E94243300392139 /* GoogleSignIn */; };
@@ -101,6 +104,7 @@
 				03BE28872E94433A00392139 /* GoogleAPIClientForREST_APIGateway in Frameworks */,
 				03BE28892E94433A00392139 /* GoogleAPIClientForREST_APIManagement in Frameworks */,
 				03BE289F2E94433A00392139 /* GoogleAPIClientForREST_AddressValidation in Frameworks */,
+				036C7DAA2EEF86B8002760FD /* FirebaseAuth in Frameworks */,
 				03BE28C92E94433A00392139 /* GoogleAPIClientForREST_ArtifactRegistry in Frameworks */,
 				03BE28812E94433A00392139 /* GoogleAPIClientForRESTCore in Frameworks */,
 				03BE289B2E94433A00392139 /* GoogleAPIClientForREST_AdSenseHost in Frameworks */,
@@ -108,6 +112,7 @@
 				03BE287C2E94243300392139 /* GoogleSignInSwift in Frameworks */,
 				03BE28B72E94433A00392139 /* GoogleAPIClientForREST_AndroidProvisioningPartner in Frameworks */,
 				031DE4F72E78757C003222CC /* ProgressHUD in Frameworks */,
+				036C7DAC2EEF86B8002760FD /* FirebaseCore in Frameworks */,
 				03BE287A2E94243300392139 /* GoogleSignIn in Frameworks */,
 				03E719452E87B012003B6BF1 /* ProgressHUD in Frameworks */,
 				03FF2A9D2E7A2A2600BD684D /* MSAL in Frameworks */,
@@ -118,6 +123,7 @@
 				03BE28A12E94433A00392139 /* GoogleAPIClientForREST_Adsense in Frameworks */,
 				03BE28B92E94433A00392139 /* GoogleAPIClientForREST_AndroidPublisher in Frameworks */,
 				03BE28912E94433A00392139 /* GoogleAPIClientForREST_AccessApproval in Frameworks */,
+				036C7DAE2EEF871A002760FD /* GoogleAPIClientForRESTCore in Frameworks */,
 				03BE28AB2E94433A00392139 /* GoogleAPIClientForREST_Analytics in Frameworks */,
 				03BE28A52E94433A00392139 /* GoogleAPIClientForREST_Aiplatform in Frameworks */,
 				03BE28BF2E94433A00392139 /* GoogleAPIClientForREST_ApigeeRegistry in Frameworks */,
@@ -428,7 +434,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Prime Dictation/Prime Dictation.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				INFOPLIST_FILE = "Prime Dictation/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Prime Dictation";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
@@ -458,7 +464,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Prime Dictation/Prime Dictation.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				INFOPLIST_FILE = "Prime Dictation/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Prime Dictation";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
@@ -569,6 +575,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 031DE4F52E78757C003222CC /* XCRemoteSwiftPackageReference "ProgressHUD" */;
 			productName = ProgressHUD;
+		};
+		036C7DA92EEF86B8002760FD /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 03BE28CE2EA8220A00392139 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		036C7DAB2EEF86B8002760FD /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 03BE28CE2EA8220A00392139 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		036C7DAD2EEF871A002760FD /* GoogleAPIClientForRESTCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 03BE287D2E94246A00392139 /* XCRemoteSwiftPackageReference "google-api-objectivec-client-for-rest" */;
+			productName = GoogleAPIClientForRESTCore;
 		};
 		037D80962E78BABB000D5231 /* SwiftyDropbox */ = {
 			isa = XCSwiftPackageProductDependency;
