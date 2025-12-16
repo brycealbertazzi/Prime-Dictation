@@ -360,8 +360,8 @@ final class OneDriveManager {
                     hasTranscription &&
                     FileManager.default.fileExists(atPath: txtURL.path)
                 
-                let prettyTranscriptURL: URL? = try recordingManager.createPrettyFileURLForExport(for: txtURL, exportedFilename: recordingManager.toggledAudioTranscriptionObject.fileName, ext: recordingManager.transcriptionRecordingExtension)
                 if shouldSendTranscript {
+                    let prettyTranscriptURL: URL? = try recordingManager.createPrettyFileURLForExport(for: txtURL, exportedFilename: recordingManager.toggledAudioTranscriptionObject.fileName, ext: recordingManager.transcriptionRecordingExtension)
                     if let prettyTranscriptURL {
                         _ = try await self.uploadRecording(
                             accessToken: token,
@@ -393,6 +393,7 @@ final class OneDriveManager {
                 }
             } catch {
                 // If audio failed (or transcript failed after audio), show a concise message
+                print("OneDrive send failed: \(error)")
                 await MainActor.run {
                     viewController.safeDisplayAlert(
                         title: "Send failed",

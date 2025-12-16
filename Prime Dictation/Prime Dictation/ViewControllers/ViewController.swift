@@ -334,7 +334,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             audioPlayer.enableRate = true
             audioPlayer.rate = 1
             audioPlayer.play()
-            
+            updateIdleTimer()
 
             ShowListeningUI()
             PlaybackSlider.minimumValue = 0
@@ -436,6 +436,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
     }
 
+    private func updateIdleTimer() {
+        UIApplication.shared.isIdleTimerDisabled =
+            (currentActionState == .recording && !isRecordingPaused) ||
+            (currentActionState == .playback && audioPlayer?.isPlaying == true)
+    }
 
     @IBAction func RecordButton(_ sender: Any) {
         let access = subscriptionManager.accessLevel
@@ -531,7 +536,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 audioRecorder.prepareToRecord()
                 audioRecorder.isMeteringEnabled = false
                 audioRecorder.record()
-
+                updateIdleTimer()
+                
                 ListenLabel.isHidden = true
                 ShowRecordingInProgressUI()
                 Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: watch.UpdateElapsedTime(timer:))
@@ -554,7 +560,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         audioRecorder?.stop()
         isRecordingPaused = false
         audioRecorder = nil
-
+        updateIdleTimer()
+        
         ListenLabel.isHidden = false
         HideRecordingInProgressUI()
         PausePlayRecordingLabel.setImage(UIImage(named: "PauseButton"), for: .normal)
@@ -596,6 +603,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         if currentActionState == .recording {
             finishCurrentRecording(interrupted: false)
             currentActionState = .none
+            updateIdleTimer()
         } else {
             endPlayback()
         }
@@ -635,6 +643,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         audioRecorder.pause()
         isRecordingPaused = true
         watch.pause()
+        updateIdleTimer()
     }
     
     private func resumeRecording() {
@@ -644,6 +653,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         isRecordingPaused = false
         watch.resume()
         Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: self.watch.UpdateElapsedTime(timer:))
+        updateIdleTimer()
     }
     
     private func pausePlayback() {
@@ -652,7 +662,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         player.pause()
         isRecordingPaused = true
         watch.pause()
-        
+        updateIdleTimer()
     }
     
     private func resumePlayback() {
@@ -671,6 +681,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         watch.resume()
         isRecordingPaused = false
         Timer.scheduledTimer(withTimeInterval: 0.02, repeats: true, block: watch.UpdateElapsedTimeListen(timer:))
+        updateIdleTimer()
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
@@ -698,7 +709,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             PlaybackSlider.value = 1
 
             player.stop()
-            
+            updateIdleTimer()
         }
         
         let UIUpdateWait: TimeInterval = withTransition ? 0.5 : 0.0
