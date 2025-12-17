@@ -849,21 +849,25 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func transcriptionAlert(seconds: CGFloat, estimated: CGFloat) {
         let estimatedWaitStr: String = getEstimatedTranscriptionTimeDisplayText(recordingDuration: TimeInterval(estimated))
         
-        if (seconds >= 600) {
-            // Red warning
-            let title = "Very long transcription"
-            let msg = "Your recording is over 10 minutes long. Transcription accuracy will likely be reduced and transcription will take a long time to complete. For best results, consider breaking this into shorter recordings and transcribe each one separately. Are you sure you want to transcribe? Estimated wait: \(estimatedWaitStr)"
-            displayTranscriptionAlert(title: title, message: msg, estimated: estimated)
-        } else if (seconds >= 300) {
-            // Yellow warning
-            let title = "Long transcription"
-            let msg = "Your recording is over 5 minutes long. Transcription accuracy may be affected, and it could take a while to complete. For best results, consider breaking longer recordings into shorter recordings and transcribe each one separately. Are you sure you want to transcribe? Estimated wait: \(estimatedWaitStr)"
-            displayTranscriptionAlert(title: title, message: msg, estimated: estimated)
-        } else {
-            let title = "Start transcription?"
-            let msg = "Estimated wait: \(estimatedWaitStr)"
-            displayTranscriptionAlert(title: title, message: msg, estimated: estimated)
-        }
+//        if (seconds >= 600) {
+//            // Red warning
+//            let title = "Very long transcription"
+//            let msg = "Your recording is over 10 minutes long. Transcription accuracy will likely be reduced and transcription will take a long time to complete. For best results, consider breaking this into shorter recordings and transcribe each one separately. Are you sure you want to transcribe? Estimated wait: \(estimatedWaitStr)"
+//            displayTranscriptionAlert(title: title, message: msg, estimated: estimated)
+//        } else if (seconds >= 300) {
+//            // Yellow warning
+//            let title = "Long transcription"
+//            let msg = "Your recording is over 5 minutes long. Transcription accuracy may be affected, and it could take a while to complete. For best results, consider breaking longer recordings into shorter recordings and transcribe each one separately. Are you sure you want to transcribe? Estimated wait: \(estimatedWaitStr)"
+//            displayTranscriptionAlert(title: title, message: msg, estimated: estimated)
+//        } else {
+//            let title = "Start transcription?"
+//            let msg = "Estimated wait: \(estimatedWaitStr)"
+//            displayTranscriptionAlert(title: title, message: msg, estimated: estimated)
+//        }
+        
+        let title = "Start transcription?"
+        let msg = "Estimated wait: \(estimatedWaitStr)"
+        displayTranscriptionAlert(title: title, message: msg, estimated: estimated)
     }
     
     func getEstimatedTranscriptionTimeDisplayText(recordingDuration: TimeInterval) -> String {
