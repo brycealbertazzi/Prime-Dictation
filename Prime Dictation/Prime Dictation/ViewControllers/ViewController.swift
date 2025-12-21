@@ -193,13 +193,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     func loadAccessibilityText() {
         switch DestinationManager.SELECTED_DESTINATION {
         case .dropbox:
-            SendAccessibilityLabel.text = "Dropbox"
+            SendAccessibilityLabel.text = "Send to Dropbox"
         case .onedrive:
-            SendAccessibilityLabel.text = "OneDrive"
+            SendAccessibilityLabel.text = "Send to OneDrive"
         case .googledrive:
-            SendAccessibilityLabel.text = "G Drive"
+            SendAccessibilityLabel.text = "Send to G Drive"
         case .email:
-            SendAccessibilityLabel.text = "Email"
+            SendAccessibilityLabel.text = "Send to Email"
         default:
             SendAccessibilityLabel.text = ""
         }
@@ -867,6 +867,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         
         let title = "Start transcription?"
         let msg = "Estimated wait: \(estimatedWaitStr)"
+        displayTranscriptionAlert(title: title, message: msg, estimated: estimated)
         displayTranscriptionAlert(title: title, message: msg, estimated: estimated)
     }
     

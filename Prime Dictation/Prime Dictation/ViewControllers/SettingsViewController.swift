@@ -92,6 +92,13 @@ class SettingsViewController: UIViewController {
         UpdateSelectedDestinationUI(destination: .email)
     }
     
+    func transitionToRootVC() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + ProgressHUDTransitionDelay) {
+            self.dismiss(animated: true)
+        }
+    }
+    
+    private let ProgressHUDTransitionDelay = 2.0
     @IBAction func DropboxButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
         dropboxManager.OpenAuthorizationFlow { result in
@@ -99,8 +106,8 @@ class SettingsViewController: UIViewController {
             case .success:
                 self.UpdateSelectedDestinationUserDefaults(destination: .dropbox)
                 self.UpdateSelectedDestinationUI(destination: .dropbox)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                    self.dropboxManager.PresentDropboxFolderPicker { selection in }
+                DispatchQueue.main.asyncAfter(deadline: .now() + self.ProgressHUDTransitionDelay) {
+                    self.dropboxManager.PresentDropboxFolderPicker { _ in self.transitionToRootVC() }
                 }
             case .alreadyAuthenticated:
                 self.UpdateSelectedDestinationUserDefaults(destination: .dropbox)
@@ -122,8 +129,8 @@ class SettingsViewController: UIViewController {
             case .success:
                 self.UpdateSelectedDestinationUserDefaults(destination: .onedrive)
                 self.UpdateSelectedDestinationUI(destination: .onedrive)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                    self.oneDriveManager.PresentOneDriveFolderPicker { selection in }
+                DispatchQueue.main.asyncAfter(deadline: .now() + self.ProgressHUDTransitionDelay) {
+                    self.oneDriveManager.PresentOneDriveFolderPicker { _ in self.transitionToRootVC() }
                 }
             case .alreadyAuthenticated:
                 self.UpdateSelectedDestinationUserDefaults(destination: .onedrive)
@@ -144,8 +151,8 @@ class SettingsViewController: UIViewController {
             case .success:
                 self.UpdateSelectedDestinationUserDefaults(destination: .googledrive)
                 self.UpdateSelectedDestinationUI(destination: .googledrive)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                    self.googleDriveManager.presentGoogleDriveFolderPicker { selection in }
+                DispatchQueue.main.asyncAfter(deadline: .now() + ProgressHUDTransitionDelay) {
+                    self.googleDriveManager.presentGoogleDriveFolderPicker { _ in self.transitionToRootVC() }
                 }
             case .alreadyAuthenticated:
                 self.UpdateSelectedDestinationUserDefaults(destination: .googledrive)
@@ -169,13 +176,13 @@ class SettingsViewController: UIViewController {
             displayAlert(title: "Unavailable for Email", message: "Folder selection is unavailable for Email. Select Google Drive, OneDrive, or Dropbox to use this feature.")
         case .dropbox:
             ProgressHUD.animate("Opening folder picker…", .activityIndicator)
-            dropboxManager.PresentDropboxFolderPicker { selection in }
+            dropboxManager.PresentDropboxFolderPicker { _ in self.transitionToRootVC() }
         case .onedrive:
             ProgressHUD.animate("Opening folder picker…", .activityIndicator)
-            oneDriveManager.PresentOneDriveFolderPicker { selection in }
+            oneDriveManager.PresentOneDriveFolderPicker { _ in self.transitionToRootVC() }
         case .googledrive:
             ProgressHUD.animate("Opening folder picker…", .activityIndicator)
-            googleDriveManager.presentGoogleDriveFolderPicker { selection in }
+            googleDriveManager.presentGoogleDriveFolderPicker { _ in self.transitionToRootVC() }
         default:
             ProgressHUD.failed("Select a destination above before choosing a folder.")
         }
@@ -223,13 +230,13 @@ class SettingsViewController: UIViewController {
         switch destination {
         case .dropbox:
             UpdateButton(button: DropboxLabel, color: selectedColor)
-            DestinationDisplayLabel.text = "Dropbox"
+            DestinationDisplayLabel.text = "Choose Dropbox Folder"
         case .onedrive:
             UpdateButton(button: OneDriveLabel, color: selectedColor)
-            DestinationDisplayLabel.text = "OneDrive"
+            DestinationDisplayLabel.text = "Choose OneDrive Folder"
         case .googledrive:
             UpdateButton(button: GoogleDriveLabel, color: selectedColor)
-            DestinationDisplayLabel.text = "G Drive"
+            DestinationDisplayLabel.text = "Choose G Drive Folder"
         case .email: // No need for the nested if check
             UpdateButton(button: EmailLabel, color: selectedColor)
             SelectFolderIcon.alpha = 0.4

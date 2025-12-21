@@ -67,44 +67,6 @@
                                             <action selector="TranscribeButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="hxH-LN-zb2"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EGn-C5-l6S" userLabel="See Transcription Label">
-                                        <rect key="frame" x="129" y="173" width="45" height="50"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="50" id="DIJ-EA-lbN"/>
-                                            <constraint firstAttribute="width" constant="45" id="pgh-cg-Db9"/>
-                                        </constraints>
-                                        <color key="tintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                        <state key="normal" backgroundImage="text.document.fill" catalog="system">
-                                            <color key="titleColor" red="0.5568627451" green="0.2666666667" blue="0.67843137249999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        </state>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                                <real key="value" value="8"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
-                                                <real key="value" value="2"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
-                                                <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingTop">
-                                                <real key="value" value="5"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingLeft">
-                                                <real key="value" value="10"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingBottom">
-                                                <real key="value" value="5"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingRight">
-                                                <real key="value" value="10"/>
-                                            </userDefinedRuntimeAttribute>
-                                        </userDefinedRuntimeAttributes>
-                                        <connections>
-                                            <action selector="SeeTranscriptionButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8Pz-tP-HcO"/>
-                                        </connections>
-                                    </button>
                                     <view userInteractionEnabled="NO" contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ENH-Fb-HE7" userLabel="Transcribing Indicator">
                                         <rect key="frame" x="240" y="173" width="160" height="50"/>
                                         <subviews>
@@ -151,15 +113,69 @@
                                             <constraint firstAttribute="width" constant="160" id="tKx-5l-Zyh"/>
                                         </constraints>
                                     </view>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Transcribe" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sUx-RD-cS4" userLabel="T Display Label">
+                                        <rect key="frame" x="168.66666666666666" y="223" width="76.666666666666657" height="19.333333333333343"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Transcribe" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8df-gf-dUY" userLabel="Transcribe Tutorial">
+                                        <rect key="frame" x="154" y="146.66666666666666" width="106" height="26.333333333333343"/>
+                                        <fontDescription key="fontDescription" name="HelveticaNeue-Medium" family="Helvetica Neue" pointSize="22"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EGn-C5-l6S" userLabel="See Transcription Label">
+                                        <rect key="frame" x="134" y="173.33333333333326" width="45" height="49.666666666666657"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="DIJ-EA-lbN"/>
+                                            <constraint firstAttribute="width" constant="45" id="pgh-cg-Db9"/>
+                                        </constraints>
+                                        <color key="tintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                        <state key="normal" backgroundImage="text.document.fill" catalog="system">
+                                            <color key="titleColor" red="0.5568627451" green="0.2666666667" blue="0.67843137249999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                                <real key="value" value="8"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                                <real key="value" value="2"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                                <color key="value" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingTop">
+                                                <real key="value" value="5"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingLeft">
+                                                <real key="value" value="10"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingBottom">
+                                                <real key="value" value="5"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="paddingRight">
+                                                <real key="value" value="10"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
+                                        <connections>
+                                            <action selector="SeeTranscriptionButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8Pz-tP-HcO"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="1tL-fi-eIn" firstAttribute="top" secondItem="ThE-Sk-wrm" secondAttribute="top" constant="75" id="14G-OU-8AH"/>
+                                    <constraint firstItem="sUx-RD-cS4" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="2wP-SV-UNB"/>
+                                    <constraint firstItem="sUx-RD-cS4" firstAttribute="top" secondItem="R5K-8g-HC8" secondAttribute="bottom" id="8tg-36-gnM"/>
                                     <constraint firstItem="R5K-8g-HC8" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="DYG-F5-jxF"/>
+                                    <constraint firstItem="8df-gf-dUY" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="El0-k5-IUx"/>
                                     <constraint firstAttribute="bottom" secondItem="ENH-Fb-HE7" secondAttribute="bottom" constant="45" id="FKC-FZ-JGc"/>
                                     <constraint firstItem="EGn-C5-l6S" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="GSz-dr-GkA"/>
                                     <constraint firstAttribute="bottom" secondItem="EGn-C5-l6S" secondAttribute="bottom" constant="45" id="JJO-zZ-SFu"/>
                                     <constraint firstItem="ENH-Fb-HE7" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="MZm-m5-2FJ"/>
                                     <constraint firstAttribute="bottom" secondItem="R5K-8g-HC8" secondAttribute="bottom" constant="45" id="fgq-il-bit"/>
+                                    <constraint firstItem="R5K-8g-HC8" firstAttribute="top" secondItem="8df-gf-dUY" secondAttribute="bottom" id="lGS-di-9ac"/>
                                     <constraint firstItem="1tL-fi-eIn" firstAttribute="centerX" secondItem="ThE-Sk-wrm" secondAttribute="centerX" id="s0d-rv-qhg"/>
                                 </constraints>
                             </view>
@@ -275,6 +291,12 @@
                                                 <color key="textColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Listen" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XYB-p1-jXU" userLabel="Listen Tutorial">
+                                                <rect key="frame" x="156.66666666666669" y="-10" width="61.666666666666657" height="26.333333333333332"/>
+                                                <fontDescription key="fontDescription" name="HelveticaNeue-Medium" family="Helvetica Neue" pointSize="22"/>
+                                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
                                         </subviews>
                                         <constraints>
                                             <constraint firstItem="tAV-Xq-Ydt" firstAttribute="centerX" secondItem="rAM-Pa-WSN" secondAttribute="centerX" id="11f-hR-jVQ"/>
@@ -284,11 +306,13 @@
                                             <constraint firstItem="9EW-AN-aJX" firstAttribute="centerX" secondItem="rAM-Pa-WSN" secondAttribute="centerX" id="L7g-Ed-J6Q"/>
                                             <constraint firstAttribute="trailing" secondItem="Wiu-Nk-ggN" secondAttribute="trailing" constant="25" id="NF2-4F-EzC"/>
                                             <constraint firstAttribute="height" constant="80" id="Tuy-zg-xH1"/>
+                                            <constraint firstItem="XYB-p1-jXU" firstAttribute="top" secondItem="rAM-Pa-WSN" secondAttribute="top" constant="-10" id="aEw-at-hJS"/>
                                             <constraint firstItem="Wiu-Nk-ggN" firstAttribute="top" secondItem="rAM-Pa-WSN" secondAttribute="top" constant="10" id="bFO-iK-eD0"/>
                                             <constraint firstAttribute="bottom" secondItem="dFf-qS-ITZ" secondAttribute="bottom" constant="10" id="bmX-A8-V2b"/>
                                             <constraint firstItem="dFf-qS-ITZ" firstAttribute="centerX" secondItem="rAM-Pa-WSN" secondAttribute="centerX" id="jgO-AP-WYd"/>
                                             <constraint firstItem="Wiu-Nk-ggN" firstAttribute="centerX" secondItem="rAM-Pa-WSN" secondAttribute="centerX" id="ulx-X3-fWm"/>
                                             <constraint firstItem="tAV-Xq-Ydt" firstAttribute="centerY" secondItem="rAM-Pa-WSN" secondAttribute="centerY" id="vdW-wd-uwL"/>
+                                            <constraint firstItem="XYB-p1-jXU" firstAttribute="centerX" secondItem="rAM-Pa-WSN" secondAttribute="centerX" id="vm4-tc-pSB"/>
                                         </constraints>
                                     </view>
                                 </subviews>
@@ -340,7 +364,7 @@
                                         </constraints>
                                     </view>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="svK-SA-aO1">
-                                        <rect key="frame" x="329" y="163.66666666666666" width="55" height="54.333333333333343"/>
+                                        <rect key="frame" x="309" y="153.66666666666666" width="55" height="54.333333333333343"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="55" id="oUz-Mq-9UC"/>
                                             <constraint firstAttribute="height" constant="55" id="w6N-VT-920"/>
@@ -422,22 +446,38 @@
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="None" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zvX-Zz-aHd" userLabel="Accessiblity">
-                                        <rect key="frame" x="336.33333333333331" y="223" width="40.666666666666686" height="20.333333333333343"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <rect key="frame" x="317.33333333333331" y="213" width="38.666666666666686" height="19.333333333333343"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                         <color key="textColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <color key="highlightedColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Select Destination" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BK2-Vr-mQd" userLabel="Destination Tutorial">
+                                        <rect key="frame" x="10" y="132.33333333333337" width="185.33333333333334" height="25.666666666666657"/>
+                                        <fontDescription key="fontDescription" name="HelveticaNeue-Medium" family="Helvetica Neue" pointSize="22"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Send" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rSg-SO-CKt" userLabel="Send Tutorial">
+                                        <rect key="frame" x="311" y="233" width="54" height="27"/>
+                                        <fontDescription key="fontDescription" name="HelveticaNeue-Medium" family="Helvetica Neue" pointSize="22"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
                                 <gestureRecognizers/>
                                 <constraints>
                                     <constraint firstItem="xv6-iB-UAN" firstAttribute="top" secondItem="nJI-Eq-CWr" secondAttribute="top" constant="40" id="0WN-3G-Q8d"/>
+                                    <constraint firstItem="rSg-SO-CKt" firstAttribute="bottom" secondItem="svK-SA-aO1" secondAttribute="top" id="3x4-Ao-lpa"/>
                                     <constraint firstItem="zvX-Zz-aHd" firstAttribute="top" secondItem="svK-SA-aO1" secondAttribute="bottom" constant="5" id="6SM-ef-6Jr"/>
-                                    <constraint firstItem="TEJ-KL-gv0" firstAttribute="leading" secondItem="nJI-Eq-CWr" secondAttribute="leading" constant="30" id="A3i-1b-gR7"/>
+                                    <constraint firstItem="TEJ-KL-gv0" firstAttribute="leading" secondItem="nJI-Eq-CWr" secondAttribute="leading" constant="50" id="A3i-1b-gR7"/>
+                                    <constraint firstItem="BK2-Vr-mQd" firstAttribute="leading" secondItem="nJI-Eq-CWr" secondAttribute="leading" constant="10" id="AAx-L0-54t"/>
                                     <constraint firstItem="xv6-iB-UAN" firstAttribute="centerX" secondItem="nJI-Eq-CWr" secondAttribute="centerX" id="Mta-b2-w0b"/>
-                                    <constraint firstAttribute="trailing" secondItem="svK-SA-aO1" secondAttribute="trailing" constant="30" id="THE-Va-Ry3"/>
-                                    <constraint firstAttribute="bottom" secondItem="svK-SA-aO1" secondAttribute="bottom" constant="50" id="kFF-lX-dN4"/>
+                                    <constraint firstAttribute="trailing" secondItem="svK-SA-aO1" secondAttribute="trailing" constant="50" id="THE-Va-Ry3"/>
+                                    <constraint firstItem="rSg-SO-CKt" firstAttribute="centerX" secondItem="svK-SA-aO1" secondAttribute="centerX" id="gxW-ja-yfW"/>
+                                    <constraint firstAttribute="bottom" secondItem="svK-SA-aO1" secondAttribute="bottom" constant="60" id="kFF-lX-dN4"/>
                                     <constraint firstItem="zvX-Zz-aHd" firstAttribute="centerX" secondItem="svK-SA-aO1" secondAttribute="centerX" id="lw8-iK-C7L"/>
-                                    <constraint firstAttribute="bottom" secondItem="TEJ-KL-gv0" secondAttribute="bottom" constant="50" id="u4g-J3-kaI"/>
+                                    <constraint firstItem="BK2-Vr-mQd" firstAttribute="bottom" secondItem="TEJ-KL-gv0" secondAttribute="top" constant="-5" id="sg1-c4-aqL"/>
+                                    <constraint firstAttribute="bottom" secondItem="TEJ-KL-gv0" secondAttribute="bottom" constant="55" id="u4g-J3-kaI"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -760,7 +800,7 @@
                                             </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pSw-NC-adH" userLabel="DestinationDisplay">
                                                 <rect key="frame" x="41" y="51" width="0.0" height="0.0"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                                 <color key="textColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <color key="highlightedColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             </label>
@@ -1490,10 +1530,10 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemBlueColor">
-            <color red="0.0" green="0.53333333333333333" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="tintColor">
-            <color red="0.0" green="0.53333333333333333" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

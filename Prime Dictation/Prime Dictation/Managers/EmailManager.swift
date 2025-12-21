@@ -114,6 +114,7 @@ final class EmailManager: NSObject {
         UserDefaults.standard.set(email, forKey: emailStorageKey)
         self.emailAddress = email
         ProgressHUD.succeed("Email address saved")
+        settingsViewController?.transitionToRootVC()
     }
 
     // MARK: - Main action
