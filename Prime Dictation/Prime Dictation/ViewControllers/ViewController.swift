@@ -347,6 +347,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     //MARK: Listen to Playback
     @IBAction func ListenButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
+        HideAllTutorials()
 
         isRecordingPaused = false
         watch.stop()
@@ -488,6 +489,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
 
     @IBAction func RecordButton(_ sender: Any) {
+        HideAllTutorials()
         let access = subscriptionManager.accessLevel
         print("access: \(access)")
         
@@ -995,6 +997,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     var pendingRecordingDuration: TimeInterval?
     var pendingEstimatedTranscriptionDuration: TimeInterval?
     @IBAction func TranscribeButton(_ sender: Any) {
+        HideAllTutorials()
         if (recordingManager.transcribingAudioTranscriptionObjects.count >= TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS) {
             displayAlert(
                 title: "Transcription in Progress",
@@ -1170,6 +1173,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     @IBAction func SeeTranscriptionButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
+        HideAllTutorials()
         showTranscriptionScreen()
     }
     
@@ -1224,6 +1228,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
     @IBAction func DestinationButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
+        HideAllTutorials()
         showDestinationScreen()
     }
     
@@ -1244,6 +1249,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     @IBAction func SendButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
+        HideAllTutorials()
         if recordingManager.savedAudioTranscriptionObjects.count > 0 {
             let toggledHasTranscription: Bool = recordingManager.toggledAudioTranscriptionObject.hasTranscription
             switch DestinationManager.SELECTED_DESTINATION {
@@ -1689,7 +1695,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
 
     func ShowTutorialStep(step: Tutorial) {
-        HideAllTutorials()
         DisableUI()
         switch step {
         case .record:
@@ -1719,6 +1724,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             TranscribeTutorialLabel.text = "Transcribe the recording"
             TranscribeLabel.isEnabled = true
             TranscribeLabel.alpha = enabledAlpha
+            TDisplayLabel.alpha = enabledAlpha
+            TranscribingLabel.alpha = enabledAlpha
+            TranscribingLoadingWheel.alpha = enabledAlpha
+            TranscriptionEstimateLabel.alpha = enabledAlpha
             startAlphaOscillation(on: TranscribeTutorialLabel)
             break
         case .seeTranscription:
