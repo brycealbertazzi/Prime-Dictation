@@ -116,7 +116,7 @@
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Transcribe" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sUx-RD-cS4" userLabel="T Display Label">
                                         <rect key="frame" x="168.66666666666666" y="223" width="76.666666666666657" height="19.333333333333343"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                                        <nil key="textColor"/>
+                                        <color key="textColor" red="0.17254901960784313" green="0.17254901960784313" blue="0.1803921568627451" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Transcribe" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8df-gf-dUY" userLabel="Transcribe Tutorial">
@@ -351,10 +351,18 @@
                                                     <action selector="PausePlayRecordingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="dTH-tE-iY3"/>
                                                 </connections>
                                             </button>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Press the red button to record" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rmu-FB-4sZ" userLabel="Record Tutorial">
+                                                <rect key="frame" x="22.333333333333343" y="-0.33333333333331439" width="305.33333333333326" height="26.333333333333332"/>
+                                                <fontDescription key="fontDescription" name="HelveticaNeue-Medium" family="Helvetica Neue" pointSize="22"/>
+                                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
                                         </subviews>
                                         <constraints>
                                             <constraint firstItem="XvF-Ob-6ZY" firstAttribute="centerY" secondItem="xv6-iB-UAN" secondAttribute="centerY" id="0Qf-QM-Nvy"/>
                                             <constraint firstAttribute="width" constant="350" id="0bb-xY-SH3"/>
+                                            <constraint firstItem="Rmu-FB-4sZ" firstAttribute="centerX" secondItem="xv6-iB-UAN" secondAttribute="centerX" id="7Xd-h1-kQX"/>
+                                            <constraint firstItem="aq9-EU-DW7" firstAttribute="top" secondItem="Rmu-FB-4sZ" secondAttribute="bottom" constant="10" id="9J9-iW-a26"/>
                                             <constraint firstItem="aq9-EU-DW7" firstAttribute="centerX" secondItem="xv6-iB-UAN" secondAttribute="centerX" id="9UJ-9s-5vo"/>
                                             <constraint firstItem="aq9-EU-DW7" firstAttribute="centerY" secondItem="xv6-iB-UAN" secondAttribute="centerY" id="LME-Oa-J6M"/>
                                             <constraint firstItem="XvF-Ob-6ZY" firstAttribute="centerX" secondItem="xv6-iB-UAN" secondAttribute="centerX" constant="80" id="Sgb-cD-MMF"/>
@@ -507,22 +515,28 @@
                     </view>
                     <connections>
                         <outlet property="DestinationLabel" destination="TEJ-KL-gv0" id="dYf-oa-RfN"/>
+                        <outlet property="DestinationTutorialLabel" destination="BK2-Vr-mQd" id="zaz-4Q-FdD"/>
                         <outlet property="FileNameLabel" destination="ma4-wR-ucz" id="J8z-3S-8F3"/>
                         <outlet property="ListenLabel" destination="tAV-Xq-Ydt" id="x77-pk-KvP"/>
+                        <outlet property="ListenTutorialLabel" destination="XYB-p1-jXU" id="1G0-nl-9L5"/>
                         <outlet property="NextRecordingLabel" destination="RQo-s8-1EL" id="Qxy-BS-mC3"/>
                         <outlet property="PausePlayRecordingLabel" destination="XvF-Ob-6ZY" id="BYB-VJ-FXM"/>
                         <outlet property="PlaybackSlider" destination="Wiu-Nk-ggN" id="s2x-T5-V1f"/>
                         <outlet property="PlaybackStopwatch" destination="dFf-qS-ITZ" id="Vo8-Pv-V93"/>
                         <outlet property="PreviousRecordingLabel" destination="Ad2-00-0E4" id="EfO-Ok-KQM"/>
                         <outlet property="RecordLabel" destination="aq9-EU-DW7" id="aoh-8d-Bsn"/>
+                        <outlet property="RecordTutorialLabel" destination="Rmu-FB-4sZ" id="4G8-mv-gOz"/>
                         <outlet property="RecordingStopwatch" destination="9EW-AN-aJX" id="5qk-Id-XLC"/>
                         <outlet property="RenameFileLabel" destination="IlT-gg-nU8" id="nB1-qy-DPv"/>
                         <outlet property="SeeTranscriptionLabel" destination="EGn-C5-l6S" id="Mea-OW-KsR"/>
                         <outlet property="SendAccessibilityLabel" destination="zvX-Zz-aHd" id="icZ-mY-1PD"/>
                         <outlet property="SendLabel" destination="svK-SA-aO1" id="s8t-Bh-c3r"/>
+                        <outlet property="SendTutorialLabel" destination="rSg-SO-CKt" id="PeA-Pa-Ubj"/>
                         <outlet property="StopButtonLabel" destination="EmE-RS-QlP" id="QWe-k5-g0Q"/>
+                        <outlet property="TDisplayLabel" destination="sUx-RD-cS4" id="bbM-sF-ATU"/>
                         <outlet property="TitleOfAppLabel" destination="1tL-fi-eIn" id="Dkj-Gc-VwB"/>
                         <outlet property="TranscribeLabel" destination="R5K-8g-HC8" id="p4x-ZP-vjJ"/>
+                        <outlet property="TranscribeTutorialLabel" destination="8df-gf-dUY" id="LKH-yQ-4gH"/>
                         <outlet property="TranscribingIndicator" destination="ENH-Fb-HE7" id="2Q4-Iz-3X5"/>
                         <outlet property="TranscribingLabel" destination="jjE-im-le3" id="cjO-Tx-J1g"/>
                         <outlet property="TranscribingLoadingWheel" destination="Sda-0d-SNU" id="JpK-UM-9Cp"/>

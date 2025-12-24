@@ -34,8 +34,19 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     @IBOutlet weak var TranscriptionEstimateLabel: UILabel!
     @IBOutlet weak var TranscribingLabel: UILabel!
     @IBOutlet weak var TranscribingLoadingWheel: UIActivityIndicatorView!
+    @IBOutlet weak var TDisplayLabel: UILabel!
     @IBOutlet weak var PlaybackSlider: UISlider!
     @IBOutlet weak var RecordingStopwatch: UILabel!
+    
+// Tutorial Labels
+    @IBOutlet weak var RecordTutorialLabel: UILabel!
+    @IBOutlet weak var DestinationTutorialLabel: UILabel!
+    @IBOutlet weak var ListenTutorialLabel: UILabel!
+    @IBOutlet weak var TranscribeTutorialLabel: UILabel!
+    @IBOutlet weak var SendTutorialLabel: UILabel!
+    
+    
+// End Tutorial Labels
     
     var recordingSession: AVAudioSession! //Communicates how you intend to use audio within your app
     var audioRecorder: AVAudioRecorder? //Responsible for recording our audio
@@ -53,6 +64,29 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     var subscriptionManager: SubscriptionManager!
     
     var watch: Stopwatch!
+    
+    // TUTORIAL user defaults
+    enum Tutorial: String {
+        case record
+        case selectDestination
+        case listen
+        case transcribe
+        case seeTranscription
+        case send
+    }
+
+    private let tutorialKey = "currentTutorialStep"
+
+    var currentTutorialStep: Tutorial? {
+        get {
+            guard let raw = UserDefaults.standard.string(forKey: tutorialKey) else { return nil }
+            return Tutorial(rawValue: raw)
+        }
+        set {
+            UserDefaults.standard.set(newValue?.rawValue, forKey: tutorialKey)
+        }
+    }
+
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .darkContent
@@ -143,6 +177,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
        
         recordingManager.SetSavedRecordingsOnLoad()
+        HideAllTutorials()
+        if let currentTutorialStep {
+            ShowTutorialStep(step: currentTutorialStep)
+        }
         
         NotificationCenter.default.addObserver(
             self,
@@ -180,6 +218,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         super.viewDidAppear(animated)
         Haptic.prepare()
         handleTranscriptionCompletionFromBackgroundOrNavigationStack()
+        if currentTutorialStep == .selectDestination || currentTutorialStep == .seeTranscription {
+            ShowTutorialStep(step: .send)
+        }
     }
     
     func handleTranscriptionCompletionFromBackgroundOrNavigationStack() {
@@ -188,6 +229,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         if (recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView && currentActionState == .none) {
             unsetCompletedTranscriptionBeforeLastViewForToggled()
         }
+    }
+    
+    private func resumeTutorialIfUnfinished() {
+    
     }
     
     func loadAccessibilityText() {
@@ -595,6 +640,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 result: .failure
             )
         }
+        if currentTutorialStep == .record {
+            self.ShowTutorialStep(step: .listen)
+        }
     }
     
     //MARK: Pause-Resume-End Recordings and Playbacks:
@@ -724,6 +772,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             currentActionState = .none
             if (recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView) {
                 unsetCompletedTranscriptionBeforeLastViewForToggled()
+            }
+            if (currentTutorialStep == .listen) {
+                ShowTutorialStep(step: .selectDestination)
             }
         }
     }
@@ -935,7 +986,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 }
 
                 HideTranscriptionInProgressUI(result: .success, processedObjectUUID: pendingObject.uuid)
-                
             } catch {
                 HideTranscriptionInProgressUI(result: .failure, processedObjectUUID: pendingObject.uuid)
             }
@@ -1303,6 +1353,20 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         } else {
             safeAlertInBackground(title: title, message: message, type: type, result: result)
         }
+        if type == .send {
+            if currentTutorialStep == .send {
+                if recordingManager.toggledAudioTranscriptionObject.hasTranscription {
+                    // End of tutorial
+                    currentTutorialStep = nil
+                    EnableUI()
+                    HideAllTutorials()
+                } else {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.ShowTutorialStep(step: .transcribe)
+                    }
+                }
+            }
+        }
     }
     
     func displayTranscriptionAlert(title: String, message: String, estimated: CGFloat) {
@@ -1421,11 +1485,15 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         animateTranscriptionReady()
         
         recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView = false
-        if recordingManager.toggledRecordingsIndex > 0 {
-            recordingManager.savedAudioTranscriptionObjects[recordingManager.toggledRecordingsIndex].completedBeforeLastView = false
+
+        let i = recordingManager.toggledRecordingsIndex
+        if i >= 0 && i < recordingManager.savedAudioTranscriptionObjects.count {
+            recordingManager.savedAudioTranscriptionObjects[i].completedBeforeLastView = false
         }
+        
         recordingManager.saveAudioTranscriptionObjectsToUserDefaults()
     }
+
     
     func animateTranscriptionReady() {
         guard let button = SeeTranscriptionLabel else { return }
@@ -1466,12 +1534,14 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
 
     func NoTranscriptionUI() {
         TranscribeLabel.isHidden = false
+        TDisplayLabel.isHidden = false
         SeeTranscriptionLabel.isHidden = true
         TranscribingIndicator.isHidden = true
     }
 
     func HasTranscriptionUI() {
         TranscribeLabel.isHidden = true
+        TDisplayLabel.isHidden = true
         SeeTranscriptionLabel.isHidden = false
         TranscribingIndicator.isHidden = true
         if (recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView) {
@@ -1492,6 +1562,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             TranscriptionEstimateLabel.text = getEstimatedTranscriptionTimeDisplayText(recordingDuration: estimatedTranscriptionTime)
         }
         TranscribeLabel.isHidden = true
+        TDisplayLabel.isHidden = true
         SeeTranscriptionLabel.isHidden = true
         TranscribingIndicator.isHidden = false
     }
@@ -1506,6 +1577,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 NoTranscriptionUI()
             }
         }
+        if currentTutorialStep == .transcribe {
+            ShowTutorialStep(step: .seeTranscription)
+        }
     }
     
     func DisableUI() {
@@ -1517,6 +1591,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         FileNameLabel.alpha = disabledAlpha
         TranscribeLabel.isEnabled = false
         TranscribeLabel.alpha = disabledAlpha
+        TDisplayLabel.alpha = disabledAlpha
         SeeTranscriptionLabel.isEnabled = false
         SeeTranscriptionLabel.alpha = disabledAlpha
         TranscribingLabel.alpha = disabledAlpha
@@ -1547,6 +1622,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         SeeTranscriptionLabel.isEnabled = true
         SeeTranscriptionLabel.alpha = enabledAlpha
         TranscribingLabel.alpha = enabledAlpha
+        TDisplayLabel.alpha = enabledAlpha
         TranscribingLoadingWheel.alpha = enabledAlpha
         TranscriptionEstimateLabel.alpha = enabledAlpha
         PreviousRecordingLabel.isEnabled = true
@@ -1568,8 +1644,11 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PreviousRecordingLabel.isHidden = true
         NextRecordingLabel.isHidden = true
         TranscribeLabel.isHidden = true
+        TDisplayLabel.isHidden = true
         SeeTranscriptionLabel.isHidden = true
         RenameFileLabel.isHidden = true
+        
+        ShowTutorialStep(step: .record)
     }
     
     func HasRecordingsUI(numberOfRecordings: Int) {
@@ -1582,6 +1661,87 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         NextRecordingLabel.isHidden = true
         RenameFileLabel.isHidden = false
     }
+    
+    // TUTORIAL UI
+    func startAlphaOscillation(
+        on label: UILabel,
+        duration: TimeInterval = 1.0
+    ) {
+        label.alpha = 0.1
+
+        UIView.animate(
+            withDuration: duration,
+            delay: 0,
+            options: [.autoreverse, .repeat, .allowUserInteraction],
+            animations: {
+                label.alpha = 1
+            },
+            completion: nil
+        )
+    }
+    
+    func HideAllTutorials() {
+        RecordTutorialLabel.isHidden = true
+        DestinationTutorialLabel.isHidden = true
+        ListenTutorialLabel.isHidden = true
+        TranscribeTutorialLabel.isHidden = true
+        SendTutorialLabel.isHidden = true
+    }
+
+    func ShowTutorialStep(step: Tutorial) {
+        HideAllTutorials()
+        DisableUI()
+        switch step {
+        case .record:
+            currentTutorialStep = .record
+            RecordTutorialLabel.isHidden = false
+            RecordLabel.isEnabled = true
+            RecordLabel.alpha = enabledAlpha
+            startAlphaOscillation(on: RecordTutorialLabel)
+            break
+        case .listen:
+            currentTutorialStep = .listen
+            ListenTutorialLabel.isHidden = false
+            ListenLabel.isEnabled = true
+            ListenLabel.alpha = enabledAlpha
+            startAlphaOscillation(on: ListenTutorialLabel)
+            break
+        case .selectDestination:
+            currentTutorialStep = .selectDestination
+            DestinationTutorialLabel.isHidden = false
+            DestinationLabel.isEnabled = true
+            DestinationLabel.alpha = enabledAlpha
+            startAlphaOscillation(on: DestinationTutorialLabel)
+            break
+        case .transcribe:
+            currentTutorialStep = .transcribe
+            TranscribeTutorialLabel.isHidden = false
+            TranscribeTutorialLabel.text = "Transcribe the recording"
+            TranscribeLabel.isEnabled = true
+            TranscribeLabel.alpha = enabledAlpha
+            startAlphaOscillation(on: TranscribeTutorialLabel)
+            break
+        case .seeTranscription:
+            currentTutorialStep = .seeTranscription
+            TranscribeTutorialLabel.isHidden = false
+            TranscribeTutorialLabel.text = "See transcription text for recording"
+            SeeTranscriptionLabel.isEnabled = true
+            SeeTranscriptionLabel.alpha = enabledAlpha
+            startAlphaOscillation(on: TranscribeTutorialLabel)
+            break
+        case .send:
+            currentTutorialStep = .send
+            SendTutorialLabel.isHidden = false
+            SendLabel.isEnabled = true
+            SendLabel.alpha = enabledAlpha
+            SendAccessibilityLabel.isEnabled = true
+            SendAccessibilityLabel.alpha = enabledAlpha
+            startAlphaOscillation(on: SendTutorialLabel)
+            break
+        }
+    }
+
+    // END TUTORIAL UI
 }
 
 extension ViewController: UIPopoverPresentationControllerDelegate {

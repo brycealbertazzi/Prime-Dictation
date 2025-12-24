@@ -149,7 +149,7 @@ class RecordingManager {
                 completedBeforeLastView: object.completedBeforeLastView
             )
         }
-
+        
         do {
             try UserDefaults.standard.setCodable(sanitizedAudioTranscriptionObjects, forKey: savedAudioTranscriptionObjectsKey)
         } catch {
