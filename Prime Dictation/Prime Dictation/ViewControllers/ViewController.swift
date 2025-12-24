@@ -218,8 +218,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         super.viewDidAppear(animated)
         Haptic.prepare()
         handleTranscriptionCompletionFromBackgroundOrNavigationStack()
-        if currentTutorialStep == .selectDestination || currentTutorialStep == .seeTranscription {
+        if currentTutorialStep == .seeTranscription {
             ShowTutorialStep(step: .send)
+        } else if currentTutorialStep == .selectDestination {
+            ShowTutorialStep(step: .transcribe)
         }
     }
     
@@ -818,6 +820,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         print("Started polling for toggled transcribing object, count: \(recordingManager.transcribingAudioTranscriptionObjects.count)")
         if recordingManager.transcribingAudioTranscriptionObjects.count >= TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS {
             TranscribeLabel.alpha = disabledAlpha
+            TDisplayLabel.alpha = disabledAlpha
         }
         
         for (_, object) in recordingManager.transcribingAudioTranscriptionObjects.enumerated() {
@@ -827,6 +830,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 removeFromTranscribingObjectsAtUUID(uuid: object.uuid)
                 if (currentActionState == .none) {
                     TranscribeLabel.alpha = enabledAlpha
+                    TDisplayLabel.alpha = enabledAlpha
                 }
                 
                 recordingManager.saveTranscribingObjectsToUserDefaults()
@@ -852,6 +856,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                     removeFromTranscribingObjectsAtUUID(uuid: object.uuid)
                     if (currentActionState == .none) {
                         TranscribeLabel.alpha = enabledAlpha
+                        TDisplayLabel.alpha = enabledAlpha
                     }
                     
                     recordingManager.saveTranscribingObjectsToUserDefaults()
@@ -972,6 +977,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 recordingManager.transcribingAudioTranscriptionObjects.append(pendingObject)
                 if recordingManager.transcribingAudioTranscriptionObjects.count >= TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS {
                     TranscribeLabel.alpha = disabledAlpha
+                    TDisplayLabel.alpha = disabledAlpha
                 }
                 recordingManager.saveTranscribingObjectsToUserDefaults()
 
@@ -1361,16 +1367,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         }
         if type == .send {
             if currentTutorialStep == .send {
-                if recordingManager.toggledAudioTranscriptionObject.hasTranscription {
-                    // End of tutorial
-                    currentTutorialStep = nil
-                    EnableUI()
-                    HideAllTutorials()
-                } else {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.ShowTutorialStep(step: .transcribe)
-                    }
-                }
+                // End of tutorial
+                currentTutorialStep = nil
+                EnableUI()
+                HideAllTutorials()
             }
         }
     }
@@ -1388,12 +1388,12 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         present(alert, animated: true, completion: nil)
     }
     
-    let disabledAlpha: CGFloat = 0.4
+    let disabledAlpha: CGFloat = 0.25
     let enabledAlpha: CGFloat = 1.0
     func DisableDestinationAndSendButtons() {
         SendLabel.isEnabled = false
         SendLabel.alpha = disabledAlpha
-        SendAccessibilityLabel.alpha = 0.3
+        SendAccessibilityLabel.alpha = 0.2
         DestinationLabel.isEnabled = false
         DestinationLabel.alpha = disabledAlpha
     }
@@ -1410,6 +1410,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         TitleOfAppLabel.alpha = disabledAlpha
         TranscribeLabel.isEnabled = false
         TranscribeLabel.alpha = disabledAlpha
+        TDisplayLabel.alpha = disabledAlpha
         SeeTranscriptionLabel.isEnabled = false
         SeeTranscriptionLabel.alpha = disabledAlpha
         TranscribingLabel.alpha = disabledAlpha
@@ -1433,6 +1434,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         TranscribeLabel.isEnabled = true
         if recordingManager.transcribingAudioTranscriptionObjects.count < TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS {
             TranscribeLabel.alpha = enabledAlpha
+            TDisplayLabel.alpha = enabledAlpha
         }
         SeeTranscriptionLabel.isEnabled = true
         SeeTranscriptionLabel.alpha = enabledAlpha
@@ -1624,6 +1626,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         TranscribeLabel.isEnabled = true
         if recordingManager.transcribingAudioTranscriptionObjects.count < TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS {
             TranscribeLabel.alpha = enabledAlpha
+            TDisplayLabel.alpha = enabledAlpha
         }
         SeeTranscriptionLabel.isEnabled = true
         SeeTranscriptionLabel.alpha = enabledAlpha

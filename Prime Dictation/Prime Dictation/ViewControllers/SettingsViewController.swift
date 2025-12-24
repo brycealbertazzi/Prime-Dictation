@@ -239,11 +239,11 @@ class SettingsViewController: UIViewController {
             DestinationDisplayLabel.text = "Choose G Drive Folder"
         case .email: // No need for the nested if check
             UpdateButton(button: EmailLabel, color: selectedColor)
-            SelectFolderIcon.alpha = 0.4
+            SelectFolderIcon.alpha = 0.2
             DestinationDisplayLabel.isHidden = true
         case .none?: // Handles the nil case directly
             SelectFolderIcon.isEnabled = false
-            SelectFolderIcon.alpha = 0.4
+            SelectFolderIcon.alpha = 0.2
         default:
             break
         }
