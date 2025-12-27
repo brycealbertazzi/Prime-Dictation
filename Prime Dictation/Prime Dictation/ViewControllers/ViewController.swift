@@ -80,6 +80,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     var currentTutorialStep: Tutorial? {
         get {
             guard let raw = UserDefaults.standard.string(forKey: tutorialKey) else { return nil }
+            print("current tut step: \(raw)")
             return Tutorial(rawValue: raw)
         }
         set {
@@ -218,9 +219,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         super.viewDidAppear(animated)
         Haptic.prepare()
         handleTranscriptionCompletionFromBackgroundOrNavigationStack()
-        if currentTutorialStep == .seeTranscription {
-            ShowTutorialStep(step: .send)
-        } else if currentTutorialStep == .selectDestination {
+        if currentTutorialStep == .selectDestination && DestinationManager.SELECTED_DESTINATION != .none {
             ShowTutorialStep(step: .transcribe)
         }
     }
@@ -770,7 +769,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             self.PlaybackStopwatch.text = Stopwatch.StopwatchDefaultText
             self.PlaybackSlider.value = 0
             self.HideListeningUI()
-            
             audioPlayer = nil
             PausePlayRecordingLabel.isUserInteractionEnabled = true
             currentActionState = .none
@@ -817,7 +815,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     func pollForAllTranscribingObjectOnLoad() {
-        print("Started polling for toggled transcribing object, count: \(recordingManager.transcribingAudioTranscriptionObjects.count)")
         if recordingManager.transcribingAudioTranscriptionObjects.count >= TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS {
             TranscribeLabel.alpha = disabledAlpha
             TDisplayLabel.alpha = disabledAlpha
@@ -1181,6 +1178,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         Haptic.tap(intensity: 1.0)
         HideAllTutorials()
         showTranscriptionScreen()
+        if currentTutorialStep == .seeTranscription {
+            ShowTutorialStep(step: .send)
+        }
     }
     
     func recordingDuration(for url: URL) async -> TimeInterval {
@@ -1390,28 +1390,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     let disabledAlpha: CGFloat = 0.25
     let enabledAlpha: CGFloat = 1.0
-    func DisableDestinationAndSendButtons() {
-        SendLabel.isEnabled = false
-        SendLabel.alpha = disabledAlpha
-        SendAccessibilityLabel.alpha = 0.2
-        DestinationLabel.isEnabled = false
-        DestinationLabel.alpha = disabledAlpha
-    }
-    
-    func EnableDestinationAndSendButtons() {
-        SendLabel.isEnabled = true
-        SendLabel.alpha = enabledAlpha
-        SendAccessibilityLabel.alpha = enabledAlpha
-        DestinationLabel.isEnabled = true
-        DestinationLabel.alpha = enabledAlpha
-    }
-    
-    func ShowRecordingOrListeningUI() {
+
+    func DisableNonRecOrPlaybackUI() {
         TitleOfAppLabel.alpha = disabledAlpha
         TranscribeLabel.isEnabled = false
         TranscribeLabel.alpha = disabledAlpha
         TDisplayLabel.alpha = disabledAlpha
-        SeeTranscriptionLabel.isEnabled = false
+        SeeTranscriptionLabel.isEnabled = true
         SeeTranscriptionLabel.alpha = disabledAlpha
         TranscribingLabel.alpha = disabledAlpha
         TranscribingLoadingWheel.alpha = disabledAlpha
@@ -1422,14 +1407,24 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PreviousRecordingLabel.alpha = disabledAlpha
         NextRecordingLabel.alpha = disabledAlpha
         RenameFileLabel.alpha = disabledAlpha
+        SendLabel.isEnabled = false
+        SendLabel.alpha = disabledAlpha
+        SendAccessibilityLabel.alpha = 0.2
+        DestinationLabel.isEnabled = false
+        DestinationLabel.alpha = disabledAlpha
+    }
+    
+    func ShowRecordingOrListeningUI() {
         RecordLabel.isHidden = true
         StopButtonLabel.isHidden = false
         PausePlayRecordingLabel.isHidden = false
         
-        DisableDestinationAndSendButtons()
+        DisableNonRecOrPlaybackUI()
     }
     
-    func HideRecordingOrListeningUI() {
+    func EnableNonRecOrPlaybackUI() {
+        if currentTutorialStep != nil { return }
+        
         TitleOfAppLabel.alpha = enabledAlpha
         TranscribeLabel.isEnabled = true
         if recordingManager.transcribingAudioTranscriptionObjects.count < TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS {
@@ -1447,41 +1442,45 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         PreviousRecordingLabel.alpha = enabledAlpha
         NextRecordingLabel.alpha = enabledAlpha
         RenameFileLabel.alpha = enabledAlpha
+        SendLabel.isEnabled = true
+        SendLabel.alpha = enabledAlpha
+        SendAccessibilityLabel.alpha = enabledAlpha
+        DestinationLabel.isEnabled = true
+        DestinationLabel.alpha = enabledAlpha
+    }
+    
+    func HideRecordingOrListeningUI() {
         RecordLabel.isHidden = false
         StopButtonLabel.isHidden = true
         PausePlayRecordingLabel.isHidden = true
         
-        EnableDestinationAndSendButtons()
+        EnableNonRecOrPlaybackUI()
     }
     
     func ShowRecordingInProgressUI() {
-        RecordLabel.isHidden = true
+        ShowRecordingOrListeningUI()
         FileNameLabel.alpha = disabledAlpha
         RecordingStopwatch.isHidden = false
-        ShowRecordingOrListeningUI()
     }
     
     func HideRecordingInProgressUI() {
-        RecordLabel.isHidden = false
+        HideRecordingOrListeningUI()
         FileNameLabel.alpha = enabledAlpha
         RecordingStopwatch.isHidden = true
-        HideRecordingOrListeningUI()
     }
     
     func ShowListeningUI() {
+        ShowRecordingOrListeningUI()
         ListenLabel.isHidden = true
         PlaybackStopwatch.isHidden = false
-        RecordLabel.isEnabled = false
         PlaybackSlider.isHidden = false
-        ShowRecordingOrListeningUI()
     }
     
     func HideListeningUI() {
+        HideRecordingOrListeningUI()
         ListenLabel.isHidden = false
         PlaybackStopwatch.isHidden = true
-        RecordLabel.isEnabled = true
         PlaybackSlider.isHidden = true
-        HideRecordingOrListeningUI()
     }
 
     private func paddedSymbol(_ name: String, pad: CGFloat = 2) -> UIImage? {
@@ -1595,24 +1594,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         RecordLabel.alpha = disabledAlpha
         ListenLabel.isEnabled = false
         ListenLabel.alpha = disabledAlpha
-        TitleOfAppLabel.alpha = disabledAlpha
         FileNameLabel.alpha = disabledAlpha
-        TranscribeLabel.isEnabled = false
-        TranscribeLabel.alpha = disabledAlpha
-        TDisplayLabel.alpha = disabledAlpha
-        SeeTranscriptionLabel.isEnabled = false
-        SeeTranscriptionLabel.alpha = disabledAlpha
-        TranscribingLabel.alpha = disabledAlpha
-        TranscribingLoadingWheel.alpha = disabledAlpha
-        TranscriptionEstimateLabel.alpha = disabledAlpha
-        PreviousRecordingLabel.isEnabled = false
-        PreviousRecordingLabel.alpha = disabledAlpha
-        NextRecordingLabel.isEnabled = false
-        NextRecordingLabel.alpha = disabledAlpha
-        RenameFileLabel.isEnabled = false
-        RenameFileLabel.alpha = disabledAlpha
         
-        DisableDestinationAndSendButtons()
+        DisableNonRecOrPlaybackUI()
     }
     
     func EnableUI() {
@@ -1620,28 +1604,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         RecordLabel.alpha = enabledAlpha
         ListenLabel.isEnabled = true
         ListenLabel.alpha = enabledAlpha
-        TitleOfAppLabel.alpha = enabledAlpha
         FileNameLabel.alpha = enabledAlpha
         
-        TranscribeLabel.isEnabled = true
-        if recordingManager.transcribingAudioTranscriptionObjects.count < TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS {
-            TranscribeLabel.alpha = enabledAlpha
-            TDisplayLabel.alpha = enabledAlpha
-        }
-        SeeTranscriptionLabel.isEnabled = true
-        SeeTranscriptionLabel.alpha = enabledAlpha
-        TranscribingLabel.alpha = enabledAlpha
-        TDisplayLabel.alpha = enabledAlpha
-        TranscribingLoadingWheel.alpha = enabledAlpha
-        TranscriptionEstimateLabel.alpha = enabledAlpha
-        PreviousRecordingLabel.isEnabled = true
-        PreviousRecordingLabel.alpha = enabledAlpha
-        NextRecordingLabel.isEnabled = true
-        NextRecordingLabel.alpha = enabledAlpha
-        RenameFileLabel.isEnabled = true
-        RenameFileLabel.alpha = enabledAlpha
-        
-        EnableDestinationAndSendButtons()
+        EnableNonRecOrPlaybackUI()
     }
     
     func NoRecordingsUI() {
