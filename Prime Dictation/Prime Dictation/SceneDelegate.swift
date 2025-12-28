@@ -1,29 +1,39 @@
 import UIKit
+import GoogleSignIn
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
-    func scene(_ scene: UIScene,
-               willConnectTo session: UISceneSession,
-               options connectionOptions: UIScene.ConnectionOptions) {
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        guard let ctx = URLContexts.first else { return }
+        let url = ctx.url
 
-        // Make sure we have a UIWindowScene
-        guard let windowScene = scene as? UIWindowScene else { return }
+        // Convert scene options -> UIApplication-style options for your existing handler
+        var options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+        if let sourceApp = ctx.options.sourceApplication {
+            options[.sourceApplication] = sourceApp
+        }
+        if let annotation = ctx.options.annotation {
+            options[.annotation] = annotation
+        }
 
-        // Create a new window for this scene
-        let window = UIWindow(windowScene: windowScene)
+        let scheme = (url.scheme ?? "").lowercased()
 
-        // Load your "Main" storyboard
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if scheme.hasPrefix("com.googleusercontent.apps") {
+            _ = GIDSignIn.sharedInstance.handle(url)
+            return
+        }
 
-        // Instantiate the initial view controller from Main.storyboard
-        let rootVC = storyboard.instantiateInitialViewController()!
+        if scheme.hasPrefix("msauth") {
+            _ = AppServices.shared.oneDriveManager.handleRedirect(url: url, options: options)
+            return
+        }
 
-        // Hook it all up
-        window.rootViewController = rootVC
-        self.window = window
-        window.makeKeyAndVisible()
+        if scheme.hasPrefix("db-") {
+            _ = AppServices.shared.dropboxManager.handleRedirect(url: url)
+            return
+        }
     }
 
     // The other scene lifecycle methods can stay empty if you don’t need them

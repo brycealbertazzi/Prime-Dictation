@@ -126,6 +126,7 @@ final class OneDriveManager {
         let account: MSALAccount? = signedInAccount ?? (try? app.allAccounts().first)
 
         if let account {
+            print("One drive account: \(account)")
             let silent = MSALSilentTokenParameters(scopes: scopes, account: account)
             app.acquireTokenSilent(with: silent) { [weak self] result, error in
                 guard let self = self else { return }
@@ -194,6 +195,7 @@ final class OneDriveManager {
                     // User explicitly canceled the Microsoft sign-in flow.
                     completion(.cancel)
                 } else {
+                    print("OneDrive sign in error: \(error)")
                     ProgressHUD.failed("Unable to sign into OneDrive. Please try again later.")
                     completion(.error(error))
                 }
