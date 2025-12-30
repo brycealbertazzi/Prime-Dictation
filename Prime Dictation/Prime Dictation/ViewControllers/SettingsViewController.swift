@@ -215,12 +215,22 @@ class SettingsViewController: UIViewController {
         button.color = color
     }
     
-    func UpdateSelectedDestinationUI(destination: Destination? = Destination.none) {
-        let selectedColor: UIColor = PDColors.blue
-        let graphite: UIColor = PDColors.black
+    func EnableSelectFolderIcon() {
         SelectFolderIcon.isEnabled = true
         SelectFolderIcon.alpha = 1.0
         DestinationDisplayLabel.isHidden = false
+    }
+    
+    func DisableSelectFolderIcon() {
+        SelectFolderIcon.isEnabled = false
+        SelectFolderIcon.alpha = 0.2
+        DestinationDisplayLabel.isHidden = true
+    }
+    
+    func UpdateSelectedDestinationUI(destination: Destination? = Destination.none) {
+        let selectedColor: UIColor = PDColors.blue
+        let graphite: UIColor = PDColors.black
+        EnableSelectFolderIcon()
 
         UpdateButton(button: DropboxLabel, color: graphite)
         UpdateButton(button: OneDriveLabel, color: graphite)
@@ -239,11 +249,9 @@ class SettingsViewController: UIViewController {
             DestinationDisplayLabel.text = "Choose G Drive Folder"
         case .email: // No need for the nested if check
             UpdateButton(button: EmailLabel, color: selectedColor)
-            SelectFolderIcon.alpha = 0.2
-            DestinationDisplayLabel.isHidden = true
+            DisableSelectFolderIcon()
         case .none?: // Handles the nil case directly
-            SelectFolderIcon.isEnabled = false
-            SelectFolderIcon.alpha = 0.2
+            DisableSelectFolderIcon()
         default:
             break
         }

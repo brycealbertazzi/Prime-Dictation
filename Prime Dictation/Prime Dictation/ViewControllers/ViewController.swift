@@ -1246,8 +1246,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     }
     
     @IBAction func SendButtonTouchDragExit(_ sender: Any) {
-        SendAccessibilityLabel.alpha = 1.0
-        SendLabel.alpha = 1.0
+        SendAccessibilityLabel.alpha = enabledAlpha
+        SendLabel.alpha = enabledAlpha
     }
     
     @IBAction func SendButton(_ sender: Any) {
@@ -1406,7 +1406,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         RenameFileLabel.alpha = disabledAlpha
         SendLabel.isEnabled = false
         SendLabel.alpha = disabledAlpha
-        SendAccessibilityLabel.alpha = 0.2
+        SendAccessibilityLabel.alpha = disabledAlpha
         DestinationLabel.isEnabled = false
         DestinationLabel.alpha = disabledAlpha
     }
@@ -1611,7 +1611,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         FileNameLabel.isHidden = true
         SendLabel.isEnabled = false
         SendLabel.alpha = disabledAlpha
-        SendAccessibilityLabel.alpha = 0.3
+        SendAccessibilityLabel.alpha = disabledAlpha
         PreviousRecordingLabel.isHidden = true
         NextRecordingLabel.isHidden = true
         TranscribeLabel.isHidden = true
@@ -1708,7 +1708,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             SendTutorialLabel.isHidden = false
             SendLabel.isEnabled = true
             SendLabel.alpha = enabledAlpha
-            SendAccessibilityLabel.isEnabled = true
             SendAccessibilityLabel.alpha = enabledAlpha
             startAlphaOscillation(on: SendTutorialLabel)
             break
