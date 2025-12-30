@@ -70,7 +70,7 @@ class TranscriptionViewController: UIViewController {
         transcriptionManager = services.transcriptionManager
         
         
-        TranscriptionTextBox.text = transcriptText
+        TranscriptionTextBox.text = transcriptionManager.toggledTranscriptText
         loadUserDefaultFontSettings()
         applyFontAndLineSpacing()
         
@@ -110,7 +110,6 @@ class TranscriptionViewController: UIViewController {
             )
             selectedFontChoice = fontSettings.choice
             selectedFontSize = CGFloat(fontSettings.size)
-            print("No saved font settings, using defaults: \(selectedFontChoice.title), \(TranscriptionViewController.DEFAULT_TEXT_SIZE)")
         }
     }
     
@@ -295,6 +294,7 @@ class TranscriptionViewController: UIViewController {
             recordingURL: self.recordingManager.toggledRecordingURL,
             objectUUID: self.recordingManager.toggledAudioTranscriptionObject.uuid
         )
+        transcriptionManager.readToggledTextFileAndSetInAudioTranscriptObject()
     }
     
     // MARK: - Keyboard handling

@@ -1004,7 +1004,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         if (recordingManager.transcribingAudioTranscriptionObjects.count >= TranscriptionManager.MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS) {
             displayAlert(
                 title: "Transcription in Progress",
-                message: "Another recording is being transcribed. Please wait until it finishes."
+                message: "You have reached the maximum number of concurrent transcriptions."
             )
             return
         }
@@ -1209,9 +1209,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         let vc = storyboard!.instantiateViewController(
             withIdentifier: "TranscriptionViewController"
         ) as! TranscriptionViewController
-
-        // 2) pass the transcript, if you want
-        vc.transcriptText = recordingManager.toggledAudioTranscriptionObject.transcriptionText
 
         vc.modalPresentationStyle = .fullScreen
         present(vc, animated: true)

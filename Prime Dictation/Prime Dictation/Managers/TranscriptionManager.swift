@@ -17,7 +17,7 @@ class TranscriptionManager {
     let GCBucketURL = Bundle.main.object(forInfoDictionaryKey: "GC_BUCKET_URL") as? String
     
     var toggledTranscriptText: String? = nil
-    static let MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS: Int = 1
+    static let MAX_ALLOWED_CONCURRENT_TRANSCRIPTIONS: Int = 3
     
     init () {}
     
@@ -176,10 +176,8 @@ class TranscriptionManager {
     }
     
     func readToggledTextFileAndSetInAudioTranscriptObject() {
-        if (recordingManager.toggledAudioTranscriptionObject.transcriptionText != nil) {
-            return
-        }
         let toggledTranscriptFilePath = recordingManager.GetDirectory().appendingPathComponent(recordingManager.toggledAudioTranscriptionObject.uuid.uuidString).appendingPathExtension(recordingManager.transcriptionRecordingExtension)
+        
         if (!FileManager.default.fileExists(atPath: toggledTranscriptFilePath.path)) { return }
         
         let toggledText: String? = try? String(contentsOf: toggledTranscriptFilePath, encoding: .utf8)

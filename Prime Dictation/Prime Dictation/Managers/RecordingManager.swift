@@ -94,6 +94,7 @@ class RecordingManager {
                 if oldestRecording.isTranscribing {
                     viewController.removeFromTranscribingObjectsAtUUID(uuid: oldestRecording.uuid)
                     viewController.TranscribeLabel.alpha = viewController.enabledAlpha
+                    viewController.TDisplayLabel.alpha = viewController.enabledAlpha
                 }
             } catch {
                 print("UNABLE TO DETETE THE FILE OF AN OLDEST RECORDING IN QUEUE!!!!")
@@ -131,6 +132,7 @@ class RecordingManager {
             viewController.removeFromTranscribingObjectsAtUUID(uuid: processedObject.uuid)
             if viewController.currentActionState == .none {
                 viewController.TranscribeLabel.alpha = viewController.enabledAlpha
+                viewController.TDisplayLabel.alpha = viewController.enabledAlpha
             }
         }
     }
