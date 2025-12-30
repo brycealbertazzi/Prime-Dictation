@@ -5,7 +5,6 @@ import ProgressHUD
 class TranscriptionViewController: UIViewController {
     var recordingManager: RecordingManager!
     var transcriptionManager: TranscriptionManager!
-    var transcriptText: String?
     
     @IBOutlet weak var TranscriptionTextBox: UITextView!
     
