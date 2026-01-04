@@ -162,6 +162,7 @@ class TranscriptionManager {
                 recordingManager.toggledAudioTranscriptionObject.isTranscribing = false
                 recordingManager.toggledAudioTranscriptionObject.transcriptionText = transcriptionText
                 recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView = true
+                toggledTranscriptText = transcriptionText
             }
             
             savedIndex = index
@@ -170,7 +171,6 @@ class TranscriptionManager {
         recordingManager.saveAudioTranscriptionObjectsToUserDefaults()
         
         if let savedIndex {
-            toggledTranscriptText = transcriptionText
             recordingManager.savedAudioTranscriptionObjects[savedIndex].transcriptionText = transcriptionText // Set the transcription text locally here, after saving to userDefaults
         }
     }
