@@ -986,10 +986,10 @@
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                             </imageView>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" showsHorizontalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jm5-zJ-FRg">
-                                <rect key="frame" x="0.0" y="20" width="414" height="648"/>
+                                <rect key="frame" x="0.0" y="20" width="414" height="647.99999999999977"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="Sso-x8-5Py">
-                                        <rect key="frame" x="16" y="0.0" width="350" height="995.66666666666663"/>
+                                        <rect key="frame" x="16" y="0.0" width="350" height="1145.6666666666667"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KA7-68-mkv" userLabel="LTD Container">
                                                 <rect key="frame" x="0.0" y="0.0" width="350" height="180"/>
@@ -1227,6 +1227,12 @@
                                                     <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4lH-46-Ppn" userLabel="Info">
                                                         <rect key="frame" x="5" y="47" width="340" height="173"/>
                                                         <subviews>
+                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$4.99/month" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QCZ-mZ-x87" userLabel="Price">
+                                                                <rect key="frame" x="108" y="0.0" width="124.33333333333331" height="24"/>
+                                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
+                                                                <nil key="textColor"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
                                                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="or4-Z0-zqe" userLabel="Benefit Lines">
                                                                 <rect key="frame" x="0.0" y="27" width="340" height="143"/>
                                                                 <subviews>
@@ -1266,12 +1272,6 @@
                                                                     <constraint firstItem="Qrg-t5-6hf" firstAttribute="centerY" secondItem="or4-Z0-zqe" secondAttribute="centerY" constant="40" id="k28-zu-X1q"/>
                                                                 </constraints>
                                                             </view>
-                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$4.99/month" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QCZ-mZ-x87" userLabel="Price">
-                                                                <rect key="frame" x="108" y="0.0" width="124.33333333333331" height="24"/>
-                                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
-                                                                <nil key="textColor"/>
-                                                                <nil key="highlightedColor"/>
-                                                            </label>
                                                         </subviews>
                                                         <constraints>
                                                             <constraint firstItem="QCZ-mZ-x87" firstAttribute="top" secondItem="4lH-46-Ppn" secondAttribute="top" id="ADs-ol-ych"/>
@@ -1378,38 +1378,80 @@
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="117-xJ-LpM" userLabel="Disclaimer">
-                                                <rect key="frame" x="0.0" y="935.66666666666663" width="350" height="60"/>
+                                                <rect key="frame" x="0.0" y="935.66666666666663" width="350" height="149.99999999999989"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Change or cancel your subscription anytime in Settings." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="97U-jv-Sjj" userLabel="Disclaimer Text">
-                                                        <rect key="frame" x="17.333333333333343" y="0.0" width="315.66666666666663" height="14.333333333333334"/>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Prime Dictation" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="97U-jv-Sjj" userLabel="Title of Publication">
+                                                        <rect key="frame" x="131.66666666666666" y="0.0" width="87" height="14.333333333333334"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                                         <color key="textColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eoa-ef-8gy">
-                                                        <rect key="frame" x="85" y="19.333333333333371" width="180" height="40"/>
-                                                        <constraints>
-                                                            <constraint firstAttribute="width" constant="180" id="CzR-Bx-IUu"/>
-                                                            <constraint firstAttribute="height" constant="40" id="DDT-S2-ShP"/>
-                                                        </constraints>
-                                                        <color key="tintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Change or cancel your subscription anytime in Settings." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="38g-g0-HlH" userLabel="Cancel Disclaimer">
+                                                        <rect key="frame" x="17.333333333333343" y="34.333333333333371" width="315.66666666666663" height="14.333333333333336"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                                        <color key="textColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hVK-7i-isE" userLabel="ToS">
+                                                        <rect key="frame" x="203" y="119.00000000000011" width="64" height="31"/>
+                                                        <color key="tintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="calibratedRGB"/>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="plain" title="Restore Purchases">
+                                                        <buttonConfiguration key="configuration" style="plain" title="Terms">
                                                             <fontDescription key="titleFontDescription" type="system" pointSize="14"/>
                                                         </buttonConfiguration>
                                                         <connections>
-                                                            <action selector="RestorePurchasesButtonPressed:" destination="mlS-rq-HyH" eventType="touchUpInside" id="Ztu-y4-BmF"/>
+                                                            <action selector="ToSButtonPressed:" destination="mlS-rq-HyH" eventType="touchUpInside" id="6vB-wb-gHU"/>
                                                         </connections>
                                                     </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tiz-1R-ZRx" userLabel="Privacy">
+                                                        <rect key="frame" x="79.333333333333343" y="119.00000000000011" width="71.333333333333343" height="31"/>
+                                                        <color key="tintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="calibratedRGB"/>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="plain" title="Privacy">
+                                                            <fontDescription key="titleFontDescription" type="system" pointSize="14"/>
+                                                        </buttonConfiguration>
+                                                        <connections>
+                                                            <action selector="PrivacyButtonPressed:" destination="mlS-rq-HyH" eventType="touchUpInside" id="uEX-NN-qfZ"/>
+                                                        </connections>
+                                                    </button>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Some subscriptions auto renew unless canceled at least 24 hours before the end of the current period." textAlignment="center" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="f44-8u-Pxf" userLabel="Auto Renew Disclaimer">
+                                                        <rect key="frame" x="10" y="68.666666666666629" width="330" height="28.666666666666671"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                                        <color key="textColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
                                                 </subviews>
                                                 <constraints>
-                                                    <constraint firstItem="97U-jv-Sjj" firstAttribute="centerX" secondItem="117-xJ-LpM" secondAttribute="centerX" id="H9R-Vy-x6S"/>
-                                                    <constraint firstItem="eoa-ef-8gy" firstAttribute="top" secondItem="97U-jv-Sjj" secondAttribute="bottom" constant="5" id="Jvz-1l-GNT"/>
-                                                    <constraint firstItem="eoa-ef-8gy" firstAttribute="centerX" secondItem="117-xJ-LpM" secondAttribute="centerX" id="O6c-TA-q7g"/>
-                                                    <constraint firstAttribute="height" constant="60" id="b1d-x8-8dA"/>
-                                                    <constraint firstItem="97U-jv-Sjj" firstAttribute="top" secondItem="117-xJ-LpM" secondAttribute="top" id="mIF-3V-yZZ"/>
+                                                    <constraint firstItem="38g-g0-HlH" firstAttribute="centerX" secondItem="117-xJ-LpM" secondAttribute="centerX" id="6U9-hK-Epb"/>
+                                                    <constraint firstItem="38g-g0-HlH" firstAttribute="top" secondItem="97U-jv-Sjj" secondAttribute="bottom" constant="20" id="9uc-vl-7cV"/>
+                                                    <constraint firstItem="f44-8u-Pxf" firstAttribute="top" secondItem="38g-g0-HlH" secondAttribute="bottom" constant="20" id="CN7-6q-mv8"/>
+                                                    <constraint firstAttribute="bottom" secondItem="hVK-7i-isE" secondAttribute="bottom" id="GRd-2z-rmM"/>
+                                                    <constraint firstItem="tiz-1R-ZRx" firstAttribute="centerX" secondItem="117-xJ-LpM" secondAttribute="centerX" constant="-60" id="N6D-5f-Hp1"/>
+                                                    <constraint firstAttribute="trailing" secondItem="f44-8u-Pxf" secondAttribute="trailing" constant="10" id="VeZ-wF-MEb"/>
+                                                    <constraint firstItem="f44-8u-Pxf" firstAttribute="centerX" secondItem="117-xJ-LpM" secondAttribute="centerX" id="XoG-i9-RhH"/>
+                                                    <constraint firstAttribute="height" constant="150" id="b1d-x8-8dA"/>
+                                                    <constraint firstItem="97U-jv-Sjj" firstAttribute="top" secondItem="117-xJ-LpM" secondAttribute="top" id="bwv-6p-gxb"/>
+                                                    <constraint firstAttribute="bottom" secondItem="tiz-1R-ZRx" secondAttribute="bottom" id="dAh-5h-apU"/>
+                                                    <constraint firstItem="97U-jv-Sjj" firstAttribute="centerX" secondItem="117-xJ-LpM" secondAttribute="centerX" id="eMw-oF-1ZF"/>
+                                                    <constraint firstItem="f44-8u-Pxf" firstAttribute="leading" secondItem="117-xJ-LpM" secondAttribute="leading" constant="10" id="lwx-ra-wod"/>
+                                                    <constraint firstItem="hVK-7i-isE" firstAttribute="centerX" secondItem="117-xJ-LpM" secondAttribute="centerX" constant="60" id="xwA-kP-6cE"/>
                                                 </constraints>
                                             </view>
+                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eoa-ef-8gy">
+                                                <rect key="frame" x="0.0" y="1105.6666666666667" width="350" height="40"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="180" id="CzR-Bx-IUu"/>
+                                                    <constraint firstAttribute="height" constant="40" id="DDT-S2-ShP"/>
+                                                </constraints>
+                                                <color key="tintColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="plain" title="Restore Purchases">
+                                                    <fontDescription key="titleFontDescription" type="system" pointSize="14"/>
+                                                </buttonConfiguration>
+                                                <connections>
+                                                    <action selector="RestorePurchasesButtonPressed:" destination="mlS-rq-HyH" eventType="touchUpInside" id="Ztu-y4-BmF"/>
+                                                </connections>
+                                            </button>
                                         </subviews>
                                     </stackView>
                                 </subviews>
@@ -1507,10 +1549,12 @@
                         <outlet property="ContinueButton" destination="cCu-7I-yJE" id="tkp-dd-n2d"/>
                         <outlet property="LTDView" destination="Ozw-hj-7It" id="jcq-Hl-CWU"/>
                         <outlet property="MonthlyView" destination="5Ub-Hi-gjH" id="1nt-Ny-pBg"/>
+                        <outlet property="PrivacyButton" destination="tiz-1R-ZRx" id="CYw-R9-F8G"/>
                         <outlet property="RestorePurchasesButton" destination="eoa-ef-8gy" id="fZJ-FP-rOk"/>
                         <outlet property="ScrollView" destination="Jm5-zJ-FRg" id="4Es-Dd-Ghg"/>
                         <outlet property="StackView" destination="Sso-x8-5Py" id="l2A-GJ-yjj"/>
                         <outlet property="StandardView" destination="rqt-eA-yUf" id="Gfc-wL-Zs3"/>
+                        <outlet property="TermsOfServiceButton" destination="hVK-7i-isE" id="IMR-3s-TrQ"/>
                         <outlet property="annualBadgeLabel" destination="4La-Ls-TcN" id="MNH-mn-pT1"/>
                         <outlet property="annualContainerView" destination="3bM-ei-gjn" id="a7u-mO-YaG"/>
                         <outlet property="ltdBadgeLabel" destination="z5p-w0-mPR" id="srG-lQ-WL4"/>
@@ -1544,10 +1588,10 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemBlueColor">
-            <color red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.53333333333333333" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="tintColor">
-            <color red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.53333333333333333" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

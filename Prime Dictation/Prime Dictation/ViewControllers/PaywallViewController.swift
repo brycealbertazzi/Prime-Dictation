@@ -10,6 +10,7 @@ import UIKit
 import AVFoundation
 import ProgressHUD
 import StoreKit
+import SafariServices
 
 class PaywallViewController: UIViewController {
     
@@ -18,6 +19,9 @@ class PaywallViewController: UIViewController {
     @IBOutlet weak var StackView: UIStackView!
     @IBOutlet weak var ContinueButton: RoundedButton!
     @IBOutlet weak var RestorePurchasesButton: UIButton!
+    
+    @IBOutlet weak var TermsOfServiceButton: UIButton!
+    @IBOutlet weak var PrivacyButton: UIButton!
     
     @IBOutlet weak var LTDView: PlanCardView!
     @IBOutlet weak var AnnualView: PlanCardView!
@@ -79,7 +83,9 @@ class PaywallViewController: UIViewController {
         configureCards()
         preselectPlan()
         
-        setResorePurchasesButtonStyling()
+        setStylingForLinks(title: "Restore Purchases", button: RestorePurchasesButton)
+        setStylingForLinks(title: "Terms", button: TermsOfServiceButton)
+        setStylingForLinks(title: "Privacy", button: PrivacyButton)
     }
     
     override func viewDidLayoutSubviews() {
@@ -92,8 +98,7 @@ class PaywallViewController: UIViewController {
 
     // MARK: - Setup
     
-    private func setResorePurchasesButtonStyling() {
-        let title = "Restore Purchases"
+    private func setStylingForLinks(title: String, button: UIButton) {
 
         let normal = NSAttributedString(
             string: title,
@@ -113,8 +118,8 @@ class PaywallViewController: UIViewController {
             ]
         )
 
-        RestorePurchasesButton.setAttributedTitle(normal, for: .normal)
-        RestorePurchasesButton.setAttributedTitle(highlighted, for: .highlighted)
+        button.setAttributedTitle(normal, for: .normal)
+        button.setAttributedTitle(highlighted, for: .highlighted)
     }
 
     private func configureCards() {
@@ -312,6 +317,26 @@ class PaywallViewController: UIViewController {
     @IBAction func BackButtonPressed(_ sender: Any) {
         Haptic.tap(intensity: 0.7)
         dismiss(animated: true)
+    }
+    
+    @IBAction func ToSButtonPressed(_ sender: Any) {
+        guard let url = URL(string: "https://terms.primedictation.com") else {
+            return
+        }
+
+        let safariVC = SFSafariViewController(url: url)
+        safariVC.modalPresentationStyle = .pageSheet
+        present(safariVC, animated: true)
+    }
+    
+    @IBAction func PrivacyButtonPressed(_ sender: Any) {
+        guard let url = URL(string: "https://privacy.primedictation.com") else {
+            return
+        }
+
+        let safariVC = SFSafariViewController(url: url)
+        safariVC.modalPresentationStyle = .pageSheet
+        present(safariVC, animated: true)
     }
     
     @IBAction func RestorePurchasesButtonPressed(_ sender: Any) {
