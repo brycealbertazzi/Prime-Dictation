@@ -320,7 +320,7 @@ class PaywallViewController: UIViewController {
     }
     
     @IBAction func ToSButtonPressed(_ sender: Any) {
-        guard let url = URL(string: "https://terms.primedictation.com") else {
+        guard let url = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula") else {
             return
         }
 
