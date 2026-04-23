@@ -179,9 +179,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
        
         recordingManager.SetSavedRecordingsOnLoad()
         HideAllTutorials()
-        if let currentTutorialStep {
-            ShowTutorialStep(step: currentTutorialStep)
-        }
+//        if let currentTutorialStep {
+//            ShowTutorialStep(step: currentTutorialStep)
+//        }
         
         NotificationCenter.default.addObserver(
             self,
@@ -219,9 +219,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         super.viewDidAppear(animated)
         Haptic.prepare()
         handleTranscriptionCompletionFromBackgroundOrNavigationStack()
-        if currentTutorialStep == .selectDestination && DestinationManager.SELECTED_DESTINATION != .none {
-            ShowTutorialStep(step: .transcribe)
-        }
+//        if currentTutorialStep == .selectDestination && DestinationManager.SELECTED_DESTINATION != .none {
+//            ShowTutorialStep(step: .transcribe)
+//        }
     }
     
     func handleTranscriptionCompletionFromBackgroundOrNavigationStack() {
@@ -238,6 +238,8 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
     
     func loadAccessibilityText() {
         switch DestinationManager.SELECTED_DESTINATION {
+        case .odriveanddropbox:
+            SendAccessibilityLabel.text = "Send to OD + DB"
         case .dropbox:
             SendAccessibilityLabel.text = "Send to Dropbox"
         case .onedrive:
@@ -643,9 +645,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 result: .failure
             )
         }
-        if currentTutorialStep == .record {
-            self.ShowTutorialStep(step: .listen)
-        }
+//        if currentTutorialStep == .record {
+//            self.ShowTutorialStep(step: .listen)
+//        }
     }
     
     //MARK: Pause-Resume-End Recordings and Playbacks:
@@ -775,9 +777,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
             if (recordingManager.toggledAudioTranscriptionObject.completedBeforeLastView) {
                 unsetCompletedTranscriptionBeforeLastViewForToggled()
             }
-            if (currentTutorialStep == .listen) {
-                ShowTutorialStep(step: .selectDestination)
-            }
+//            if (currentTutorialStep == .listen) {
+//                ShowTutorialStep(step: .selectDestination)
+//            }
         }
     }
     
@@ -1178,9 +1180,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         Haptic.tap(intensity: 1.0)
         HideAllTutorials()
         showTranscriptionScreen()
-        if currentTutorialStep == .seeTranscription {
-            ShowTutorialStep(step: .send)
-        }
+//        if currentTutorialStep == .seeTranscription {
+//            ShowTutorialStep(step: .send)
+//        }
     }
     
     func recordingDuration(for url: URL) async -> TimeInterval {
@@ -1256,12 +1258,15 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         if recordingManager.savedAudioTranscriptionObjects.count > 0 {
             let toggledHasTranscription: Bool = recordingManager.toggledAudioTranscriptionObject.hasTranscription
             switch DestinationManager.SELECTED_DESTINATION {
+            case Destination.odriveanddropbox:
+                currentActionState = .sending
+                self.oneDriveManager.SendToOneDrive(hasTranscription: toggledHasTranscription, andDropbox: true)
             case Destination.dropbox:
                 currentActionState = .sending
                 dropboxManager.SendToDropbox(hasTranscription: toggledHasTranscription)
             case Destination.onedrive:
                 currentActionState = .sending
-                oneDriveManager.SendToOneDrive(hasTranscription: toggledHasTranscription)
+                oneDriveManager.SendToOneDrive(hasTranscription: toggledHasTranscription, andDropbox: false)
             case Destination.googledrive:
                 currentActionState = .sending
                 googleDriveManager.SendToGoogleDrive(hasTranscription: toggledHasTranscription)
@@ -1581,9 +1586,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
                 NoTranscriptionUI()
             }
         }
-        if currentTutorialStep == .transcribe {
-            ShowTutorialStep(step: .seeTranscription)
-        }
+//        if currentTutorialStep == .transcribe {
+//            ShowTutorialStep(step: .seeTranscription)
+//        }
     }
     
     func DisableUI() {
@@ -1619,7 +1624,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         SeeTranscriptionLabel.isHidden = true
         RenameFileLabel.isHidden = true
         
-        ShowTutorialStep(step: .record)
+//        ShowTutorialStep(step: .record)
     }
     
     func HasRecordingsUI(numberOfRecordings: Int) {
@@ -1659,60 +1664,60 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, UIApplicationDe
         SendTutorialLabel.isHidden = true
     }
 
-    func ShowTutorialStep(step: Tutorial) {
-        DisableUI()
-        switch step {
-        case .record:
-            currentTutorialStep = .record
-            RecordTutorialLabel.isHidden = false
-            RecordLabel.isEnabled = true
-            RecordLabel.alpha = enabledAlpha
-            startAlphaOscillation(on: RecordTutorialLabel)
-            break
-        case .listen:
-            currentTutorialStep = .listen
-            ListenTutorialLabel.isHidden = false
-            ListenLabel.isEnabled = true
-            ListenLabel.alpha = enabledAlpha
-            startAlphaOscillation(on: ListenTutorialLabel)
-            break
-        case .selectDestination:
-            currentTutorialStep = .selectDestination
-            DestinationTutorialLabel.isHidden = false
-            DestinationLabel.isEnabled = true
-            DestinationLabel.alpha = enabledAlpha
-            startAlphaOscillation(on: DestinationTutorialLabel)
-            break
-        case .transcribe:
-            currentTutorialStep = .transcribe
-            TranscribeTutorialLabel.isHidden = false
-            TranscribeTutorialLabel.text = "Transcribe the recording"
-            TranscribeLabel.isEnabled = true
-            TranscribeLabel.alpha = enabledAlpha
-            TDisplayLabel.alpha = enabledAlpha
-            TranscribingLabel.alpha = enabledAlpha
-            TranscribingLoadingWheel.alpha = enabledAlpha
-            TranscriptionEstimateLabel.alpha = enabledAlpha
-            startAlphaOscillation(on: TranscribeTutorialLabel)
-            break
-        case .seeTranscription:
-            currentTutorialStep = .seeTranscription
-            TranscribeTutorialLabel.isHidden = false
-            TranscribeTutorialLabel.text = "See transcription text for recording"
-            SeeTranscriptionLabel.isEnabled = true
-            SeeTranscriptionLabel.alpha = enabledAlpha
-            startAlphaOscillation(on: TranscribeTutorialLabel)
-            break
-        case .send:
-            currentTutorialStep = .send
-            SendTutorialLabel.isHidden = false
-            SendLabel.isEnabled = true
-            SendLabel.alpha = enabledAlpha
-            SendAccessibilityLabel.alpha = enabledAlpha
-            startAlphaOscillation(on: SendTutorialLabel)
-            break
-        }
-    }
+//    func ShowTutorialStep(step: Tutorial) {
+//        DisableUI()
+//        switch step {
+//        case .record:
+//            currentTutorialStep = .record
+//            RecordTutorialLabel.isHidden = false
+//            RecordLabel.isEnabled = true
+//            RecordLabel.alpha = enabledAlpha
+//            startAlphaOscillation(on: RecordTutorialLabel)
+//            break
+//        case .listen:
+//            currentTutorialStep = .listen
+//            ListenTutorialLabel.isHidden = false
+//            ListenLabel.isEnabled = true
+//            ListenLabel.alpha = enabledAlpha
+//            startAlphaOscillation(on: ListenTutorialLabel)
+//            break
+//        case .selectDestination:
+//            currentTutorialStep = .selectDestination
+//            DestinationTutorialLabel.isHidden = false
+//            DestinationLabel.isEnabled = true
+//            DestinationLabel.alpha = enabledAlpha
+//            startAlphaOscillation(on: DestinationTutorialLabel)
+//            break
+//        case .transcribe:
+//            currentTutorialStep = .transcribe
+//            TranscribeTutorialLabel.isHidden = false
+//            TranscribeTutorialLabel.text = "Transcribe the recording"
+//            TranscribeLabel.isEnabled = true
+//            TranscribeLabel.alpha = enabledAlpha
+//            TDisplayLabel.alpha = enabledAlpha
+//            TranscribingLabel.alpha = enabledAlpha
+//            TranscribingLoadingWheel.alpha = enabledAlpha
+//            TranscriptionEstimateLabel.alpha = enabledAlpha
+//            startAlphaOscillation(on: TranscribeTutorialLabel)
+//            break
+//        case .seeTranscription:
+//            currentTutorialStep = .seeTranscription
+//            TranscribeTutorialLabel.isHidden = false
+//            TranscribeTutorialLabel.text = "See transcription text for recording"
+//            SeeTranscriptionLabel.isEnabled = true
+//            SeeTranscriptionLabel.alpha = enabledAlpha
+//            startAlphaOscillation(on: TranscribeTutorialLabel)
+//            break
+//        case .send:
+//            currentTutorialStep = .send
+//            SendTutorialLabel.isHidden = false
+//            SendLabel.isEnabled = true
+//            SendLabel.alpha = enabledAlpha
+//            SendAccessibilityLabel.alpha = enabledAlpha
+//            startAlphaOscillation(on: SendTutorialLabel)
+//            break
+//        }
+//    }
 
     // END TUTORIAL UI
 }

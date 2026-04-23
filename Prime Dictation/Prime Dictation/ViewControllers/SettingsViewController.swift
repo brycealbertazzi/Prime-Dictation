@@ -24,6 +24,7 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var StoreIcon: UIButton!
     @IBOutlet weak var EmailLabel: RoundedButton!
     @IBOutlet weak var DestinationDisplayLabel: UILabel!
+    @IBOutlet weak var OneDrivePlusDropboxLabel: RoundedButton!
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .darkContent
@@ -99,6 +100,15 @@ class SettingsViewController: UIViewController {
     }
     
     private let ProgressHUDTransitionDelay = 2.0
+    
+    
+    
+    @IBAction func OneDrivePlusDropboxButton(_ sender: Any) {
+        // TODO - no folder picker open, the button will be disabled until they have signed into Dropbox and OneDrive
+        self.UpdateSelectedDestinationUserDefaults(destination: .odriveanddropbox)
+        self.UpdateSelectedDestinationUI(destination: .odriveanddropbox)
+    }
+    
     @IBAction func DropboxButton(_ sender: Any) {
         Haptic.tap(intensity: 1.0)
         dropboxManager.OpenAuthorizationFlow { result in
@@ -230,26 +240,34 @@ class SettingsViewController: UIViewController {
     func UpdateSelectedDestinationUI(destination: Destination? = Destination.none) {
         let selectedColor: UIColor = PDColors.blue
         let graphite: UIColor = PDColors.black
-        EnableSelectFolderIcon()
-
+        
+        UpdateButton(button: OneDrivePlusDropboxLabel, color: graphite)
         UpdateButton(button: DropboxLabel, color: graphite)
         UpdateButton(button: OneDriveLabel, color: graphite)
         UpdateButton(button: GoogleDriveLabel, color: graphite)
         UpdateButton(button: EmailLabel, color: graphite)
 
         switch destination {
+        case .odriveanddropbox:
+            UpdateButton(button: OneDrivePlusDropboxLabel, color: selectedColor)
+            DestinationDisplayLabel.text = ""
+            DisableSelectFolderIcon()
         case .dropbox:
             UpdateButton(button: DropboxLabel, color: selectedColor)
             DestinationDisplayLabel.text = "Choose Dropbox Folder"
+            EnableSelectFolderIcon()
         case .onedrive:
             UpdateButton(button: OneDriveLabel, color: selectedColor)
             DestinationDisplayLabel.text = "Choose OneDrive Folder"
+            EnableSelectFolderIcon()
         case .googledrive:
             UpdateButton(button: GoogleDriveLabel, color: selectedColor)
             DestinationDisplayLabel.text = "Choose G Drive Folder"
+            EnableSelectFolderIcon()
         case .email: // No need for the nested if check
             UpdateButton(button: EmailLabel, color: selectedColor)
             DisableSelectFolderIcon()
+            EnableSelectFolderIcon()
         case .none?: // Handles the nil case directly
             DisableSelectFolderIcon()
         default:

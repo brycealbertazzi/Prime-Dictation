@@ -314,11 +314,16 @@ final class OneDriveManager {
         return cleaned
     }
 
+    func sendToDropboxAfterOneDrive(hasTranscription: Bool) {
+        self.viewController?.dropboxManager.SendToDropbox(hasTranscription: hasTranscription)
+    }
+    
     // MARK: - Public: upload entry point (uses selected folder or default)
     @MainActor
     func SendToOneDrive(hasTranscription: Bool,
                         preferredFileName: String? = nil,
-                        progress: ((Double) -> Void)? = nil) {
+                        progress: ((Double) -> Void)? = nil,
+                        andDropbox: Bool = false) {
         Task { [weak self] in
             guard let self = self else { return }
             guard let viewController = self.viewController,
@@ -326,7 +331,9 @@ final class OneDriveManager {
 
             ProgressHUD.animate("Sending...", .triangleDotShift)
             viewController.DisableUI()
-            defer { Task { @MainActor in viewController.EnableUI() } }
+            defer {
+                Task { @MainActor in viewController.EnableUI() }
+            }
 
             // Build local file URLs
             let baseName = recordingManager.toggledAudioTranscriptionObject.fileName
@@ -380,6 +387,13 @@ final class OneDriveManager {
                                 type: .send,
                                 result: .success
                             )
+                            if (andDropbox) {
+                                print("Sending to dropbox too")
+                                Task {
+                                    try? await Task.sleep(for: .seconds(1.5))
+                                    viewController.dropboxManager.SendToDropbox(hasTranscription: hasTranscription)
+                                }
+                            }
                         }
                     }
                 } else {
@@ -391,6 +405,9 @@ final class OneDriveManager {
                             type: .send,
                             result: .success
                         )
+                        if (andDropbox) {
+                            viewController.dropboxManager.SendToDropbox(hasTranscription: hasTranscription)
+                        }
                     }
                 }
             } catch {

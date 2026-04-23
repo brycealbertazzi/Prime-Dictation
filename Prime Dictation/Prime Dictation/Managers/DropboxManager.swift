@@ -222,7 +222,7 @@ final class DropboxManager {
         
         var prettyAudioURL: URL? = nil
         var prettyTranscriptURL: URL? = nil
-        
+        print("Sending to Dropbox...")
         // UI
         ProgressHUD.animate("Sending...", .triangleDotShift)
         viewController.DisableUI()
@@ -238,6 +238,7 @@ final class DropboxManager {
                 case .cancel:
                     ProgressHUD.dismiss()
                 case .error, .none:
+                    print("unable to sign into dropbox")
                     ProgressHUD.failed("Unable to sign in to Dropbox. Check your connection and try again.")
                 }
                 viewController.EnableUI()
