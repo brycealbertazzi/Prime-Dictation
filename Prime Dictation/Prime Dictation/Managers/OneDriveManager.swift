@@ -388,7 +388,6 @@ final class OneDriveManager {
                                 result: .success
                             )
                             if (andDropbox) {
-                                print("Sending to dropbox too")
                                 Task {
                                     try? await Task.sleep(for: .seconds(1.5))
                                     viewController.dropboxManager.SendToDropbox(hasTranscription: hasTranscription)
@@ -406,7 +405,10 @@ final class OneDriveManager {
                             result: .success
                         )
                         if (andDropbox) {
-                            viewController.dropboxManager.SendToDropbox(hasTranscription: hasTranscription)
+                            Task {
+                                try? await Task.sleep(for: .seconds(1.5))
+                                viewController.dropboxManager.SendToDropbox(hasTranscription: hasTranscription)
+                            }
                         }
                     }
                 }
