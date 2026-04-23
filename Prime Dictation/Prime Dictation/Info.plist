@@ -18,13 +18,6 @@
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<false/>
-		<key>NSExceptionDomains</key>
-		<dict/>
-	</dict>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -64,6 +57,13 @@
 	<string>a4eee3b8-ebed-40e2-867a-6c613d932803</string>
 	<key>MS_TENANT_DIRECTORY_ID</key>
 	<string>23a30420-283a-42e3-8786-57c7561b919e</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSExceptionDomains</key>
+		<dict/>
+	</dict>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app requires microphone access to record audio files. This allows you to play back your recordings on your device, transcribe them, and export them to destinations like Email, Google Drive, OneDrive, and Dropbox. For example, you can make a recording and send it to your email.</string>
 	<key>PRESIGNED_UPLOAD_AWS_LAMBDA_FUNCTION</key>
@@ -72,10 +72,6 @@
 	<string>https://txtify-pd-sign-486981472809.us-central1.run.app</string>
 	<key>SIGNED_URL_GC_FUNCTION</key>
 	<string>https://get-signed-url-for-gc-bucket-486981472809.us-central1.run.app</string>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen.storyboard</string>
-	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -95,11 +91,10 @@
 			</array>
 		</dict>
 	</dict>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-	</array>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen.storyboard</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
